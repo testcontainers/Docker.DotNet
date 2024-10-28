@@ -135,7 +135,6 @@ namespace Docker.DotNet.Tests
         [Fact]
         public async Task GetContainerLogs_Tty_False_Follow_False_ReadsLogs()
         {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
             var logList = new List<string>();
 
             var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
@@ -154,9 +153,9 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
-            var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
+            await _dockerClient.Containers.GetContainerLogsAsync(
                 createContainerResponse.ID,
                 new ContainerLogsParameters
                 {
@@ -165,7 +164,7 @@ namespace Docker.DotNet.Tests
                     Timestamps = true,
                     Follow = false
                 },
-                containerLogsCts.Token,
+                default,
                 new Progress<string>(m => { logList.Add(m); _output.WriteLine(m); })
             );
 
@@ -175,7 +174,6 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            await containerLogsTask;
             _output.WriteLine($"Line count: {logList.Count}");
 
             Assert.NotEmpty(logList);
@@ -184,7 +182,6 @@ namespace Docker.DotNet.Tests
         [Fact]
         public async Task GetContainerLogs_Tty_True_Follow_False_ReadsLogs()
         {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
             var logList = new List<string>();
 
             var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
@@ -203,9 +200,9 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
-            var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
+            await _dockerClient.Containers.GetContainerLogsAsync(
                 createContainerResponse.ID,
                 new ContainerLogsParameters
                 {
@@ -214,11 +211,9 @@ namespace Docker.DotNet.Tests
                     Timestamps = true,
                     Follow = false
                 },
-                containerLogsCts.Token,
+                default,
                 new Progress<string>(m => { _output.WriteLine(m); logList.Add(m); })
             );
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
 
             await _dockerClient.Containers.StopContainerAsync(
                 createContainerResponse.ID,
@@ -226,7 +221,6 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            await containerLogsTask;
             _output.WriteLine($"Line count: {logList.Count}");
 
             Assert.NotEmpty(logList);
