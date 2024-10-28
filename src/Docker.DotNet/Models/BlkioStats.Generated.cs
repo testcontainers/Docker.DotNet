@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class BlkioStats // (types.BlkioStats)
+    public class BlkioStats // (container.BlkioStats)
     {
         [DataMember(Name = "io_service_bytes_recursive", EmitDefaultValue = false)]
         public IList<BlkioStatEntry> IoServiceBytesRecursive { get; set; }

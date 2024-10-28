@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ThrottlingData // (types.ThrottlingData)
+    public class ThrottlingData // (container.ThrottlingData)
     {
         [DataMember(Name = "periods", EmitDefaultValue = false)]
         public ulong Periods { get; set; }

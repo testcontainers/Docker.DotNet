@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ServiceCreateResponse // (types.ServiceCreateResponse)
+    public class ServiceCreateResponse // (swarm.ServiceCreateResponse)
     {
         [DataMember(Name = "ID", EmitDefaultValue = false)]
         public string ID { get; set; }

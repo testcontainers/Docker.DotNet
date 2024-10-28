@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class PluginsInfo // (types.PluginsInfo)
+    public class PluginsInfo // (system.PluginsInfo)
     {
         [DataMember(Name = "Volume", EmitDefaultValue = false)]
         public IList<string> Volume { get; set; }

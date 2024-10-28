@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class CPUUsage // (types.CPUUsage)
+    public class CPUUsage // (container.CPUUsage)
     {
         [DataMember(Name = "total_usage", EmitDefaultValue = false)]
         public ulong TotalUsage { get; set; }

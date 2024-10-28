@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class NetworksCreateResponse // (types.NetworkCreateResponse)
+    public class NetworksCreateResponse // (network.CreateResponse)
     {
         [DataMember(Name = "Id", EmitDefaultValue = false)]
         public string ID { get; set; }

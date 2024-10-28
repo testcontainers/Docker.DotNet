@@ -58,7 +58,7 @@ namespace Docker.DotNet.Models
         public long? StopGracePeriod { get; set; }
 
         [DataMember(Name = "Healthcheck", EmitDefaultValue = false)]
-        public HealthConfig Healthcheck { get; set; }
+        public HealthcheckConfig Healthcheck { get; set; }
 
         [DataMember(Name = "Hosts", EmitDefaultValue = false)]
         public IList<string> Hosts { get; set; }
@@ -86,5 +86,8 @@ namespace Docker.DotNet.Models
 
         [DataMember(Name = "Ulimits", EmitDefaultValue = false)]
         public IList<Ulimit> Ulimits { get; set; }
+
+        [DataMember(Name = "OomScoreAdj", EmitDefaultValue = false)]
+        public long OomScoreAdj { get; set; }
     }
 }

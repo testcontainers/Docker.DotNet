@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class CPUStats // (types.CPUStats)
+    public class CPUStats // (container.CPUStats)
     {
         [DataMember(Name = "cpu_usage", EmitDefaultValue = false)]
         public CPUUsage CPUUsage { get; set; }

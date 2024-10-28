@@ -4,11 +4,8 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class NetworkCreate // (types.NetworkCreate)
+    public class CreateOptions // (network.CreateOptions)
     {
-        [DataMember(Name = "CheckDuplicate", EmitDefaultValue = false)]
-        public bool CheckDuplicate { get; set; }
-
         [DataMember(Name = "Driver", EmitDefaultValue = false)]
         public string Driver { get; set; }
 
@@ -16,7 +13,7 @@ namespace Docker.DotNet.Models
         public string Scope { get; set; }
 
         [DataMember(Name = "EnableIPv6", EmitDefaultValue = false)]
-        public bool EnableIPv6 { get; set; }
+        public bool? EnableIPv6 { get; set; }
 
         [DataMember(Name = "IPAM", EmitDefaultValue = false)]
         public IPAM IPAM { get; set; }

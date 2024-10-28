@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class NetworkResponse // (types.NetworkResource)
+    public class NetworkResponse // (network.Inspect)
     {
         [DataMember(Name = "Name", EmitDefaultValue = false)]
         public string Name { get; set; }

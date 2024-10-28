@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class NetworkStats // (types.NetworkStats)
+    public class NetworkStats // (container.NetworkStats)
     {
         [DataMember(Name = "rx_bytes", EmitDefaultValue = false)]
         public ulong RxBytes { get; set; }

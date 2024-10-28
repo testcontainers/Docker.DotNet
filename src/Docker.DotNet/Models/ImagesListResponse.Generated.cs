@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ImagesListResponse // (types.ImageSummary)
+    public class ImagesListResponse // (image.Summary)
     {
         [DataMember(Name = "Containers", EmitDefaultValue = false)]
         public long Containers { get; set; }
@@ -21,6 +21,9 @@ namespace Docker.DotNet.Models
 
         [DataMember(Name = "ParentId", EmitDefaultValue = false)]
         public string ParentID { get; set; }
+
+        [DataMember(Name = "Manifests", EmitDefaultValue = false)]
+        public IList<ManifestSummary> Manifests { get; set; }
 
         [DataMember(Name = "RepoDigests", EmitDefaultValue = false)]
         public IList<string> RepoDigests { get; set; }

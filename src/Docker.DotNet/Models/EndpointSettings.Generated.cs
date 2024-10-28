@@ -15,6 +15,12 @@ namespace Docker.DotNet.Models
         [DataMember(Name = "Aliases", EmitDefaultValue = false)]
         public IList<string> Aliases { get; set; }
 
+        [DataMember(Name = "MacAddress", EmitDefaultValue = false)]
+        public string MacAddress { get; set; }
+
+        [DataMember(Name = "DriverOpts", EmitDefaultValue = false)]
+        public IDictionary<string, string> DriverOpts { get; set; }
+
         [DataMember(Name = "NetworkID", EmitDefaultValue = false)]
         public string NetworkID { get; set; }
 
@@ -39,10 +45,7 @@ namespace Docker.DotNet.Models
         [DataMember(Name = "GlobalIPv6PrefixLen", EmitDefaultValue = false)]
         public long GlobalIPv6PrefixLen { get; set; }
 
-        [DataMember(Name = "MacAddress", EmitDefaultValue = false)]
-        public string MacAddress { get; set; }
-
-        [DataMember(Name = "DriverOpts", EmitDefaultValue = false)]
-        public IDictionary<string, string> DriverOpts { get; set; }
+        [DataMember(Name = "DNSNames", EmitDefaultValue = false)]
+        public IList<string> DNSNames { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         public string Hostname { get; set; }
 
         [DataMember(Name = "Platform", EmitDefaultValue = false)]
-        public Platform Platform { get; set; }
+        public SwarmPlatform Platform { get; set; }
 
         [DataMember(Name = "Resources", EmitDefaultValue = false)]
         public SwarmResources Resources { get; set; }

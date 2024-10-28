@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class NetworkAddressPool // (types.NetworkAddressPool)
+    public class NetworkAddressPool // (system.NetworkAddressPool)
     {
         [DataMember(Name = "Base", EmitDefaultValue = false)]
         public string Base { get; set; }

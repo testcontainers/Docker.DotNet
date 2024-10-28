@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class StorageStats // (types.StorageStats)
+    public class StorageStats // (container.StorageStats)
     {
         [DataMember(Name = "read_count_normalized", EmitDefaultValue = false)]
         public ulong ReadCountNormalized { get; set; }

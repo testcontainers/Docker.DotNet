@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ContainerStatsResponse // (types.StatsJSON)
+    public class ContainerStatsResponse // (container.StatsResponse)
     {
         public ContainerStatsResponse()
         {

@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class BlkioStatEntry // (types.BlkioStatEntry)
+    public class BlkioStatEntry // (container.BlkioStatEntry)
     {
         [DataMember(Name = "major", EmitDefaultValue = false)]
         public ulong Major { get; set; }

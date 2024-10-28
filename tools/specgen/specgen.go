@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"reflect"
@@ -18,6 +17,7 @@ import (
 	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/api/types/swarm/runtime"
+	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/pkg/jsonmessage"
 )
@@ -84,6 +84,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(swarm.IPAMConfig{})):            {Name: "SwarmIPAMConfig"},
 	typeToKey(reflect.TypeOf(swarm.JoinRequest{})):           {Name: "SwarmJoinParameters"},
 	typeToKey(reflect.TypeOf(swarm.Limit{})):                 {Name: "SwarmLimit"},
+	typeToKey(reflect.TypeOf(swarm.Platform{})):              {Name: "SwarmPlatform"},
 	typeToKey(reflect.TypeOf(swarm.Node{})):                  {Name: "NodeListResponse"},
 	typeToKey(reflect.TypeOf(swarm.NodeSpec{})):              {Name: "NodeUpdateParameters"},
 	typeToKey(reflect.TypeOf(swarm.Resources{})):             {Name: "SwarmResources"},
@@ -115,17 +116,17 @@ var typesToDisambiguate = map[string]*CSModelType{
 			CSProperty{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.ContainerExecInspect{})): {Name: "ContainerExecInspectResponse"},
-	typeToKey(reflect.TypeOf(types.ContainerJSON{})):        {Name: "ContainerInspectResponse"},
+	typeToKey(reflect.TypeOf(container.ExecInspect{})): {Name: "ContainerExecInspectResponse"},
+	typeToKey(reflect.TypeOf(types.ContainerJSON{})):   {Name: "ContainerInspectResponse"},
 	typeToKey(reflect.TypeOf(types.ContainerJSONBase{})): {
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.ContainerPathStat{})):       {Name: "ContainerPathStatResponse"},
-	typeToKey(reflect.TypeOf(container.ContainerTopOKBody{})):  {Name: "ContainerProcessesResponse"},
-	typeToKey(reflect.TypeOf(types.ContainersPruneReport{})):   {Name: "ContainersPruneResponse"},
-	typeToKey(reflect.TypeOf(types.ImageDeleteResponseItem{})): {Name: "ImageDeleteResponse"},
+	typeToKey(reflect.TypeOf(container.PathStat{})):           {Name: "ContainerPathStatResponse"},
+	typeToKey(reflect.TypeOf(container.ContainerTopOKBody{})): {Name: "ContainerProcessesResponse"},
+	typeToKey(reflect.TypeOf(container.PruneReport{})):        {Name: "ContainersPruneResponse"},
+	typeToKey(reflect.TypeOf(image.DeleteResponse{})):         {Name: "ImageDeleteResponse"},
 	typeToKey(reflect.TypeOf(image.HistoryResponseItem{})): {
 		Name: "ImageHistoryResponse",
 		Properties: []CSProperty{
@@ -138,31 +139,31 @@ var typesToDisambiguate = map[string]*CSModelType{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.ImageLoadResponse{})): {Name: "ImagesLoadResponse"},
-	typeToKey(reflect.TypeOf(types.ImagesPruneReport{})): {Name: "ImagesPruneResponse"},
-	typeToKey(reflect.TypeOf(types.ImageSummary{})): {
+	typeToKey(reflect.TypeOf(image.LoadResponse{})): {Name: "ImagesLoadResponse"},
+	typeToKey(reflect.TypeOf(image.PruneReport{})):  {Name: "ImagesPruneResponse"},
+	typeToKey(reflect.TypeOf(image.Summary{})): {
 		Name: "ImagesListResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.Info{})):                  {Name: "SystemInfoResponse"},
-	typeToKey(reflect.TypeOf(types.NetworkConnect{})):        {Name: "NetworkConnectParameters"},
-	typeToKey(reflect.TypeOf(types.NetworkCreateRequest{})):  {Name: "NetworksCreateParameters"},
-	typeToKey(reflect.TypeOf(types.NetworkCreateResponse{})): {Name: "NetworksCreateResponse"},
-	typeToKey(reflect.TypeOf(types.NetworkDisconnect{})):     {Name: "NetworkDisconnectParameters"},
-	typeToKey(reflect.TypeOf(types.NetworksPruneReport{})):   {Name: "NetworksPruneResponse"},
-	typeToKey(reflect.TypeOf(types.NetworkResource{})):       {Name: "NetworkResponse"},
+	typeToKey(reflect.TypeOf(system.Info{})):               {Name: "SystemInfoResponse"},
+	typeToKey(reflect.TypeOf(network.ConnectOptions{})):    {Name: "NetworkConnectParameters"},
+	typeToKey(reflect.TypeOf(network.CreateRequest{})):     {Name: "NetworksCreateParameters"},
+	typeToKey(reflect.TypeOf(network.CreateResponse{})):    {Name: "NetworksCreateResponse"},
+	typeToKey(reflect.TypeOf(network.DisconnectOptions{})): {Name: "NetworkDisconnectParameters"},
+	typeToKey(reflect.TypeOf(network.PruneReport{})):       {Name: "NetworksPruneResponse"},
+	typeToKey(reflect.TypeOf(network.Inspect{})):           {Name: "NetworkResponse"},
 	typeToKey(reflect.TypeOf(types.PluginConfigInterface{})): {
 		Name: "PluginConfigInterface",
 		Properties: []CSProperty{
 			CSProperty{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.StatsJSON{})):          {Name: "ContainerStatsResponse"},
-	typeToKey(reflect.TypeOf(types.Version{})):            {Name: "VersionResponse"},
-	typeToKey(reflect.TypeOf(types.VolumesPruneReport{})): {Name: "VolumesPruneResponse"},
-	typeToKey(reflect.TypeOf(VolumeResponse{})):           {Name: "VolumeResponse"},
+	typeToKey(reflect.TypeOf(container.StatsResponse{})): {Name: "ContainerStatsResponse"},
+	typeToKey(reflect.TypeOf(types.Version{})):           {Name: "VersionResponse"},
+	typeToKey(reflect.TypeOf(volume.PruneReport{})):      {Name: "VolumesPruneResponse"},
+	typeToKey(reflect.TypeOf(VolumeResponse{})):          {Name: "VolumeResponse"},
 }
 
 var dockerTypesToReflect = []reflect.Type{
@@ -189,14 +190,14 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /containers/prune
 	reflect.TypeOf(ContainersPruneParameters{}),
-	reflect.TypeOf(types.ContainersPruneReport{}),
+	reflect.TypeOf(container.PruneReport{}),
 
 	// DELETE /containers/(id)
 	reflect.TypeOf(ContainerRemoveParameters{}),
 
 	// GET /containers/(id)/archive
 	reflect.TypeOf(ContainerPathStatParameters{}),
-	reflect.TypeOf(types.ContainerPathStat{}),
+	reflect.TypeOf(container.PathStat{}),
 
 	// POST /containers/(id)/attach
 	reflect.TypeOf(ContainerAttachParameters{}),
@@ -245,7 +246,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/stats
 	reflect.TypeOf(ContainerStatsParameters{}),
-	reflect.TypeOf(types.StatsJSON{}),
+	reflect.TypeOf(container.StatsResponse{}),
 
 	// GET /containers/(id)/top
 	reflect.TypeOf(ContainerListProcessesParameters{}),
@@ -264,7 +265,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(ContainerExecStartParameters{}),
 
 	// GET /exec/(id)/json
-	reflect.TypeOf(types.ContainerExecInspect{}),
+	reflect.TypeOf(container.ExecInspect{}),
 
 	// GET /events
 	reflect.TypeOf(ContainerEventsParameters{}),
@@ -280,16 +281,16 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /images/json
 	reflect.TypeOf(ImagesListParameters{}),
-	reflect.TypeOf(types.ImageSummary{}),
+	reflect.TypeOf(image.Summary{}),
 
 	// POST /images/load
 	// TODO: headers: application/x-tar body.
 	reflect.TypeOf(ImageLoadParameters{}),
-	reflect.TypeOf(types.ImageLoadResponse{}),
+	reflect.TypeOf(image.LoadResponse{}),
 
 	// POST /images/prune
 	reflect.TypeOf(ImagesPruneParameters{}),
-	reflect.TypeOf(types.ImagesPruneReport{}),
+	reflect.TypeOf(image.PruneReport{}),
 
 	// GET /images/search
 	reflect.TypeOf(ImagesSearchParameters{}),
@@ -297,13 +298,12 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// DELETE /images/(id)
 	reflect.TypeOf(ImageDeleteParameters{}),
-	reflect.TypeOf(types.ImageDeleteResponseItem{}),
+	reflect.TypeOf(image.DeleteResponse{}),
 
 	// GET /images/(id)/history
 	reflect.TypeOf(image.HistoryResponseItem{}),
 
 	// GET /images/(id)/json
-	reflect.TypeOf(ImageInspectParameters{}),
 	reflect.TypeOf(types.ImageInspect{}),
 
 	// POST /images/(id)/push
@@ -313,20 +313,20 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(ImageTagParameters{}),
 
 	// GET /info
-	reflect.TypeOf(types.Info{}),
+	reflect.TypeOf(system.Info{}),
 	reflect.TypeOf(registry.ServiceConfig{}),
 
 	// GET /networks
 	reflect.TypeOf(NetworksListParameters{}),
-	reflect.TypeOf(types.NetworkResource{}),
+	reflect.TypeOf(network.Inspect{}),
 
 	// POST /networks/create
-	reflect.TypeOf(types.NetworkCreateRequest{}),
-	reflect.TypeOf(types.NetworkCreateResponse{}),
+	reflect.TypeOf(network.CreateRequest{}),
+	reflect.TypeOf(network.CreateResponse{}),
 
 	// POST /networks/prune
 	reflect.TypeOf(NetworksDeleteUnusedParameters{}),
-	reflect.TypeOf(types.NetworksPruneReport{}),
+	reflect.TypeOf(network.PruneReport{}),
 
 	// GET /networks/(id)
 	// []NetworkResponse reflected above in GET /networks
@@ -334,10 +334,10 @@ var dockerTypesToReflect = []reflect.Type{
 	// DELETE /networks/(id)
 
 	// POST /networks/(id)/connect
-	reflect.TypeOf(types.NetworkConnect{}),
+	reflect.TypeOf(network.ConnectOptions{}),
 
 	// POST /networks/(id)/disconnect
-	reflect.TypeOf(types.NetworkDisconnect{}),
+	reflect.TypeOf(network.DisconnectOptions{}),
 
 	// GET /plugins
 	// []Plugin
@@ -389,7 +389,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /volumes/prune
 	reflect.TypeOf(VolumesPruneParameters{}),
-	reflect.TypeOf(types.VolumesPruneReport{}),
+	reflect.TypeOf(volume.PruneReport{}),
 
 	// GET /volumes/(id)
 	reflect.TypeOf(VolumeResponse{}),
@@ -456,11 +456,11 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /services/create
 	reflect.TypeOf(ServiceCreateParameters{}),
-	reflect.TypeOf(types.ServiceCreateResponse{}),
+	reflect.TypeOf(swarm.ServiceCreateResponse{}),
 
 	// POST /services/(id)/update
 	reflect.TypeOf(ServiceUpdateParameters{}),
-	reflect.TypeOf(types.ServiceUpdateResponse{}),
+	reflect.TypeOf(swarm.ServiceUpdateResponse{}),
 
 	// DELETE /services/(id)
 
@@ -706,7 +706,7 @@ func main() {
 	}
 
 	// Delete any previously generated files.
-	if files, err := ioutil.ReadDir(sourcePath); err != nil {
+	if files, err := os.ReadDir(sourcePath); err != nil {
 		panic(err)
 	} else {
 		for _, file := range files {
@@ -728,7 +728,7 @@ func main() {
 			panic(fmt.Sprintf("File: (%s.Generated.cs) already exists. Failed to write key same name for key: (%s) type: (%s).", v.Name, k, v.SourceName))
 		}
 
-		f, err := ioutil.TempFile(sourcePath, "ser")
+		f, err := os.CreateTemp(sourcePath, "ser")
 		if err != nil {
 			panic(err)
 		}
