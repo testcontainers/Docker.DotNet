@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,7 +20,7 @@ namespace Docker.DotNet.Tests
         }
 
         [Fact]
-        public async void SwarmConfig_CanCreateAndRead()
+        public async Task SwarmConfig_CanCreateAndRead()
         {
             var currentConfigs = await _dockerClient.Configs.ListConfigsAsync();
 
@@ -55,11 +56,11 @@ namespace Docker.DotNet.Tests
             Assert.Equal(configResponse.Spec.Templating, testConfigSpec.Templating);
 
 
-            _output.WriteLine($"Config created is the same.");
+            _output.WriteLine("Config created is the same.");
 
             await _dockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
 
-            await Assert.ThrowsAsync<Docker.DotNet.DockerApiException>(() => _dockerClient.Configs.InspectConfigAsync(createdConfig.ID));
+            await Assert.ThrowsAsync<DockerApiException>(() => _dockerClient.Configs.InspectConfigAsync(createdConfig.ID));
         }
     }
 }

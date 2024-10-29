@@ -247,7 +247,7 @@ namespace Microsoft.Net.Http.Client
                 }
                 else
                 {
-                    pathAndQuery = Uri.EscapeUriString(request.RequestUri.ToString());
+                    pathAndQuery = Uri.EscapeDataString(request.RequestUri.ToString());
                 }
                 request.SetPathAndQueryProperty(pathAndQuery);
             }
@@ -289,7 +289,7 @@ namespace Microsoft.Net.Http.Client
                     return ProxyMode.None;
                 }
             }
-            catch (System.PlatformNotSupportedException)
+            catch (PlatformNotSupportedException)
             {
                 return ProxyMode.None;
             }
@@ -372,7 +372,7 @@ namespace Microsoft.Net.Http.Client
             {
                 connectResponse = await connection.SendAsync(connectRequest, cancellationToken);
                 // TODO:? await connectResponse.Content.LoadIntoBufferAsync(); // Drain any body
-                // There's no danger of accidently consuming real response data because the real request hasn't been sent yet.
+                // There's no danger of accidentally consuming real response data because the real request hasn't been sent yet.
             }
             catch (Exception ex)
             {

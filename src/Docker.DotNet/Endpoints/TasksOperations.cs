@@ -13,7 +13,7 @@ namespace Docker.DotNet
 
         internal TasksOperations(DockerClient client)
         {
-            this._client = client;
+            _client = client;
         }
 
         Task<IList<TaskResponse>> ITasksOperations.ListAsync(CancellationToken cancellationToken)
@@ -28,8 +28,8 @@ namespace Docker.DotNet
                 query = new QueryString<TasksListParameters>(parameters);
             }
 
-            var response = await this._client.MakeRequestAsync(this._client.NoErrorHandlers, HttpMethod.Get, "tasks", query, cancellationToken).ConfigureAwait(false);
-            return this._client.JsonSerializer.DeserializeObject<IList<TaskResponse>>(response.Body);
+            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "tasks", query, cancellationToken).ConfigureAwait(false);
+            return _client.JsonSerializer.DeserializeObject<IList<TaskResponse>>(response.Body);
         }
 
         async Task<TaskResponse> ITasksOperations.InspectAsync(string id, CancellationToken cancellationToken)
@@ -39,8 +39,8 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var response = await this._client.MakeRequestAsync(this._client.NoErrorHandlers, HttpMethod.Get, $"tasks/{id}", cancellationToken).ConfigureAwait(false);
-            return this._client.JsonSerializer.DeserializeObject<TaskResponse>(response.Body);
+            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, $"tasks/{id}", cancellationToken).ConfigureAwait(false);
+            return _client.JsonSerializer.DeserializeObject<TaskResponse>(response.Body);
         }
     }
 }

@@ -482,7 +482,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(swarm.NodeSpec{}),
 }
 
-func csType(t reflect.Type, opt bool) CSType {
+func csType(t reflect.Type, _ bool) CSType {
 	def, ok := CSCustomTypeMap[t]
 	if !ok {
 		def, ok = CSInboxTypesMap[t.Kind()]
@@ -561,9 +561,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			m.Constructors[1].Parameters = append(m.Constructors[1].Parameters, CSParameter{newType, f.Name})
 
 			// Now we need to add in all of the inherited types parameters
-			for _, p := range newType.Properties {
-				m.Properties = append(m.Properties, p)
-			}
+			m.Properties = append(m.Properties, newType.Properties...)
 		} else {
 			// If we are referencing a struct that isnt inline or anonymous we need to update it too.
 			if ut := ultimateType(f.Type); ut.Kind() == reflect.Struct {
@@ -639,10 +637,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			if hasTypeCustomizations {
 				for _, p := range typeCustomizations.Properties {
 					if f.Name == p.Name {
-						for _, ca := range p.Attributes {
-							// We have a custom property attribute. Append it.
-							csProp.Attributes = append(csProp.Attributes, ca)
-						}
+						csProp.Attributes = append(csProp.Attributes, p.Attributes...)
 						break
 					}
 				}

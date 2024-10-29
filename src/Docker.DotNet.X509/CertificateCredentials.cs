@@ -25,7 +25,7 @@ namespace Docker.DotNet.X509
                 _certificate
             };
 
-            handler.ServerCertificateValidationCallback = this.ServerCertificateValidationCallback;
+            handler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
 
             if (handler.ServerCertificateValidationCallback == null)
             {

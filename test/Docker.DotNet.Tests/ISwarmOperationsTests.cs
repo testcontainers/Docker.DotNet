@@ -31,131 +31,121 @@ namespace Docker.DotNet.Tests
         [Fact]
         public async Task GetFilteredServicesByName_Succeeds()
         {
-            var firstServiceName = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}";
-            var firstServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceName = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}";
+
+            var serviceId1st = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
-                    Name = firstServiceName,
+                    Name = serviceName,
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var secondServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId2nd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var thirdServiceid = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId3rd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var services = await _dockerClient.Swarm.ListServicesAsync(
-                new ServicesListParameters
-                {
-                    Filters = new ServiceFilter
-                    {
-                        Name = new[]
-                        {
-                            firstServiceName
-                        }
-                    }
-                },
-                CancellationToken.None);
+            var services = await _dockerClient.Swarm.ListServicesAsync(new ServicesListParameters { Filters = new ServiceFilter { Name = new[] { serviceName } } }, CancellationToken.None);
 
             Assert.Single(services);
 
-            await _dockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(thirdServiceid);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId1st);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId2nd);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId3rd);
         }
 
         [Fact]
         public async Task GetFilteredServicesById_Succeeds()
         {
-            var firstServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId1st = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var secondServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId2nd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var thirdServiceid = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId3rd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var services = await _dockerClient.Swarm.ListServicesAsync(new ServicesListParameters { Filters = new ServiceFilter { Id = new[] { firstServiceId } } }, CancellationToken.None);
+            var services = await _dockerClient.Swarm.ListServicesAsync(new ServicesListParameters { Filters = new ServiceFilter { Id = new[] { serviceId1st } } }, CancellationToken.None);
             Assert.Single(services);
 
-            await _dockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(thirdServiceid);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId1st);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId2nd);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId3rd);
         }
 
         [Fact]
         public async Task GetServices_Succeeds()
         {
-            var initialServiceCount = _dockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None).Result.Count();
+            var initialServiceCount = (await _dockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None)).Count();
 
-            var firstServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId1st = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var secondServiceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId2nd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var thirdServiceid = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId3rd = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
             var services = await _dockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None);
 
             Assert.True(services.Count() > initialServiceCount);
 
-            await _dockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-            await _dockerClient.Swarm.RemoveServiceAsync(thirdServiceid);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId1st);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId2nd);
+            await _dockerClient.Swarm.RemoveServiceAsync(serviceId3rd);
         }
 
         [Fact]
@@ -165,34 +155,34 @@ namespace Docker.DotNet.Tests
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, cts.Token);
 
             var serviceName = $"service-withLogs-{Guid.NewGuid().ToString().Substring(1, 10)}";
-            var serviceId = _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+            var serviceId = (await _dockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
             {
                 Service = new ServiceSpec
                 {
                     Name = serviceName,
                     TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _imageId } }
                 }
-            }).Result.ID;
+            })).ID;
 
-            var _stream = await _dockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
+            var stream = await _dockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
             {
                 Follow = true,
                 ShowStdout = true,
                 ShowStderr = true
             });
 
-            int maxRetries = 3;
-            int currentRetry = 0;
-            TimeSpan delayBetweenRetries = TimeSpan.FromSeconds(5);
+            var maxRetries = 3;
+            var currentRetry = 0;
+            var delayBetweenRetries = TimeSpan.FromSeconds(5);
             List<string> logLines = null;
 
             while (currentRetry < maxRetries && !linkedCts.IsCancellationRequested)
             {
                 logLines = new List<string>();
-                TimeSpan delay = TimeSpan.FromSeconds(10);
+                var delay = TimeSpan.FromSeconds(10);
                 cts.CancelAfter(delay);
 
-                bool cancelRequested = false; // Add a flag to indicate cancellation
+                var cancelRequested = false; // Add a flag to indicate cancellation
 
                 while (!linkedCts.IsCancellationRequested && !cancelRequested)
                 {
@@ -203,14 +193,14 @@ namespace Docker.DotNet.Tests
                     {
                         while (true)
                         {
-                            var res = await _stream.ReadOutputAsync(buffer, 0, buffer.Length, linkedCts.Token);
+                            var res = await stream.ReadOutputAsync(buffer, 0, buffer.Length, linkedCts.Token);
 
                             if (res.Count == 0)
                             {
                                 continue;
                             }
 
-                            int newlineIndex = Array.IndexOf(buffer, (byte)'\n', 0, res.Count);
+                            var newlineIndex = Array.IndexOf(buffer, (byte)'\n', 0, res.Count);
 
                             if (newlineIndex != -1)
                             {
@@ -250,7 +240,8 @@ namespace Docker.DotNet.Tests
                 }
             }
 
-            Assert.True(logLines.Any());
+            Assert.NotNull(logLines);
+            Assert.NotEmpty(logLines);
             Assert.Contains("[INF]", logLines.First());
 
             await _dockerClient.Swarm.RemoveServiceAsync(serviceId);

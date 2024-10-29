@@ -28,7 +28,7 @@ namespace Docker.DotNet
 
         public JsonSerializer()
         {
-            _serializer = Newtonsoft.Json.JsonSerializer.CreateDefault(this._settings);
+            _serializer = Newtonsoft.Json.JsonSerializer.CreateDefault(_settings);
         }
 
         public Task<T> Deserialize<T>(JsonReader jsonReader, CancellationToken cancellationToken)
@@ -49,12 +49,12 @@ namespace Docker.DotNet
 
         public T DeserializeObject<T>(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json, this._settings);
+            return JsonConvert.DeserializeObject<T>(json, _settings);
         }
 
         public string SerializeObject<T>(T value)
         {
-            return JsonConvert.SerializeObject(value, this._settings);
+            return JsonConvert.SerializeObject(value, _settings);
         }
     }
 }

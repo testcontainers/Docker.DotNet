@@ -10,8 +10,8 @@ namespace Docker.DotNet
 
         public DockerApiResponse(HttpStatusCode statusCode, string body)
         {
-            this.StatusCode = statusCode;
-            this.Body = body;
+            StatusCode = statusCode;
+            Body = body;
         }
     }
 }

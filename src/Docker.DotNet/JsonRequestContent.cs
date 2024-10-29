@@ -24,13 +24,13 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(serializer));
             }
 
-            this._value = val;
-            this._serializer = serializer;
+            _value = val;
+            _serializer = serializer;
         }
 
         public HttpContent GetContent()
         {
-            var serializedObject = this._serializer.SerializeObject(this._value);
+            var serializedObject = _serializer.SerializeObject(_value);
             return new StringContent(serializedObject, Encoding.UTF8, JsonMimeType);
         }
     }

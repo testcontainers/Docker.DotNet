@@ -28,9 +28,9 @@ namespace Docker.DotNet
                 throw new ArgumentException($"Provided query string converter type is not {typeof(IQueryStringConverter).FullName}", nameof(converterType));
             }
 
-            this.Name = name;
-            this.IsRequired = required;
-            this.ConverterType = converterType;
+            Name = name;
+            IsRequired = required;
+            ConverterType = converterType;
         }
     }
 }

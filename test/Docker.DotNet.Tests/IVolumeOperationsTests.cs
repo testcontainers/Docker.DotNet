@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Docker.DotNet.Tests
 {
