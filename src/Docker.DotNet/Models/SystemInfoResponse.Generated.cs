@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class SystemInfoResponse // (types.Info)
+    public class SystemInfoResponse // (system.Info)
     {
         [DataMember(Name = "ID", EmitDefaultValue = false)]
         public string ID { get; set; }
@@ -154,7 +154,7 @@ namespace Docker.DotNet.Models
         public string ServerVersion { get; set; }
 
         [DataMember(Name = "Runtimes", EmitDefaultValue = false)]
-        public IDictionary<string, Runtime> Runtimes { get; set; }
+        public IDictionary<string, RuntimeWithStatus> Runtimes { get; set; }
 
         [DataMember(Name = "DefaultRuntime", EmitDefaultValue = false)]
         public string DefaultRuntime { get; set; }
@@ -188,6 +188,12 @@ namespace Docker.DotNet.Models
 
         [DataMember(Name = "DefaultAddressPools", EmitDefaultValue = false)]
         public IList<NetworkAddressPool> DefaultAddressPools { get; set; }
+
+        [DataMember(Name = "CDISpecDirs", EmitDefaultValue = false)]
+        public IList<string> CDISpecDirs { get; set; }
+
+        [DataMember(Name = "Containerd", EmitDefaultValue = false)]
+        public ContainerdInfo Containerd { get; set; }
 
         [DataMember(Name = "Warnings", EmitDefaultValue = false)]
         public IList<string> Warnings { get; set; }

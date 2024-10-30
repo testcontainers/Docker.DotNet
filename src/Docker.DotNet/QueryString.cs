@@ -20,19 +20,19 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(value));
             }
 
-            this.Object = value;
-            this.QueryStringConverterInstanceFactory = new QueryStringConverterInstanceFactory();
-            this.AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
+            Object = value;
+            QueryStringConverterInstanceFactory = new QueryStringConverterInstanceFactory();
+            AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
         }
 
         public IDictionary<string, string[]> GetKeyValuePairs()
         {
             var queryParameters = new Dictionary<string, string[]>();
-            foreach (var pair in this.AttributedPublicProperties)
+            foreach (var pair in AttributedPublicProperties)
             {
                 var property = pair.Item1;
                 var attribute = pair.Item2;
-                var value = property.GetValue(this.Object, null);
+                var value = property.GetValue(Object, null);
 
                 // 'Required' check
                 if (attribute.IsRequired && value == null)
@@ -52,8 +52,8 @@ namespace Docker.DotNet
                     }
                     else
                     {
-                        var converter = this.QueryStringConverterInstanceFactory.GetConverterInstance(attribute.ConverterType);
-                        valueStr = this.ConvertValue(converter, value);
+                        var converter = QueryStringConverterInstanceFactory.GetConverterInstance(attribute.ConverterType);
+                        valueStr = ConvertValue(converter, value);
 
                         if (valueStr == null)
                         {
@@ -78,7 +78,7 @@ namespace Docker.DotNet
                 GetKeyValuePairs().Select(
                     pair => string.Join("&",
                         pair.Value.Select(
-                            v => $"{Uri.EscapeUriString(pair.Key)}={Uri.EscapeDataString(v)}"))));
+                            v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
         }
 
         private string[] ConvertValue(IQueryStringConverter converter, object value)
@@ -146,9 +146,7 @@ namespace Docker.DotNet
         /// <returns></returns>
         public string GetQueryString()
         {
-            return string.Join("&",
-                        _data.Select(
-                            v => $"{Uri.EscapeUriString(_key)}={Uri.EscapeDataString(v)}"));
+            return string.Join("&", _data.Select(v => $"{Uri.EscapeDataString(_key)}={Uri.EscapeDataString(v)}"));
         }
     }
 }

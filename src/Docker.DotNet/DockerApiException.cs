@@ -13,8 +13,8 @@ namespace Docker.DotNet
         public DockerApiException(HttpStatusCode statusCode, string responseBody)
             : base($"Docker API responded with status code={statusCode}, response={responseBody}")
         {
-            this.StatusCode = statusCode;
-            this.ResponseBody = responseBody;
+            StatusCode = statusCode;
+            ResponseBody = responseBody;
         }
     }
 }

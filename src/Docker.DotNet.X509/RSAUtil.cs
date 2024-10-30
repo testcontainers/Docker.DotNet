@@ -24,7 +24,7 @@ namespace Docker.DotNet.X509
         public static X509Certificate2 GetCertFromPEMFiles(string certFilePath, string keyFilePath)
         {
             var cert = new X509Certificate2(certFilePath);
-            cert.PrivateKey = RSAUtil.ReadFromPemFile(keyFilePath);
+            cert.PrivateKey = ReadFromPemFile(keyFilePath);
             return cert;
         }
 

@@ -16,6 +16,6 @@ namespace Docker.DotNet.Models
         public ulong MaxReplicas { get; set; }
 
         [DataMember(Name = "Platforms", EmitDefaultValue = false)]
-        public IList<Platform> Platforms { get; set; }
+        public IList<SwarmPlatform> Platforms { get; set; }
     }
 }

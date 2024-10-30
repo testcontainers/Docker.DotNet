@@ -21,7 +21,7 @@ namespace Docker.DotNet
 
         internal ExecOperations(DockerClient client)
         {
-            this._client = client;
+            _client = client;
         }
 
         public async Task<ContainerExecCreateResponse> ExecCreateContainerAsync(string id, ContainerExecCreateParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
@@ -36,9 +36,9 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            var data = new JsonRequestContent<ContainerExecCreateParameters>(parameters, this._client.JsonSerializer);
-            var response = await this._client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/exec", null, data, cancellationToken).ConfigureAwait(false);
-            return this._client.JsonSerializer.DeserializeObject<ContainerExecCreateResponse>(response.Body);
+            var data = new JsonRequestContent<ContainerExecCreateParameters>(parameters, _client.JsonSerializer);
+            var response = await _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/exec", null, data, cancellationToken).ConfigureAwait(false);
+            return _client.JsonSerializer.DeserializeObject<ContainerExecCreateResponse>(response.Body);
         }
 
         public async Task<ContainerExecInspectResponse> InspectContainerExecAsync(string id, CancellationToken cancellationToken)
@@ -48,8 +48,8 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var response = await this._client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"exec/{id}/json", null, cancellationToken).ConfigureAwait(false);
-            return this._client.JsonSerializer.DeserializeObject<ContainerExecInspectResponse>(response.Body);
+            var response = await _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"exec/{id}/json", null, cancellationToken).ConfigureAwait(false);
+            return _client.JsonSerializer.DeserializeObject<ContainerExecInspectResponse>(response.Body);
         }
 
         public Task ResizeContainerExecTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken)
@@ -65,7 +65,7 @@ namespace Docker.DotNet
             }
 
             var queryParameters = new QueryString<ContainerResizeParameters>(parameters);
-            return this._client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken);
+            return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken);
         }
 
         // StartContainerExecAsync will start the process specified by id in detach mode with no connected
@@ -81,8 +81,8 @@ namespace Docker.DotNet
             {
                 Detach = true,
             };
-            var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, this._client.JsonSerializer);
-            return this._client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, cancellationToken);
+            var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, _client.JsonSerializer);
+            return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, cancellationToken);
         }
 
         // StartAndAttachContainerExecAsync will start the process specified by id with stdin, stdout, stderr
@@ -99,8 +99,8 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var data = new JsonRequestContent<ContainerExecStartParameters>(eConfig, this._client.JsonSerializer);
-            var stream = await this._client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken).ConfigureAwait(false);
+            var data = new JsonRequestContent<ContainerExecStartParameters>(eConfig, _client.JsonSerializer);
+            var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken).ConfigureAwait(false);
             if (!stream.CanCloseWrite)
             {
                 stream.Dispose();

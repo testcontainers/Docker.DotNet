@@ -12,6 +12,9 @@ namespace Docker.DotNet.Models
         [DataMember(Name = "Labels", EmitDefaultValue = false)]
         public IDictionary<string, string> Labels { get; set; }
 
+        [DataMember(Name = "Subpath", EmitDefaultValue = false)]
+        public string Subpath { get; set; }
+
         [DataMember(Name = "DriverConfig", EmitDefaultValue = false)]
         public Driver DriverConfig { get; set; }
     }

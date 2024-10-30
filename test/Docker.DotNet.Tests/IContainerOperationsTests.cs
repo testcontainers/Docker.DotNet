@@ -493,7 +493,7 @@ namespace Docker.DotNet.Tests
 
             using (tcs.Token.Register(() => throw new TimeoutException("GetContainerStatsAsync_Tty_True_StreamStats")))
             {
-                _output.WriteLine($"Running test GetContainerStatsAsync_Tty_True_StreamStats");
+                _output.WriteLine("Running test GetContainerStatsAsync_Tty_True_StreamStats");
 
                 var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
                 new CreateContainerParameters()
@@ -726,7 +726,7 @@ namespace Docker.DotNet.Tests
 
             _output.WriteLine($"CreateContainerResponse: '{JsonConvert.SerializeObject(createContainerResponse)}'");
 
-            var startContainerResult = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters(), waitContainerCts.Token);
+            _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters(), waitContainerCts.Token);
 
             _output.WriteLine("Starting timeout to cancel WaitContainer operation.");
 
@@ -738,7 +738,7 @@ namespace Docker.DotNet.Tests
             // Will wait forever here if cancelation fails.
             var waitContainerTask = _dockerClient.Containers.WaitContainerAsync(createContainerResponse.ID, waitContainerCts.Token);
 
-            var exception = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
+            _ = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
 
             stopWatch.Stop();
 
@@ -774,11 +774,9 @@ namespace Docker.DotNet.Tests
                 new CreateContainerParameters
                 {
                     Image = _imageId
-                })
-                .ConfigureAwait(false);
+                });
 
-            _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters())
-                .ConfigureAwait(false);
+            _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
             var containerExecCreateResponse = await _dockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID,
                 new ContainerExecCreateParameters
@@ -787,16 +785,13 @@ namespace Docker.DotNet.Tests
                     AttachStderr = true,
                     AttachStdin = true,
                     Cmd = new [] { string.Empty }
-                })
-                .ConfigureAwait(false);
+                });
 
             // When
-            using (var stream = await _dockerClient.Exec.StartAndAttachContainerExecAsync(containerExecCreateResponse.ID, false)
-                .ConfigureAwait(false))
+            using (var stream = await _dockerClient.Exec.StartAndAttachContainerExecAsync(containerExecCreateResponse.ID, false))
             {
-                var buffer = Encoding.ASCII.GetBytes("\n");
-                exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, default))
-                    .ConfigureAwait(false);
+                var buffer = new byte[] { 10 };
+                exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, default));
             }
 
             // Then

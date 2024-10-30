@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class EndpointResource // (types.EndpointResource)
+    public class EndpointResource // (network.EndpointResource)
     {
         [DataMember(Name = "Name", EmitDefaultValue = false)]
         public string Name { get; set; }

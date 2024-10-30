@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ImageDeleteResponse // (types.ImageDeleteResponseItem)
+    public class ImageDeleteResponse // (image.DeleteResponse)
     {
         [DataMember(Name = "Deleted", EmitDefaultValue = false)]
         public string Deleted { get; set; }

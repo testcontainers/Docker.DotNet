@@ -65,6 +65,6 @@ namespace Docker.DotNet.Models
         public RootFS RootFS { get; set; }
 
         [DataMember(Name = "Metadata", EmitDefaultValue = false)]
-        public ImageMetadata Metadata { get; set; }
+        public Metadata Metadata { get; set; }
     }
 }

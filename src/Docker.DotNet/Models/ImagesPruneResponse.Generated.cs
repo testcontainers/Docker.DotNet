@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ImagesPruneResponse // (types.ImagesPruneReport)
+    public class ImagesPruneResponse // (image.PruneReport)
     {
         [DataMember(Name = "ImagesDeleted", EmitDefaultValue = false)]
         public IList<ImageDeleteResponse> ImagesDeleted { get; set; }

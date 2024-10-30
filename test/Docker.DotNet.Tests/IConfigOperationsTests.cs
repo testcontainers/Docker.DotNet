@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -9,23 +10,22 @@ namespace Docker.DotNet.Tests
     [Collection(nameof(TestCollection))]
     public class IConfigOperationsTests
     {
-        private readonly DockerClientConfiguration _dockerClientConfiguration;
         private readonly DockerClient _dockerClient;
         private readonly TestOutput _output;
+
         public IConfigOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
         {
-            _dockerClientConfiguration = testFixture.DockerClientConfiguration;
-            _dockerClient = _dockerClientConfiguration.CreateClient();
+            _dockerClient = testFixture.DockerClient;
             _output = new TestOutput(outputHelper);
         }
 
         [Fact]
-        public async void SwarmConfig_CanCreateAndRead()
+        public async Task SwarmConfig_CanCreateAndRead()
         {
             var currentConfigs = await _dockerClient.Configs.ListConfigsAsync();
 
             _output.WriteLine($"Current Configs: {currentConfigs.Count}");
-          
+
             var testConfigSpec = new SwarmConfigSpec
             {
                 Name = $"Config-{Guid.NewGuid().ToString().Substring(1, 10)}",
@@ -56,15 +56,11 @@ namespace Docker.DotNet.Tests
             Assert.Equal(configResponse.Spec.Templating, testConfigSpec.Templating);
 
 
-            _output.WriteLine($"Config created is the same.");
+            _output.WriteLine("Config created is the same.");
 
             await _dockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
-            
-            await Assert.ThrowsAsync<Docker.DotNet.DockerApiException>(() => _dockerClient.Configs.InspectConfigAsync(createdConfig.ID));
 
-
-            
+            await Assert.ThrowsAsync<DockerApiException>(() => _dockerClient.Configs.InspectConfigAsync(createdConfig.ID));
         }
     }
 }
-

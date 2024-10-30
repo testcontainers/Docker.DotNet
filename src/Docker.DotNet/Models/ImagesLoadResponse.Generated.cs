@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class ImagesLoadResponse // (types.ImageLoadResponse)
+    public class ImagesLoadResponse // (image.LoadResponse)
     {
         [DataMember(Name = "Body", EmitDefaultValue = false)]
         public object Body { get; set; }

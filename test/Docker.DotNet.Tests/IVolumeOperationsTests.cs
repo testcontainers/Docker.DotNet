@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
-using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Docker.DotNet.Tests
 {
@@ -17,7 +15,7 @@ namespace Docker.DotNet.Tests
 
 		private readonly DockerClient _dockerClient;
 
-		public IVolumeOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
+		public IVolumeOperationsTests(TestFixture testFixture)
 		{
 			_dockerClient = testFixture.DockerClient;
 

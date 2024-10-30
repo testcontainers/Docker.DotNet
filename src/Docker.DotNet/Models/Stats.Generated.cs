@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class Stats // (types.Stats)
+    public class Stats // (container.Stats)
     {
         [DataMember(Name = "read", EmitDefaultValue = false)]
         public DateTime Read { get; set; }

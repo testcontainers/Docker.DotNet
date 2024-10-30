@@ -45,7 +45,7 @@ namespace Docker.DotNet.Models
         public IList<string> Cmd { get; set; }
 
         [DataMember(Name = "Healthcheck", EmitDefaultValue = false)]
-        public HealthConfig Healthcheck { get; set; }
+        public HealthcheckConfig Healthcheck { get; set; }
 
         [DataMember(Name = "ArgsEscaped", EmitDefaultValue = false)]
         public bool ArgsEscaped { get; set; }

@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class PidsStats // (types.PidsStats)
+    public class PidsStats // (container.PidsStats)
     {
         [DataMember(Name = "current", EmitDefaultValue = false)]
         public ulong Current { get; set; }

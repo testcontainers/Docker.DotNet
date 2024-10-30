@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class HealthConfig // (container.HealthConfig)
+    public class HealthcheckConfig // (v1.HealthcheckConfig)
     {
         [DataMember(Name = "Test", EmitDefaultValue = false)]
         public IList<string> Test { get; set; }
@@ -21,6 +21,9 @@ namespace Docker.DotNet.Models
 
         [DataMember(Name = "StartPeriod", EmitDefaultValue = false)]
         public long StartPeriod { get; set; }
+
+        [DataMember(Name = "StartInterval", EmitDefaultValue = false)]
+        public long StartInterval { get; set; }
 
         [DataMember(Name = "Retries", EmitDefaultValue = false)]
         public long Retries { get; set; }

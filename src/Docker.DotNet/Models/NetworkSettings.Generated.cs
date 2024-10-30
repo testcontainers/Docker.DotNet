@@ -16,11 +16,11 @@ namespace Docker.DotNet.Models
             {
                 this.Bridge = NetworkSettingsBase.Bridge;
                 this.SandboxID = NetworkSettingsBase.SandboxID;
+                this.SandboxKey = NetworkSettingsBase.SandboxKey;
+                this.Ports = NetworkSettingsBase.Ports;
                 this.HairpinMode = NetworkSettingsBase.HairpinMode;
                 this.LinkLocalIPv6Address = NetworkSettingsBase.LinkLocalIPv6Address;
                 this.LinkLocalIPv6PrefixLen = NetworkSettingsBase.LinkLocalIPv6PrefixLen;
-                this.Ports = NetworkSettingsBase.Ports;
-                this.SandboxKey = NetworkSettingsBase.SandboxKey;
                 this.SecondaryIPAddresses = NetworkSettingsBase.SecondaryIPAddresses;
                 this.SecondaryIPv6Addresses = NetworkSettingsBase.SecondaryIPv6Addresses;
             }
@@ -44,6 +44,12 @@ namespace Docker.DotNet.Models
         [DataMember(Name = "SandboxID", EmitDefaultValue = false)]
         public string SandboxID { get; set; }
 
+        [DataMember(Name = "SandboxKey", EmitDefaultValue = false)]
+        public string SandboxKey { get; set; }
+
+        [DataMember(Name = "Ports", EmitDefaultValue = false)]
+        public IDictionary<string, IList<PortBinding>> Ports { get; set; }
+
         [DataMember(Name = "HairpinMode", EmitDefaultValue = false)]
         public bool HairpinMode { get; set; }
 
@@ -52,12 +58,6 @@ namespace Docker.DotNet.Models
 
         [DataMember(Name = "LinkLocalIPv6PrefixLen", EmitDefaultValue = false)]
         public long LinkLocalIPv6PrefixLen { get; set; }
-
-        [DataMember(Name = "Ports", EmitDefaultValue = false)]
-        public IDictionary<string, IList<PortBinding>> Ports { get; set; }
-
-        [DataMember(Name = "SandboxKey", EmitDefaultValue = false)]
-        public string SandboxKey { get; set; }
 
         [DataMember(Name = "SecondaryIPAddresses", EmitDefaultValue = false)]
         public IList<Address> SecondaryIPAddresses { get; set; }
