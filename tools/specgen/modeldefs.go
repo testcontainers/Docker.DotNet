@@ -367,6 +367,11 @@ type SwarmUpdateParameters struct {
 // SwarmUnlockParameters for POST /swarm/unlock
 type SwarmUnlockParameters swarm.UnlockRequest
 
+// NodeRemoveParameters for DELETE /nodes/(id)
+type NodeRemoveParameters struct {
+	Force bool `rest:"query"`
+}
+
 // SwarmUpdateConfigParameters for POST /configs/(id)/update
 type SwarmUpdateConfigParameters struct {
 	Config  swarm.ConfigSpec `rest:"body,,required"`
