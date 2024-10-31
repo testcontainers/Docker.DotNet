@@ -477,6 +477,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(swarm.TLSInfo{}),
 
 	// DELETE /nodes/(id)
+	reflect.TypeOf(NodeRemoveParameters{}),
 
 	// POST /nodes/(id)/update
 	reflect.TypeOf(swarm.NodeSpec{}),

@@ -78,6 +78,9 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("outputs", false)]
         public string Outputs { get; set; }
 
+        [QueryStringParameter("version", false)]
+        public string Version { get; set; }
+
         [DataMember(Name = "AuthConfigs", EmitDefaultValue = false)]
         public IDictionary<string, AuthConfig> AuthConfigs { get; set; }
     }

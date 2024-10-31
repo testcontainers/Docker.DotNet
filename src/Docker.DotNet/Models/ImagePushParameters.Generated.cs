@@ -8,6 +8,9 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("tag", false)]
         public string Tag { get; set; }
 
+        [QueryStringParameter("platform", false)]
+        public string Platform { get; set; }
+
         [DataMember(Name = "RegistryAuth", EmitDefaultValue = false)]
         public AuthConfig RegistryAuth { get; set; }
     }

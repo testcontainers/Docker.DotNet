@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Docker.DotNet.Models;
 using Xunit;
 
@@ -9,37 +10,61 @@ namespace Docker.DotNet.Tests
         [Fact]
         public void ServiceListParameters_GenerateIdFilters()
         {
-            var p = new ServicesListParameters { Filters = new ServiceFilter { Id = new[] { "service-id" } } };
-            var qs = new QueryString<ServicesListParameters>(p);
+            var p = new ServiceListParameters
+            {
+                Filters = new Dictionary<string, IDictionary<string, bool>>
+                {
+                    ["id"] = new Dictionary<string, bool>
+                    {
+                        ["service-id"] = true
+                    }
+                }
+            };
 
-            Assert.Equal("filters={\"id\":[\"service-id\"]}", Uri.UnescapeDataString(qs.GetQueryString()));
+            var qs = new QueryString<ServiceListParameters>(p);
+
+            Assert.Equal("filters={\"id\":{\"service-id\":true}}", Uri.UnescapeDataString(qs.GetQueryString()));
         }
 
         [Fact]
         public void ServiceListParameters_GenerateCompositeFilters()
         {
-            var p = new ServicesListParameters { Filters = new ServiceFilter { Id = new[] { "service-id" }, Label = new[] { "label" } } };
-            var qs = new QueryString<ServicesListParameters>(p);
+            var p = new ServiceListParameters
+            {
+                Filters = new Dictionary<string, IDictionary<string, bool>>
+                {
+                    ["id"] = new Dictionary<string, bool>
+                    {
+                        ["service-id"] = true
+                    },
+                    ["label"] = new Dictionary<string, bool>
+                    {
+                        ["label"] = true
+                    }
+                }
+            };
 
-            Assert.Equal("filters={\"id\":[\"service-id\"],\"label\":[\"label\"]}", Uri.UnescapeDataString(qs.GetQueryString()));
+            var qs = new QueryString<ServiceListParameters>(p);
+
+            Assert.Equal("filters={\"id\":{\"service-id\":true},\"label\":{\"label\":true}}", Uri.UnescapeDataString(qs.GetQueryString()));
         }
 
         [Fact]
-        public void ServicesListParameters_GenerateNullFilters()
+        public void ServiceListParameters_GenerateNullFilters()
         {
-            var p = new ServicesListParameters { Filters = new ServiceFilter() };
-            var qs = new QueryString<ServicesListParameters>(p);
+            var p = new ServiceListParameters { Filters = new Dictionary<string, IDictionary<string, bool>>() };
+            var qs = new QueryString<ServiceListParameters>(p);
 
             Assert.Equal("filters={}", Uri.UnescapeDataString(qs.GetQueryString()));
         }
 
         [Fact]
-        public void ServicesListParameters_GenerateNullModeFilters()
+        public void ServiceListParameters_GenerateNullModeFilters()
         {
-            var p = new ServicesListParameters { Filters = new ServiceFilter() { Mode = new ServiceCreationMode[] { } } };
-            var qs = new QueryString<ServicesListParameters>(p);
+            var p = new ServiceListParameters { Filters = new Dictionary<string, IDictionary<string, bool>> { ["mode"] = new Dictionary<string, bool>() } };
+            var qs = new QueryString<ServiceListParameters>(p);
 
-            Assert.Equal("filters={\"mode\":[]}", Uri.UnescapeDataString(qs.GetQueryString()));
+            Assert.Equal("filters={\"mode\":{}}", Uri.UnescapeDataString(qs.GetQueryString()));
         }
     }
 }

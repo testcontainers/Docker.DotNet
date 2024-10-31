@@ -14,8 +14,5 @@ namespace Docker.DotNet.Models
 
         [QueryStringParameter("filters", false, typeof(MapQueryStringConverter))]
         public IDictionary<string, IDictionary<string, bool>> Filters { get; set; }
-
-        [DataMember(Name = "RegistryAuth", EmitDefaultValue = false)]
-        public AuthConfig RegistryAuth { get; set; }
     }
 }

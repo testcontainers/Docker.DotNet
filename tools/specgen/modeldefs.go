@@ -38,6 +38,7 @@ type ImageBuildParameters struct {
 	Target         string                         `rest:"query"`
 	Platform       string                         `rest:"query"`
 	Outputs        string                         `rest:"query"`
+	Version        string                         `rest:"query"`
 	AuthConfigs    map[string]registry.AuthConfig `rest:"headers,X-Registry-Config"`
 }
 
@@ -67,12 +68,10 @@ type CreateContainerParameters struct {
 
 // ContainersListParameters for GET /containers/json
 type ContainersListParameters struct {
-	Size    bool   `rest:"query"`
-	All     bool   `rest:"query"`
-	Since   string `rest:"query"`
-	Before  string `rest:"query"`
-	Limit   int    `rest:"query"`
-	Filters Args   `rest:"query"`
+	All     bool `rest:"query"`
+	Limit   int  `rest:"query"`
+	Size    bool `rest:"query"`
+	Filters Args `rest:"query"`
 }
 
 // ContainerRemoveParameters for DELETE /containers/(id)
@@ -183,13 +182,13 @@ type ContainersPruneParameters struct {
 }
 
 // ContainerExecCreateParameters for POST /containers/(id)/exec
-type ContainerExecCreateParameters types.ExecConfig
+type ContainerExecCreateParameters container.ExecOptions
 
 // ContainerExecCreateResponse for POST /containers/(id)/exec
 type ContainerExecCreateResponse types.IDResponse
 
 // ContainerExecStartParameters for POST /exec/(id)/start
-type ContainerExecStartParameters types.ExecConfig
+type ContainerExecStartParameters container.ExecOptions
 
 // ImagesCreateParameters for POST /images/create
 type ImagesCreateParameters struct {
@@ -207,8 +206,9 @@ type ImagesCreateParameters struct {
 type ImagesListParameters struct {
 	All        bool `rest:"query"`
 	Filters    Args `rest:"query"`
-	Digests    bool `rest:"query"`
 	SharedSize bool `rest:"query,shared-size"`
+	Digests    bool `rest:"query"`
+	Manifests  bool `rest:"query"`
 }
 
 // ImageLoadParameters for POST /images/load
@@ -223,10 +223,9 @@ type ImagesPruneParameters struct {
 
 // ImagesSearchParameters for GET /images/search
 type ImagesSearchParameters struct {
-	Term         string              `rest:"query"`
-	Limit        int                 `rest:"query"`
-	Filters      Args                `rest:"query"`
-	RegistryAuth registry.AuthConfig `rest:"headers,X-Registry-Auth"`
+	Term    string `rest:"query"`
+	Limit   int    `rest:"query"`
+	Filters Args   `rest:"query"`
 }
 
 // ImageDeleteParameters for DELETE /images/(id)
@@ -238,6 +237,7 @@ type ImageDeleteParameters struct {
 // ImagePushParameters for POST /images/(id)/push
 type ImagePushParameters struct {
 	Tag          string              `rest:"query"`
+	Platform     string              `rest:"query"`
 	RegistryAuth registry.AuthConfig `rest:"headers,X-Registry-Auth"`
 }
 
@@ -264,8 +264,7 @@ type PluginListParameters struct {
 
 // PluginGetPrivilegeParameters for GET /plugins/privileges
 type PluginGetPrivilegeParameters struct {
-	Remote       string              `rest:"query,remote,required"`
-	RegistryAuth registry.AuthConfig `rest:"headers,X-Registry-Auth"`
+	Remote string `rest:"query,remote,required"`
 }
 
 // PluginInstallParameters for POST /plugins/pull
@@ -367,6 +366,11 @@ type SwarmUpdateParameters struct {
 
 // SwarmUnlockParameters for POST /swarm/unlock
 type SwarmUnlockParameters swarm.UnlockRequest
+
+// NodeRemoveParameters for DELETE /nodes/(id)
+type NodeRemoveParameters struct {
+	Force bool `rest:"query"`
+}
 
 // SwarmUpdateConfigParameters for POST /configs/(id)/update
 type SwarmUpdateConfigParameters struct {
