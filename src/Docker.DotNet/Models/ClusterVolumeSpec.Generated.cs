@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         public string Group { get; set; }
 
         [DataMember(Name = "AccessMode", EmitDefaultValue = false)]
-        public AccessMode AccessMode { get; set; }
+        public VolumeAccessMode AccessMode { get; set; }
 
         [DataMember(Name = "AccessibilityRequirements", EmitDefaultValue = false)]
         public TopologyRequirement AccessibilityRequirements { get; set; }

@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Docker.DotNet.Models
 {
     [DataContract]
-    public class AccessMode // (volume.AccessMode)
+    public class VolumeAccessMode // (volume.AccessMode)
     {
         [DataMember(Name = "Scope", EmitDefaultValue = false)]
         public string Scope { get; set; }
