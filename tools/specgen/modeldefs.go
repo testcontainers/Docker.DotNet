@@ -93,7 +93,7 @@ type ContainerAttachParameters struct {
 	Stdout     bool   `rest:"query"`
 	Stderr     bool   `rest:"query"`
 	DetachKeys string `rest:"query,detachKeys"`
-	Logs       string `rest:"query"`
+	Logs       bool   `rest:"query"`
 }
 
 // ContainerInspectParameters for GET /containers/(id)/json
