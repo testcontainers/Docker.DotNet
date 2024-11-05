@@ -1,14 +1,13 @@
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class ContainerdNamespaces // (system.ContainerdNamespaces)
     {
-        [DataMember(Name = "Containers", EmitDefaultValue = false)]
+        [JsonPropertyName("Containers")]
         public string Containers { get; set; }
 
-        [DataMember(Name = "Plugins", EmitDefaultValue = false)]
+        [JsonPropertyName("Plugins")]
         public string Plugins { get; set; }
     }
 }

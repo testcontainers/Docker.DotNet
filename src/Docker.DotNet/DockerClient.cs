@@ -33,7 +33,6 @@ namespace Docker.DotNet
             Configuration = configuration;
             DefaultTimeout = configuration.DefaultTimeout;
 
-            JsonSerializer = new JsonSerializer();
             Images = new ImageOperations(this);
             Containers = new ContainerOperations(this);
             System = new SystemOperations(this);
@@ -149,7 +148,7 @@ namespace Docker.DotNet
 
         public IExecOperations Exec { get; }
 
-        internal JsonSerializer JsonSerializer { get; }
+        internal JsonSerializer JsonSerializer => JsonSerializer.Instance;
 
         public void Dispose()
         {
@@ -157,26 +156,45 @@ namespace Docker.DotNet
             _client.Dispose();
         }
 
-        internal Task<DockerApiResponse> MakeRequestAsync(
+        internal Task MakeRequestAsync(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
             CancellationToken token)
         {
-            return MakeRequestAsync(errorHandlers, method, path, null, null, token);
+            return MakeRequestAsync<NoContent>(errorHandlers, method, path, null, null, token);
         }
 
-        internal Task<DockerApiResponse> MakeRequestAsync(
+        internal Task<T> MakeRequestAsync<T>(
+            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
+            HttpMethod method,
+            string path,
+            CancellationToken token)
+        {
+            return MakeRequestAsync<T>(errorHandlers, method, path, null, null, token);
+        }
+
+        internal Task MakeRequestAsync(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
             IQueryString queryString,
             CancellationToken token)
         {
-            return MakeRequestAsync(errorHandlers, method, path, queryString, null, token);
+            return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, null, token);
         }
 
-        internal Task<DockerApiResponse> MakeRequestAsync(
+        internal Task<T> MakeRequestAsync<T>(
+            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
+            HttpMethod method,
+            string path,
+            IQueryString queryString,
+            CancellationToken token)
+        {
+            return MakeRequestAsync<T>(errorHandlers, method, path, queryString, null, token);
+        }
+
+        internal Task MakeRequestAsync(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
@@ -184,10 +202,21 @@ namespace Docker.DotNet
             IRequestContent body,
             CancellationToken token)
         {
-            return MakeRequestAsync(errorHandlers, method, path, queryString, body, null, token);
+            return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, null, token);
         }
 
-        internal Task<DockerApiResponse> MakeRequestAsync(
+        internal Task<T> MakeRequestAsync<T>(
+            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
+            HttpMethod method,
+            string path,
+            IQueryString queryString,
+            IRequestContent body,
+            CancellationToken token)
+        {
+            return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, null, token);
+        }
+
+        internal Task<T> MakeRequestAsync<T>(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
@@ -196,10 +225,23 @@ namespace Docker.DotNet
             IDictionary<string, string> headers,
             CancellationToken token)
         {
-            return MakeRequestAsync(errorHandlers, method, path, queryString, body, headers, DefaultTimeout, token);
+            return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, DefaultTimeout, token);
         }
 
-        internal async Task<DockerApiResponse> MakeRequestAsync(
+        internal Task MakeRequestAsync(
+            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
+            HttpMethod method,
+            string path,
+            IQueryString queryString,
+            IRequestContent body,
+            IDictionary<string, string> headers,
+            TimeSpan timeout,
+            CancellationToken token)
+        {
+            return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, headers, timeout, token);
+        }
+
+        internal async Task<T> MakeRequestAsync<T>(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
@@ -217,10 +259,13 @@ namespace Docker.DotNet
                 await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
                     .ConfigureAwait(false);
 
-                var responseBody = await response.Content.ReadAsStringAsync()
-                    .ConfigureAwait(false);
+                if (typeof(T) == typeof(NoContent))
+                {
+                    return default;
+                }
 
-                return new DockerApiResponse(response.StatusCode, responseBody);
+                return await JsonSerializer.DeserializeAsync<T>(response.Content, token)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -294,7 +339,7 @@ namespace Docker.DotNet
             IDictionary<string, string> headers,
             CancellationToken token)
         {
-            var response = await  PrivateMakeRequestAsync(SInfiniteTimeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token).ConfigureAwait(false);
+            var response = await PrivateMakeRequestAsync(SInfiniteTimeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token).ConfigureAwait(false);
             await HandleIfErrorResponseAsync(response.StatusCode, response)
                 .ConfigureAwait(false);
             return response;
@@ -469,6 +514,8 @@ namespace Docker.DotNet
                 throw new DockerApiException(statusCode, responseBody);
             }
         }
+
+        private struct NoContent {}
     }
 
     internal delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);

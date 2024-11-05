@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Docker.DotNet.Models
 {
@@ -28,16 +27,10 @@ namespace Docker.DotNet.Models
 
         internal static async Task MonitorStreamForMessagesAsync<T>(Task<Stream> streamTask, DockerClient client, CancellationToken cancellationToken, IProgress<T> progress)
         {
-            var tcs = new TaskCompletionSource<bool>();
-
             using (var stream = await streamTask)
-            using (var reader = new StreamReader(stream, new UTF8Encoding(false)))
-            using (var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true })
-            using (cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken)))
             {
-                while (await await Task.WhenAny(jsonReader.ReadAsync(cancellationToken), tcs.Task))
+                await foreach (var ev in client.JsonSerializer.DeserializeAsync<T>(stream, cancellationToken))
                 {
-                    var ev = await client.JsonSerializer.Deserialize<T>(jsonReader, cancellationToken);
                     progress.Report(ev);
                 }
             }

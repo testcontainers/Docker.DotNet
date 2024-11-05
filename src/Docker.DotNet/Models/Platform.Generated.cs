@@ -1,24 +1,23 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class Platform // (v1.Platform)
     {
-        [DataMember(Name = "architecture", EmitDefaultValue = false)]
+        [JsonPropertyName("architecture")]
         public string Architecture { get; set; }
 
-        [DataMember(Name = "os", EmitDefaultValue = false)]
+        [JsonPropertyName("os")]
         public string OS { get; set; }
 
-        [DataMember(Name = "os.version", EmitDefaultValue = false)]
+        [JsonPropertyName("os.version")]
         public string OSVersion { get; set; }
 
-        [DataMember(Name = "os.features", EmitDefaultValue = false)]
+        [JsonPropertyName("os.features")]
         public IList<string> OSFeatures { get; set; }
 
-        [DataMember(Name = "variant", EmitDefaultValue = false)]
+        [JsonPropertyName("variant")]
         public string Variant { get; set; }
     }
 }
