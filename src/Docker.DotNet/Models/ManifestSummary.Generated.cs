@@ -1,26 +1,25 @@
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class ManifestSummary // (image.ManifestSummary)
     {
-        [DataMember(Name = "ID", EmitDefaultValue = false)]
+        [JsonPropertyName("ID")]
         public string ID { get; set; }
 
-        [DataMember(Name = "Descriptor", EmitDefaultValue = false)]
+        [JsonPropertyName("Descriptor")]
         public Descriptor Descriptor { get; set; }
 
-        [DataMember(Name = "Available", EmitDefaultValue = false)]
+        [JsonPropertyName("Available")]
         public bool Available { get; set; }
 
-        [DataMember(Name = "Kind", EmitDefaultValue = false)]
+        [JsonPropertyName("Kind")]
         public string Kind { get; set; }
 
-        [DataMember(Name = "ImageData", EmitDefaultValue = false)]
+        [JsonPropertyName("ImageData")]
         public ImageProperties ImageData { get; set; }
 
-        [DataMember(Name = "AttestationData", EmitDefaultValue = false)]
+        [JsonPropertyName("AttestationData")]
         public AttestationProperties AttestationData { get; set; }
     }
 }

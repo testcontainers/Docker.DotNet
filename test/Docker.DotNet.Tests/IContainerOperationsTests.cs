@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
@@ -435,7 +434,7 @@ namespace Docker.DotNet.Tests
                         linkedCts.Token
                     );
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     // this  is expected to  happen on task cancelaltion
                 }
@@ -528,7 +527,7 @@ namespace Docker.DotNet.Tests
                         linkedTcs.Token
                     );
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     // this  is expected to  happen on task cancelaltion
                 }

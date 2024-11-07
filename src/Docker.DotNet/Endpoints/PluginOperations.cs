@@ -30,8 +30,7 @@ namespace Docker.DotNet
         public async Task<IList<Plugin>> ListPluginsAsync(PluginListParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
         {
             IQueryString queryParameters = parameters == null ? null : new QueryString<PluginListParameters>(parameters);
-            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken).ConfigureAwait(false);
-            return _client.JsonSerializer.DeserializeObject<Plugin[]>(response.Body);
+            return await _client.MakeRequestAsync<Plugin[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<IList<PluginPrivilege>> GetPluginPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
@@ -42,8 +41,7 @@ namespace Docker.DotNet
             }
 
             var query = new QueryString<PluginGetPrivilegeParameters>(parameters);
-            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
-            return _client.JsonSerializer.DeserializeObject<PluginPrivilege[]>(response.Body);
+            return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
         }
 
         public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
@@ -58,7 +56,7 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(parameters.Privileges));
             }
 
-            var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, _client.JsonSerializer);
+            var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
 
             IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
             return StreamUtil.MonitorStreamForMessagesAsync(
@@ -75,8 +73,7 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(name));
             }
 
-            var response = await _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
-            return _client.JsonSerializer.DeserializeObject<Plugin>(response.Body);
+            return await _client.MakeRequestAsync<Plugin>(new[] { NoSuchPluginHandler }, HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
         }
 
         public Task RemovePluginAsync(string name, PluginRemoveParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
@@ -130,7 +127,7 @@ namespace Docker.DotNet
             }
 
             var query = new QueryString<PluginUpgradeParameters>(parameters);
-            var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, _client.JsonSerializer);
+            var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
             return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", query, data, cancellationToken);
         }
 
@@ -178,7 +175,7 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(parameters.Args));
             }
 
-            var body = new JsonRequestContent<IList<string>>(parameters.Args, _client.JsonSerializer);
+            var body = new JsonRequestContent<IList<string>>(parameters.Args, DockerClient.JsonSerializer);
             return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/set", null, body, cancellationToken);
         }
     }

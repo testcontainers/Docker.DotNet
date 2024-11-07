@@ -1,15 +1,14 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class ImageProperties // (image.ImageProperties)
     {
-        [DataMember(Name = "Platform", EmitDefaultValue = false)]
+        [JsonPropertyName("Platform")]
         public Platform Platform { get; set; }
 
-        [DataMember(Name = "Containers", EmitDefaultValue = false)]
+        [JsonPropertyName("Containers")]
         public IList<string> Containers { get; set; }
     }
 }

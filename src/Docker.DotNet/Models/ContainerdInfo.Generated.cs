@@ -1,14 +1,13 @@
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class ContainerdInfo // (system.ContainerdInfo)
     {
-        [DataMember(Name = "Address", EmitDefaultValue = false)]
+        [JsonPropertyName("Address")]
         public string Address { get; set; }
 
-        [DataMember(Name = "Namespaces", EmitDefaultValue = false)]
+        [JsonPropertyName("Namespaces")]
         public ContainerdNamespaces Namespaces { get; set; }
     }
 }

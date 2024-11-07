@@ -86,7 +86,7 @@ namespace Microsoft.Net.Http.Client
             return result;
         }
 
-        public override EndPoint Create(SocketAddress socketAddress) => new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(socketAddress);
+        public override EndPoint Create(SocketAddress socketAddress) => new UnixDomainSocketEndPoint(socketAddress);
 
         public override AddressFamily AddressFamily => EndPointAddressFamily;
 
