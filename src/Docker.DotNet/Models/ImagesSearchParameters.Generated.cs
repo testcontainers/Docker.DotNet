@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class ImagesSearchParameters // (main.ImagesSearchParameters)
     {
         [QueryStringParameter("term", false)]

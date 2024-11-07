@@ -1,27 +1,26 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class Descriptor // (v1.Descriptor)
     {
-        [DataMember(Name = "mediaType", EmitDefaultValue = false)]
+        [JsonPropertyName("mediaType")]
         public string MediaType { get; set; }
 
-        [DataMember(Name = "digest", EmitDefaultValue = false)]
+        [JsonPropertyName("digest")]
         public string Digest { get; set; }
 
-        [DataMember(Name = "size", EmitDefaultValue = false)]
+        [JsonPropertyName("size")]
         public long Size { get; set; }
 
-        [DataMember(Name = "urls", EmitDefaultValue = false)]
+        [JsonPropertyName("urls")]
         public IList<string> URLs { get; set; }
 
-        [DataMember(Name = "annotations", EmitDefaultValue = false)]
+        [JsonPropertyName("annotations")]
         public IDictionary<string, string> Annotations { get; set; }
 
-        [DataMember(Name = "platform", EmitDefaultValue = false)]
+        [JsonPropertyName("platform")]
         public Platform Platform { get; set; }
     }
 }

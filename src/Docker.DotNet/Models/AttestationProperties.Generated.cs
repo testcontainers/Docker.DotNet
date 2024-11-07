@@ -1,11 +1,10 @@
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    [DataContract]
     public class AttestationProperties // (image.AttestationProperties)
     {
-        [DataMember(Name = "For", EmitDefaultValue = false)]
+        [JsonPropertyName("For")]
         public string For { get; set; }
     }
 }

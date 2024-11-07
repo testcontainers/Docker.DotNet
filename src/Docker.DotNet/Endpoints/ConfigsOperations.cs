@@ -18,8 +18,7 @@ namespace Docker.DotNet
 
         async Task<IList<SwarmConfig>> IConfigOperations.ListConfigsAsync(CancellationToken cancellationToken)
         {
-            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken).ConfigureAwait(false);
-            return _client.JsonSerializer.DeserializeObject<IList<SwarmConfig>>(response.Body);
+            return await _client.MakeRequestAsync<IList<SwarmConfig>>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken).ConfigureAwait(false);
         }
 
         async Task<SwarmCreateConfigResponse> IConfigOperations.CreateConfigAsync(SwarmCreateConfigParameters body, CancellationToken cancellationToken)
@@ -29,9 +28,8 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(body));
             }
 
-            var data = new JsonRequestContent<SwarmConfigSpec>(body.Config, _client.JsonSerializer);
-            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "configs/create", null, data, cancellationToken).ConfigureAwait(false);
-            return _client.JsonSerializer.DeserializeObject<SwarmCreateConfigResponse>(response.Body);
+            var data = new JsonRequestContent<SwarmConfigSpec>(body.Config, DockerClient.JsonSerializer);
+            return await _client.MakeRequestAsync<SwarmCreateConfigResponse>(_client.NoErrorHandlers, HttpMethod.Post, "configs/create", null, data, cancellationToken).ConfigureAwait(false);
         }
 
         async Task<SwarmConfig> IConfigOperations.InspectConfigAsync(string id, CancellationToken cancellationToken)
@@ -41,8 +39,7 @@ namespace Docker.DotNet
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var response = await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken).ConfigureAwait(false);
-            return _client.JsonSerializer.DeserializeObject<SwarmConfig>(response.Body);
+            return await _client.MakeRequestAsync<SwarmConfig>(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken).ConfigureAwait(false);
         }
 
         Task IConfigOperations.RemoveConfigAsync(string id, CancellationToken cancellationToken)
