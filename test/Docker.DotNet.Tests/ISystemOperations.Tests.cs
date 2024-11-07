@@ -39,7 +39,7 @@ namespace Docker.DotNet.Tests
         [Fact]
         public void Docker_IsRunning()
         {
-            var dockerProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName.Equals("docker", StringComparison.InvariantCultureIgnoreCase) || process.ProcessName.Equals("dockerd", StringComparison.InvariantCultureIgnoreCase));
+            var dockerProcess = Process.GetProcesses().FirstOrDefault(_ => _.ProcessName.Equals("docker", StringComparison.InvariantCultureIgnoreCase) || _.ProcessName.Equals("dockerd", StringComparison.InvariantCultureIgnoreCase));
             Assert.NotNull(dockerProcess); // docker is not running
         }
 
@@ -63,7 +63,7 @@ namespace Docker.DotNet.Tests
             var progress = new Progress<Message>();
 
             using var cts = new CancellationTokenSource();
-            await cts.CancelAsync();
+            cts.Cancel();
             await Task.Delay(1);
 
             await Assert.ThrowsAsync<TaskCanceledException>(() => _dockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), progress, cts.Token));
@@ -116,7 +116,7 @@ namespace Docker.DotNet.Tests
             // Give it some time for output operation to complete before cancelling task
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            await cts.CancelAsync();
+            cts.Cancel();
 
             await Assert.ThrowsAsync<OperationCanceledException>(() => task).ConfigureAwait(false);
 
@@ -144,7 +144,7 @@ namespace Docker.DotNet.Tests
                         cts.Token);
 
                     // (2) Wait for some time to make sure we get into blocking IO call
-                    await Task.Delay(100, CancellationToken.None);
+                    await Task.Delay(100);
 
                     // (3) Invoke another request that will attempt to grab the same buffer
                     var listImagesTask1 = _dockerClient.Images.TagImageAsync(
@@ -153,32 +153,33 @@ namespace Docker.DotNet.Tests
                         {
                             RepositoryName = _repositoryName,
                             Tag = newImageTag,
-                        }, CancellationToken.None);
+                        },
+                        default);
 
                     // (4) Wait for a short bit again and cancel the monitor task - if we get lucky, we the list images call will grab the same buffer while
                     sw.Restart();
                     var iterations = rand.Next(15000000);
 
-                    for (var j = 0; j < iterations; j++)
+                    for (int j = 0; j < iterations; j++)
                     {
                         // noop
                     }
-
                     _output.WriteLine($"Waited for {sw.Elapsed.TotalMilliseconds} ms");
 
-                    await cts.CancelAsync();
+                    cts.Cancel();
 
-                    await listImagesTask1;
+                    listImagesTask1.GetAwaiter().GetResult();
 
-                    await _dockerClient.Images.TagImageAsync(
+                    _dockerClient.Images.TagImageAsync(
                         $"{_repositoryName}:{_tag}",
                         new ImageTagParameters
                         {
                             RepositoryName = _repositoryName,
                             Tag = newImageTag,
-                        }, CancellationToken.None);
+                        }
+                    ).GetAwaiter().GetResult();
 
-                    await monitorTask;
+                    monitorTask.GetAwaiter().GetResult();
                 }
                 catch (OperationCanceledException)
                 {
@@ -261,7 +262,7 @@ namespace Docker.DotNet.Tests
             await _dockerClient.Containers.RemoveContainerAsync(createContainerResponse.ID, new ContainerRemoveParameters(), cts.Token);
 
             await Task.Delay(TimeSpan.FromSeconds(1));
-            await cts.CancelAsync();
+            cts.Cancel();
 
             await Assert.ThrowsAsync<OperationCanceledException>(() => task);
 

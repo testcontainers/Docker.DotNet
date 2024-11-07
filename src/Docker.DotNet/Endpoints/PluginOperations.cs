@@ -60,7 +60,7 @@ namespace Docker.DotNet
 
             IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
             return StreamUtil.MonitorStreamForMessagesAsync(
-                _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, "plugins/pull", queryParameters, data, null, CancellationToken.None),
+                _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/pull", queryParameters, data, null, CancellationToken.None),
                 _client,
                 cancellationToken,
                 progress);
@@ -145,7 +145,7 @@ namespace Docker.DotNet
 
             var query = new QueryString<PluginCreateParameters>(parameters);
             var data = new BinaryRequestContent(plugin, TarContentType);
-            return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "plugins/create", query, data, cancellationToken);
+            return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", query, data, cancellationToken);
         }
 
         public Task PushPluginAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
