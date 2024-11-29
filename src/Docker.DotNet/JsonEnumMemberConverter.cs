@@ -10,33 +10,39 @@ using System.Text.Json.Serialization;
 
 internal sealed class JsonEnumMemberConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
 {
-    private readonly IReadOnlyDictionary<string, string> _map = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
+    private readonly Dictionary<string, string> _enumFields = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
         .Select(field => (Name: field.Name, Attribute: field.GetCustomAttribute<EnumMemberAttribute>()))
         .Where(item => item.Attribute != null && item.Attribute.Value != null)
-        .ToDictionary(item => item.Name, item => item.Attribute.Value, StringComparer.OrdinalIgnoreCase);
+        .ToDictionary(item => item.Name, item => item.Attribute.Value);
 
     public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var stringValue = reader.GetString();
 
-        var enumValue = _map.SingleOrDefault(item => item.Value.Equals(stringValue, StringComparison.OrdinalIgnoreCase));
+        var enumField = _enumFields.SingleOrDefault(item => item.Value.Equals(stringValue, StringComparison.Ordinal));
 
-        if (enumValue.Key == null)
+        if (enumField.Key == null)
         {
             throw new JsonException($"Unknown enum value '{stringValue}' for enum type '{typeof(TEnum).Name}'.");
         }
 
-        if (!Enum.TryParse(enumValue.Key, out TEnum result))
+        if (!Enum.TryParse(enumField.Key, out TEnum enumValue))
         {
             throw new JsonException($"Unable to convert '{stringValue}' to a valid enum value of type '{typeof(TEnum).Name}'.");
         }
 
-        return result;
+        return enumValue;
     }
 
     public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
     {
         var enumName = value.ToString();
-        writer.WriteStringValue(_map.TryGetValue(enumName, out var stringValue) ? stringValue : enumName);
+
+        if (!_enumFields.TryGetValue(enumName, out var stringValue))
+        {
+            throw new JsonException($"Unable to convert '{enumName}' to a valid enum value of type '{nameof(String)}'.");
+        }
+
+        writer.WriteStringValue(stringValue);
     }
 }

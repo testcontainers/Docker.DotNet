@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.JsonSerializer8.Tests;
+﻿namespace Docker.DotNet.Tests;
 
 using System.Text;
 using Docker.DotNet.Models;
