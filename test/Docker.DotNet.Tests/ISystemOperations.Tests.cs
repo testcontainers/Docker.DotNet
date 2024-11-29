@@ -118,7 +118,7 @@ namespace Docker.DotNet.Tests
 
             await cts.CancelAsync();
 
-            await Assert.ThrowsAsync<OperationCanceledException>(() => task).ConfigureAwait(false);
+            await Assert.ThrowsAsync<OperationCanceledException>(() => task);
 
             Assert.True(wasProgressCalled);
         }
