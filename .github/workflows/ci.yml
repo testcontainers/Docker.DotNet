@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        framework:
+          - 8.0
+          - 9.0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,8 +20,8 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x
+          dotnet-version: ${{ matrix.framework }}.x
       - name: Build
-        run: dotnet build -c Release
+        run: dotnet build -c Release --framework net${{ matrix.framework }}
       - name: Test
-        run: dotnet test -c Release --no-build
+        run: dotnet test -c Release --framework net${{ matrix.framework }} --no-build

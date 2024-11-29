@@ -1,5 +1,9 @@
 ﻿namespace Docker.DotNet.JsonSerializer8.Tests;
 
+using System.Text;
+using Docker.DotNet.Models;
+using Xunit;
+
 public sealed class JsonEnumMemberConverterTests
 {
     [Theory]
