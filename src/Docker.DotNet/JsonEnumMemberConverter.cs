@@ -8,27 +8,41 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-// https://github.com/dotnet/runtime/issues/74385#issuecomment-1705083109.
-internal sealed class JsonEnumMemberConverter<TEnum> : JsonStringEnumConverter<TEnum> where TEnum : struct, Enum
+internal sealed class JsonEnumMemberConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
 {
-    public JsonEnumMemberConverter() : base(ResolveNamingPolicy())
+    private readonly Dictionary<string, string> _enumFields = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Select(field => (Name: field.Name, Attribute: field.GetCustomAttribute<EnumMemberAttribute>()))
+        .Where(item => item.Attribute != null && item.Attribute.Value != null)
+        .ToDictionary(item => item.Name, item => item.Attribute.Value);
+
+    public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
+        var stringValue = reader.GetString();
+
+        var enumField = _enumFields.SingleOrDefault(item => item.Value.Equals(stringValue, StringComparison.Ordinal));
+
+        if (enumField.Key == null)
+        {
+            throw new JsonException($"Unknown enum value '{stringValue}' for enum type '{typeof(TEnum).Name}'.");
+        }
+
+        if (!Enum.TryParse(enumField.Key, out TEnum enumValue))
+        {
+            throw new JsonException($"Unable to convert '{stringValue}' to a valid enum value of type '{typeof(TEnum).Name}'.");
+        }
+
+        return enumValue;
     }
 
-    private static JsonNamingPolicy ResolveNamingPolicy()
+    public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
     {
-        return new EnumMemberNamingPolicy(typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Select(fieldInfo => new KeyValuePair<string, string>(fieldInfo.Name, fieldInfo.GetCustomAttribute<EnumMemberAttribute>()?.Value))
-            .Where(kvp => kvp.Value != null)
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-    }
+        var enumName = value.ToString();
 
-    private sealed class EnumMemberNamingPolicy : JsonNamingPolicy
-    {
-        private readonly IReadOnlyDictionary<string, string> _map;
+        if (!_enumFields.TryGetValue(enumName, out var stringValue))
+        {
+            throw new JsonException($"Unable to convert '{enumName}' to a valid enum value of type '{nameof(String)}'.");
+        }
 
-        public EnumMemberNamingPolicy(IReadOnlyDictionary<string, string> map) => _map = map;
-
-        public override string ConvertName(string name) => _map.TryGetValue(name, out var newName) ? newName : name;
+        writer.WriteStringValue(stringValue);
     }
 }
