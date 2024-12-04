@@ -5,17 +5,17 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <TargetFrameworks>net8.0;net9.0;netstandard2.0;netstandard2.1</TargetFrameworks>
-        <PackageIconUrl>https://camo.githubusercontent.com/fa6d5c12609ed8a3ba1163b96f9e9979b8f59b0d/687474703a2f2f7765732e696f2f566663732f636f6e74656e74</PackageIconUrl>
-        <Copyright>Copyright (c) .NET Foundation and Contributors</Copyright>
+        <Copyright>Copyright (c) .NET Foundation and Contributors; Andre Hofmeister</Copyright>
         <PackageTags>Docker Container C# .NET</PackageTags>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/dotnet/Docker.DotNet/</RepositoryUrl>
+        <RepositoryUrl>https://github.com/testcontainers/Docker.DotNet/</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
+        <PackageIconUrl>https://github.com/testcontainers/Docker.DotNet/raw/main/icon.png</PackageIconUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
