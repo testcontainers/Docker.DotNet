@@ -23,14 +23,14 @@ or non-breaking feature additions.
 
 ## Installation
 
-[![NuGet latest release](https://img.shields.io/nuget/v/Docker.DotNet.svg)](https://www.nuget.org/packages/Docker.DotNet)
+[![NuGet latest release](https://img.shields.io/nuget/v/Docker.DotNet.Enhanced.svg)](https://www.nuget.org/packages/Docker.DotNet.Enhanced)
 
 You can add this library to your project using [NuGet][nuget].
 
 **Package Manager Console**
 Run the following command in the “Package Manager Console”:
 
-> PM> Install-Package Docker.DotNet
+> PM> Install-Package Docker.DotNet.Enhanced
 
 **Visual Studio**
 Right click to your project in Visual Studio, choose “Manage NuGet Packages” and search for ‘Docker.DotNet’ and click ‘Install’.
@@ -39,15 +39,11 @@ Right click to your project in Visual Studio, choose “Manage NuGet Packages”
 **.NET Core Command Line Interface**
 Run the following command from your favorite shell or terminal:
 
-> dotnet add package Docker.DotNet
+> dotnet add package Docker.DotNet.Enhanced
 
 **Development Builds**
 
-![](https://ci.appveyor.com/api/projects/status/github/Microsoft/Docker.DotNet?branch=master&svg=true)
-
-If you intend to use development builds of Docker.DotNet and don't want to compile the code yourself you can add the package source below to Visual Studio or your Nuget.Config.
-
-> https://ci.appveyor.com/nuget/docker-dotnet-hojfmn6hoed7
+[![CI](https://github.com/testcontainers/Docker.DotNet/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/testcontainers/Docker.DotNet/actions/workflows/ci.yml)
 
 ## Usage
 
@@ -282,10 +278,11 @@ Docker.DotNet is licensed under the [MIT](LICENSE) license.
 
 ---------------
 Copyright (c) .NET Foundation and Contributors
+Copyright (c) Andre Hofmeister
 
 [docker-remote-api]: https://docs.docker.com/engine/reference/api/docker_remote_api/
 [docker-tls]: https://docs.docker.com/articles/https/
 [nuget]: http://www.nuget.org
-[nuget-gallery]: https://www.nuget.org/packages/Docker.DotNet/
-[Docker.DotNet.X509]: https://www.nuget.org/packages/Docker.DotNet.X509/
-[Docker.DotNet.BasicAuth]: https://www.nuget.org/packages/Docker.DotNet.BasicAuth/
+[nuget-gallery]: https://www.nuget.org/packages/Docker.DotNet.Enhanced/
+[Docker.DotNet.X509]: https://www.nuget.org/packages/Docker.DotNet.Enhanced.X509/
+[Docker.DotNet.BasicAuth]: https://www.nuget.org/packages/Docker.DotNet.Enhanced.BasicAuth/
