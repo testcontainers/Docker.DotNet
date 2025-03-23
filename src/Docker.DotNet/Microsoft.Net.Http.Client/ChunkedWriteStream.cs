@@ -1,17 +1,14 @@
 namespace Microsoft.Net.Http.Client;
 
-internal class ChunkedWriteStream : Stream
+internal sealed class ChunkedWriteStream : Stream
 {
     private static readonly byte[] s_EndContentBytes = Encoding.ASCII.GetBytes("0\r\n\r\n");
 
-    private Stream _innerStream;
+    private readonly Stream _inner;
 
     public ChunkedWriteStream(Stream stream)
     {
-        if (stream == null)
-            throw new ArgumentNullException(nameof(stream));
-
-        _innerStream = stream;
+        _inner = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
     public override bool CanRead => false;
@@ -31,14 +28,24 @@ internal class ChunkedWriteStream : Stream
         set { throw new NotImplementedException(); }
     }
 
+    protected override void Dispose(bool disposing)
+    {
+        // base.Dispose(disposing);
+
+        if (disposing)
+        {
+            // _inner.Dispose();
+        }
+    }
+
     public override void Flush()
     {
-        _innerStream.Flush();
+        _inner.Flush();
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken)
     {
-        return _innerStream.FlushAsync(cancellationToken);
+        return _inner.FlushAsync(cancellationToken);
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -58,7 +65,7 @@ internal class ChunkedWriteStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        WriteAsync(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
+        throw new NotSupportedException();
     }
 
     public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -69,13 +76,13 @@ internal class ChunkedWriteStream : Stream
         }
 
         var chunkSize = Encoding.ASCII.GetBytes(count.ToString("x") + "\r\n");
-        await _innerStream.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken).ConfigureAwait(false);
-        await _innerStream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-        await _innerStream.WriteAsync(chunkSize, chunkSize.Length - 2, 2, cancellationToken).ConfigureAwait(false);
+        await _inner.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken).ConfigureAwait(false);
+        await _inner.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+        await _inner.WriteAsync(chunkSize, chunkSize.Length - 2, 2, cancellationToken).ConfigureAwait(false);
     }
 
     public Task EndContentAsync(CancellationToken cancellationToken)
     {
-        return _innerStream.WriteAsync(s_EndContentBytes, 0, s_EndContentBytes.Length, cancellationToken);
+        return _inner.WriteAsync(s_EndContentBytes, 0, s_EndContentBytes.Length, cancellationToken);
     }
 }

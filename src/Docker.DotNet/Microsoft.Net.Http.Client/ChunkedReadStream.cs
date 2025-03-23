@@ -1,20 +1,19 @@
 namespace Microsoft.Net.Http.Client;
 
-internal class ChunkedReadStream : WriteClosableStream
+internal sealed class ChunkedReadStream : WriteClosableStream
 {
     private readonly BufferedReadStream _inner;
-    private long _chunkBytesRemaining;
-    private bool _disposed;
+    private int _chunkBytesRemaining;
     private bool _done;
 
-    public ChunkedReadStream(BufferedReadStream inner)
+    public ChunkedReadStream(BufferedReadStream stream)
     {
-        _inner = inner;
+        _inner = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
     public override bool CanRead
     {
-        get { return !_disposed; }
+        get { return _inner.CanRead; }
     }
 
     public override bool CanSeek
@@ -52,12 +51,10 @@ internal class ChunkedReadStream : WriteClosableStream
     {
         get
         {
-            ThrowIfDisposed();
             return _inner.ReadTimeout;
         }
         set
         {
-            ThrowIfDisposed();
             _inner.ReadTimeout = value;
         }
     }
@@ -66,89 +63,78 @@ internal class ChunkedReadStream : WriteClosableStream
     {
         get
         {
-            ThrowIfDisposed();
             return _inner.WriteTimeout;
         }
         set
         {
-            ThrowIfDisposed();
             _inner.WriteTimeout = value;
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        // base.Dispose(disposing);
+
+        if (disposing)
+        {
+            // _inner.Dispose();
         }
     }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        return ReadAsync(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
+        throw new NotSupportedException();
     }
 
-    public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-        // TODO: Validate buffer
-        ThrowIfDisposed();
-
         if (_done)
         {
             return 0;
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-
         if (_chunkBytesRemaining == 0)
         {
-            string headerLine = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            if (!long.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
+            var headerLine = await _inner.ReadLineAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
             {
-                throw new IOException("Invalid chunk header: " + headerLine);
+                throw new IOException($"Invalid chunk header encountered: '{headerLine}'.");
             }
         }
 
-        int read = 0;
+        var readBytes = 0;
+
         if (_chunkBytesRemaining > 0)
         {
-            int toRead = (int)Math.Min(count, _chunkBytesRemaining);
-            read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken).ConfigureAwait(false);
-            if (read == 0)
+            var remainingCount = Math.Min(_chunkBytesRemaining, count);
+
+            readBytes = await _inner.ReadAsync(buffer, offset, remainingCount, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (readBytes == 0)
             {
                 throw new EndOfStreamException();
             }
 
-            _chunkBytesRemaining -= read;
+            _chunkBytesRemaining -= readBytes;
         }
 
         if (_chunkBytesRemaining == 0)
         {
-            // End of chunk, read the terminator CRLF
-            var trailer = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            if (trailer.Length > 0)
+            var emptyLine = await _inner.ReadLineAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(emptyLine))
             {
-                throw new IOException("Invalid chunk trailer");
+                throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
             }
 
-            if (read == 0)
-            {
-                _done = true;
-            }
+            _done = readBytes == 0;
         }
 
-        return read;
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
-            _inner.Dispose();
-        }
-        _disposed = true;
-    }
-
-    private void ThrowIfDisposed()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
-        }
+        return readBytes;
     }
 
     public override void Write(byte[] buffer, int offset, int count)

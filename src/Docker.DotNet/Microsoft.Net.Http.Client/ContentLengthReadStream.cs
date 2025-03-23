@@ -100,7 +100,7 @@ internal class ContentLengthReadStream : Stream
         return read;
     }
 
-    public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         // TODO: Validate args
         if (_disposed)

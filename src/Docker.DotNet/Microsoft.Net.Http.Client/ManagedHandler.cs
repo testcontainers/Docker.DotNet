@@ -4,21 +4,27 @@ using System;
 
 public class ManagedHandler : HttpMessageHandler
 {
+    private readonly ILogger _logger;
+
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
+
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
 
-    public ManagedHandler()
+    public ManagedHandler(ILogger logger)
     {
+        _logger = logger;
         _socketOpener = TCPSocketOpenerAsync;
     }
 
-    public ManagedHandler(StreamOpener opener)
+    public ManagedHandler(StreamOpener opener, ILogger logger)
     {
+        _logger = logger;
         _streamOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
-    public ManagedHandler(SocketOpener opener)
+    public ManagedHandler(SocketOpener opener, ILogger logger)
     {
+        _logger = logger;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
@@ -52,7 +58,7 @@ public class ManagedHandler : HttpMessageHandler
     private SocketOpener _socketOpener;
     private IWebProxy _proxy;
 
-    protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (request == null)
         {
@@ -168,11 +174,11 @@ public class ManagedHandler : HttpMessageHandler
         if (request.IsHttps())
         {
             SslStream sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
-            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12, false);
+            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, false);
             transport = sslStream;
         }
 
-        var bufferedReadStream = new BufferedReadStream(transport, socket);
+        var bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
         var connection = new HttpConnection(bufferedReadStream);
         return await connection.SendAsync(request, cancellationToken);
     }
@@ -308,36 +314,35 @@ public class ManagedHandler : HttpMessageHandler
 
     private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
-        var addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
+        var addresses = await Dns.GetHostAddressesAsync(host)
+            .ConfigureAwait(false);
+
         if (addresses.Length == 0)
         {
-            throw new Exception($"could not resolve address for {host}");
+            throw new Exception($"Unable to resolve any IP addresses for the host '{host}'.");
         }
 
-        Socket connectedSocket = null;
-        Exception lastException = null;
+        var exceptions = new List<Exception>();
+
         foreach (var address in addresses)
         {
-            var s = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
             try
             {
-                await s.ConnectAsync(address, port).ConfigureAwait(false);
-                connectedSocket = s;
-                break;
+                await socket.ConnectAsync(address, port)
+                    .ConfigureAwait(false);
+
+                return socket;
             }
             catch (Exception e)
             {
-                s.Dispose();
-                lastException = e;
+                socket.Dispose();
+                exceptions.Add(e);
             }
         }
 
-        if (connectedSocket == null)
-        {
-            throw lastException;
-        }
-
-        return connectedSocket;
+        throw new AggregateException(exceptions);
     }
 
     private async Task TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, CancellationToken cancellationToken)
@@ -355,7 +360,7 @@ public class ManagedHandler : HttpMessageHandler
         connectRequest.SetAddressLineProperty(authority);
         connectRequest.Headers.Host = authority;
 
-        HttpConnection connection = new HttpConnection(new BufferedReadStream(transport, null));
+        HttpConnection connection = new HttpConnection(new BufferedReadStream(transport, null, _logger));
         HttpResponseMessage connectResponse;
         try
         {
