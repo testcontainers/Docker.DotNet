@@ -1,9 +1,8 @@
-namespace Microsoft.Net.Http.Client
+namespace Microsoft.Net.Http.Client;
+
+public enum ProxyMode
 {
-    public enum ProxyMode
-    {
-        None,
-        Http,
-        Tunnel
-    }
+    None,
+    Http,
+    Tunnel
 }

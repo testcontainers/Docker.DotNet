@@ -1,21 +1,15 @@
-﻿namespace Docker.DotNet
+namespace Docker.DotNet;
+
+internal class BoolQueryStringConverter : IQueryStringConverter
 {
-    using System;
-    using System.Diagnostics;
-    using System.Globalization;
-
-    internal class BoolQueryStringConverter : IQueryStringConverter
+    public bool CanConvert(Type t)
     {
-        public bool CanConvert(Type t)
-        {
-            return t == typeof (bool);
-        }
+        return t == typeof (bool);
+    }
 
-        public string[] Convert(object o)
-        {
-            Debug.Assert(o != null);
-
-            return new[] {System.Convert.ToInt32(System.Convert.ToBoolean(o)).ToString(CultureInfo.InvariantCulture)};
-        }
+    public string[] Convert(object o)
+    {
+        Debug.Assert(o != null);
+        return new[] {System.Convert.ToInt32(System.Convert.ToBoolean(o)).ToString(CultureInfo.InvariantCulture)};
     }
 }

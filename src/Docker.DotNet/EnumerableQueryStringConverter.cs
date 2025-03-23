@@ -1,41 +1,34 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+/// <summary>
+/// Handles serialization of objects like Lists, Arrays, etc.
+/// </summary>
+internal class EnumerableQueryStringConverter : IQueryStringConverter
 {
-    /// <summary>
-    /// Handles serialization of objects like Lists, Arrays, etc.
-    /// </summary>
-    internal class EnumerableQueryStringConverter : IQueryStringConverter
+    public bool CanConvert(Type t)
     {
-        public bool CanConvert(Type t)
-        {
-            return typeof (IEnumerable).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo());
-        }
+        return typeof (IEnumerable).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo());
+    }
 
-        public string[] Convert(object o)
-        {
-            Debug.Assert(o != null);
-            Debug.Assert(o is IEnumerable);
+    public string[] Convert(object o)
+    {
+        Debug.Assert(o != null);
+        Debug.Assert(o is IEnumerable);
 
-            var items = new List<string>();
-            foreach (var e in ((IEnumerable) o))
+        var items = new List<string>();
+        foreach (var e in ((IEnumerable) o))
+        {
+            if (e is ValueType ||
+                e is string)
             {
-                if (e is ValueType ||
-                    e is string)
-                {
-                    items.Add(e.ToString());
-                }
-                else
-                {
-                    items.Add(JsonSerializer.Instance.Serialize(e));
-                }
+                items.Add(e.ToString());
             }
-
-            return items.ToArray();
+            else
+            {
+                items.Add(JsonSerializer.Instance.Serialize(e));
+            }
         }
+
+        return items.ToArray();
     }
 }

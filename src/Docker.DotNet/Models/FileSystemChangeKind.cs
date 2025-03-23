@@ -1,10 +1,8 @@
-﻿
-namespace Docker.DotNet.Models
+namespace Docker.DotNet.Models;
+
+public enum FileSystemChangeKind
 {
-    public enum FileSystemChangeKind
-    {
-        Modify = 0,
-        Add,
-        Delete
-    }
+    Modify = 0,
+    Add,
+    Delete
 }

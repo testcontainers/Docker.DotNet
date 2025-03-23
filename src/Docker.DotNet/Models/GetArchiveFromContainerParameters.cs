@@ -1,8 +1,7 @@
-﻿namespace Docker.DotNet.Models
+namespace Docker.DotNet.Models;
+
+public class GetArchiveFromContainerParameters
 {
-    public class GetArchiveFromContainerParameters
-    {
-        [QueryStringParameter("path", true)]
-        public string Path { get; set; }
-    }
+    [QueryStringParameter("path", true)]
+    public string Path { get; set; }
 }

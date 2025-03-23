@@ -1,9 +1,6 @@
-﻿using System;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+internal interface IQueryStringConverterInstanceFactory
 {
-    internal interface IQueryStringConverterInstanceFactory
-    {
-        IQueryStringConverter GetConverterInstance(Type t);
-    }
+    IQueryStringConverter GetConverterInstance(Type t);
 }

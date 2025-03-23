@@ -1,66 +1,61 @@
-using System;
-using System.Security;
-using System.Runtime.InteropServices;
+namespace Docker.DotNet.BasicAuth;
 
-namespace Docker.DotNet.BasicAuth
+internal class MaybeSecureString : IDisposable
 {
-    internal class MaybeSecureString : IDisposable
+    public SecureString Value { get; }
+
+    public MaybeSecureString(string str)
     {
-        public SecureString Value { get; }
-
-        public MaybeSecureString(string str)
+        if (string.IsNullOrEmpty(str))
         {
-            if (string.IsNullOrEmpty(str))
-            {
-                throw new ArgumentNullException(nameof(str));
-            }
-
-            var secureStr = new SecureString();
-
-            if (str.Length > 0)
-            {
-                foreach (char c in str)
-                {
-                    secureStr.AppendChar(c);
-                }
-            }
-
-            Value = secureStr;
+            throw new ArgumentNullException(nameof(str));
         }
 
-        public MaybeSecureString(SecureString str)
-        {
-            if (str == null)
-            {
-                throw new ArgumentNullException(nameof(str));
-            }
+        var secureStr = new SecureString();
 
-            Value = str.Copy();
+        if (str.Length > 0)
+        {
+            foreach (char c in str)
+            {
+                secureStr.AppendChar(c);
+            }
         }
 
-        public void Dispose()
+        Value = secureStr;
+    }
+
+    public MaybeSecureString(SecureString str)
+    {
+        if (str == null)
         {
-            Value.Dispose();
+            throw new ArgumentNullException(nameof(str));
         }
 
-        public MaybeSecureString Copy()
+        Value = str.Copy();
+    }
+
+    public void Dispose()
+    {
+        Value.Dispose();
+    }
+
+    public MaybeSecureString Copy()
+    {
+        return new MaybeSecureString(Value.Copy());
+    }
+
+    public override string ToString()
+    {
+        IntPtr unmanagedString = IntPtr.Zero;
+
+        try
         {
-            return new MaybeSecureString(Value.Copy());
+            unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(Value);
+            return Marshal.PtrToStringUni(unmanagedString);
         }
-
-        public override string ToString()
+        finally
         {
-            IntPtr unmanagedString = IntPtr.Zero;
-
-            try
-            {
-                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(Value);
-                return Marshal.PtrToStringUni(unmanagedString);
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
-            }
+            Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
         }
     }
 }

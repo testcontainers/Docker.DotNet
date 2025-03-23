@@ -1,8 +1,4 @@
-﻿namespace Docker.DotNet;
-
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+namespace Docker.DotNet;
 
 internal sealed class JsonDateTimeConverter : JsonConverter<DateTime>
 {
@@ -23,6 +19,6 @@ internal sealed class JsonDateTimeConverter : JsonConverter<DateTime>
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        writer.WriteStringValue(value.ToString("O"));
     }
 }

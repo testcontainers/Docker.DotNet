@@ -1,190 +1,183 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Microsoft.Net.Http.Client;
 
-namespace Microsoft.Net.Http.Client
+internal class ChunkedReadStream : WriteClosableStream
 {
-    internal class ChunkedReadStream : WriteClosableStream
+    private readonly BufferedReadStream _inner;
+    private long _chunkBytesRemaining;
+    private bool _disposed;
+    private bool _done;
+
+    public ChunkedReadStream(BufferedReadStream inner)
     {
-        private readonly BufferedReadStream _inner;
-        private long _chunkBytesRemaining;
-        private bool _disposed;
-        private bool _done;
+        _inner = inner;
+    }
 
-        public ChunkedReadStream(BufferedReadStream inner)
-        {
-            _inner = inner;
-        }
+    public override bool CanRead
+    {
+        get { return !_disposed; }
+    }
 
-        public override bool CanRead
-        {
-            get { return !_disposed; }
-        }
+    public override bool CanSeek
+    {
+        get { return false; }
+    }
 
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
+    public override bool CanTimeout
+    {
+        get { return _inner.CanTimeout; }
+    }
 
-        public override bool CanTimeout
-        {
-            get { return _inner.CanTimeout; }
-        }
+    public override bool CanWrite
+    {
+        get { return false; }
+    }
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+    public override bool CanCloseWrite
+    {
+        get { return _inner.CanCloseWrite; }
+    }
 
-        public override bool CanCloseWrite
-        {
-            get { return _inner.CanCloseWrite; }
-        }
+    public override long Length
+    {
+        get { throw new NotSupportedException(); }
+    }
 
-        public override long Length
-        {
-            get { throw new NotSupportedException(); }
-        }
+    public override long Position
+    {
+        get { throw new NotSupportedException(); }
+        set { throw new NotSupportedException(); }
+    }
 
-        public override long Position
+    public override int ReadTimeout
+    {
+        get
         {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
-        }
-
-        public override int ReadTimeout
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _inner.ReadTimeout;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                _inner.ReadTimeout = value;
-            }
-        }
-
-        public override int WriteTimeout
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _inner.WriteTimeout;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                _inner.WriteTimeout = value;
-            }
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            return ReadAsync(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
-        }
-
-        public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            // TODO: Validate buffer
             ThrowIfDisposed();
+            return _inner.ReadTimeout;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            _inner.ReadTimeout = value;
+        }
+    }
 
-            if (_done)
-            {
-                return 0;
-            }
+    public override int WriteTimeout
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _inner.WriteTimeout;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            _inner.WriteTimeout = value;
+        }
+    }
 
-            cancellationToken.ThrowIfCancellationRequested();
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        return ReadAsync(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
+    }
 
-            if (_chunkBytesRemaining == 0)
-            {
-                string headerLine = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-                if (!long.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
-                {
-                    throw new IOException("Invalid chunk header: " + headerLine);
-                }
-            }
+    public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        // TODO: Validate buffer
+        ThrowIfDisposed();
 
-            int read = 0;
-            if (_chunkBytesRemaining > 0)
-            {
-                int toRead = (int)Math.Min(count, _chunkBytesRemaining);
-                read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken).ConfigureAwait(false);
-                if (read == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-
-                _chunkBytesRemaining -= read;
-            }
-
-            if (_chunkBytesRemaining == 0)
-            {
-                // End of chunk, read the terminator CRLF
-                var trailer = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-                if (trailer.Length > 0)
-                {
-                    throw new IOException("Invalid chunk trailer");
-                }
-
-                if (read == 0)
-                {
-                    _done = true;
-                }
-            }
-
-            return read;
+        if (_done)
+        {
+            return 0;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
-                _inner.Dispose();
-            }
-            _disposed = true;
-        }
+        cancellationToken.ThrowIfCancellationRequested();
 
-        private void ThrowIfDisposed()
+        if (_chunkBytesRemaining == 0)
         {
-            if (_disposed)
+            string headerLine = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+            if (!long.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
             {
-                throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
+                throw new IOException("Invalid chunk header: " + headerLine);
             }
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
+        int read = 0;
+        if (_chunkBytesRemaining > 0)
         {
-            _inner.Write(buffer, offset, count);
+            int toRead = (int)Math.Min(count, _chunkBytesRemaining);
+            read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken).ConfigureAwait(false);
+            if (read == 0)
+            {
+                throw new EndOfStreamException();
+            }
+
+            _chunkBytesRemaining -= read;
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        if (_chunkBytesRemaining == 0)
         {
-            return _inner.WriteAsync(buffer, offset, count, cancellationToken);
+            // End of chunk, read the terminator CRLF
+            var trailer = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+            if (trailer.Length > 0)
+            {
+                throw new IOException("Invalid chunk trailer");
+            }
+
+            if (read == 0)
+            {
+                _done = true;
+            }
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotSupportedException();
-        }
+        return read;
+    }
 
-        public override void SetLength(long value)
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
         {
-            throw new NotSupportedException();
+            // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
+            _inner.Dispose();
         }
+        _disposed = true;
+    }
 
-        public override void Flush()
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
         {
-            _inner.Flush();
+            throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
         }
+    }
 
-        public override void CloseWrite()
-        {
-            _inner.CloseWrite();
-        }
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        _inner.Write(buffer, offset, count);
+    }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        return _inner.WriteAsync(buffer, offset, count, cancellationToken);
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void SetLength(long value)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void Flush()
+    {
+        _inner.Flush();
+    }
+
+    public override void CloseWrite()
+    {
+        _inner.CloseWrite();
     }
 }

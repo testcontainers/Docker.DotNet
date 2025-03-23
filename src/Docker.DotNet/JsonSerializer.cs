@@ -1,16 +1,4 @@
-﻿namespace Docker.DotNet;
-
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Pipelines;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Docker.DotNet.Models;
+namespace Docker.DotNet;
 
 internal sealed class JsonSerializer
 {

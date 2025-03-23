@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
@@ -13,5 +13,18 @@
     <ProjectReference Include="..\..\src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.X509\Docker.DotNet.X509.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Docker.DotNet.Models" />
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 </Project>

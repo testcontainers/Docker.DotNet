@@ -1,9 +1,5 @@
 ﻿namespace Docker.DotNet;
 
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 internal sealed class JsonNullableDateTimeConverter : JsonConverter<DateTime?>
 {
     private static readonly DateTime UnixEpochBase = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -25,6 +21,13 @@ internal sealed class JsonNullableDateTimeConverter : JsonConverter<DateTime?>
 
     public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        if (value.HasValue)
+        {
+            writer.WriteStringValue(value.Value.ToString("O"));
+        }
+        else
+        {
+            writer.WriteNullValue();
+        }
     }
 }

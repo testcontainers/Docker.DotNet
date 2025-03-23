@@ -1,366 +1,398 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Docker.DotNet.Models;
-using Newtonsoft.Json;
-using Xunit;
-using Xunit.Abstractions;
+namespace Docker.DotNet.Tests;
 
-namespace Docker.DotNet.Tests
+[Collection(nameof(TestCollection))]
+public class IContainerOperationsTests
 {
-    [Collection(nameof(TestCollection))]
-    public class IContainerOperationsTests
+    private readonly CancellationTokenSource _cts;
+
+    private readonly TestOutput _output;
+    private readonly string _imageId;
+    private readonly DockerClientConfiguration _dockerClientConfiguration;
+    private readonly DockerClient _dockerClient;
+
+    public IContainerOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
     {
-        private readonly CancellationTokenSource _cts;
+        _output = new TestOutput(outputHelper);
 
-        private readonly TestOutput _output;
-        private readonly string _imageId;
-        private readonly DockerClientConfiguration _dockerClientConfiguration;
-        private readonly DockerClient _dockerClient;
+        _dockerClientConfiguration = testFixture.DockerClientConfiguration;
+        _dockerClient = _dockerClientConfiguration.CreateClient();
 
-        public IContainerOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
+        // Do not wait forever in case it gets stuck
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(testFixture.Cts.Token);
+        _cts.CancelAfter(TimeSpan.FromMinutes(5));
+        _cts.Token.Register(() => throw new TimeoutException("ContainerOperationsTests timeout"));
+
+        _imageId = testFixture.Image.ID;
+    }
+
+    [Fact]
+    public async Task CreateContainerAsync_CreatesContainer()
+    {
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+            },
+            _cts.Token
+        );
+
+        Assert.NotNull(createContainerResponse);
+        Assert.NotEmpty(createContainerResponse.ID);
+    }
+
+    // Timeout causing task to be cancelled
+    [Theory(Skip = "There is nothing we can do to delay CreateContainerAsync (aka HttpClient.SendAsync) deterministic. We cannot control if it responses successful before the timeout.")]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(10)]
+    public async Task CreateContainerAsync_TimeoutExpires_Fails(int millisecondsTimeout)
+    {
+        using var dockerClientWithTimeout = _dockerClientConfiguration.CreateClient();
+
+        dockerClientWithTimeout.DefaultTimeout = TimeSpan.FromMilliseconds(millisecondsTimeout);
+
+        _output.WriteLine($"Time available for CreateContainer operation: {millisecondsTimeout} ms'");
+
+        var timer = new Stopwatch();
+        timer.Start();
+
+        var createContainerTask = dockerClientWithTimeout.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+            },
+            _cts.Token);
+
+        _ = await Assert.ThrowsAsync<OperationCanceledException>(() => createContainerTask);
+
+        timer.Stop();
+        _output.WriteLine($"CreateContainerOperation finished after {timer.ElapsedMilliseconds} ms");
+
+        Assert.True(createContainerTask.IsCanceled);
+        Assert.True(createContainerTask.IsCompleted);
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_False_Follow_True_TaskIsCompleted()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = false
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+        var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = true
+            },
+            containerLogsCts.Token,
+            new Progress<string>(m => _output.WriteLine(m))
+        );
+
+        await _dockerClient.Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _cts.Token
+        );
+
+        await containerLogsTask;
+        Assert.True(containerLogsTask.IsCompletedSuccessfully);
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_False_Follow_False_ReadsLogs()
+    {
+        var logList = new List<string>();
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = false
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        await _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = false
+            },
+            default,
+            new Progress<string>(m => { logList.Add(m); _output.WriteLine(m); })
+        );
+
+        await _dockerClient.Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _cts.Token
+        );
+
+        _output.WriteLine($"Line count: {logList.Count}");
+
+        Assert.NotEmpty(logList);
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_True_Follow_False_ReadsLogs()
+    {
+        var logList = new List<string>();
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = true
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        await _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = false
+            },
+            default,
+            new Progress<string>(m => { _output.WriteLine(m); logList.Add(m); })
+        );
+
+        await _dockerClient.Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _cts.Token
+        );
+
+        _output.WriteLine($"Line count: {logList.Count}");
+
+        Assert.NotEmpty(logList);
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_False_Follow_True_Requires_Task_To_Be_Cancelled()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = false
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+        await Assert.ThrowsAsync<TaskCanceledException>(() => _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = true
+            },
+            containerLogsCts.Token,
+            new Progress<string>(m => _output.WriteLine(m))
+        ));
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_True_Follow_True_Requires_Task_To_Be_Cancelled()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = true
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+        var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = true
+            },
+            containerLogsCts.Token,
+            new Progress<string>(m => _output.WriteLine(m))
+        );
+
+        await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_Tty_True_Follow_True_ReadsLogs_TaskIsCancelled()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        var logList = new List<string>();
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = true
+            },
+            _cts.Token
+        );
+
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+        var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
+            createContainerResponse.ID,
+            new ContainerLogsParameters
+            {
+                ShowStderr = true,
+                ShowStdout = true,
+                Timestamps = true,
+                Follow = true
+            },
+            containerLogsCts.Token,
+            new Progress<string>(m => { _output.WriteLine(m); logList.Add(m); })
+        );
+
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        await _dockerClient.Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _cts.Token
+        );
+
+
+        await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
+        _output.WriteLine($"Line count: {logList.Count}");
+
+        Assert.NotEmpty(logList);
+    }
+
+    [Fact]
+    public async Task GetContainerStatsAsync_Tty_False_Stream_False_ReadsStats()
+    {
+        using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+        var containerStatsList = new List<ContainerStatsResponse>();
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = false
+            },
+            _cts.Token
+        );
+
+        _ = await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        tcs.CancelAfter(TimeSpan.FromSeconds(10));
+
+        await _dockerClient.Containers.GetContainerStatsAsync(
+            createContainerResponse.ID,
+            new ContainerStatsParameters
+            {
+                Stream = false
+            },
+            new Progress<ContainerStatsResponse>(m => { _output.WriteLine(m.ID); containerStatsList.Add(m); }),
+            tcs.Token
+        );
+
+        await Task.Delay(TimeSpan.FromSeconds(10));
+
+        Assert.NotEmpty(containerStatsList);
+        Assert.Single(containerStatsList);
+        _output.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
+    }
+
+    [Fact]
+    public async Task GetContainerStatsAsync_Tty_False_StreamStats()
+    {
+        using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+        using (tcs.Token.Register(() => throw new TimeoutException("GetContainerStatsAsync_Tty_False_StreamStats")))
         {
-            _output = new TestOutput(outputHelper);
-
-            _dockerClientConfiguration = testFixture.DockerClientConfiguration;
-            _dockerClient = _dockerClientConfiguration.CreateClient();
-
-            // Do not wait forever in case it gets stuck
-            _cts = CancellationTokenSource.CreateLinkedTokenSource(testFixture.Cts.Token);
-            _cts.CancelAfter(TimeSpan.FromMinutes(5));
-            _cts.Token.Register(() => throw new TimeoutException("ContainerOperationsTests timeout"));
-
-            _imageId = testFixture.Image.ID;
-        }
-
-        [Fact]
-        public async Task CreateContainerAsync_CreatesContainer()
-        {
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                },
-                _cts.Token
-            );
-
-            Assert.NotNull(createContainerResponse);
-            Assert.NotEmpty(createContainerResponse.ID);
-        }
-
-        // Timeout causing task to be cancelled
-        [Theory(Skip = "There is nothing we can do to delay CreateContainerAsync (aka HttpClient.SendAsync) deterministic. We cannot control if it responses successful before the timeout.")]
-        [InlineData(1)]
-        [InlineData(5)]
-        [InlineData(10)]
-        public async Task CreateContainerAsync_TimeoutExpires_Fails(int millisecondsTimeout)
-        {
-            using var dockerClientWithTimeout = _dockerClientConfiguration.CreateClient();
-
-            dockerClientWithTimeout.DefaultTimeout = TimeSpan.FromMilliseconds(millisecondsTimeout);
-
-            _output.WriteLine($"Time available for CreateContainer operation: {millisecondsTimeout} ms'");
-
-            var timer = new Stopwatch();
-            timer.Start();
-
-            var createContainerTask = dockerClientWithTimeout.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                },
-                _cts.Token);
-
-            _ = await Assert.ThrowsAsync<OperationCanceledException>(() => createContainerTask);
-
-            timer.Stop();
-            _output.WriteLine($"CreateContainerOperation finished after {timer.ElapsedMilliseconds} ms");
-
-            Assert.True(createContainerTask.IsCanceled);
-            Assert.True(createContainerTask.IsCompleted);
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_False_Follow_True_TaskIsCompleted()
-        {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            _output.WriteLine($"Running test {MethodBase.GetCurrentMethod().Module}->{MethodBase.GetCurrentMethod().Name}");
 
             var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
                 new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = false
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = true
-                },
-                containerLogsCts.Token,
-                new Progress<string>(m => _output.WriteLine(m))
-            );
-
-            await _dockerClient.Containers.StopContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStopParameters(),
-                _cts.Token
-            );
-
-            await containerLogsTask;
-            Assert.True(containerLogsTask.IsCompletedSuccessfully);
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_False_Follow_False_ReadsLogs()
-        {
-            var logList = new List<string>();
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = false
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            await _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = false
-                },
-                default,
-                new Progress<string>(m => { logList.Add(m); _output.WriteLine(m); })
-            );
-
-            await _dockerClient.Containers.StopContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStopParameters(),
-                _cts.Token
-            );
-
-            _output.WriteLine($"Line count: {logList.Count}");
-
-            Assert.NotEmpty(logList);
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_True_Follow_False_ReadsLogs()
-        {
-            var logList = new List<string>();
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = true
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            await _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = false
-                },
-                default,
-                new Progress<string>(m => { _output.WriteLine(m); logList.Add(m); })
-            );
-
-            await _dockerClient.Containers.StopContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStopParameters(),
-                _cts.Token
-            );
-
-            _output.WriteLine($"Line count: {logList.Count}");
-
-            Assert.NotEmpty(logList);
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_False_Follow_True_Requires_Task_To_Be_Cancelled()
-        {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = false
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            await Assert.ThrowsAsync<TaskCanceledException>(() => _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = true
-                },
-                containerLogsCts.Token,
-                new Progress<string>(m => _output.WriteLine(m))
-            ));
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_True_Follow_True_Requires_Task_To_Be_Cancelled()
-        {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = true
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = true
-                },
-                containerLogsCts.Token,
-                new Progress<string>(m => _output.WriteLine(m))
-            );
-
-            await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
-        }
-
-        [Fact]
-        public async Task GetContainerLogs_Tty_True_Follow_True_ReadsLogs_TaskIsCancelled()
-        {
-            using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-            var logList = new List<string>();
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = true
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            var containerLogsTask = _dockerClient.Containers.GetContainerLogsAsync(
-                createContainerResponse.ID,
-                new ContainerLogsParameters
-                {
-                    ShowStderr = true,
-                    ShowStdout = true,
-                    Timestamps = true,
-                    Follow = true
-                },
-                containerLogsCts.Token,
-                new Progress<string>(m => { _output.WriteLine(m); logList.Add(m); })
-            );
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            await _dockerClient.Containers.StopContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStopParameters(),
-                _cts.Token
-            );
-
-
-            await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
-            _output.WriteLine($"Line count: {logList.Count}");
-
-            Assert.NotEmpty(logList);
-        }
-
-        [Fact]
-        public async Task GetContainerStatsAsync_Tty_False_Stream_False_ReadsStats()
-        {
-            using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-            var containerStatsList = new List<ContainerStatsResponse>();
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
                 {
                     Image = _imageId,
                     Name = Guid.NewGuid().ToString(),
@@ -375,83 +407,84 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            tcs.CancelAfter(TimeSpan.FromSeconds(10));
+            List<ContainerStatsResponse> containerStatsList = new List<ContainerStatsResponse>();
 
-            await _dockerClient.Containers.GetContainerStatsAsync(
-                createContainerResponse.ID,
-                new ContainerStatsParameters
-                {
-                    Stream = false
-                },
-                new Progress<ContainerStatsResponse>(m => { _output.WriteLine(m.ID); containerStatsList.Add(m); }),
-                tcs.Token
-            );
-
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
-            Assert.NotEmpty(containerStatsList);
-            Assert.Single(containerStatsList);
-            _output.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
-        }
-
-        [Fact]
-        public async Task GetContainerStatsAsync_Tty_False_StreamStats()
-        {
-            using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-            using (tcs.Token.Register(() => throw new TimeoutException("GetContainerStatsAsync_Tty_False_StreamStats")))
+            using var linkedCts = new CancellationTokenSource();
+            linkedCts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
             {
-                _output.WriteLine($"Running test {MethodBase.GetCurrentMethod().Module}->{MethodBase.GetCurrentMethod().Name}");
-
-                var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                    new CreateContainerParameters()
+                await _dockerClient.Containers.GetContainerStatsAsync(
+                    createContainerResponse.ID,
+                    new ContainerStatsParameters
                     {
-                        Image = _imageId,
-                        Name = Guid.NewGuid().ToString(),
-                        Tty = false
+                        Stream = true
                     },
-                    _cts.Token
+                    new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonSerializer.Instance.Serialize(m)); }),
+                    linkedCts.Token
                 );
-
-                _ = await _dockerClient.Containers.StartContainerAsync(
-                    createContainerResponse.ID,
-                            new ContainerStartParameters(),
-                            _cts.Token
-                        );
-
-                List<ContainerStatsResponse> containerStatsList = new List<ContainerStatsResponse>();
-
-                using var linkedCts = new CancellationTokenSource();
-                linkedCts.CancelAfter(TimeSpan.FromSeconds(5));
-                try
-                {
-                    await _dockerClient.Containers.GetContainerStatsAsync(
-                        createContainerResponse.ID,
-                        new ContainerStatsParameters
-                        {
-                            Stream = true
-                        },
-                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonConvert.SerializeObject(m)); }),
-                        linkedCts.Token
-                    );
-                }
-                catch (OperationCanceledException)
-                {
-                    // this  is expected to  happen on task cancelaltion
-                }
-
-                _output.WriteLine($"Container stats count: {containerStatsList.Count}");
-                Assert.NotEmpty(containerStatsList);
             }
-        }
+            catch (OperationCanceledException)
+            {
+                // this  is expected to  happen on task cancelaltion
+            }
 
-        [Fact]
-        public async Task GetContainerStatsAsync_Tty_True_Stream_False_ReadsStats()
+            _output.WriteLine($"Container stats count: {containerStatsList.Count}");
+            Assert.NotEmpty(containerStatsList);
+        }
+    }
+
+    [Fact]
+    public async Task GetContainerStatsAsync_Tty_True_Stream_False_ReadsStats()
+    {
+        using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+        var containerStatsList = new List<ContainerStatsResponse>();
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+                Tty = true
+            },
+            _cts.Token
+        );
+
+        _ = await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        tcs.CancelAfter(TimeSpan.FromSeconds(10));
+
+        await _dockerClient.Containers.GetContainerStatsAsync(
+            createContainerResponse.ID,
+            new ContainerStatsParameters
+            {
+                Stream = false
+            },
+            new Progress<ContainerStatsResponse>(m => { _output.WriteLine(m.ID); containerStatsList.Add(m); }),
+            tcs.Token
+        );
+
+        await Task.Delay(TimeSpan.FromSeconds(10));
+
+        Assert.NotEmpty(containerStatsList);
+        Assert.Single(containerStatsList);
+        _output.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
+    }
+
+    [Fact]
+    public async Task GetContainerStatsAsync_Tty_True_StreamStats()
+    {
+        using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+
+        using (tcs.Token.Register(() => throw new TimeoutException("GetContainerStatsAsync_Tty_True_StreamStats")))
         {
-            using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-            var containerStatsList = new List<ContainerStatsResponse>();
+            _output.WriteLine("Running test GetContainerStatsAsync_Tty_True_StreamStats");
 
             var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
+                new CreateContainerParameters()
                 {
                     Image = _imageId,
                     Name = Guid.NewGuid().ToString(),
@@ -466,335 +499,290 @@ namespace Docker.DotNet.Tests
                 _cts.Token
             );
 
-            tcs.CancelAfter(TimeSpan.FromSeconds(10));
+            List<ContainerStatsResponse> containerStatsList = new List<ContainerStatsResponse>();
 
-            await _dockerClient.Containers.GetContainerStatsAsync(
-                createContainerResponse.ID,
-                new ContainerStatsParameters
-                {
-                    Stream = false
-                },
-                new Progress<ContainerStatsResponse>(m => { _output.WriteLine(m.ID); containerStatsList.Add(m); }),
-                tcs.Token
-            );
+            using var linkedTcs = CancellationTokenSource.CreateLinkedTokenSource(tcs.Token);
+            linkedTcs.CancelAfter(TimeSpan.FromSeconds(5));
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
-            Assert.NotEmpty(containerStatsList);
-            Assert.Single(containerStatsList);
-            _output.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
-        }
-
-        [Fact]
-        public async Task GetContainerStatsAsync_Tty_True_StreamStats()
-        {
-            using var tcs = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-
-            using (tcs.Token.Register(() => throw new TimeoutException("GetContainerStatsAsync_Tty_True_StreamStats")))
+            try
             {
-                _output.WriteLine("Running test GetContainerStatsAsync_Tty_True_StreamStats");
-
-                var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                    Tty = true
-                },
-                _cts.Token
-            );
-
-                _ = await _dockerClient.Containers.StartContainerAsync(
+                await _dockerClient.Containers.GetContainerStatsAsync(
                     createContainerResponse.ID,
-                            new ContainerStartParameters(),
-                            _cts.Token
-                        );
-
-                List<ContainerStatsResponse> containerStatsList = new List<ContainerStatsResponse>();
-
-                using var linkedTcs = CancellationTokenSource.CreateLinkedTokenSource(tcs.Token);
-                linkedTcs.CancelAfter(TimeSpan.FromSeconds(5));
-
-                try
-                {
-                    await _dockerClient.Containers.GetContainerStatsAsync(
-                        createContainerResponse.ID,
-                        new ContainerStatsParameters
-                        {
-                            Stream = true
-                        },
-                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonConvert.SerializeObject(m)); }),
-                        linkedTcs.Token
-                    );
-                }
-                catch (OperationCanceledException)
-                {
-                    // this  is expected to  happen on task cancelaltion
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                _output.WriteLine($"Container stats count: {containerStatsList.Count}");
-                Assert.NotEmpty(containerStatsList);
+                    new ContainerStatsParameters
+                    {
+                        Stream = true
+                    },
+                    new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonSerializer.Instance.Serialize(m)); }),
+                    linkedTcs.Token
+                );
             }
+            catch (OperationCanceledException)
+            {
+                // this  is expected to  happen on task cancelaltion
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            _output.WriteLine($"Container stats count: {containerStatsList.Count}");
+            Assert.NotEmpty(containerStatsList);
         }
+    }
 
-        [Fact]
-        public async Task KillContainerAsync_ContainerRunning_Succeeds()
-        {
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Image = _imageId
-                },
-                _cts.Token);
+    [Fact]
+    public async Task KillContainerAsync_ContainerRunning_Succeeds()
+    {
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId
+            },
+            _cts.Token);
 
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
 
-            var inspectRunningContainerResponse = await _dockerClient.Containers.InspectContainerAsync(
-                createContainerResponse.ID,
-                _cts.Token);
+        var inspectRunningContainerResponse = await _dockerClient.Containers.InspectContainerAsync(
+            createContainerResponse.ID,
+            _cts.Token);
 
-            await _dockerClient.Containers.KillContainerAsync(
-                createContainerResponse.ID,
-                new ContainerKillParameters(),
-                _cts.Token);
+        await _dockerClient.Containers.KillContainerAsync(
+            createContainerResponse.ID,
+            new ContainerKillParameters(),
+            _cts.Token);
 
-            var inspectKilledContainerResponse = await _dockerClient.Containers.InspectContainerAsync(
-                createContainerResponse.ID,
-                _cts.Token);
+        var inspectKilledContainerResponse = await _dockerClient.Containers.InspectContainerAsync(
+            createContainerResponse.ID,
+            _cts.Token);
 
-            Assert.True(inspectRunningContainerResponse.State.Running);
-            Assert.False(inspectKilledContainerResponse.State.Running);
-            Assert.Equal("exited", inspectKilledContainerResponse.State.Status);
+        Assert.True(inspectRunningContainerResponse.State.Running);
+        Assert.False(inspectKilledContainerResponse.State.Running);
+        Assert.Equal("exited", inspectKilledContainerResponse.State.Status);
 
-            _output.WriteLine("Killed");
-            _output.WriteLine(JsonConvert.SerializeObject(inspectKilledContainerResponse));
-        }
+        _output.WriteLine("Killed");
+        _output.WriteLine(JsonSerializer.Instance.Serialize(inspectKilledContainerResponse));
+    }
 
-        [Fact]
-        public async Task ListContainersAsync_ContainerExists_Succeeds()
-        {
-            await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters()
+    [Fact]
+    public async Task ListContainersAsync_ContainerExists_Succeeds()
+    {
+        await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters()
             {
                 Image = _imageId,
                 Name = Guid.NewGuid().ToString()
             },
             _cts.Token);
 
-            IList<ContainerListResponse> containerList = await _dockerClient.Containers.ListContainersAsync(
-                new ContainersListParameters
+        IList<ContainerListResponse> containerList = await _dockerClient.Containers.ListContainersAsync(
+            new ContainersListParameters
+            {
+                Filters = new Dictionary<string, IDictionary<string, bool>>
                 {
-                    Filters = new Dictionary<string, IDictionary<string, bool>>
+                    ["ancestor"] = new Dictionary<string, bool>
                     {
-                        ["ancestor"] = new Dictionary<string, bool>
-                        {
-                            [_imageId] = true
-                        }
-                    },
-                    All = true
+                        [_imageId] = true
+                    }
                 },
-                _cts.Token
-            );
+                All = true
+            },
+            _cts.Token
+        );
 
-            Assert.NotNull(containerList);
-            Assert.NotEmpty(containerList);
-        }
+        Assert.NotNull(containerList);
+        Assert.NotEmpty(containerList);
+    }
 
-        [Fact]
-        public async Task ListProcessesAsync_RunningContainer_Succeeds()
-        {
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString()
-                },
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            var containerProcessesResponse = await _dockerClient.Containers.ListProcessesAsync(
-                createContainerResponse.ID,
-                new ContainerListProcessesParameters(),
-                _cts.Token
-            );
-
-            _output.WriteLine($"Title  '{containerProcessesResponse.Titles[0]}' - '{containerProcessesResponse.Titles[1]}' - '{containerProcessesResponse.Titles[2]}' - '{containerProcessesResponse.Titles[3]}'");
-
-            foreach (var processes in containerProcessesResponse.Processes)
+    [Fact]
+    public async Task ListProcessesAsync_RunningContainer_Succeeds()
+    {
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
             {
-                _output.WriteLine($"Process '{processes[0]}' - ''{processes[1]}' - '{processes[2]}' - '{processes[3]}'");
-            }
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString()
+            },
+            _cts.Token
+        );
 
-            Assert.NotNull(containerProcessesResponse);
-            Assert.NotEmpty(containerProcessesResponse.Processes);
+        await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        var containerProcessesResponse = await _dockerClient.Containers.ListProcessesAsync(
+            createContainerResponse.ID,
+            new ContainerListProcessesParameters(),
+            _cts.Token
+        );
+
+        _output.WriteLine($"Title  '{containerProcessesResponse.Titles[0]}' - '{containerProcessesResponse.Titles[1]}' - '{containerProcessesResponse.Titles[2]}' - '{containerProcessesResponse.Titles[3]}'");
+
+        foreach (var processes in containerProcessesResponse.Processes)
+        {
+            _output.WriteLine($"Process '{processes[0]}' - ''{processes[1]}' - '{processes[2]}' - '{processes[3]}'");
         }
 
-        [Fact]
-        public async Task RemoveContainerAsync_ContainerExists_Succeedes()
-        {
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString()
-                },
-                _cts.Token
-            );
+        Assert.NotNull(containerProcessesResponse);
+        Assert.NotEmpty(containerProcessesResponse.Processes);
+    }
 
-            ContainerInspectResponse inspectCreatedContainer = await _dockerClient.Containers.InspectContainerAsync(
-                createContainerResponse.ID,
-                _cts.Token
-            );
-
-            await _dockerClient.Containers.RemoveContainerAsync(
-                createContainerResponse.ID,
-                new ContainerRemoveParameters
-                {
-                    Force = true
-                },
-                _cts.Token
-            );
-
-            Task inspectRemovedContainerTask = _dockerClient.Containers.InspectContainerAsync(
-                createContainerResponse.ID,
-                _cts.Token
-            );
-
-            Assert.NotNull(inspectCreatedContainer.State);
-            await Assert.ThrowsAsync<DockerContainerNotFoundException>(() => inspectRemovedContainerTask);
-        }
-
-        [Fact]
-        public async Task StartContainerAsync_ContainerExists_Succeeds()
-        {
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters()
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString()
-                },
-                _cts.Token
-            );
-
-            var startContainerResult = await _dockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            Assert.True(startContainerResult);
-        }
-
-        [Fact]
-        public async Task StartContainerAsync_ContainerNotExists_ThrowsException()
-        {
-            Task startContainerTask = _dockerClient.Containers.StartContainerAsync(
-                Guid.NewGuid().ToString(),
-                new ContainerStartParameters(),
-                _cts.Token
-            );
-
-            await Assert.ThrowsAsync<DockerContainerNotFoundException>(() => startContainerTask);
-        }
-
-        [Fact]
-        public async Task WaitContainerAsync_TokenIsCancelled_OperationCancelledException()
-        {
-            var stopWatch = new Stopwatch();
-
-            using var waitContainerCts = new CancellationTokenSource(delay: TimeSpan.FromMinutes(5));
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Image = _imageId,
-                    Name = Guid.NewGuid().ToString(),
-                },
-                waitContainerCts.Token
-            );
-
-            _output.WriteLine($"CreateContainerResponse: '{JsonConvert.SerializeObject(createContainerResponse)}'");
-
-            _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters(), waitContainerCts.Token);
-
-            _output.WriteLine("Starting timeout to cancel WaitContainer operation.");
-
-            TimeSpan delay = TimeSpan.FromSeconds(5);
-
-            waitContainerCts.CancelAfter(delay);
-            stopWatch.Start();
-
-            // Will wait forever here if cancelation fails.
-            var waitContainerTask = _dockerClient.Containers.WaitContainerAsync(createContainerResponse.ID, waitContainerCts.Token);
-
-            _ = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
-
-            stopWatch.Stop();
-
-            _output.WriteLine($"WaitContainerTask was cancelled after {stopWatch.ElapsedMilliseconds} ms");
-            _output.WriteLine($"WaitContainerAsync: {stopWatch.Elapsed} elapsed");
-
-            // Task should be cancelled when CancelAfter timespan expires
-            TimeSpan tolerance = TimeSpan.FromMilliseconds(500);
-
-            Assert.InRange(stopWatch.Elapsed, delay.Subtract(tolerance), delay.Add(tolerance));
-            Assert.True(waitContainerTask.IsCanceled);
-        }
-
-        [Fact]
-        public async Task CreateImageAsync_NonexistantImage_ThrowsDockerImageNotFoundException()
-        {
-            var parameters = new CreateContainerParameters
+    [Fact]
+    public async Task RemoveContainerAsync_ContainerExists_Succeedes()
+    {
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
             {
-                Image = "no-such-image-ytfghbkufhresdhtrjygvb",
-            };
-            Func<Task> op = async () => await _dockerClient.Containers.CreateContainerAsync(parameters);
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString()
+            },
+            _cts.Token
+        );
 
-            await Assert.ThrowsAsync<DockerImageNotFoundException>(op);
-        }
+        ContainerInspectResponse inspectCreatedContainer = await _dockerClient.Containers.InspectContainerAsync(
+            createContainerResponse.ID,
+            _cts.Token
+        );
 
-        [Fact]
-        public async Task MultiplexedStreamWriteAsync_DoesNotThrowAnException()
-        {
-            // Given
-            Exception exception;
-
-            var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Image = _imageId
-                });
-
-            _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
-
-            var containerExecCreateResponse = await _dockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID,
-                new ContainerExecCreateParameters
-                {
-                    AttachStdout = true,
-                    AttachStderr = true,
-                    AttachStdin = true,
-                    Cmd = new [] { string.Empty }
-                });
-
-            // When
-            using (var stream = await _dockerClient.Exec.StartAndAttachContainerExecAsync(containerExecCreateResponse.ID, false))
+        await _dockerClient.Containers.RemoveContainerAsync(
+            createContainerResponse.ID,
+            new ContainerRemoveParameters
             {
-                var buffer = new byte[] { 10 };
-                exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, default));
-            }
+                Force = true
+            },
+            _cts.Token
+        );
 
-            // Then
-            Assert.Null(exception);
+        Task inspectRemovedContainerTask = _dockerClient.Containers.InspectContainerAsync(
+            createContainerResponse.ID,
+            _cts.Token
+        );
+
+        Assert.NotNull(inspectCreatedContainer.State);
+        await Assert.ThrowsAsync<DockerContainerNotFoundException>(() => inspectRemovedContainerTask);
+    }
+
+    [Fact]
+    public async Task StartContainerAsync_ContainerExists_Succeeds()
+    {
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters()
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString()
+            },
+            _cts.Token
+        );
+
+        var startContainerResult = await _dockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        Assert.True(startContainerResult);
+    }
+
+    [Fact]
+    public async Task StartContainerAsync_ContainerNotExists_ThrowsException()
+    {
+        Task startContainerTask = _dockerClient.Containers.StartContainerAsync(
+            Guid.NewGuid().ToString(),
+            new ContainerStartParameters(),
+            _cts.Token
+        );
+
+        await Assert.ThrowsAsync<DockerContainerNotFoundException>(() => startContainerTask);
+    }
+
+    [Fact]
+    public async Task WaitContainerAsync_TokenIsCancelled_OperationCancelledException()
+    {
+        var stopWatch = new Stopwatch();
+
+        using var waitContainerCts = new CancellationTokenSource(delay: TimeSpan.FromMinutes(5));
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId,
+                Name = Guid.NewGuid().ToString(),
+            },
+            waitContainerCts.Token
+        );
+
+        _output.WriteLine($"CreateContainerResponse: '{JsonSerializer.Instance.Serialize(createContainerResponse)}'");
+
+        _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters(), waitContainerCts.Token);
+
+        _output.WriteLine("Starting timeout to cancel WaitContainer operation.");
+
+        TimeSpan delay = TimeSpan.FromSeconds(5);
+
+        waitContainerCts.CancelAfter(delay);
+        stopWatch.Start();
+
+        // Will wait forever here if cancelation fails.
+        var waitContainerTask = _dockerClient.Containers.WaitContainerAsync(createContainerResponse.ID, waitContainerCts.Token);
+
+        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
+
+        stopWatch.Stop();
+
+        _output.WriteLine($"WaitContainerTask was cancelled after {stopWatch.ElapsedMilliseconds} ms");
+        _output.WriteLine($"WaitContainerAsync: {stopWatch.Elapsed} elapsed");
+
+        // Task should be cancelled when CancelAfter timespan expires
+        TimeSpan tolerance = TimeSpan.FromMilliseconds(500);
+
+        Assert.InRange(stopWatch.Elapsed, delay.Subtract(tolerance), delay.Add(tolerance));
+        Assert.True(waitContainerTask.IsCanceled);
+    }
+
+    [Fact]
+    public async Task CreateImageAsync_NonexistantImage_ThrowsDockerImageNotFoundException()
+    {
+        var parameters = new CreateContainerParameters
+        {
+            Image = "no-such-image-ytfghbkufhresdhtrjygvb",
+        };
+        Func<Task> op = async () => await _dockerClient.Containers.CreateContainerAsync(parameters);
+
+        await Assert.ThrowsAsync<DockerImageNotFoundException>(op);
+    }
+
+    [Fact]
+    public async Task MultiplexedStreamWriteAsync_DoesNotThrowAnException()
+    {
+        // Given
+        Exception exception;
+
+        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _imageId
+            });
+
+        _ = await _dockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
+
+        var containerExecCreateResponse = await _dockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID,
+            new ContainerExecCreateParameters
+            {
+                AttachStdout = true,
+                AttachStderr = true,
+                AttachStdin = true,
+                Cmd = new [] { string.Empty }
+            });
+
+        // When
+        using (var stream = await _dockerClient.Exec.StartAndAttachContainerExecAsync(containerExecCreateResponse.ID, false))
+        {
+            var buffer = new byte[] { 10 };
+            exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, default));
         }
+
+        // Then
+        Assert.Null(exception);
     }
 }

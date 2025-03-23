@@ -1,20 +1,16 @@
-﻿using System;
-using System.Diagnostics;
+namespace Docker.DotNet.Models;
 
-namespace Docker.DotNet.Models
+internal class JsonQueryStringConverter : IQueryStringConverter
 {
-    internal class JsonQueryStringConverter : IQueryStringConverter
+    public bool CanConvert(Type t)
     {
-        public bool CanConvert(Type t)
-        {
-            return true;
-        }
+        return true;
+    }
 
-        public string[] Convert(object o)
-        {
-            Debug.Assert(o != null);
+    public string[] Convert(object o)
+    {
+        Debug.Assert(o != null);
 
-            return new[] { JsonSerializer.Instance.Serialize(o) };
-        }
+        return new[] { JsonSerializer.Instance.Serialize(o) };
     }
 }

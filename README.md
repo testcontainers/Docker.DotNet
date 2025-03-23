@@ -1,4 +1,4 @@
-﻿[![NuGet](https://img.shields.io/nuget/v/Docker.DotNet.Enhanced.svg)](https://www.nuget.org/packages/Docker.DotNet.Enhanced)
+[![NuGet](https://img.shields.io/nuget/v/Docker.DotNet.Enhanced.svg)](https://www.nuget.org/packages/Docker.DotNet.Enhanced)
 
 > [!IMPORTANT]
 > Unfortunately, there has been no further development or bug fixes in [Docker.DotNet](https://github.com/dotnet/Docker.DotNet/tree/aacf3c26131f582ca8acc34084663a4b79e28d38) for some time now, and the repository appears inactive. Reaching the current maintainer is challenging. I understand that priorities shift, and maintaining an open-source project is time-consuming and exhausting. As maintainers, we often cannot dedicate the necessary time. Over the past months—and even years—I have frequently offered my help.

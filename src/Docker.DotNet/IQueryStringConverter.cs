@@ -1,11 +1,8 @@
-﻿using System;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+internal interface IQueryStringConverter
 {
-    internal interface IQueryStringConverter
-    {
-        bool CanConvert(Type t);
+    bool CanConvert(Type t);
 
-        string[] Convert(object o);
-    }
+    string[] Convert(object o);
 }

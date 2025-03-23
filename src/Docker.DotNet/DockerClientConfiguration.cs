@@ -1,72 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+using System;
+
+public class DockerClientConfiguration : IDisposable
 {
-    public class DockerClientConfiguration : IDisposable
+    public DockerClientConfiguration(
+        Credentials credentials = null,
+        TimeSpan defaultTimeout = default,
+        TimeSpan namedPipeConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
     {
-        public DockerClientConfiguration(
-            Credentials credentials = null,
-            TimeSpan defaultTimeout = default,
-            TimeSpan namedPipeConnectTimeout = default,
-            IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-            : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+    }
+
+    public DockerClientConfiguration(
+        Uri endpoint,
+        Credentials credentials = null,
+        TimeSpan defaultTimeout = default,
+        TimeSpan namedPipeConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+    {
+        if (endpoint == null)
         {
+            throw new ArgumentNullException(nameof(endpoint));
         }
 
-        public DockerClientConfiguration(
-            Uri endpoint,
-            Credentials credentials = null,
-            TimeSpan defaultTimeout = default,
-            TimeSpan namedPipeConnectTimeout = default,
-            IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        if (defaultTimeout < Timeout.InfiniteTimeSpan)
         {
-            if (endpoint == null)
-            {
-                throw new ArgumentNullException(nameof(endpoint));
-            }
-
-            if (defaultTimeout < Timeout.InfiniteTimeSpan)
-            {
-                throw new ArgumentException("Default timeout must be greater than -1", nameof(defaultTimeout));
-            }
-
-            EndpointBaseUri = endpoint;
-            Credentials = credentials ?? new AnonymousCredentials();
-            DefaultTimeout = TimeSpan.Equals(default, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
-            NamedPipeConnectTimeout = TimeSpan.Equals(default, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
-            DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
+            throw new ArgumentException("Default timeout must be greater than -1", nameof(defaultTimeout));
         }
 
-        /// <summary>
-        /// Gets the collection of default HTTP request headers.
-        /// </summary>
-        public IReadOnlyDictionary<string, string> DefaultHttpRequestHeaders { get; }
+        EndpointBaseUri = endpoint;
+        Credentials = credentials ?? new AnonymousCredentials();
+        DefaultTimeout = TimeSpan.Equals(default, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
+        NamedPipeConnectTimeout = TimeSpan.Equals(default, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
+        DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
+    }
 
-        public Uri EndpointBaseUri { get; }
+    /// <summary>
+    /// Gets the collection of default HTTP request headers.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> DefaultHttpRequestHeaders { get; }
 
-        public Credentials Credentials { get; }
+    public Uri EndpointBaseUri { get; }
 
-        public TimeSpan DefaultTimeout { get; }
+    public Credentials Credentials { get; }
 
-        public TimeSpan NamedPipeConnectTimeout { get; }
+    public TimeSpan DefaultTimeout { get; }
 
-        public DockerClient CreateClient(Version requestedApiVersion = null)
-        {
-            return new DockerClient(this, requestedApiVersion);
-        }
+    public TimeSpan NamedPipeConnectTimeout { get; }
 
-        public void Dispose()
-        {
-            Credentials.Dispose();
-        }
+    public DockerClient CreateClient(Version requestedApiVersion = null)
+    {
+        return new DockerClient(this, requestedApiVersion);
+    }
 
-        private static Uri GetLocalDockerEndpoint()
-        {
-            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            return isWindows ? new Uri("npipe://./pipe/docker_engine") : new Uri("unix:/var/run/docker.sock");
-        }
+    public void Dispose()
+    {
+        Credentials.Dispose();
+    }
+
+    private static Uri GetLocalDockerEndpoint()
+    {
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        return isWindows ? new Uri("npipe://./pipe/docker_engine") : new Uri("unix:/var/run/docker.sock");
     }
 }

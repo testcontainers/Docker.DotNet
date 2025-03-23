@@ -1,11 +1,8 @@
-using System.IO;
+namespace Microsoft.Net.Http.Client;
 
-namespace Microsoft.Net.Http.Client
+public abstract class WriteClosableStream : Stream
 {
-    public abstract class WriteClosableStream : Stream
-    {
-        public abstract bool CanCloseWrite { get; }
+    public abstract bool CanCloseWrite { get; }
 
-        public abstract void CloseWrite();
-    }
+    public abstract void CloseWrite();
 }

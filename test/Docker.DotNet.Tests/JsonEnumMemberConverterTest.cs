@@ -1,8 +1,4 @@
-﻿namespace Docker.DotNet.Tests;
-
-using System.Text;
-using Docker.DotNet.Models;
-using Xunit;
+namespace Docker.DotNet.Tests;
 
 public sealed class JsonEnumMemberConverterTests
 {
