@@ -1,22 +1,18 @@
-﻿using System;
-using Xunit.Abstractions;
+namespace Docker.DotNet.Tests;
 
-namespace Docker.DotNet.Tests
+public class TestOutput
 {
-    public class TestOutput
+    private readonly ITestOutputHelper _outputHelper;
+
+    public TestOutput(ITestOutputHelper outputHelper)
     {
-        private readonly ITestOutputHelper _outputHelper;
+        _outputHelper = outputHelper;
+    }
 
-        public TestOutput(ITestOutputHelper outputHelper)
-        {
-            _outputHelper = outputHelper;
-        }
-
-        public void WriteLine(string line)
-        {
-            Console.WriteLine(line);
-            _outputHelper.WriteLine(line);
-            System.Diagnostics.Debug.WriteLine(line);
-        }
+    public void WriteLine(string line)
+    {
+        Console.WriteLine(line);
+        _outputHelper.WriteLine(line);
+        System.Diagnostics.Debug.WriteLine(line);
     }
 }

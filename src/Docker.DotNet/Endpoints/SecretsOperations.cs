@@ -1,55 +1,47 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Docker.DotNet.Models;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+internal class SecretsOperations : ISecretsOperations
 {
-    internal class SecretsOperations : ISecretsOperations
+    private readonly DockerClient _client;
+
+    internal SecretsOperations(DockerClient client)
     {
-        private readonly DockerClient _client;
+        _client = client;
+    }
 
-        internal SecretsOperations(DockerClient client)
+    async Task<IList<Secret>> ISecretsOperations.ListAsync(CancellationToken cancellationToken)
+    {
+        return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken).ConfigureAwait(false);
+    }
+
+    async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SecretSpec body, CancellationToken cancellationToken)
+    {
+        if (body == null)
         {
-            _client = client;
+            throw new ArgumentNullException(nameof(body));
         }
 
-        async Task<IList<Secret>> ISecretsOperations.ListAsync(CancellationToken cancellationToken)
+        var data = new JsonRequestContent<SecretSpec>(body, DockerClient.JsonSerializer);
+        return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken).ConfigureAwait(false);
+    }
+
+    async Task<Secret> ISecretsOperations.InspectAsync(string id, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(id))
         {
-            return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken).ConfigureAwait(false);
+            throw new ArgumentNullException(nameof(id));
         }
 
-        async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SecretSpec body, CancellationToken cancellationToken)
-        {
-            if (body == null)
-            {
-                throw new ArgumentNullException(nameof(body));
-            }
+        return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
+    }
 
-            var data = new JsonRequestContent<SecretSpec>(body, DockerClient.JsonSerializer);
-            return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken).ConfigureAwait(false);
+    Task ISecretsOperations.DeleteAsync(string id, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
         }
 
-        async Task<Secret> ISecretsOperations.InspectAsync(string id, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-
-            return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
-        }
-
-        Task ISecretsOperations.DeleteAsync(string id, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-
-            return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken);
-        }
+        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken);
     }
 }

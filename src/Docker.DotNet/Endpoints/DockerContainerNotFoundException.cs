@@ -1,11 +1,8 @@
-﻿using System.Net;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+public class DockerContainerNotFoundException : DockerApiException
 {
-    public class DockerContainerNotFoundException : DockerApiException
+    public DockerContainerNotFoundException(HttpStatusCode statusCode, string responseBody) : base(statusCode, responseBody)
     {
-        public DockerContainerNotFoundException(HttpStatusCode statusCode, string responseBody) : base(statusCode, responseBody)
-        {
-        }
     }
 }

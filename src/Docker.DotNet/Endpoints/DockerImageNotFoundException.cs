@@ -1,11 +1,8 @@
-﻿using System.Net;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+public class DockerImageNotFoundException : DockerApiException
 {
-    public class DockerImageNotFoundException : DockerApiException
+    public DockerImageNotFoundException(HttpStatusCode statusCode, string body) : base(statusCode, body)
     {
-        public DockerImageNotFoundException(HttpStatusCode statusCode, string body) : base(statusCode, body)
-        {
-        }
     }
 }

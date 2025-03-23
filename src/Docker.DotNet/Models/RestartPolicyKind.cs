@@ -1,23 +1,20 @@
-﻿
-namespace Docker.DotNet.Models
+
+namespace Docker.DotNet.Models;
+
+public enum RestartPolicyKind
 {
-    using System.Runtime.Serialization;
+    [EnumMember(Value = "")]
+    Undefined,
 
-    public enum RestartPolicyKind
-    {
-        [EnumMember(Value = "")]
-        Undefined,
+    [EnumMember(Value = "no")]
+    No,
 
-        [EnumMember(Value = "no")]
-        No,
+    [EnumMember(Value = "always")]
+    Always,
 
-        [EnumMember(Value = "always")]
-        Always,
+    [EnumMember(Value = "on-failure")]
+    OnFailure,
 
-        [EnumMember(Value = "on-failure")]
-        OnFailure,
-
-        [EnumMember(Value = "unless-stopped")]
-        UnlessStopped
-    }
+    [EnumMember(Value = "unless-stopped")]
+    UnlessStopped
 }

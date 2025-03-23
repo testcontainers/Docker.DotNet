@@ -1,294 +1,284 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Docker.DotNet;
-
 #if !NET45
-using System.Buffers;
 #endif
 
-namespace Microsoft.Net.Http.Client
+namespace Microsoft.Net.Http.Client;
+
+internal class BufferedReadStream : WriteClosableStream, IPeekableStream
 {
-    internal class BufferedReadStream : WriteClosableStream, IPeekableStream
+    private const char CR = '\r';
+    private const char LF = '\n';
+
+    private readonly Stream _inner;
+    private readonly Socket _socket;
+    private readonly byte[] _buffer;
+    private volatile int _bufferRefCount;
+    private int _bufferOffset = 0;
+    private int _bufferCount = 0;
+    private bool _disposed;
+
+    public BufferedReadStream(Stream inner, Socket socket)
+        : this(inner, socket, 1024)
+    { }
+
+    public BufferedReadStream(Stream inner, Socket socket, int bufferLength)
     {
-        private const char CR = '\r';
-        private const char LF = '\n';
-
-        private readonly Stream _inner;
-        private readonly Socket _socket;
-        private readonly byte[] _buffer;
-        private volatile int _bufferRefCount;
-        private int _bufferOffset = 0;
-        private int _bufferCount = 0;
-        private bool _disposed;
-
-        public BufferedReadStream(Stream inner, Socket socket)
-            : this(inner, socket, 1024)
-        { }
-
-        public BufferedReadStream(Stream inner, Socket socket, int bufferLength)
+        if (inner == null)
         {
-            if (inner == null)
-            {
-                throw new ArgumentNullException(nameof(inner));
-            }
-            _inner = inner;
-            _socket = socket;
+            throw new ArgumentNullException(nameof(inner));
+        }
+        _inner = inner;
+        _socket = socket;
 #if !NET45
-            _bufferRefCount = 1;
-            _buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
+        _bufferRefCount = 1;
+        _buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
 #else
             _buffer = new byte[bufferLength];
 #endif
-        }
+    }
 
-        public override bool CanRead
-        {
-            get { return _inner.CanRead || _bufferCount > 0; }
-        }
+    public override bool CanRead
+    {
+        get { return _inner.CanRead || _bufferCount > 0; }
+    }
 
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
+    public override bool CanSeek
+    {
+        get { return false; }
+    }
 
-        public override bool CanTimeout
-        {
-            get { return _inner.CanTimeout; }
-        }
+    public override bool CanTimeout
+    {
+        get { return _inner.CanTimeout; }
+    }
 
-        public override bool CanWrite
-        {
-            get { return _inner.CanWrite; }
-        }
+    public override bool CanWrite
+    {
+        get { return _inner.CanWrite; }
+    }
 
-        public override long Length
-        {
-            get { throw new NotSupportedException(); }
-        }
+    public override long Length
+    {
+        get { throw new NotSupportedException(); }
+    }
 
-        public override long Position
-        {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
-        }
+    public override long Position
+    {
+        get { throw new NotSupportedException(); }
+        set { throw new NotSupportedException(); }
+    }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotSupportedException();
-        }
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        throw new NotSupportedException();
+    }
 
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
+    public override void SetLength(long value)
+    {
+        throw new NotSupportedException();
+    }
 
-        protected override void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            if (!_disposed)
+            _disposed = true;
+            if (disposing)
             {
-                _disposed = true;
-                if (disposing)
-                {
-                    _inner.Dispose();
+                _inner.Dispose();
 #if !NET45
-                    if (Interlocked.Decrement(ref _bufferRefCount) == 0)
-                    {
-                        ArrayPool<byte>.Shared.Return(_buffer);
-                    }
+                if (Interlocked.Decrement(ref _bufferRefCount) == 0)
+                {
+                    ArrayPool<byte>.Shared.Return(_buffer);
+                }
 #endif
-                }
             }
         }
+    }
 
-        public override void Flush()
+    public override void Flush()
+    {
+        _inner.Flush();
+    }
+
+    public override Task FlushAsync(CancellationToken cancellationToken)
+    {
+        return _inner.FlushAsync(cancellationToken);
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        _inner.Write(buffer, offset, count);
+    }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        return _inner.WriteAsync(buffer, offset, count, cancellationToken);
+    }
+
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        int read = ReadBuffer(buffer, offset, count);
+        if (read > 0)
         {
-            _inner.Flush();
+            return read;
         }
 
-        public override Task FlushAsync(CancellationToken cancellationToken)
+        return _inner.Read(buffer, offset, count);
+    }
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        int read = ReadBuffer(buffer, offset, count);
+        if (read > 0)
         {
-            return _inner.FlushAsync(cancellationToken);
+            return Task.FromResult(read);
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
+        return _inner.ReadAsync(buffer, offset, count, cancellationToken);
+    }
+
+    public bool Peek(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
+    {
+        int read = PeekBuffer(buffer, toPeek, out peeked, out available, out remaining);
+        if (read > 0)
         {
-            _inner.Write(buffer, offset, count);
+            return true;
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        if (_inner is IPeekableStream peekableStream)
         {
-            return _inner.WriteAsync(buffer, offset, count, cancellationToken);
+            return peekableStream.Peek(buffer, toPeek, out peeked, out available, out remaining);
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            int read = ReadBuffer(buffer, offset, count);
-            if (read > 0)
-            {
-                return read;
-            }
+        throw new NotSupportedException("_inner stream isn't a peekable stream");
+    }
 
-            return _inner.Read(buffer, offset, count);
+    private int ReadBuffer(byte[] buffer, int offset, int count)
+    {
+        if (_bufferCount > 0)
+        {
+            int toCopy = Math.Min(_bufferCount, count);
+            Buffer.BlockCopy(_buffer, _bufferOffset, buffer, offset, toCopy);
+            _bufferOffset += toCopy;
+            _bufferCount -= toCopy;
+            return toCopy;
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            int read = ReadBuffer(buffer, offset, count);
-            if (read > 0)
-            {
-                return Task.FromResult(read);
-            }
+        return 0;
+    }
 
-            return _inner.ReadAsync(buffer, offset, count, cancellationToken);
+    private int PeekBuffer(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
+    {
+        if (_bufferCount > 0)
+        {
+            int toCopy = Math.Min(_bufferCount, (int)toPeek);
+            Buffer.BlockCopy(_buffer, _bufferOffset, buffer, 0, toCopy);
+            peeked = (uint) toCopy;
+            available = (uint)_bufferCount;
+            remaining = available - peeked;
+            return toCopy;
         }
 
-        public bool Peek(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
+        peeked = 0;
+        available = 0;
+        remaining = 0;
+        return 0;
+    }
+
+    private async Task EnsureBufferedAsync(CancellationToken cancel)
+    {
+        if (_bufferCount == 0)
         {
-            int read = PeekBuffer(buffer, toPeek, out peeked, out available, out remaining);
-            if (read > 0)
-            {
-                return true;
-            }
-
-            if (_inner is IPeekableStream peekableStream)
-            {
-                return peekableStream.Peek(buffer, toPeek, out peeked, out available, out remaining);
-            }
-
-            throw new NotSupportedException("_inner stream isn't a peekable stream");
-        }
-
-        private int ReadBuffer(byte[] buffer, int offset, int count)
-        {
-            if (_bufferCount > 0)
-            {
-                int toCopy = Math.Min(_bufferCount, count);
-                Buffer.BlockCopy(_buffer, _bufferOffset, buffer, offset, toCopy);
-                _bufferOffset += toCopy;
-                _bufferCount -= toCopy;
-                return toCopy;
-            }
-
-            return 0;
-        }
-
-        private int PeekBuffer(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
-        {
-            if (_bufferCount > 0)
-            {
-                int toCopy = Math.Min(_bufferCount, (int)toPeek);
-                Buffer.BlockCopy(_buffer, _bufferOffset, buffer, 0, toCopy);
-                peeked = (uint) toCopy;
-                available = (uint)_bufferCount;
-                remaining = available - peeked;
-                return toCopy;
-            }
-
-            peeked = 0;
-            available = 0;
-            remaining = 0;
-            return 0;
-        }
-
-        private async Task EnsureBufferedAsync(CancellationToken cancel)
-        {
-            if (_bufferCount == 0)
-            {
-                _bufferOffset = 0;
+            _bufferOffset = 0;
 #if !NET45
-                bool validBuffer = Interlocked.Increment(ref _bufferRefCount) > 1;
-                try
+            bool validBuffer = Interlocked.Increment(ref _bufferRefCount) > 1;
+            try
+            {
+                if (validBuffer)
                 {
-                    if (validBuffer)
-                    {
-                        _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
-                    }
+                    _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
                 }
-                finally
+            }
+            finally
+            {
+                if ((Interlocked.Decrement(ref _bufferRefCount) == 0) && validBuffer)
                 {
-                    if ((Interlocked.Decrement(ref _bufferRefCount) == 0) && validBuffer)
-                    {
-                        ArrayPool<byte>.Shared.Return(_buffer);
-                    }
+                    ArrayPool<byte>.Shared.Return(_buffer);
                 }
+            }
 #else
                 _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
 #endif
-                if (_bufferCount == 0)
-                {
-                    throw new IOException("Unexpected end of stream");
-                }
+            if (_bufferCount == 0)
+            {
+                throw new IOException("Unexpected end of stream");
             }
         }
+    }
 
-        // TODO: Line length limits?
-        public async Task<string> ReadLineAsync(CancellationToken cancel)
+    // TODO: Line length limits?
+    public async Task<string> ReadLineAsync(CancellationToken cancel)
+    {
+        ThrowIfDisposed();
+        StringBuilder builder = new StringBuilder();
+        bool foundCR = false, foundCRLF = false;
+        do
         {
-            ThrowIfDisposed();
-            StringBuilder builder = new StringBuilder();
-            bool foundCR = false, foundCRLF = false;
-            do
+            if (_bufferCount == 0)
             {
-                if (_bufferCount == 0)
-                {
-                    await EnsureBufferedAsync(cancel).ConfigureAwait(false);
-                }
+                await EnsureBufferedAsync(cancel).ConfigureAwait(false);
+            }
 
-                char ch = (char)_buffer[_bufferOffset]; // TODO: Encoding enforcement
-                builder.Append(ch);
-                _bufferOffset++;
-                _bufferCount--;
-                if (ch == CR)
+            char ch = (char)_buffer[_bufferOffset]; // TODO: Encoding enforcement
+            builder.Append(ch);
+            _bufferOffset++;
+            _bufferCount--;
+            if (ch == CR)
+            {
+                foundCR = true;
+            }
+            else if (ch == LF)
+            {
+                if (foundCR)
                 {
-                    foundCR = true;
+                    foundCRLF = true;
                 }
-                else if (ch == LF)
+                else
                 {
-                    if (foundCR)
-                    {
-                        foundCRLF = true;
-                    }
-                    else
-                    {
-                        foundCR = false;
-                    }
+                    foundCR = false;
                 }
             }
-            while (!foundCRLF);
-
-            return builder.ToString(0, builder.Length - 2); // Drop the CRLF
         }
+        while (!foundCRLF);
 
-        private void ThrowIfDisposed()
+        return builder.ToString(0, builder.Length - 2); // Drop the CRLF
+    }
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(BufferedReadStream));
-            }
+            throw new ObjectDisposedException(nameof(BufferedReadStream));
         }
+    }
 
-        public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
+    public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
 
-        public override void CloseWrite()
+    public override void CloseWrite()
+    {
+        if (_socket != null)
         {
-            if (_socket != null)
-            {
-                _socket.Shutdown(SocketShutdown.Send);
-                return;
-            }
-
-            var s = _inner as WriteClosableStream;
-            if (s != null)
-            {
-                s.CloseWrite();
-                return;
-            }
-
-            throw new NotSupportedException("Cannot shutdown write on this transport");
+            _socket.Shutdown(SocketShutdown.Send);
+            return;
         }
+
+        var s = _inner as WriteClosableStream;
+        if (s != null)
+        {
+            s.CloseWrite();
+            return;
+        }
+
+        throw new NotSupportedException("Cannot shutdown write on this transport");
     }
 }

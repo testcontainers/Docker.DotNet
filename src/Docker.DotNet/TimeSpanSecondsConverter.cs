@@ -1,29 +1,24 @@
-﻿using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+internal class TimeSpanSecondsConverter : JsonConverter<TimeSpan?>
 {
-    internal class TimeSpanSecondsConverter : JsonConverter<TimeSpan?>
+    public override TimeSpan? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override TimeSpan? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        if (reader.TokenType == JsonTokenType.Null)
         {
-            if (reader.TokenType == JsonTokenType.Null)
-            {
-                return null;
-            }
-
-            return TimeSpan.FromSeconds(reader.GetInt64());
+            return null;
         }
 
-        public override void Write(Utf8JsonWriter writer, TimeSpan? value, JsonSerializerOptions options)
-        {
-            if (value == null)
-            {
-                return;
-            }
+        return TimeSpan.FromSeconds(reader.GetInt64());
+    }
 
-            writer.WriteNumberValue(value.Value.TotalSeconds);
+    public override void Write(Utf8JsonWriter writer, TimeSpan? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
         }
+
+        writer.WriteNumberValue(value.Value.TotalSeconds);
     }
 }

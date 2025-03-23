@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+namespace Docker.DotNet.Models;
 
-namespace Docker.DotNet.Models
+public class ObjectExtensionData
 {
-    public class ObjectExtensionData
-    {
-        [JsonExtensionData]
-        public IDictionary<string, object> ExtensionData { get; set; }
-    }
+    [JsonExtensionData]
+    public IDictionary<string, object> ExtensionData { get; set; }
 }

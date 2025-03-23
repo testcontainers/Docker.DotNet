@@ -1,8 +1,4 @@
-﻿namespace Docker.DotNet;
-
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+namespace Docker.DotNet;
 
 internal sealed class JsonNullableDateTimeConverter : JsonConverter<DateTime?>
 {

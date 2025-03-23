@@ -1,10 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Docker.DotNet.X509</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.X509</PackageId>
     <Description>Docker.DotNet.X509 is a library that allows you to use certificate authentication with a remote Docker engine programmatically in your .NET applications.</Description>
-    <AssemblyName>Docker.DotNet.X509</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.IO" />
+    <Using Include="System.Net" />
+    <Using Include="System.Text" />
+    <Using Include="System.Security" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.IO.Pipes" />
+    <Using Include="System.Net.Security" />
+    <Using Include="System.Security.Cryptography" />
+    <Using Include="System.Security.Cryptography.X509Certificates" />
+    <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
 </Project>

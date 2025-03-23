@@ -1,37 +1,34 @@
-﻿using System;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+public interface IDockerClient : IDisposable
 {
-    public interface IDockerClient : IDisposable
-    {
-        DockerClientConfiguration Configuration { get; }
+    DockerClientConfiguration Configuration { get; }
 
-        TimeSpan DefaultTimeout { get; set; }
+    TimeSpan DefaultTimeout { get; set; }
 
-        #region Endpoints
+    #region Endpoints
 
-        IContainerOperations Containers { get; }
+    IContainerOperations Containers { get; }
 
-        IImageOperations Images { get; }
+    IImageOperations Images { get; }
 
-        INetworkOperations Networks { get; }
+    INetworkOperations Networks { get; }
 
-        IVolumeOperations Volumes { get; }
+    IVolumeOperations Volumes { get; }
 
-        ISecretsOperations Secrets { get; }
+    ISecretsOperations Secrets { get; }
 
-        IConfigOperations Configs { get; }
+    IConfigOperations Configs { get; }
 
-        ISwarmOperations Swarm { get; }
+    ISwarmOperations Swarm { get; }
 
-        ITasksOperations Tasks { get; }
+    ITasksOperations Tasks { get; }
 
-        ISystemOperations System { get; }
+    ISystemOperations System { get; }
 
-        IPluginOperations Plugin { get; }
+    IPluginOperations Plugin { get; }
 
-        IExecOperations Exec { get; }
+    IExecOperations Exec { get; }
 
-        #endregion Endpoints
-    }
+    #endregion Endpoints
 }

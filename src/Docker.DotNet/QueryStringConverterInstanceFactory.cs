@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Concurrent;
+namespace Docker.DotNet;
 
-namespace Docker.DotNet
+internal class QueryStringConverterInstanceFactory : IQueryStringConverterInstanceFactory
 {
-    internal class QueryStringConverterInstanceFactory : IQueryStringConverterInstanceFactory
+    private static readonly ConcurrentDictionary<Type, IQueryStringConverter> ConverterInstanceRegistry = new ConcurrentDictionary<Type, IQueryStringConverter>();
+
+    public IQueryStringConverter GetConverterInstance(Type t)
     {
-        private static readonly ConcurrentDictionary<Type, IQueryStringConverter> ConverterInstanceRegistry = new ConcurrentDictionary<Type, IQueryStringConverter>();
+        return ConverterInstanceRegistry.GetOrAdd(
+            t,
+            InitializeConverter);
+    }
 
-        public IQueryStringConverter GetConverterInstance(Type t)
+    private IQueryStringConverter InitializeConverter(Type t)
+    {
+        var instance = Activator.CreateInstance(t) as IQueryStringConverter;
+        if (instance == null)
         {
-            return ConverterInstanceRegistry.GetOrAdd(
-                t,
-                InitializeConverter);
+            throw new InvalidOperationException($"Could not get instance of {t.FullName}");
         }
-
-        private IQueryStringConverter InitializeConverter(Type t)
-        {
-            var instance = Activator.CreateInstance(t) as IQueryStringConverter;
-            if (instance == null)
-            {
-                throw new InvalidOperationException($"Could not get instance of {t.FullName}");
-            }
-            return instance;
-        }
+        return instance;
     }
 }

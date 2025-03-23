@@ -1,4 +1,7 @@
 <Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <!-- Strong-naming  -->
   <PropertyGroup Label="Signing">
     <DebugType>embedded</DebugType>
