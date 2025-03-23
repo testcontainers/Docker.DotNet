@@ -104,21 +104,21 @@ internal sealed class ChunkedReadStream : WriteClosableStream
             }
         }
 
-        var readBytes = 0;
+        var readBytesCount = 0;
 
         if (_chunkBytesRemaining > 0)
         {
-            var remainingCount = Math.Min(_chunkBytesRemaining, count);
+            var remainingBytesCount = Math.Min(_chunkBytesRemaining, count);
 
-            readBytes = await _inner.ReadAsync(buffer, offset, remainingCount, cancellationToken)
+            readBytesCount = await _inner.ReadAsync(buffer, offset, remainingBytesCount, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (readBytes == 0)
+            if (readBytesCount == 0)
             {
                 throw new EndOfStreamException();
             }
 
-            _chunkBytesRemaining -= readBytes;
+            _chunkBytesRemaining -= readBytesCount;
         }
 
         if (_chunkBytesRemaining == 0)
@@ -131,10 +131,10 @@ internal sealed class ChunkedReadStream : WriteClosableStream
                 throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
             }
 
-            _done = readBytes == 0;
+            _done = readBytesCount == 0;
         }
 
-        return readBytes;
+        return readBytesCount;
     }
 
     public override void Write(byte[] buffer, int offset, int count)
