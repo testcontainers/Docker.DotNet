@@ -196,12 +196,12 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             }
         }
 
-        if (_logger.IsEnabled(LogLevel.Trace))
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
             var content = Encoding.ASCII.GetString(_buffer.TakeWhile(value => value != nullChar).ToArray());
             content = content.Replace("\r", "<CR>");
             content = content.Replace("\n", "<LF>");
-            _logger.LogTrace("Raw buffer content: '{Content}'.", content);
+            _logger.LogDebug("Raw buffer content: '{Content}'.", content);
         }
 
         var start = _bufferOffset;
@@ -213,7 +213,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             // If a null terminator is found, skip the rest of the buffer.
             if (_buffer[i] == nullChar)
             {
-                _logger.LogTrace("Null terminator found at position: {Position}.", i);
+                _logger.LogDebug("Null terminator found at position: {Position}.", i);
                 end = i;
                 break;
             }
@@ -221,7 +221,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             // Check if current byte is CR and the next byte is LF.
             if (_buffer[i] == cr && i + 1 < _buffer.Length && _buffer[i + 1] == lf)
             {
-                _logger.LogTrace("CRLF found at positions {CR} and {LF}.", i, i + 1);
+                _logger.LogDebug("CRLF found at positions {CR} and {LF}.", i, i + 1);
                 end = i;
                 break;
             }
@@ -231,19 +231,19 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         if (end == -1)
         {
             end = _buffer.Length;
-            _logger.LogTrace("No CRLF found. Setting end position to buffer length: {End}.", end);
+            _logger.LogDebug("No CRLF found. Setting end position to buffer length: {End}.", end);
         }
         else
         {
             _bufferCount -= end - start + 2;
             _bufferOffset = end + 2;
-            _logger.LogTrace("CRLF found. Consumed {Consumed} bytes. New offset: {Offset}, Remaining count: {RemainingBytes}.", end - start + 2, _bufferOffset, _bufferCount);
+            _logger.LogDebug("CRLF found. Consumed {Consumed} bytes. New offset: {Offset}, Remaining count: {RemainingBytes}.", end - start + 2, _bufferOffset, _bufferCount);
         }
 
         var length = end - start;
         var line = Encoding.ASCII.GetString(_buffer, start, length);
 
-        _logger.LogTrace("String from positions {Start} to {End} (length {Length}): '{Line}'.", start, end, length, line);
+        _logger.LogDebug("String from positions {Start} to {End} (length {Length}): '{Line}'.", start, end, length, line);
         return line;
     }
 

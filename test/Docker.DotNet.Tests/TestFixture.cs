@@ -1,36 +1,35 @@
 namespace Docker.DotNet.Tests;
 
-public sealed class TestFixture : IAsyncLifetime, IDisposable
+[CollectionDefinition(nameof(TestCollection))]
+public sealed class TestCollection : ICollectionFixture<TestFixture>;
+
+public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDisposable, ILogger
 {
     /// <summary>
     /// The Docker image name.
     /// </summary>
     private const string Name = "nats";
 
-    private static readonly Progress<JSONMessage> WriteProgressOutput;
+    private const LogLevel MinLogLevel = LogLevel.Debug;
+
+    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
+    private readonly IMessageSink _messageSink;
 
     private bool _hasInitializedSwarm;
-
-    static TestFixture()
-    {
-        WriteProgressOutput = new Progress<JSONMessage>(jsonMessage =>
-        {
-            var message = JsonSerializer.Instance.Serialize(jsonMessage);
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
-        });
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestFixture" /> class.
     /// </summary>
-    /// <exception cref="TimeoutException">Thrown when tests are not finished within 5 minutes.</exception>
-    public TestFixture()
+    /// <param name="messageSink">The message sink.</param>
+    /// <exception cref="TimeoutException">Thrown when tests are not completed within 5 minutes.</exception>
+    public TestFixture(IMessageSink messageSink)
     {
+        _messageSink = messageSink;
         DockerClientConfiguration = new DockerClientConfiguration();
-        DockerClient = DockerClientConfiguration.CreateClient();
+        DockerClient = DockerClientConfiguration.CreateClient(logger: this);
         Cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
-        Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet test timeout exception"));
+        Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet tests timed out."));
     }
 
     /// <summary>
@@ -46,14 +45,14 @@ public sealed class TestFixture : IAsyncLifetime, IDisposable
         = Guid.NewGuid().ToString("N");
 
     /// <summary>
-    /// Gets the Docker client.
-    /// </summary>
-    public DockerClient DockerClient { get; }
-
-    /// <summary>
     /// Gets the Docker client configuration.
     /// </summary>
     public DockerClientConfiguration DockerClientConfiguration { get; }
+
+    /// <summary>
+    /// Gets the Docker client.
+    /// </summary>
+    public DockerClient DockerClient { get; }
 
     /// <summary>
     /// Gets the cancellation token source.
@@ -69,7 +68,7 @@ public sealed class TestFixture : IAsyncLifetime, IDisposable
     public async Task InitializeAsync()
     {
         // Create image
-        await DockerClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = Name, Tag = "latest" }, null, WriteProgressOutput, Cts.Token)
+        await DockerClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = Name, Tag = "latest" }, null, this, Cts.Token)
             .ConfigureAwait(false);
 
         // Get images
@@ -103,9 +102,7 @@ public sealed class TestFixture : IAsyncLifetime, IDisposable
         }
         catch
         {
-            const string message = "Couldn't init a new swarm, the node should take part of an existing one.";
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
+            this.LogDebug("Couldn't init a new swarm, the node should take part of an existing one.");
 
             _hasInitializedSwarm = false;
         }
@@ -164,13 +161,44 @@ public sealed class TestFixture : IAsyncLifetime, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        Cts.Dispose();
         DockerClient.Dispose();
         DockerClientConfiguration.Dispose();
-        Cts.Dispose();
     }
-}
 
-[CollectionDefinition(nameof(TestCollection))]
-public sealed class TestCollection : ICollectionFixture<TestFixture>
-{
+    /// <inheritdoc />
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+        if (IsEnabled(logLevel))
+        {
+            var message = exception == null ? formatter.Invoke(state, null) : string.Join(Environment.NewLine, formatter.Invoke(state, exception), exception);
+            _messageSink.OnMessage(new DiagnosticMessage(string.Format("[Docker.DotNet {0:hh\\:mm\\:ss\\.ff}] {1}", _stopwatch.Elapsed, message)));
+        }
+    }
+
+    /// <inheritdoc />
+    public bool IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= MinLogLevel;
+    }
+
+    /// <inheritdoc />
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull
+    {
+        return new Disposable();
+    }
+
+    /// <inheritdoc />
+    protected override void OnReport(JSONMessage value)
+    {
+        var message = JsonSerializer.Instance.Serialize(value);
+        this.LogDebug("Progress: '{Progress}'.", message);
+    }
+
+    private sealed class Disposable : IDisposable
+    {
+        public void Dispose()
+        {
+        }
+    }
 }

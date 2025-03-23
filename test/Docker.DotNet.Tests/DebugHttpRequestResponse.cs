@@ -42,8 +42,7 @@ public sealed class DebugHttpRequestResponse(ITestOutputHelper testOutputHelper)
 
     bool ILogger.IsEnabled(LogLevel logLevel)
     {
-        return true;
-        return LogLevel.Trace.Equals(logLevel);
+        return logLevel >= LogLevel.Debug;
     }
 
     IDisposable ILogger.BeginScope<TState>(TState state)
