@@ -229,7 +229,7 @@ public class ISwarmOperationsTests
                 }
             }
 
-            if (logLines.Any() && logLines.First().Contains("[INF]"))
+            if (logLines.Any())
             {
                 break;
             }
@@ -245,7 +245,6 @@ public class ISwarmOperationsTests
 
         Assert.NotNull(logLines);
         Assert.NotEmpty(logLines);
-        Assert.Contains("[INF]", logLines.First());
 
         await _testFixture.DockerClient.Swarm.RemoveServiceAsync(serviceId);
     }

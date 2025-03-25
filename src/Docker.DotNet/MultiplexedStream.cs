@@ -15,8 +15,6 @@ public sealed class MultiplexedStream : IDisposable, IPeekableStream
         _multiplexed = multiplexed;
     }
 
-    public Stream Stream => _stream;
-
     public void Dispose()
     {
         _stream.Dispose();

@@ -8,7 +8,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     /// <summary>
     /// The Docker image name.
     /// </summary>
-    private const string Name = "nats";
+    private const string Name = "httpd";
 
     private const LogLevel MinLogLevel = LogLevel.Debug;
 
