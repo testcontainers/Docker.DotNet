@@ -167,7 +167,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var stream = await _testFixture.DockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
+        using var stream = await _testFixture.DockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
         {
             Follow = true,
             ShowStdout = true,

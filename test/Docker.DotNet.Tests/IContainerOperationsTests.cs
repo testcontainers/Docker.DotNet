@@ -712,31 +712,25 @@ public class IContainerOperationsTests
     public async Task MultiplexedStreamWriteAsync_DoesNotThrowAnException()
     {
         // Given
-        Exception exception;
+        var createContainerParameters = new CreateContainerParameters();
+        createContainerParameters.Image = _testFixture.Image.ID;
 
-        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(
-            new CreateContainerParameters
-            {
-                Image = _testFixture.Image.ID
-            });
+        var containerExecCreateParameters = new ContainerExecCreateParameters();
+        containerExecCreateParameters.AttachStdout = true;
+        containerExecCreateParameters.AttachStderr = true;
+        containerExecCreateParameters.AttachStdin = true;
+        containerExecCreateParameters.Cmd = new[] { "/bin/sh" };
 
+        var containerExecStartParameters = new ContainerExecStartParameters();
+
+        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters);
         _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
-        var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID,
-            new ContainerExecCreateParameters
-            {
-                AttachStdout = true,
-                AttachStderr = true,
-                AttachStdin = true,
-                Cmd = new[] { string.Empty }
-            });
-
         // When
-        using (var stream = await _testFixture.DockerClient.Exec.StartAndAttachContainerExecAsync(containerExecCreateResponse.ID, false))
-        {
-            var buffer = new byte[] { 10 };
-            exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));
-        }
+        var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID, containerExecCreateParameters);
+        using var stream = await _testFixture.DockerClient.Exec.StartWithConfigContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
+        var buffer = new byte[] { 10 };
+        var exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));
 
         // Then
         Assert.Null(exception);

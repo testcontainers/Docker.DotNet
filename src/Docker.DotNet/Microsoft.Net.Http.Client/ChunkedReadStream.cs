@@ -1,6 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
-internal sealed class ChunkedReadStream : WriteClosableStream
+internal sealed class ChunkedReadStream : Stream
 {
     private readonly BufferedReadStream _inner;
     private int _chunkBytesRemaining;
@@ -29,11 +29,6 @@ internal sealed class ChunkedReadStream : WriteClosableStream
     public override bool CanWrite
     {
         get { return false; }
-    }
-
-    public override bool CanCloseWrite
-    {
-        get { return _inner.CanCloseWrite; }
     }
 
     public override long Length
@@ -160,10 +155,5 @@ internal sealed class ChunkedReadStream : WriteClosableStream
     public override void Flush()
     {
         _inner.Flush();
-    }
-
-    public override void CloseWrite()
-    {
-        _inner.CloseWrite();
     }
 }

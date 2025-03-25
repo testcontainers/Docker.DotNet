@@ -391,10 +391,7 @@ public sealed class DockerClient : IDockerClient
             throw new NotSupportedException("message handler does not support hijacked streams");
         }
 
-        var stream = await content.ReadAsStreamAsync()
-            .ConfigureAwait(false);
-
-        return (WriteClosableStream)stream;
+        return content.HijackStream();
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(

@@ -2,6 +2,8 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
+    // private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+
     public HttpConnection(BufferedReadStream transport)
     {
         Transport = transport;
@@ -144,9 +146,11 @@ internal sealed class HttpConnection : IDisposable
                 System.Diagnostics.Debug.Assert(success, "Failed to add response header: " + rawHeader);
             }
         }
-        // After headers have been set
-        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
 
+        // var isStream = content.Headers.TryGetValues("Content-Type", out var headerValues)
+        //     && headerValues.Any(header => DockerStreamHeaders.Contains(header));
+
+        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
         return response;
     }
 

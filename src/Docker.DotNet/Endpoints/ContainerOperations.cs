@@ -297,14 +297,8 @@ internal class ContainerOperations : IContainerOperations
         }
 
         var queryParameters = new QueryString<ContainerAttachParameters>(parameters);
-        var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken).ConfigureAwait(false);
-        if (!stream.CanCloseWrite)
-        {
-            stream.Dispose();
-            throw new NotSupportedException("Cannot shutdown write on this transport");
-        }
-
-        return new MultiplexedStream(stream, !tty);
+        var result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken).ConfigureAwait(false);
+        return new MultiplexedStream(result, !tty);
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
