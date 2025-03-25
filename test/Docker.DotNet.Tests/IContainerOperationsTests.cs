@@ -729,6 +729,11 @@ public class IContainerOperationsTests
         // When
         var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID, containerExecCreateParameters);
         using var stream = await _testFixture.DockerClient.Exec.StartWithConfigContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
+
+        var debugBuffer = new byte[1024];
+        var readCount = await stream.Stream.ReadAsync(debugBuffer, 0, debugBuffer.Length, CancellationToken.None);
+        Assert.Empty(Encoding.ASCII.GetString(debugBuffer, 0, readCount));
+
         var buffer = new byte[] { 10 };
         var exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));
 
