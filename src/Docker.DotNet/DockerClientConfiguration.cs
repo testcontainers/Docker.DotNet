@@ -50,9 +50,9 @@ public class DockerClientConfiguration : IDisposable
 
     public TimeSpan NamedPipeConnectTimeout { get; }
 
-    public DockerClient CreateClient(Version requestedApiVersion = null)
+    public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
-        return new DockerClient(this, requestedApiVersion);
+        return new DockerClient(this, requestedApiVersion, logger);
     }
 
     public void Dispose()

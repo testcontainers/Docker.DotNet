@@ -1,13 +1,15 @@
 namespace Microsoft.Net.Http.Client;
 
-internal class HttpConnection : IDisposable
+internal sealed class HttpConnection : IDisposable
 {
+    // private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+
     public HttpConnection(BufferedReadStream transport)
     {
         Transport = transport;
     }
 
-    public BufferedReadStream Transport { get; private set; }
+    public BufferedReadStream Transport { get; }
 
     public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -37,8 +39,8 @@ internal class HttpConnection : IDisposable
 
             // Receive headers
             List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
-            // Determine response type (Chunked, Content-Length, opaque, none...)
-            // Receive body
+
+            // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
             return CreateResponseMessage(responseLines);
         }
         catch (Exception ex)
@@ -83,13 +85,22 @@ internal class HttpConnection : IDisposable
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
     {
-        List<string> lines = new List<string>();
-        string line = await Transport.ReadLineAsync(cancellationToken);
-        while (line.Length > 0)
+        var lines = new List<string>(12);
+
+        do
         {
+            var line = await Transport.ReadLineAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(line))
+            {
+                break;
+            }
+
             lines.Add(line);
-            line = await Transport.ReadLineAsync(cancellationToken);
         }
+        while (true);
+
         return lines;
     }
 
@@ -103,8 +114,8 @@ internal class HttpConnection : IDisposable
         {
             throw new HttpRequestException("Invalid response line: " + responseLine);
         }
-        int statusCode = 0;
-        if (int.TryParse(responseLineParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out statusCode))
+
+        if (int.TryParse(responseLineParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var statusCode))
         {
             // TODO: Validate range
         }
@@ -135,22 +146,16 @@ internal class HttpConnection : IDisposable
                 System.Diagnostics.Debug.Assert(success, "Failed to add response header: " + rawHeader);
             }
         }
-        // After headers have been set
-        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
 
+        // var isStream = content.Headers.TryGetValues("Content-Type", out var headerValues)
+        //     && headerValues.Any(header => DockerStreamHeaders.Contains(header));
+
+        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
         return response;
     }
 
     public void Dispose()
     {
-        Dispose(true);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Transport.Dispose();
-        }
+        Transport.Dispose();
     }
 }

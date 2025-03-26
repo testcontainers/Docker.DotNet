@@ -3,46 +3,39 @@ namespace Docker.DotNet.Tests;
 [Collection(nameof(TestCollection))]
 public class IVolumeOperationsTests
 {
-	private readonly CancellationTokenSource _cts;
+    private readonly TestFixture _testFixture;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-	private readonly DockerClient _dockerClient;
+    public IVolumeOperationsTests(TestFixture testFixture, ITestOutputHelper testOutputHelper)
+    {
+        _testFixture = testFixture;
+        _testOutputHelper = testOutputHelper;
+    }
 
-	public IVolumeOperationsTests(TestFixture testFixture)
-	{
-		_dockerClient = testFixture.DockerClient;
+    [Fact]
+    public async Task ListAsync_VolumeExists_Succeeds()
+    {
+        const string volumeName = "docker-dotnet-test-volume";
 
-		// Do not wait forever in case it gets stuck
-		_cts = CancellationTokenSource.CreateLinkedTokenSource(testFixture.Cts.Token);
-		_cts.CancelAfter(TimeSpan.FromMinutes(5));
-		_cts.Token.Register(() => throw new TimeoutException("VolumeOperationsTests timeout"));
-	}
+        await _testFixture.DockerClient.Volumes.CreateAsync(new VolumesCreateParameters
+            {
+                Name = volumeName,
+            },
+            _testFixture.Cts.Token);
 
-	[Fact]
-	public async Task ListAsync_VolumeExists_Succeeds()
-	{
-		const string volumeName = "docker-dotnet-test-volume";
+        try
+        {
+            var response = await _testFixture.DockerClient.Volumes.ListAsync(new VolumesListParameters
+                {
+                    Filters = new Dictionary<string, IDictionary<string, bool>>(),
+                },
+                _testFixture.Cts.Token);
 
-		await _dockerClient.Volumes.CreateAsync(new VolumesCreateParameters
-			{
-				Name = volumeName,
-			},
-			_cts.Token);
-
-		try
-		{
-
-			var response = await _dockerClient.Volumes.ListAsync(new VolumesListParameters()
-				{
-					Filters = new Dictionary<string, IDictionary<string, bool>>(),
-				},
-				_cts.Token);
-
-			Assert.Contains(volumeName, response.Volumes.Select(volume => volume.Name));
-
-		}
-		finally
-		{
-			await _dockerClient.Volumes.RemoveAsync(volumeName, force: true, _cts.Token);
-		}
-	}
+            Assert.Contains(volumeName, response.Volumes.Select(volume => volume.Name));
+        }
+        finally
+        {
+            await _testFixture.DockerClient.Volumes.RemoveAsync(volumeName, force: true, _testFixture.Cts.Token);
+        }
+    }
 }

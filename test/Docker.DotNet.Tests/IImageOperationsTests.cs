@@ -3,38 +3,25 @@ namespace Docker.DotNet.Tests;
 [Collection(nameof(TestCollection))]
 public class IImageOperationsTests
 {
-    private readonly CancellationTokenSource _cts;
+    private readonly TestFixture _testFixture;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    private readonly TestOutput _output;
-    private readonly string _repositoryName;
-    private readonly string _tag;
-    private readonly DockerClient _dockerClient;
-
-    public IImageOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
+    public IImageOperationsTests(TestFixture testFixture, ITestOutputHelper testOutputHelper)
     {
-        _output = new TestOutput(outputHelper);
-
-        _dockerClient = testFixture.DockerClient;
-
-        // Do not wait forever in case it gets stuck
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(testFixture.Cts.Token);
-        _cts.CancelAfter(TimeSpan.FromMinutes(5));
-        _cts.Token.Register(() => throw new TimeoutException("ImageOperationTests timeout"));
-
-        _repositoryName = testFixture.Repository;
-        _tag = testFixture.Tag;
+        _testFixture = testFixture;
+        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
-    public async Task CreateImageAsync_TaskCancelled_ThowsTaskCanceledException()
+    public async Task CreateImageAsync_TaskCancelled_ThrowsTaskCanceledException()
     {
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
 
         var newTag = Guid.NewGuid().ToString();
         var newRepositoryName = Guid.NewGuid().ToString();
 
-        await _dockerClient.Images.TagImageAsync(
-            $"{_repositoryName}:{_tag}",
+        await _testFixture.DockerClient.Images.TagImageAsync(
+            $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
                 RepositoryName = newRepositoryName,
@@ -43,13 +30,13 @@ public class IImageOperationsTests
             cts.Token
         );
 
-        var createImageTask = _dockerClient.Images.CreateImageAsync(
+        var createImageTask = _testFixture.DockerClient.Images.CreateImageAsync(
             new ImagesCreateParameters
             {
                 FromImage = $"{newRepositoryName}:{newTag}"
             },
             null,
-            new Progress<JSONMessage>((message) => _output.WriteLine(JsonSerializer.Instance.Serialize(message))),
+            new Progress<JSONMessage>(message => _testOutputHelper.WriteLine(JsonSerializer.Instance.Serialize(message))),
             cts.Token);
 
         TimeSpan delay = TimeSpan.FromMilliseconds(5);
@@ -63,8 +50,8 @@ public class IImageOperationsTests
     [Fact]
     public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException()
     {
-        return Assert.ThrowsAsync<DockerApiException>(() => _dockerClient.Images.CreateImageAsync(
-            new ImagesCreateParameters()
+        return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Images.CreateImageAsync(
+            new ImagesCreateParameters
             {
                 FromImage = "1.2.3.Apparently&this$is+not-a_valid%repository//name",
                 Tag = "ancient-one"
@@ -76,30 +63,30 @@ public class IImageOperationsTests
     {
         var newImageTag = Guid.NewGuid().ToString();
 
-        await _dockerClient.Images.TagImageAsync(
-            $"{_repositoryName}:{_tag}",
+        await _testFixture.DockerClient.Images.TagImageAsync(
+            $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
-                RepositoryName = _repositoryName,
+                RepositoryName = _testFixture.Repository,
                 Tag = newImageTag
             },
-            _cts.Token
+            _testFixture.Cts.Token
         );
 
-        var inspectExistingImageResponse = await _dockerClient.Images.InspectImageAsync(
-            $"{_repositoryName}:{newImageTag}",
-            _cts.Token
+        var inspectExistingImageResponse = await _testFixture.DockerClient.Images.InspectImageAsync(
+            $"{_testFixture.Repository}:{newImageTag}",
+            _testFixture.Cts.Token
         );
 
-        await _dockerClient.Images.DeleteImageAsync(
-            $"{_repositoryName}:{newImageTag}",
+        await _testFixture.DockerClient.Images.DeleteImageAsync(
+            $"{_testFixture.Repository}:{newImageTag}",
             new ImageDeleteParameters(),
-            _cts.Token
+            _testFixture.Cts.Token
         );
 
-        Task inspectDeletedImageTask = _dockerClient.Images.InspectImageAsync(
-            $"{_repositoryName}:{newImageTag}",
-            _cts.Token
+        Task inspectDeletedImageTask = _testFixture.DockerClient.Images.InspectImageAsync(
+            $"{_testFixture.Repository}:{newImageTag}",
+            _testFixture.Cts.Token
         );
 
         Assert.NotNull(inspectExistingImageResponse);
