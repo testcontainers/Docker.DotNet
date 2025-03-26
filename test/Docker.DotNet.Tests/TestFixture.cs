@@ -137,7 +137,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
                     {
                         ["reference"] = new Dictionary<string, bool>
                         {
-                            [Image.RepoDigests.Single()] = true
+                            [Image.ID] = true
                         }
                     },
                     All = true
