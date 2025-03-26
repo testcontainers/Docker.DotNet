@@ -711,6 +711,8 @@ public class IContainerOperationsTests
     [Fact]
     public async Task MultiplexedStreamWriteAsync_DoesNotThrowAnException()
     {
+        // TODO: Refactor IExecOperations operations and writing/reading to/from stdin and stdout.
+
         // Given
         var createContainerParameters = new CreateContainerParameters();
         createContainerParameters.Image = _testFixture.Image.ID;
@@ -720,22 +722,23 @@ public class IContainerOperationsTests
         containerExecCreateParameters.AttachStdout = true;
         containerExecCreateParameters.AttachStderr = true;
         containerExecCreateParameters.AttachStdin = true;
-        containerExecCreateParameters.Cmd = new[] { "/bin/sh" };
+        containerExecCreateParameters.Cmd = new[] { "/bin/sh", "-c", "read line; echo Done" };
 
         var containerExecStartParameters = new ContainerExecStartParameters();
 
         var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters);
         _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
+        await Task.Delay(100);
+
         // When
         var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID, containerExecCreateParameters);
+
+        await Task.Delay(100);
+
         using var stream = await _testFixture.DockerClient.Exec.StartWithConfigContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
 
-        var bytes = new byte[1024];
-        var readBytesCount = stream.ReadOutputAsync(bytes, 0, bytes.Length, CancellationToken.None);
-        _testOutputHelper.WriteLine(Encoding.ASCII.GetString(bytes));
-        _testOutputHelper.WriteLine(Encoding.ASCII.GetString(bytes));
-        _testOutputHelper.WriteLine(Encoding.ASCII.GetString(bytes));
+        await Task.Delay(100);
 
         var buffer = new byte[] { 10 };
         var exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));
