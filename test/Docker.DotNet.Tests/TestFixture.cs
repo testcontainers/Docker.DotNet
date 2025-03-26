@@ -78,7 +78,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
                     {
                         ["reference"] = new Dictionary<string, bool>
                         {
-                            [repository] = true
+                            [repository + ":" + tag] = true
                         }
                     }
                 }, Cts.Token)
