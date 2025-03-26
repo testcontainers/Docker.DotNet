@@ -24,4 +24,4 @@ jobs:
       - name: Build
         run: dotnet build -c Release --framework ${{ matrix.framework }}
       - name: Test
-        run: dotnet test -c Release --framework ${{ matrix.framework }} --no-build
+        run: dotnet test -c Release --framework ${{ matrix.framework }} --no-build --logger console
