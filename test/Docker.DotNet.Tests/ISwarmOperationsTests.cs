@@ -163,7 +163,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = serviceName,
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID, Command = CommonCommands.EchoToStdoutAndStderr } }
             }
         })).ID;
 

@@ -167,20 +167,20 @@ public class ISystemOperationsTests
     public async Task MonitorEventsFiltered_Succeeds()
     {
         string newTag = $"MonitorTests-{Guid.NewGuid().ToString().Substring(1, 10)}";
-        string newImageRespositoryName = Guid.NewGuid().ToString();
+        string newImageRepositoryName = Guid.NewGuid().ToString();
 
         await _testFixture.DockerClient.Images.TagImageAsync(
             $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
-                RepositoryName = newImageRespositoryName,
+                RepositoryName = newImageRepositoryName,
                 Tag = newTag
             },
             _testFixture.Cts.Token
         );
 
         ImageInspectResponse image = await _testFixture.DockerClient.Images.InspectImageAsync(
-            $"{newImageRespositoryName}:{newTag}",
+            $"{newImageRepositoryName}:{newTag}",
             _testFixture.Cts.Token
         );
 
@@ -233,7 +233,7 @@ public class ISystemOperationsTests
         await _testFixture.DockerClient.Images.TagImageAsync($"{_testFixture.Repository}:{_testFixture.Tag}", new ImageTagParameters { RepositoryName = _testFixture.Repository, Tag = newTag });
         await _testFixture.DockerClient.Images.DeleteImageAsync($"{_testFixture.Repository}:{newTag}", new ImageDeleteParameters());
 
-        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(new CreateContainerParameters { Image = $"{_testFixture.Repository}:{_testFixture.Tag}" });
+        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(new CreateContainerParameters { Image = $"{_testFixture.Repository}:{_testFixture.Tag}", Entrypoint = CommonCommands.SleepInfinity });
         await _testFixture.DockerClient.Containers.RemoveContainerAsync(createContainerResponse.ID, new ContainerRemoveParameters(), cts.Token);
 
         await Task.Delay(TimeSpan.FromSeconds(1));

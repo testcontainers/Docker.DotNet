@@ -19,7 +19,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr
             },
             _testFixture.Cts.Token
         );
@@ -37,7 +37,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = false
             },
             _testFixture.Cts.Token
@@ -83,7 +83,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = false
             },
             _testFixture.Cts.Token
@@ -107,7 +107,7 @@ public class IContainerOperationsTests
                 Follow = false
             },
             _testFixture.Cts.Token,
-            new Progress<string>(m => { logList.Add(m); _testOutputHelper.WriteLine(m); })
+            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); })
         );
 
         await _testFixture.DockerClient.Containers.StopContainerAsync(
@@ -130,7 +130,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = true
             },
             _testFixture.Cts.Token
@@ -177,7 +177,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = false
             },
             _testFixture.Cts.Token
@@ -214,7 +214,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = true
             },
             _testFixture.Cts.Token
@@ -254,7 +254,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = true
             },
             _testFixture.Cts.Token
@@ -289,7 +289,6 @@ public class IContainerOperationsTests
             _testFixture.Cts.Token
         );
 
-
         await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
         _testOutputHelper.WriteLine($"Line count: {logList.Count}");
 
@@ -306,7 +305,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = false
             },
             _testFixture.Cts.Token
@@ -351,7 +350,7 @@ public class IContainerOperationsTests
                 new CreateContainerParameters
                 {
                     Image = _testFixture.Image.ID,
-                    Name = Guid.NewGuid().ToString(),
+                    Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                     Tty = false
                 },
                 _testFixture.Cts.Token
@@ -399,7 +398,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                 Tty = true
             },
             _testFixture.Cts.Token
@@ -443,7 +442,7 @@ public class IContainerOperationsTests
                 new CreateContainerParameters
                 {
                     Image = _testFixture.Image.ID,
-                    Name = Guid.NewGuid().ToString(),
+                    Entrypoint = CommonCommands.EchoToStdoutAndStderr,
                     Tty = true
                 },
                 _testFixture.Cts.Token
@@ -474,7 +473,7 @@ public class IContainerOperationsTests
             }
             catch (OperationCanceledException)
             {
-                // this  is expected to  happen on task cancelaltion
+                // This is expected to happen on task cancellation.
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -489,7 +488,8 @@ public class IContainerOperationsTests
         var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(
             new CreateContainerParameters
             {
-                Image = _testFixture.Image.ID
+                Image = _testFixture.Image.ID,
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr
             },
             _testFixture.Cts.Token);
 
@@ -523,10 +523,11 @@ public class IContainerOperationsTests
     [Fact]
     public async Task ListContainersAsync_ContainerExists_Succeeds()
     {
-        await _testFixture.DockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
+        await _testFixture.DockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString()
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
             },
             _testFixture.Cts.Token);
 
@@ -556,7 +557,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString()
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr
             },
             _testFixture.Cts.Token
         );
@@ -591,7 +592,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString()
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
             },
             _testFixture.Cts.Token
         );
@@ -626,7 +627,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString()
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr,
             },
             _testFixture.Cts.Token
         );
@@ -663,7 +664,7 @@ public class IContainerOperationsTests
             new CreateContainerParameters
             {
                 Image = _testFixture.Image.ID,
-                Name = Guid.NewGuid().ToString(),
+                Entrypoint = CommonCommands.EchoToStdoutAndStderr
             },
             waitContainerCts.Token
         );
@@ -697,13 +698,12 @@ public class IContainerOperationsTests
     }
 
     [Fact]
-    public async Task CreateImageAsync_NonexistantImage_ThrowsDockerImageNotFoundException()
+    public async Task CreateImageAsync_NonExistingImage_ThrowsDockerImageNotFoundException()
     {
-        var parameters = new CreateContainerParameters
-        {
-            Image = "no-such-image-ytfghbkufhresdhtrjygvb",
-        };
-        Func<Task> op = async () => await _testFixture.DockerClient.Containers.CreateContainerAsync(parameters);
+        var createContainerParameters = new CreateContainerParameters();
+        createContainerParameters.Image = Guid.NewGuid().ToString("D");
+
+        Func<Task> op = () => _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters);
 
         await Assert.ThrowsAsync<DockerImageNotFoundException>(op);
     }
@@ -714,6 +714,7 @@ public class IContainerOperationsTests
         // Given
         var createContainerParameters = new CreateContainerParameters();
         createContainerParameters.Image = _testFixture.Image.ID;
+        createContainerParameters.Entrypoint = CommonCommands.SleepInfinity;
 
         var containerExecCreateParameters = new ContainerExecCreateParameters();
         containerExecCreateParameters.AttachStdout = true;

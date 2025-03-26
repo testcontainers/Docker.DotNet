@@ -5,11 +5,6 @@ public sealed class TestCollection : ICollectionFixture<TestFixture>;
 
 public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDisposable, ILogger
 {
-    /// <summary>
-    /// The Docker image name.
-    /// </summary>
-    private const string Name = "httpd";
-
     private const LogLevel MinLogLevel = LogLevel.Debug;
 
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
@@ -67,8 +62,12 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     /// <inheritdoc />
     public async Task InitializeAsync()
     {
+        const string repository = "alpine";
+
+        const string tag = "3.20";
+
         // Create image
-        await DockerClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = Name, Tag = "latest" }, null, this, Cts.Token)
+        await DockerClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = repository, Tag = tag }, null, this, Cts.Token)
             .ConfigureAwait(false);
 
         // Get images
@@ -79,7 +78,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
                     {
                         ["reference"] = new Dictionary<string, bool>
                         {
-                            [Name] = true
+                            [repository] = true
                         }
                     }
                 }, Cts.Token)
