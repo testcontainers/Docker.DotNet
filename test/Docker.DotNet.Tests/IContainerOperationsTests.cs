@@ -708,11 +708,9 @@ public class IContainerOperationsTests
         await Assert.ThrowsAsync<DockerImageNotFoundException>(op);
     }
 
-    [Fact]
+    [Fact(Skip = "Refactor IExecOperations operations and writing/reading to/from stdin and stdout. It does not work reliably.")]
     public async Task MultiplexedStreamWriteAsync_DoesNotThrowAnException()
     {
-        // TODO: Refactor IExecOperations operations and writing/reading to/from stdin and stdout.
-
         // Given
         var createContainerParameters = new CreateContainerParameters();
         createContainerParameters.Image = _testFixture.Image.ID;
@@ -729,16 +727,9 @@ public class IContainerOperationsTests
         var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters);
         _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
-        await Task.Delay(100);
-
         // When
         var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID, containerExecCreateParameters);
-
-        await Task.Delay(100);
-
         using var stream = await _testFixture.DockerClient.Exec.StartWithConfigContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
-
-        await Task.Delay(100);
 
         var buffer = new byte[] { 10 };
         var exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));

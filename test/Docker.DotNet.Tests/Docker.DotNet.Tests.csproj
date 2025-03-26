@@ -15,6 +15,9 @@
     <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Diagnostics" />
