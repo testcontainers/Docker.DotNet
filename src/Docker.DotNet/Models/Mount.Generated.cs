@@ -30,5 +30,8 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("ClusterOptions")]
         public ClusterOptions ClusterOptions { get; set; }
+        
+        [JsonPropertyName("ImageOptions")]
+        public ImageOptions ImageOptions { get; set; }
     }
 }
