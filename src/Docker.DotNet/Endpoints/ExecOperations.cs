@@ -83,21 +83,15 @@ internal class ExecOperations : IExecOperations
         return await StartWithConfigContainerExecAsync(id, new ContainerExecStartParameters() { AttachStdin = true, AttachStderr = true, AttachStdout = true, Tty = tty }, cancellationToken);
     }
 
-    public async Task<MultiplexedStream> StartWithConfigContainerExecAsync(string id, ContainerExecStartParameters eConfig, CancellationToken cancellationToken)
+    public async Task<MultiplexedStream> StartWithConfigContainerExecAsync(string id, ContainerExecStartParameters parameters, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        var data = new JsonRequestContent<ContainerExecStartParameters>(eConfig, DockerClient.JsonSerializer);
-        var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken).ConfigureAwait(false);
-        if (!stream.CanCloseWrite)
-        {
-            stream.Dispose();
-            throw new NotSupportedException("Cannot shutdown write on this transport");
-        }
-
-        return new MultiplexedStream(stream, !eConfig.Tty);
+        var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, DockerClient.JsonSerializer);
+        var result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken).ConfigureAwait(false);
+        return new MultiplexedStream(result, !parameters.Tty);
     }
 }

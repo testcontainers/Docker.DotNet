@@ -4,29 +4,17 @@ public class CertificateCredentials : Credentials
 {
     private readonly X509Certificate2 _certificate;
 
-    public CertificateCredentials(X509Certificate2 clientCertificate)
+    private bool _disposed;
+
+    public CertificateCredentials(X509Certificate2 certificate)
     {
-        _certificate = clientCertificate;
+        _certificate = certificate;
     }
 
-    public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
-
-    public override HttpMessageHandler GetHandler(HttpMessageHandler innerHandler)
+    public override void Dispose()
     {
-        var handler = (ManagedHandler)innerHandler;
-        handler.ClientCertificates = new X509CertificateCollection
-        {
-            _certificate
-        };
-
-        handler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
-
-        if (handler.ServerCertificateValidationCallback == null)
-        {
-            handler.ServerCertificateValidationCallback = ServicePointManager.ServerCertificateValidationCallback;
-        }
-
-        return handler;
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     public override bool IsTlsCredentials()
@@ -34,7 +22,29 @@ public class CertificateCredentials : Credentials
         return true;
     }
 
-    public override void Dispose()
+    public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
+        if (handler is HttpClientHandler httpClientHandler)
+        {
+            httpClientHandler.ClientCertificates.Add(_certificate);
+            httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+        }
+
+        return handler;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            _certificate.Dispose();
+        }
+
+        _disposed = true;
     }
 }

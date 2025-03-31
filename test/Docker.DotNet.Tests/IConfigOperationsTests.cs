@@ -3,21 +3,21 @@ namespace Docker.DotNet.Tests;
 [Collection(nameof(TestCollection))]
 public class IConfigOperationsTests
 {
-    private readonly DockerClient _dockerClient;
-    private readonly TestOutput _output;
+    private readonly TestFixture _testFixture;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    public IConfigOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
+    public IConfigOperationsTests(TestFixture testFixture, ITestOutputHelper testOutputHelper)
     {
-        _dockerClient = testFixture.DockerClient;
-        _output = new TestOutput(outputHelper);
+        _testFixture = testFixture;
+        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
     public async Task SwarmConfig_CanCreateAndRead()
     {
-        var currentConfigs = await _dockerClient.Configs.ListConfigsAsync();
+        var currentConfigs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
 
-        _output.WriteLine($"Current Configs: {currentConfigs.Count}");
+        _testOutputHelper.WriteLine($"Current Configs: {currentConfigs.Count}");
 
         var testConfigSpec = new SwarmConfigSpec
         {
@@ -31,15 +31,15 @@ public class IConfigOperationsTests
             Config = testConfigSpec
         };
 
-        var createdConfig = await _dockerClient.Configs.CreateConfigAsync(configParameters);
+        var createdConfig = await _testFixture.DockerClient.Configs.CreateConfigAsync(configParameters);
         Assert.NotNull(createdConfig.ID);
-        _output.WriteLine($"Config created: {createdConfig.ID}");
+        _testOutputHelper.WriteLine($"Config created: {createdConfig.ID}");
 
-        var configs = await _dockerClient.Configs.ListConfigsAsync();
+        var configs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
         Assert.Contains(configs, c => c.ID == createdConfig.ID);
-        _output.WriteLine($"Current Configs: {configs.Count}");
+        _testOutputHelper.WriteLine($"Current Configs: {configs.Count}");
 
-        var configResponse = await _dockerClient.Configs.InspectConfigAsync(createdConfig.ID);
+        var configResponse = await _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID);
 
         Assert.NotNull(configResponse);
 
@@ -49,10 +49,10 @@ public class IConfigOperationsTests
         Assert.Equal(configResponse.Spec.Templating, testConfigSpec.Templating);
 
 
-        _output.WriteLine("Config created is the same.");
+        _testOutputHelper.WriteLine("Config created is the same.");
 
-        await _dockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
+        await _testFixture.DockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
 
-        await Assert.ThrowsAsync<DockerApiException>(() => _dockerClient.Configs.InspectConfigAsync(createdConfig.ID));
+        await Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID));
     }
 }

@@ -1,39 +1,27 @@
-#if !NET45
-#endif
-
 namespace Microsoft.Net.Http.Client;
 
-internal class BufferedReadStream : WriteClosableStream, IPeekableStream
+internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 {
-    private const char CR = '\r';
-    private const char LF = '\n';
-
     private readonly Stream _inner;
     private readonly Socket _socket;
     private readonly byte[] _buffer;
-    private volatile int _bufferRefCount;
-    private int _bufferOffset = 0;
-    private int _bufferCount = 0;
-    private bool _disposed;
+    private readonly ILogger _logger;
+    private int _bufferRefCount;
+    private int _bufferOffset;
+    private int _bufferCount;
 
-    public BufferedReadStream(Stream inner, Socket socket)
-        : this(inner, socket, 1024)
-    { }
-
-    public BufferedReadStream(Stream inner, Socket socket, int bufferLength)
+    public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
+        : this(inner, socket, 8192, logger)
     {
-        if (inner == null)
-        {
-            throw new ArgumentNullException(nameof(inner));
-        }
-        _inner = inner;
+    }
+
+    public BufferedReadStream(Stream inner, Socket socket, int bufferLength, ILogger logger)
+    {
+        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
         _socket = socket;
-#if !NET45
-        _bufferRefCount = 1;
         _buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
-#else
-            _buffer = new byte[bufferLength];
-#endif
+        _logger = logger;
+        _bufferRefCount = 1;
     }
 
     public override bool CanRead
@@ -67,6 +55,24 @@ internal class BufferedReadStream : WriteClosableStream, IPeekableStream
         set { throw new NotSupportedException(); }
     }
 
+    public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
+
+    protected override void Dispose(bool disposing)
+    {
+        // TODO: Why does disposing break the implementation, see the other chunked streams too.
+        // base.Dispose(disposing);
+
+        if (disposing)
+        {
+            _inner.Dispose();
+
+            if (Interlocked.Decrement(ref _bufferRefCount) == 0)
+            {
+                ArrayPool<byte>.Shared.Return(_buffer);
+            }
+        }
+    }
+
     public override long Seek(long offset, SeekOrigin origin)
     {
         throw new NotSupportedException();
@@ -75,24 +81,6 @@ internal class BufferedReadStream : WriteClosableStream, IPeekableStream
     public override void SetLength(long value)
     {
         throw new NotSupportedException();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            _disposed = true;
-            if (disposing)
-            {
-                _inner.Dispose();
-#if !NET45
-                if (Interlocked.Decrement(ref _bufferRefCount) == 0)
-                {
-                    ArrayPool<byte>.Shared.Return(_buffer);
-                }
-#endif
-            }
-        }
     }
 
     public override void Flush()
@@ -137,6 +125,23 @@ internal class BufferedReadStream : WriteClosableStream, IPeekableStream
         return _inner.ReadAsync(buffer, offset, count, cancellationToken);
     }
 
+    public override void CloseWrite()
+    {
+        if (_socket != null)
+        {
+            _socket.Shutdown(SocketShutdown.Send);
+            return;
+        }
+
+        if (_inner is WriteClosableStream writeClosableStream)
+        {
+            writeClosableStream.CloseWrite();
+            return;
+        }
+
+        throw new NotSupportedException("Cannot shutdown write on this transport");
+    }
+
     public bool Peek(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
     {
         int read = PeekBuffer(buffer, toPeek, out peeked, out available, out remaining);
@@ -151,6 +156,95 @@ internal class BufferedReadStream : WriteClosableStream, IPeekableStream
         }
 
         throw new NotSupportedException("_inner stream isn't a peekable stream");
+    }
+
+    public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
+    {
+        const char nullChar = '\0';
+
+        const char cr = '\r';
+
+        const char lf = '\n';
+
+        if (_bufferCount == 0)
+        {
+            var bufferInUse = Interlocked.Increment(ref _bufferRefCount) > 1;
+
+            try
+            {
+                if (bufferInUse)
+                {
+                    _bufferOffset = 0;
+
+                    _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "Failed to read from buffer.");
+                throw;
+            }
+            finally
+            {
+                var bufferReleased = Interlocked.Decrement(ref _bufferRefCount) == 0;
+
+                if (bufferInUse && bufferReleased)
+                {
+                    ArrayPool<byte>.Shared.Return(_buffer);
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            var content = Encoding.ASCII.GetString(_buffer.TakeWhile(value => value != nullChar).ToArray());
+            content = content.Replace("\r", "<CR>");
+            content = content.Replace("\n", "<LF>");
+            _logger.LogDebug("Raw buffer content: '{Content}'.", content);
+        }
+
+        var start = _bufferOffset;
+
+        var end = -1;
+
+        for (var i = _bufferOffset; i < _buffer.Length; i++)
+        {
+            // If a null terminator is found, skip the rest of the buffer.
+            if (_buffer[i] == nullChar)
+            {
+                _logger.LogDebug("Null terminator found at position: {Position}.", i);
+                end = i;
+                break;
+            }
+
+            // Check if current byte is CR and the next byte is LF.
+            if (_buffer[i] == cr && i + 1 < _buffer.Length && _buffer[i + 1] == lf)
+            {
+                _logger.LogDebug("CRLF found at positions {CR} and {LF}.", i, i + 1);
+                end = i;
+                break;
+            }
+        }
+
+        // No CRLF found, process the entire remaining buffer.
+        if (end == -1)
+        {
+            end = _buffer.Length;
+            _logger.LogDebug("No CRLF found. Setting end position to buffer length: {End}.", end);
+        }
+        else
+        {
+            _bufferCount -= end - start + 2;
+            _bufferOffset = end + 2;
+            _logger.LogDebug("CRLF found. Consumed {Consumed} bytes. New offset: {Offset}, Remaining count: {RemainingBytes}.", end - start + 2, _bufferOffset, _bufferCount);
+        }
+
+        var length = end - start;
+        var line = Encoding.ASCII.GetString(_buffer, start, length);
+
+        _logger.LogDebug("String from positions {Start} to {End} (length {Length}): '{Line}'.", start, end, length, line);
+        return line;
     }
 
     private int ReadBuffer(byte[] buffer, int offset, int count)
@@ -183,102 +277,5 @@ internal class BufferedReadStream : WriteClosableStream, IPeekableStream
         available = 0;
         remaining = 0;
         return 0;
-    }
-
-    private async Task EnsureBufferedAsync(CancellationToken cancel)
-    {
-        if (_bufferCount == 0)
-        {
-            _bufferOffset = 0;
-#if !NET45
-            bool validBuffer = Interlocked.Increment(ref _bufferRefCount) > 1;
-            try
-            {
-                if (validBuffer)
-                {
-                    _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
-                }
-            }
-            finally
-            {
-                if ((Interlocked.Decrement(ref _bufferRefCount) == 0) && validBuffer)
-                {
-                    ArrayPool<byte>.Shared.Return(_buffer);
-                }
-            }
-#else
-                _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
-#endif
-            if (_bufferCount == 0)
-            {
-                throw new IOException("Unexpected end of stream");
-            }
-        }
-    }
-
-    // TODO: Line length limits?
-    public async Task<string> ReadLineAsync(CancellationToken cancel)
-    {
-        ThrowIfDisposed();
-        StringBuilder builder = new StringBuilder();
-        bool foundCR = false, foundCRLF = false;
-        do
-        {
-            if (_bufferCount == 0)
-            {
-                await EnsureBufferedAsync(cancel).ConfigureAwait(false);
-            }
-
-            char ch = (char)_buffer[_bufferOffset]; // TODO: Encoding enforcement
-            builder.Append(ch);
-            _bufferOffset++;
-            _bufferCount--;
-            if (ch == CR)
-            {
-                foundCR = true;
-            }
-            else if (ch == LF)
-            {
-                if (foundCR)
-                {
-                    foundCRLF = true;
-                }
-                else
-                {
-                    foundCR = false;
-                }
-            }
-        }
-        while (!foundCRLF);
-
-        return builder.ToString(0, builder.Length - 2); // Drop the CRLF
-    }
-
-    private void ThrowIfDisposed()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(BufferedReadStream));
-        }
-    }
-
-    public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
-
-    public override void CloseWrite()
-    {
-        if (_socket != null)
-        {
-            _socket.Shutdown(SocketShutdown.Send);
-            return;
-        }
-
-        var s = _inner as WriteClosableStream;
-        if (s != null)
-        {
-            s.CloseWrite();
-            return;
-        }
-
-        throw new NotSupportedException("Cannot shutdown write on this transport");
     }
 }

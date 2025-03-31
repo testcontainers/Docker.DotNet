@@ -17,9 +17,12 @@ public sealed class DockerClient : IDockerClient
 
     private readonly Version _requestedApiVersion;
 
-    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion)
+    private readonly ILogger _logger;
+
+    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, ILogger logger = null)
     {
         _requestedApiVersion = requestedApiVersion;
+        _logger = logger ?? NullLogger.Instance;
 
         Configuration = configuration;
         DefaultTimeout = configuration.DefaultTimeout;
@@ -72,7 +75,7 @@ public sealed class DockerClient : IDockerClient
                         .ConfigureAwait(false);
 
                     return dockerStream;
-                });
+                }, _logger);
                 break;
 
             case "tcp":
@@ -82,11 +85,11 @@ public sealed class DockerClient : IDockerClient
                     Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler();
+                handler = new ManagedHandler(_logger);
                 break;
 
             case "https":
-                handler = new ManagedHandler();
+                handler = new ManagedHandler(_logger);
                 break;
 
             case "unix":
@@ -99,7 +102,7 @@ public sealed class DockerClient : IDockerClient
                         .ConfigureAwait(false);
 
                     return sock;
-                });
+                }, _logger);
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
 
@@ -388,10 +391,7 @@ public sealed class DockerClient : IDockerClient
             throw new NotSupportedException("message handler does not support hijacked streams");
         }
 
-        var stream = await content.ReadAsStreamAsync()
-            .ConfigureAwait(false);
-
-        return (WriteClosableStream)stream;
+        return content.HijackStream();
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(

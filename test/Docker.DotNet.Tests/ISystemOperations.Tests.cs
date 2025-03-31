@@ -3,46 +3,33 @@ namespace Docker.DotNet.Tests;
 [Collection(nameof(TestCollection))]
 public class ISystemOperationsTests
 {
-    private readonly CancellationTokenSource _cts;
+    private readonly TestFixture _testFixture;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    private readonly TestOutput _output;
-    private readonly string _repositoryName;
-    private readonly string _tag;
-    private readonly DockerClient _dockerClient;
-
-    public ISystemOperationsTests(TestFixture testFixture, ITestOutputHelper outputHelper)
+    public ISystemOperationsTests(TestFixture testFixture, ITestOutputHelper testOutputHelper)
     {
-        _output = new TestOutput(outputHelper);
-
-        _dockerClient = testFixture.DockerClient;
-
-        // Do not wait forever in case it gets stuck
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(testFixture.Cts.Token);
-        _cts.CancelAfter(TimeSpan.FromMinutes(5));
-        _cts.Token.Register(() => throw new TimeoutException("SystemOperationsTests timeout"));
-
-        _repositoryName = testFixture.Repository;
-        _tag = testFixture.Tag;
+        _testFixture = testFixture;
+        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
     public void Docker_IsRunning()
     {
         var dockerProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName.Equals("docker", StringComparison.InvariantCultureIgnoreCase) || process.ProcessName.Equals("dockerd", StringComparison.InvariantCultureIgnoreCase));
-        Assert.NotNull(dockerProcess); // docker is not running
+        Assert.NotNull(dockerProcess);
     }
 
     [Fact]
     public async Task GetSystemInfoAsync_Succeeds()
     {
-        var info = await _dockerClient.System.GetSystemInfoAsync();
+        var info = await _testFixture.DockerClient.System.GetSystemInfoAsync();
         Assert.NotNull(info.Architecture);
     }
 
     [Fact]
     public async Task GetVersionAsync_Succeeds()
     {
-        var version = await _dockerClient.System.GetVersionAsync();
+        var version = await _testFixture.DockerClient.System.GetVersionAsync();
         Assert.NotNull(version.APIVersion);
     }
 
@@ -55,20 +42,20 @@ public class ISystemOperationsTests
         await cts.CancelAsync();
         await Task.Delay(1);
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => _dockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), progress, cts.Token));
+        await Assert.ThrowsAsync<TaskCanceledException>(() => _testFixture.DockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), progress, cts.Token));
 
     }
 
     [Fact]
     public async Task MonitorEventsAsync_NullParameters_Throws()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _dockerClient.System.MonitorEventsAsync(null, null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _testFixture.DockerClient.System.MonitorEventsAsync(null, null));
     }
 
     [Fact]
     public async Task MonitorEventsAsync_NullProgress_Throws()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _dockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _testFixture.DockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), null));
     }
 
     [Fact]
@@ -78,29 +65,29 @@ public class ISystemOperationsTests
 
         var wasProgressCalled = false;
 
-        var progressMessage = new Progress<Message>((m) =>
+        var progressMessage = new Progress<Message>(m =>
         {
-            _output.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Status} {m.From} - {m.Type}");
+            _testOutputHelper.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Status} {m.From} - {m.Type}");
             wasProgressCalled = true;
             Assert.NotNull(m);
         });
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
 
-        var task = _dockerClient.System.MonitorEventsAsync(
+        var task = _testFixture.DockerClient.System.MonitorEventsAsync(
             new ContainerEventsParameters(),
             progressMessage,
             cts.Token);
 
-        await _dockerClient.Images.TagImageAsync($"{_repositoryName}:{_tag}", new ImageTagParameters { RepositoryName = _repositoryName, Tag = newTag }, _cts.Token);
+        await _testFixture.DockerClient.Images.TagImageAsync($"{_testFixture.Repository}:{_testFixture.Tag}", new ImageTagParameters { RepositoryName = _testFixture.Repository, Tag = newTag }, _testFixture.Cts.Token);
 
-        await _dockerClient.Images.DeleteImageAsync(
-            name: $"{_repositoryName}:{newTag}",
+        await _testFixture.DockerClient.Images.DeleteImageAsync(
+            name: $"{_testFixture.Repository}:{newTag}",
             new ImageDeleteParameters
             {
                 Force = true
             },
-            _cts.Token);
+            _testFixture.Cts.Token);
 
         // Give it some time for output operation to complete before cancelling task
         await Task.Delay(TimeSpan.FromSeconds(1));
@@ -123,24 +110,24 @@ public class ISystemOperationsTests
             try
             {
                 // (1) Create monitor task
-                using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
 
                 string newImageTag = Guid.NewGuid().ToString();
 
-                var monitorTask = _dockerClient.System.MonitorEventsAsync(
+                var monitorTask = _testFixture.DockerClient.System.MonitorEventsAsync(
                     new ContainerEventsParameters(),
-                    new Progress<Message>((value) => _output.WriteLine($"DockerSystemEvent: {JsonSerializer.Instance.Serialize(value)}")),
+                    new Progress<Message>(value => _testOutputHelper.WriteLine($"DockerSystemEvent: {JsonSerializer.Instance.Serialize(value)}")),
                     cts.Token);
 
                 // (2) Wait for some time to make sure we get into blocking IO call
                 await Task.Delay(100, CancellationToken.None);
 
                 // (3) Invoke another request that will attempt to grab the same buffer
-                var listImagesTask1 = _dockerClient.Images.TagImageAsync(
-                    $"{_repositoryName}:{_tag}",
+                var listImagesTask1 = _testFixture.DockerClient.Images.TagImageAsync(
+                    $"{_testFixture.Repository}:{_testFixture.Tag}",
                     new ImageTagParameters
                     {
-                        RepositoryName = _repositoryName,
+                        RepositoryName = _testFixture.Repository,
                         Tag = newImageTag,
                     }, CancellationToken.None);
 
@@ -153,17 +140,17 @@ public class ISystemOperationsTests
                     // noop
                 }
 
-                _output.WriteLine($"Waited for {sw.Elapsed.TotalMilliseconds} ms");
+                _testOutputHelper.WriteLine($"Waited for {sw.Elapsed.TotalMilliseconds} ms");
 
                 await cts.CancelAsync();
 
                 await listImagesTask1;
 
-                await _dockerClient.Images.TagImageAsync(
-                    $"{_repositoryName}:{_tag}",
+                await _testFixture.DockerClient.Images.TagImageAsync(
+                    $"{_testFixture.Repository}:{_testFixture.Tag}",
                     new ImageTagParameters
                     {
-                        RepositoryName = _repositoryName,
+                        RepositoryName = _testFixture.Repository,
                         Tag = newImageTag,
                     }, CancellationToken.None);
 
@@ -180,31 +167,31 @@ public class ISystemOperationsTests
     public async Task MonitorEventsFiltered_Succeeds()
     {
         string newTag = $"MonitorTests-{Guid.NewGuid().ToString().Substring(1, 10)}";
-        string newImageRespositoryName = Guid.NewGuid().ToString();
+        string newImageRepositoryName = Guid.NewGuid().ToString();
 
-        await _dockerClient.Images.TagImageAsync(
-            $"{_repositoryName}:{_tag}",
+        await _testFixture.DockerClient.Images.TagImageAsync(
+            $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
-                RepositoryName = newImageRespositoryName,
+                RepositoryName = newImageRepositoryName,
                 Tag = newTag
             },
-            _cts.Token
+            _testFixture.Cts.Token
         );
 
-        ImageInspectResponse image = await _dockerClient.Images.InspectImageAsync(
-            $"{newImageRespositoryName}:{newTag}",
-            _cts.Token
+        ImageInspectResponse image = await _testFixture.DockerClient.Images.InspectImageAsync(
+            $"{newImageRepositoryName}:{newTag}",
+            _testFixture.Cts.Token
         );
 
         var progressCalledCounter = 0;
 
-        var eventsParams = new ContainerEventsParameters()
+        var eventsParams = new ContainerEventsParameters
         {
-            Filters = new Dictionary<string, IDictionary<string, bool>>()
+            Filters = new Dictionary<string, IDictionary<string, bool>>
             {
                 {
-                    "event", new Dictionary<string, bool>()
+                    "event", new Dictionary<string, bool>
                     {
                         {
                             "tag", true
@@ -215,7 +202,7 @@ public class ISystemOperationsTests
                     }
                 },
                 {
-                    "type", new Dictionary<string, bool>()
+                    "type", new Dictionary<string, bool>
                     {
                         {
                             "image", true
@@ -223,7 +210,7 @@ public class ISystemOperationsTests
                     }
                 },
                 {
-                    "image", new Dictionary<string, bool>()
+                    "image", new Dictionary<string, bool>
                     {
                         {
                             image.ID, true
@@ -233,21 +220,21 @@ public class ISystemOperationsTests
             }
         };
 
-        var progress = new Progress<Message>((m) =>
+        var progress = new Progress<Message>(m =>
         {
             Interlocked.Increment(ref progressCalledCounter);
             Assert.True(m.Status == "tag" || m.Status == "untag");
-            _output.WriteLine($"MonitorEventsFiltered_Succeeds: Message received: {m.Action} - {m.Status} {m.From} - {m.Type}");
+            _testOutputHelper.WriteLine($"MonitorEventsFiltered_Succeeds: Message received: {m.Action} - {m.Status} {m.From} - {m.Type}");
         });
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-        var task = Task.Run(() => _dockerClient.System.MonitorEventsAsync(eventsParams, progress, cts.Token));
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
+        var task = Task.Run(() => _testFixture.DockerClient.System.MonitorEventsAsync(eventsParams, progress, cts.Token));
 
-        await _dockerClient.Images.TagImageAsync($"{_repositoryName}:{_tag}", new ImageTagParameters { RepositoryName = _repositoryName, Tag = newTag });
-        await _dockerClient.Images.DeleteImageAsync($"{_repositoryName}:{newTag}", new ImageDeleteParameters());
+        await _testFixture.DockerClient.Images.TagImageAsync($"{_testFixture.Repository}:{_testFixture.Tag}", new ImageTagParameters { RepositoryName = _testFixture.Repository, Tag = newTag });
+        await _testFixture.DockerClient.Images.DeleteImageAsync($"{_testFixture.Repository}:{newTag}", new ImageDeleteParameters());
 
-        var createContainerResponse = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters { Image = $"{_repositoryName}:{_tag}" });
-        await _dockerClient.Containers.RemoveContainerAsync(createContainerResponse.ID, new ContainerRemoveParameters(), cts.Token);
+        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(new CreateContainerParameters { Image = $"{_testFixture.Repository}:{_testFixture.Tag}", Entrypoint = CommonCommands.SleepInfinity });
+        await _testFixture.DockerClient.Containers.RemoveContainerAsync(createContainerResponse.ID, new ContainerRemoveParameters(), cts.Token);
 
         await Task.Delay(TimeSpan.FromSeconds(1));
         await cts.CancelAsync();
@@ -261,6 +248,6 @@ public class ISystemOperationsTests
     [Fact]
     public async Task PingAsync_Succeeds()
     {
-        await _dockerClient.System.PingAsync();
+        await _testFixture.DockerClient.System.PingAsync();
     }
 }
