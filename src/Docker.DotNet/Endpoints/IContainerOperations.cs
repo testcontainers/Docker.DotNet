@@ -44,6 +44,20 @@ public interface IContainerOperations
     Task<ContainerInspectResponse> InspectContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>
+    /// Retrieves low-level information about a container with additional options.
+    /// </summary>
+    /// <param name="id">The ID or name of the container.</param>
+    /// <param name="parameters">Specifics of how to perform the operation, such as whether to include size information.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
+    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainerInspectResponse"/>, which holds details about the container.</returns>
+    /// <remarks>The corresponding commands in the Docker CLI are <c>docker inspect --size</c> and <c>docker container inspect --size</c>.</remarks>
+    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
+    /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
+    /// <exception cref="DockerApiException">the daemon experienced an error.</exception>
+    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+    Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+
+    /// <summary>
     /// Retrieves a list of processes running within the container.
     /// </summary>
     /// <param name="id">The ID or name of the container.</param>

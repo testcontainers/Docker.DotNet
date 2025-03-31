@@ -64,6 +64,22 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerInspectResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/json", cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        IQueryString queryString = new QueryString<ContainerInspectParameters>(parameters);
+        return await _client.MakeRequestAsync<ContainerInspectResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/json", queryString, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<ContainerProcessesResponse> ListProcessesAsync(string id, ContainerListProcessesParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
     {
         if (string.IsNullOrEmpty(id))
