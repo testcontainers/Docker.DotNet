@@ -2,17 +2,17 @@ namespace Docker.DotNet;
 
 public class AnonymousCredentials : Credentials
 {
+    public override void Dispose()
+    {
+    }
+
     public override bool IsTlsCredentials()
     {
         return false;
     }
 
-    public override void Dispose()
+    public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
-    }
-
-    public override HttpMessageHandler GetHandler(HttpMessageHandler innerHandler)
-    {
-        return innerHandler;
+        return handler;
     }
 }

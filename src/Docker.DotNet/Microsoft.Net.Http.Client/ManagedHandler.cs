@@ -174,7 +174,7 @@ public class ManagedHandler : HttpMessageHandler
         if (request.IsHttps())
         {
             SslStream sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
-            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, false);
+            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12, false);
             transport = sslStream;
         }
 
