@@ -66,16 +66,6 @@ internal sealed class ChunkedReadStream : Stream
         }
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        // base.Dispose(disposing);
-
-        if (disposing)
-        {
-            // _inner.Dispose();
-        }
-    }
-
     public override int Read(byte[] buffer, int offset, int count)
     {
         throw new NotSupportedException();

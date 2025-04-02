@@ -2,7 +2,7 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class ChunkedWriteStream : Stream
 {
-    private static readonly byte[] s_EndContentBytes = Encoding.ASCII.GetBytes("0\r\n\r\n");
+    private static readonly byte[] EndOfContentBytes = Encoding.ASCII.GetBytes("0\r\n\r\n");
 
     private readonly Stream _inner;
 
@@ -26,16 +26,6 @@ internal sealed class ChunkedWriteStream : Stream
     {
         get { throw new NotImplementedException(); }
         set { throw new NotImplementedException(); }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        // base.Dispose(disposing);
-
-        if (disposing)
-        {
-            // _inner.Dispose();
-        }
     }
 
     public override void Flush()
@@ -75,14 +65,26 @@ internal sealed class ChunkedWriteStream : Stream
             return;
         }
 
-        var chunkSize = Encoding.ASCII.GetBytes(count.ToString("x") + "\r\n");
-        await _inner.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken).ConfigureAwait(false);
-        await _inner.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-        await _inner.WriteAsync(chunkSize, chunkSize.Length - 2, 2, cancellationToken).ConfigureAwait(false);
+        const string crlf = "\r\n";
+
+        var chunkHeader = count.ToString("X") + crlf;
+        var headerBytes = Encoding.ASCII.GetBytes(chunkHeader);
+
+        // Write the chunk header
+        await _inner.WriteAsync(headerBytes, 0, headerBytes.Length, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Write the chunk data
+        await _inner.WriteAsync(buffer, offset, count, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Write the chunk footer (CRLF)
+        await _inner.WriteAsync(headerBytes, headerBytes.Length - 2, 2, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task EndContentAsync(CancellationToken cancellationToken)
     {
-        return _inner.WriteAsync(s_EndContentBytes, 0, s_EndContentBytes.Length, cancellationToken);
+        return _inner.WriteAsync(EndOfContentBytes, 0, EndOfContentBytes.Length, cancellationToken);
     }
 }

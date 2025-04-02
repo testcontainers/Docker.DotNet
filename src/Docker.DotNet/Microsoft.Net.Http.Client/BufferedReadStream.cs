@@ -59,18 +59,17 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     protected override void Dispose(bool disposing)
     {
-        // TODO: Why does disposing break the implementation, see the other chunked streams too.
-        // base.Dispose(disposing);
-
         if (disposing)
         {
-            _inner.Dispose();
-
             if (Interlocked.Decrement(ref _bufferRefCount) == 0)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
+
+            _inner.Dispose();
         }
+
+        base.Dispose(disposing);
     }
 
     public override long Seek(long offset, SeekOrigin origin)

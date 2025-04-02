@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 internal class ExecOperations : IExecOperations
 {
-    internal static readonly ApiResponseErrorHandlingDelegate NoSuchContainerHandler = (statusCode, responseBody) =>
+    private static readonly ApiResponseErrorHandlingDelegate NoSuchContainerHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.NotFound)
         {
@@ -17,7 +17,18 @@ internal class ExecOperations : IExecOperations
         _client = client;
     }
 
-    public async Task<ContainerExecCreateResponse> ExecCreateContainerAsync(string id, ContainerExecCreateParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerExecInspectResponse> InspectContainerExecAsync(string id, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        return await _client.MakeRequestAsync<ContainerExecInspectResponse>([NoSuchContainerHandler], HttpMethod.Get, $"exec/{id}/json", null, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<ContainerExecCreateResponse> CreateContainerExecAsync(string id, ContainerExecCreateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -30,60 +41,12 @@ internal class ExecOperations : IExecOperations
         }
 
         var data = new JsonRequestContent<ContainerExecCreateParameters>(parameters, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<ContainerExecCreateResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/exec", null, data, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<ContainerExecCreateResponse>([NoSuchContainerHandler], HttpMethod.Post, $"containers/{id}/exec", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<ContainerExecInspectResponse> InspectContainerExecAsync(string id, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-
-        return await _client.MakeRequestAsync<ContainerExecInspectResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"exec/{id}/json", null, cancellationToken).ConfigureAwait(false);
-    }
-
-    public Task ResizeContainerExecTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-
-        if (parameters == null)
-        {
-            throw new ArgumentNullException(nameof(parameters));
-        }
-
-        var queryParameters = new QueryString<ContainerResizeParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken);
-    }
-
-    // StartContainerExecAsync will start the process specified by id in detach mode with no connected
-    // stdin, stdout, or stderr pipes.
-    public Task StartContainerExecAsync(string id, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-
-        var parameters = new ContainerExecStartParameters
-        {
-            Detach = true,
-        };
-        var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, cancellationToken);
-    }
-
-    // StartAndAttachContainerExecAsync will start the process specified by id with stdin, stdout, stderr
-    // connected, and optionally using terminal emulation if tty is true.
-    public async Task<MultiplexedStream> StartAndAttachContainerExecAsync(string id, bool tty, CancellationToken cancellationToken)
-    {
-        return await StartWithConfigContainerExecAsync(id, new ContainerExecStartParameters() { AttachStdin = true, AttachStderr = true, AttachStdout = true, Tty = tty }, cancellationToken);
-    }
-
-    public async Task<MultiplexedStream> StartWithConfigContainerExecAsync(string id, ContainerExecStartParameters parameters, CancellationToken cancellationToken)
+    public async Task<MultiplexedStream> StartContainerExecAsync(string id, ContainerExecStartParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -91,7 +54,10 @@ internal class ExecOperations : IExecOperations
         }
 
         var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, DockerClient.JsonSerializer);
-        var result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken).ConfigureAwait(false);
+
+        var result = await _client.MakeRequestForStreamAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken)
+            .ConfigureAwait(false);
+
         return new MultiplexedStream(result, !parameters.Tty);
     }
 }
