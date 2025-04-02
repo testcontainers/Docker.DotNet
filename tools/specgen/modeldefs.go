@@ -188,7 +188,7 @@ type ContainerExecCreateParameters container.ExecOptions
 type ContainerExecCreateResponse types.IDResponse
 
 // ContainerExecStartParameters for POST /exec/(id)/start
-type ContainerExecStartParameters container.ExecOptions
+type ContainerExecStartParameters container.ExecStartOptions
 
 // ImagesCreateParameters for POST /images/create
 type ImagesCreateParameters struct {

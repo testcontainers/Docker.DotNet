@@ -728,8 +728,8 @@ public class IContainerOperationsTests
         _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
         // When
-        var containerExecCreateResponse = await _testFixture.DockerClient.Exec.ExecCreateContainerAsync(createContainerResponse.ID, containerExecCreateParameters);
-        using var stream = await _testFixture.DockerClient.Exec.StartWithConfigContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
+        var containerExecCreateResponse = await _testFixture.DockerClient.Exec.CreateContainerExecAsync(createContainerResponse.ID, containerExecCreateParameters);
+        using var stream = await _testFixture.DockerClient.Exec.StartContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters);
 
         var buffer = new byte[] { 10 };
         var exception = await Record.ExceptionAsync(() => stream.WriteAsync(buffer, 0, buffer.Length, _testFixture.Cts.Token));

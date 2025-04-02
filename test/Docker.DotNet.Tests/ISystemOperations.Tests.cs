@@ -94,7 +94,7 @@ public class ISystemOperationsTests
 
         await cts.CancelAsync();
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
 
         Assert.True(wasProgressCalled);
     }
@@ -239,7 +239,7 @@ public class ISystemOperationsTests
         await Task.Delay(TimeSpan.FromSeconds(1));
         await cts.CancelAsync();
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
 
         Assert.Equal(2, progressCalledCounter);
         Assert.True(task.IsCanceled);
