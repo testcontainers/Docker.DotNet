@@ -248,30 +248,6 @@ Here are typical exceptions thrown from the client library:
 * **`ArgumentNullException`** is thrown when one of the required parameters are missing/empty.
     * Consider reading the [Docker Remote API reference][docker-remote-api] and source code of the corresponding method you are going to use in from this library. This way you can easily find out which parameters are required and their format.
 
-## .NET Foundation
-
-Docker.DotNet is a [.NET Foundation](https://www.dotnetfoundation.org) project.
-
-There are many .NET related projects on GitHub.
-
-- [.NET home repo](https://github.com/Microsoft/dotnet) - links to 100s of .NET projects, from Microsoft and the community.
-- [ASP.NET Core home](https://docs.microsoft.com/aspnet/core) - the best place to start learning about ASP.NET Core.
-
-This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/) to clarify expected behavior in our community. For more information, see the [.NET Foundation Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct).
-
-General .NET OSS discussions: [.NET Foundation Discord](https://dotnetfoundation.org/socialize/discord)
-
-## Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.dotnetfoundation.org.
-
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-
 ## License
 
 Docker.DotNet is licensed under the [MIT](LICENSE) license.
