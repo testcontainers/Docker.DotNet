@@ -313,8 +313,11 @@ internal class ContainerOperations : IContainerOperations
         }
 
         var queryParameters = new QueryString<ContainerAttachParameters>(parameters);
-        var result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken).ConfigureAwait(false);
-        return new MultiplexedStream(result, !tty);
+
+        var writeClosableStream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new MultiplexedStream(writeClosableStream, !tty);
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))

@@ -2,7 +2,7 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
-    // private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
     public HttpConnection(BufferedReadStream transport)
     {
@@ -147,10 +147,10 @@ internal sealed class HttpConnection : IDisposable
             }
         }
 
-        // var isStream = content.Headers.TryGetValues("Content-Type", out var headerValues)
-        //     && headerValues.Any(header => DockerStreamHeaders.Contains(header));
+        var isStream = content.Headers.TryGetValues("Content-Type", out var headerValues)
+            && headerValues.Any(header => DockerStreamHeaders.Contains(header));
 
-        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
+        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value && !isStream);
         return response;
     }
 

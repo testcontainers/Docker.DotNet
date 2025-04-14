@@ -26,7 +26,6 @@ public class HttpConnectionResponseContent : HttpContent
         }
         else
         {
-            // Raw, read until end and close
             _responseStream = _connection.Transport;
         }
     }
