@@ -167,14 +167,14 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         if (_bufferCount == 0)
         {
-            var bufferInUse = Interlocked.Increment(ref _bufferRefCount) > 1;
+            _bufferOffset = 0;
+
+            var bufferNotInUse = Interlocked.Increment(ref _bufferRefCount) > 1;
 
             try
             {
-                if (bufferInUse)
+                if (bufferNotInUse)
                 {
-                    _bufferOffset = 0;
-
                     _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -188,7 +188,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             {
                 var bufferReleased = Interlocked.Decrement(ref _bufferRefCount) == 0;
 
-                if (bufferInUse && bufferReleased)
+                if (bufferNotInUse && bufferReleased)
                 {
                     ArrayPool<byte>.Shared.Return(_buffer);
                 }
