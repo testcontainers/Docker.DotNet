@@ -122,10 +122,10 @@ internal class ContainerOperations : IContainerOperations
         var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
             .ConfigureAwait(false);
 
-        var writeClosableStream = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
+        var stream = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(writeClosableStream, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
     }
 
     public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default)
@@ -305,10 +305,10 @@ internal class ContainerOperations : IContainerOperations
         var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
             .ConfigureAwait(false);
 
-        var writeClosableStream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
+        var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(writeClosableStream, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default)
