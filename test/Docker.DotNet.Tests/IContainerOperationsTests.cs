@@ -60,9 +60,8 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = true
             },
-            containerLogsCts.Token,
-            new Progress<string>(m => _testOutputHelper.WriteLine(m))
-        );
+            new Progress<string>(m => _testOutputHelper.WriteLine(m)),
+            containerLogsCts.Token);
 
         await _testFixture.DockerClient.Containers.StopContainerAsync(
             createContainerResponse.ID,
@@ -106,8 +105,8 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = false
             },
-            _testFixture.Cts.Token,
-            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); })
+            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); }),
+            _testFixture.Cts.Token
         );
 
         await _testFixture.DockerClient.Containers.StopContainerAsync(
@@ -153,8 +152,8 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = false
             },
-            _testFixture.Cts.Token,
-            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); })
+            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); }),
+            _testFixture.Cts.Token
         );
 
         await _testFixture.DockerClient.Containers.StopContainerAsync(
@@ -191,7 +190,7 @@ public class IContainerOperationsTests
 
         containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => _testFixture.DockerClient.Containers.GetContainerLogsAsync(
+        await Assert.ThrowsAsync<OperationCanceledException>(() => _testFixture.DockerClient.Containers.GetContainerLogsAsync(
             createContainerResponse.ID,
             new ContainerLogsParameters
             {
@@ -200,8 +199,8 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = true
             },
-            containerLogsCts.Token,
-            new Progress<string>(m => _testOutputHelper.WriteLine(m))
+            new Progress<string>(m => _testOutputHelper.WriteLine(m)),
+            containerLogsCts.Token
         ));
     }
 
@@ -237,11 +236,11 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = true
             },
-            containerLogsCts.Token,
-            new Progress<string>(m => _testOutputHelper.WriteLine(m))
+            new Progress<string>(m => _testOutputHelper.WriteLine(m)),
+            containerLogsCts.Token
         );
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
+        await Assert.ThrowsAsync<OperationCanceledException>(() => containerLogsTask);
     }
 
     [Fact]
@@ -277,8 +276,8 @@ public class IContainerOperationsTests
                 Timestamps = true,
                 Follow = true
             },
-            containerLogsCts.Token,
-            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); })
+            new Progress<string>(m => { _testOutputHelper.WriteLine(m); logList.Add(m); }),
+            containerLogsCts.Token
         );
 
         await Task.Delay(TimeSpan.FromSeconds(5));
@@ -289,7 +288,7 @@ public class IContainerOperationsTests
             _testFixture.Cts.Token
         );
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => containerLogsTask);
+        await Assert.ThrowsAsync<OperationCanceledException>(() => containerLogsTask);
         _testOutputHelper.WriteLine($"Line count: {logList.Count}");
 
         Assert.NotEmpty(logList);
@@ -731,7 +730,7 @@ public class IContainerOperationsTests
         var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters);
         _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters());
 
-        using var stream = await _testFixture.DockerClient.Containers.AttachContainerAsync(createContainerResponse.ID, createContainerParameters.Tty, containerAttachParameters);
+        using var stream = await _testFixture.DockerClient.Containers.AttachContainerAsync(createContainerResponse.ID, containerAttachParameters);
 
         await stream.WriteAsync(linefeedByte, 0, linefeedByte.Length, _testFixture.Cts.Token);
 

@@ -15,7 +15,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<IList<ContainerListResponse>> ListContainersAsync(ContainersListParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<IList<ContainerListResponse>> ListContainersAsync(ContainersListParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a new container from an image.
@@ -28,7 +28,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid, there was a conflict with another container, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<CreateContainerResponse> CreateContainerAsync(CreateContainerParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<CreateContainerResponse> CreateContainerAsync(CreateContainerParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves low-level information about a container.
@@ -41,7 +41,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainerInspectResponse> InspectContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task<ContainerInspectResponse> InspectContainerAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves low-level information about a container with additional options.
@@ -55,7 +55,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a list of processes running within the container.
@@ -70,57 +70,44 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainerProcessesResponse> ListProcessesAsync(string id, ContainerListProcessesParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
-
-    /// <summary>
-    /// Gets <c>stdout</c> and <c>stderr</c> logs from a container created with a TTY.
-    /// </summary>
-    /// <param name="id">The ID or name of the container.</param>
-    /// <param name="parameters">Specifics of how to perform the operation.</param>
-    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="Stream"/>, which provides the log information.</returns>
-    /// <remarks>This method works only for containers with the <c>json-file</c> or <c>journald</c> logging driver.
-    /// <br/>The corresponding commands in the Docker CLI are <c>docker logs</c> and <c>docker container logs</c>.</remarks>
-    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
-    /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
-    /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
-    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    [Obsolete("The stream returned by this method won't be demultiplexed properly if the container was created without a TTY. Use GetContainerLogsAsync(string, bool, ContainerLogsParameters, CancellationToken) instead")]
-    Task<Stream> GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
-
-    /// <summary>
-    /// Gets <c>stdout</c> and <c>stderr</c> logs from a container that was created with a TTY.
-    /// </summary>
-    /// <param name="id">The ID or name of the container.</param>
-    /// <param name="parameters">Specifics of how to perform the operation.</param>
-    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <param name="progress">Provides a callback for reporting log entries as they're read. Every reported string represents one log line, with its terminating newline removed.</param>
-    /// <returns>A <see cref="Task"/> that will complete once all log lines have been read, or once the container has exited if Follow is set to <see langword="true"/>.</returns>
-    /// <remarks>This method is only suited for containers created with a TTY. For containers created without a TTY, use
-    /// <see cref="GetContainerLogsAsync(string, bool, ContainerLogsParameters, CancellationToken)"/> instead.
-    /// <br/>
-    /// The corresponding commands in the Docker CLI are <c>docker inspect</c> and <c>docker container inspect</c>.</remarks>
-    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
-    /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
-    /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
-    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken, IProgress<string> progress);
+    Task<ContainerProcessesResponse> ListProcessesAsync(string id, ContainerListProcessesParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets <c>stdout</c> and <c>stderr</c> logs from a container.
     /// </summary>
+    /// <remarks>
+    /// The corresponding commands in the Docker CLI are <c>docker inspect</c> and <c>docker container inspect</c>.
+    /// </remarks>
     /// <param name="id">The ID or name of the container.</param>
-    /// <param name="tty">Indicates whether the container was created with a TTY. If <see langword="false" />, the returned stream is multiplexed.</param>
+    /// <param name="parameters">Specifics of how to perform the operation.</param>
+    /// <param name="progress">Provides a callback for reporting log entries as they're read. Every reported string represents one log line, with its terminating newline removed.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
+    /// <returns>
+    /// A <see cref="Task"/> that will complete once all log lines have been read, or once the container has exited if <c>Follow</c> is set to <see langword="true"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">One or more of the inputs were <see langword="null"/>.</exception>
+    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation, or timeout.</exception>
+    /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
+    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
+    Task GetContainerLogsAsync(string id, ContainerLogsParameters parameters, IProgress<string> progress, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets <c>stdout</c> and <c>stderr</c> logs from a container.
+    /// </summary>
+    /// <remarks>
+    /// The corresponding commands in the Docker CLI are <c>docker inspect</c> and <c>docker container inspect</c>.
+    /// </remarks>
+    /// <param name="id">The ID or name of the container.</param>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="MultiplexedStream"/>, which provides the log information.
-    /// If the container wasn't created with a TTY, this stream is multiplexed.</returns>
-    /// <remarks>The corresponding commands in the Docker CLI are <c>docker inspect</c> and <c>docker container inspect</c>.</remarks>
-    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
-    /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
+    /// <returns>
+    /// A <see cref="Task{TResult}"/> that resolves to a <see cref="MultiplexedStream"/>, which provides the log information.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">One or more of the inputs were <see langword="null"/>.</exception>
+    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation, or timeout.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
-    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<MultiplexedStream> GetContainerLogsAsync(string id, bool tty, ContainerLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
+    Task<MultiplexedStream> GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Reports which files in a container's filesystem have been added, deleted, or modified.
@@ -132,7 +119,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Exports the contents of a container as a tarball.
@@ -145,7 +132,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a live, raw stream of the container's resource usage statistics.
@@ -153,7 +140,7 @@ public interface IContainerOperations
     /// <param name="id">The ID or name of the container.</param>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="Stream"/>, which can be used to read the frames of statistics. For details 
+    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="Stream"/>, which can be used to read the frames of statistics. For details
     /// on the format, refer to <a href="https://docs.docker.com/engine/api/v1.41/#operation/ContainerStats">the Docker Engine API documentation</a>.
     /// </returns>
     /// <remarks>The corresponding commands in the Docker CLI are <c>docker stats</c> and <c>docker container stats</c>.</remarks>
@@ -177,7 +164,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken = default(CancellationToken));
+    Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resizes a container's TTY.
@@ -192,7 +179,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task ResizeContainerTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task ResizeContainerTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts a container.
@@ -209,7 +196,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stops a container.
@@ -227,7 +214,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<bool> StopContainerAsync(string id, ContainerStopParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<bool> StopContainerAsync(string id, ContainerStopParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stops and then restarts a container.
@@ -241,7 +228,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task RestartContainerAsync(string id, ContainerRestartParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task RestartContainerAsync(string id, ContainerRestartParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sends a POSIX signal to a container--typically to kill it.
@@ -257,7 +244,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The container was not running, the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task KillContainerAsync(string id, ContainerKillParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task KillContainerAsync(string id, ContainerKillParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes the name of a container.
@@ -279,7 +266,7 @@ public interface IContainerOperations
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     /// <returns>A <see cref="Task"/> that resolves when the operation is complete.</returns>
     /// <remarks>
-    /// This uses the freeze cgroup to suspend all processes in the container. The processes are unaware that they are being 
+    /// This uses the freeze cgroup to suspend all processes in the container. The processes are unaware that they are being
     /// suspended (e.g., they cannot capture a SIGSTOP signal).
     /// </remarks>
     /// <remarks>The corresponding commands in the Docker CLI are <c>docker pause</c> and <c>docker container pause</c>.</remarks>
@@ -288,7 +275,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task PauseContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task PauseContainerAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resumes a container that was suspended.
@@ -302,44 +289,40 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task UnpauseContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task UnpauseContainerAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Attaches to a container to read its output and send it input.
     /// </summary>
+    /// <remarks>
+    /// The corresponding commands in the Docker CLI are <c>docker attach</c> and <c>docker container attach</c>.
+    /// </remarks>
     /// <param name="id">The ID or name of the container.</param>
-    /// <param name="tty">Indicates whether the stream is a TTY stream. When <see langword="true"/>, <c>stdout</c> and <c>stderr</c> are 
-    /// combined into a single, undifferentiated stream. When <see langword="false"/>, the stream is multiplexed.</param>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="MultiplexedStream"/>, which contains the
-    /// container's <c>stdout</c> and <c>stderr</c> content and which can be used to write to the container's <c>stdin</c>.</returns>
-    /// <remarks>The format of the stream various, in part by the <paramref name="tty"/> parameter's value. See the
-    /// <a href="https://docs.docker.com/engine/api/v1.41/#operations/ContainerAttach">Docker Engine API reference</a> for details on
-    /// the format.</remarks>
-    /// <remarks>The corresponding commands in the Docker CLI are <c>docker attach</c> and <c>docker container attach</c>.</remarks>
-    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
-    /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
+    /// <returns>
+    /// A <see cref="Task{TResult}"/> that resolves to a <see cref="MultiplexedStream"/>, which contains the container's
+    /// <c>stdout</c> and <c>stderr</c> content and which can be used to write to the container's <c>stdin</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">One or more of the inputs were <see langword="null"/>.</exception>
+    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation, or timeout.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
-    /// <exception cref="NotSupportedException">The transport is unsuitable for the operation.</exception>
-    /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<MultiplexedStream> AttachContainerAsync(string id, bool tty, ContainerAttachParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
-
-    // TODO: Attach Web Socket
+    /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
+    Task<MultiplexedStream> AttachContainerAsync(string id, ContainerAttachParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Waits for a container to stop.
     /// </summary>
     /// <param name="id">The ID or name of the container.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainerWaitResponse"/> when the container has 
+    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainerWaitResponse"/> when the container has
     /// stopped.</returns>
     /// <remarks>The corresponding commands in the Docker CLI are <c>docker wait</c> and <c>docker container wait</c>.</remarks>
     /// <exception cref="DockerContainerNotFoundException">No such container was found.</exception>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a container.
@@ -353,7 +336,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">There is a conflict, the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task RemoveContainerAsync(string id, ContainerRemoveParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task RemoveContainerAsync(string id, ContainerRemoveParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets information about the filesystem in a container. This may be either a listing of files or a complete
@@ -361,7 +344,7 @@ public interface IContainerOperations
     /// </summary>
     /// <param name="id">The ID or name of the container.</param>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
-    /// <param name="statOnly">If <see langword="true"/>, the method will only return file information; otherwise, it will return a 
+    /// <param name="statOnly">If <see langword="true"/>, the method will only return file information; otherwise, it will return a
     /// stream of the filesystem as a tarball.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="GetArchiveFromContainerResponse"/>, which holds
@@ -370,7 +353,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default(CancellationToken));
+    Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Extracts a tar archive into a container's filesystem.
@@ -382,23 +365,23 @@ public interface IContainerOperations
     /// <returns>A <see cref="Task"/> that resolves when the operation completes.</returns>
     /// <exception cref="DockerContainerNotFoundException">No such container was found, or the path does not exist inside the container.</exception>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
-    /// <exception cref="DockerApiException">Permission is denied (the volume or container rootfs is marked read-only), 
+    /// <exception cref="DockerApiException">Permission is denied (the volume or container rootfs is marked read-only),
     /// the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default(CancellationToken));
+    Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes stopped containers.
     /// </summary>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainersPruneResponse"/>, which details which containers 
+    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainersPruneResponse"/>, which details which containers
     /// were removed.</returns>
     /// <remarks>The corresponding command in the Docker CLI is <c>docker container prune</c>.</remarks>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters parameters = null, CancellationToken cancellationToken = default(CancellationToken));
+    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes configuration options of a container without recreating it.
@@ -413,5 +396,5 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainerUpdateResponse> UpdateContainerAsync(string id, ContainerUpdateParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<ContainerUpdateResponse> UpdateContainerAsync(string id, ContainerUpdateParameters parameters, CancellationToken cancellationToken = default);
 }

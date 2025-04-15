@@ -161,7 +161,7 @@ internal sealed class HttpConnection : IDisposable
         //     - `/containers/{id}/logs`
 
         var isConnectionUpgrade = response.Headers.TryGetValues("Upgrade", out var responseHeaderValues)
-            && responseHeaderValues.Any(h => "tcp".Equals(h));
+            && responseHeaderValues.Any(header => "tcp".Equals(header));
 
         var isStream = content.Headers.TryGetValues("Content-Type", out var contentHeaderValues)
             && contentHeaderValues.Any(header => DockerStreamHeaders.Contains(header));
