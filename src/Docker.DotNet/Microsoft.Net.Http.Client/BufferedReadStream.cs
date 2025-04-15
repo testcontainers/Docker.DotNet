@@ -21,7 +21,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         _socket = socket;
         _buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
         _logger = logger;
-        _bufferRefCount = 1;
     }
 
     public override bool CanRead
@@ -167,14 +166,14 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         if (_bufferCount == 0)
         {
-            _bufferOffset = 0;
-
-            var bufferNotInUse = Interlocked.Increment(ref _bufferRefCount) > 1;
+            var isBufferShared = Interlocked.Increment(ref _bufferRefCount) > 1;
 
             try
             {
-                if (bufferNotInUse)
+                if (!isBufferShared)
                 {
+                    _bufferOffset = 0;
+
                     _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -186,9 +185,9 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             }
             finally
             {
-                var bufferReleased = Interlocked.Decrement(ref _bufferRefCount) == 0;
+                var isBufferReleased = Interlocked.Decrement(ref _bufferRefCount) == 0;
 
-                if (bufferNotInUse && bufferReleased)
+                if (!isBufferShared && isBufferReleased)
                 {
                     ArrayPool<byte>.Shared.Return(_buffer);
                 }
@@ -197,7 +196,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
-            var content = Encoding.ASCII.GetString(_buffer.TakeWhile(value => value != nullChar).ToArray());
+            var content = Encoding.ASCII.GetString(_buffer.Take(_bufferOffset + _bufferCount).ToArray());
             content = content.Replace("\r", "<CR>");
             content = content.Replace("\n", "<LF>");
             _logger.LogDebug("Raw buffer content: '{Content}'.", content);
@@ -229,6 +228,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         // No CRLF found, process the entire remaining buffer.
         if (end == -1)
         {
+            // TODO: Read remaining parts.
             end = _buffer.Length;
             _logger.LogDebug("No CRLF found. Setting end position to buffer length: {End}.", end);
         }
