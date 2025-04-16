@@ -380,6 +380,20 @@ public sealed class DockerClient : IDockerClient
         TimeSpan timeout,
         CancellationToken cancellationToken)
     {
+        // The Docker Engine API docs sounds like these headers are optional, but if they
+        // aren't include in the request, the daemon doesn't set up the raw stream
+        // correctly. Either the headers are always required, or they're necessary
+        // specifically in Docker Desktop environments because of some internal communication
+        // (using a proxy).
+
+        if (headers == null)
+        {
+            headers = new Dictionary<string, string>();
+        }
+
+        headers.Add("Connection", "tcp");
+        headers.Add("Upgrade", "Upgrade");
+
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 
@@ -455,7 +469,7 @@ public sealed class DockerClient : IDockerClient
 
     private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate> handlers)
     {
-        var isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
+        var isErrorResponse = (statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest) && statusCode != HttpStatusCode.SwitchingProtocols;
 
         string responseBody = null;
 

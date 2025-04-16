@@ -25,7 +25,7 @@ internal class ContainerOperations : IContainerOperations
         _client = client;
     }
 
-    public async Task<IList<ContainerListResponse>> ListContainersAsync(ContainersListParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<ContainerListResponse>> ListContainersAsync(ContainersListParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -36,7 +36,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerListResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "containers/json", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<CreateContainerResponse> CreateContainerAsync(CreateContainerParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<CreateContainerResponse> CreateContainerAsync(CreateContainerParameters parameters, CancellationToken cancellationToken = default)
     {
         IQueryString qs = null;
 
@@ -54,7 +54,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<CreateContainerResponse>(new[] { NoSuchImageHandler }, HttpMethod.Post, "containers/create", qs, data, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ContainerInspectResponse> InspectContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerInspectResponse> InspectContainerAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -64,7 +64,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerInspectResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/json", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerInspectResponse> InspectContainerAsync(string id, ContainerInspectParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -80,7 +80,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerInspectResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/json", queryString, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ContainerProcessesResponse> ListProcessesAsync(string id, ContainerListProcessesParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerProcessesResponse> ListProcessesAsync(string id, ContainerListProcessesParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -96,7 +96,16 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerProcessesResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/top", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<Stream> GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task GetContainerLogsAsync(string id, ContainerLogsParameters parameters, IProgress<string> progress, CancellationToken cancellationToken = default)
+    {
+        using var multiplexedStream = await GetContainerLogsAsync(id, parameters, cancellationToken)
+            .ConfigureAwait(false);
+
+        await StreamUtil.MonitorStreamAsync(multiplexedStream, progress, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<MultiplexedStream> GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -108,39 +117,18 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerLogsParameters>(parameters);
-        return _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, cancellationToken);
+        var queryParameters = new QueryString<ContainerLogsParameters>(parameters);
+
+        var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
+            .ConfigureAwait(false);
+
+        var stream = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
     }
 
-    public Task GetContainerLogsAsync(string id, ContainerLogsParameters parameters, CancellationToken cancellationToken, IProgress<string> progress)
-    {
-        return StreamUtil.MonitorStreamAsync(
-            GetContainerLogsAsync(id, parameters, cancellationToken),
-            _client,
-            cancellationToken,
-            progress);
-    }
-
-    public async Task<MultiplexedStream> GetContainerLogsAsync(string id, bool tty, ContainerLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-
-        if (parameters == null)
-        {
-            throw new ArgumentNullException(nameof(parameters));
-        }
-
-        IQueryString queryParameters = new QueryString<ContainerLogsParameters>(parameters);
-
-        Stream result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, cancellationToken).ConfigureAwait(false);
-
-        return new MultiplexedStream(result, !tty);
-    }
-
-    public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -176,7 +164,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/stats", queryParameters, null, null, cancellationToken);
     }
 
-    public Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken = default)
     {
         return StreamUtil.MonitorStreamForMessagesAsync(
             GetContainerStatsAsync(id, parameters, cancellationToken),
@@ -185,7 +173,7 @@ internal class ContainerOperations : IContainerOperations
             progress);
     }
 
-    public Task ResizeContainerTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task ResizeContainerTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -201,7 +189,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/resize", queryParameters, cancellationToken);
     }
 
-    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -214,7 +202,7 @@ internal class ContainerOperations : IContainerOperations
         return result ?? throw new InvalidOperationException();
     }
 
-    public async Task<bool> StopContainerAsync(string id, ContainerStopParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<bool> StopContainerAsync(string id, ContainerStopParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -234,7 +222,7 @@ internal class ContainerOperations : IContainerOperations
         return result ?? throw new InvalidOperationException();
     }
 
-    public Task RestartContainerAsync(string id, ContainerRestartParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task RestartContainerAsync(string id, ContainerRestartParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -253,7 +241,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/restart", queryParameters, null, null, TimeSpan.FromMilliseconds(Timeout.Infinite), cancellationToken);
     }
 
-    public Task KillContainerAsync(string id, ContainerKillParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task KillContainerAsync(string id, ContainerKillParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -280,7 +268,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/rename", queryParameters, cancellationToken);
     }
 
-    public Task PauseContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+    public Task PauseContainerAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -290,7 +278,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/pause", cancellationToken);
     }
 
-    public Task UnpauseContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+    public Task UnpauseContainerAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -300,7 +288,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/unpause", cancellationToken);
     }
 
-    public async Task<MultiplexedStream> AttachContainerAsync(string id, bool tty, ContainerAttachParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<MultiplexedStream> AttachContainerAsync(string id, ContainerAttachParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -313,11 +301,17 @@ internal class ContainerOperations : IContainerOperations
         }
 
         var queryParameters = new QueryString<ContainerAttachParameters>(parameters);
-        var result = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken).ConfigureAwait(false);
-        return new MultiplexedStream(result, !tty);
+
+        var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
+            .ConfigureAwait(false);
+
+        var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
     }
 
-    public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -327,7 +321,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerWaitResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/wait", null, null, null, TimeSpan.FromMilliseconds(Timeout.Infinite), cancellationToken).ConfigureAwait(false);
     }
 
-    public Task RemoveContainerAsync(string id, ContainerRemoveParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task RemoveContainerAsync(string id, ContainerRemoveParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -343,7 +337,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Delete, $"containers/{id}", queryParameters, cancellationToken);
     }
 
-    public async Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -372,7 +366,7 @@ internal class ContainerOperations : IContainerOperations
         };
     }
 
-    public Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
+    public Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -396,7 +390,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainersPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "containers/prune", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ContainerUpdateResponse> UpdateContainerAsync(string id, ContainerUpdateParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ContainerUpdateResponse> UpdateContainerAsync(string id, ContainerUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {

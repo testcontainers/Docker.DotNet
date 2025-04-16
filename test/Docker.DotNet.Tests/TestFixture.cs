@@ -101,7 +101,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         }
         catch
         {
-            this.LogDebug("Couldn't init a new swarm, the node should take part of an existing one.");
+            this.LogInformation("Couldn't init a new swarm, the node should take part of an existing one.");
 
             _hasInitializedSwarm = false;
         }
@@ -178,7 +178,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     /// <inheritdoc />
     public bool IsEnabled(LogLevel logLevel)
     {
-        return logLevel >= MinLogLevel;
+        return logLevel == MinLogLevel;
     }
 
     /// <inheritdoc />
@@ -191,7 +191,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     protected override void OnReport(JSONMessage value)
     {
         var message = JsonSerializer.Instance.Serialize(value);
-        this.LogDebug("Progress: '{Progress}'.", message);
+        this.LogInformation("Progress: '{Progress}'.", message);
     }
 
     private sealed class Disposable : IDisposable

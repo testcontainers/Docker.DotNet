@@ -55,9 +55,9 @@ internal class ExecOperations : IExecOperations
 
         var data = new JsonRequestContent<ContainerExecStartParameters>(parameters, DockerClient.JsonSerializer);
 
-        var result = await _client.MakeRequestForStreamAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken)
+        var stream = await _client.MakeRequestForHijackedStreamAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(result, !parameters.Tty);
+        return new MultiplexedStream(stream, !parameters.Tty);
     }
 }

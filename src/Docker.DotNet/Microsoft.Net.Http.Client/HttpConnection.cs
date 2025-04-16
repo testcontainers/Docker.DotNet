@@ -2,7 +2,7 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
-    // private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
     public HttpConnection(BufferedReadStream transport)
     {
@@ -147,10 +147,29 @@ internal sealed class HttpConnection : IDisposable
             }
         }
 
-        // var isStream = content.Headers.TryGetValues("Content-Type", out var headerValues)
-        //     && headerValues.Any(header => DockerStreamHeaders.Contains(header));
+        // TODO: We'll need to refactor this in the future.
+        //
+        // Depending on the request and response (headers), we need to handle the response
+        // differently. We need to distinguish between four types of responses:
+        //
+        // 1. Chunked transfer encoding
+        // 2. HTTP with a `Content-Length` header
+        // 3. Hijacked TCP connections (using the connection upgrade headers)
+        //     - `/containers/{id}/attach`
+        //     - `/exec/{id}/start`
+        // 4. Streams without the connection upgrade headers
+        //     - `/containers/{id}/logs`
 
-        content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
+        var isConnectionUpgrade = response.Headers.TryGetValues("Upgrade", out var responseHeaderValues)
+            && responseHeaderValues.Any(header => "tcp".Equals(header));
+
+        var isStream = content.Headers.TryGetValues("Content-Type", out var contentHeaderValues)
+            && contentHeaderValues.Any(header => DockerStreamHeaders.Contains(header));
+
+        var isChunkedTransferEncoding = (response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isStream) || (isStream && !isConnectionUpgrade);
+
+        content.ResolveResponseStream(chunked: isChunkedTransferEncoding);
+
         return response;
     }
 
