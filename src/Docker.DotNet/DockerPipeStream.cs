@@ -2,8 +2,8 @@ namespace Docker.DotNet;
 
 internal class DockerPipeStream : WriteClosableStream, IPeekableStream
 {
-    private readonly PipeStream _stream;
     private readonly EventWaitHandle _event = new EventWaitHandle(false, EventResetMode.AutoReset);
+    private readonly PipeStream _stream;
 
     public DockerPipeStream(PipeStream stream)
     {
@@ -26,7 +26,6 @@ internal class DockerPipeStream : WriteClosableStream, IPeekableStream
     public override long Position
     {
         get { throw new NotImplementedException(); }
-
         set { throw new NotImplementedException(); }
     }
 
@@ -37,7 +36,7 @@ internal class DockerPipeStream : WriteClosableStream, IPeekableStream
     private static extern int GetOverlappedResult(SafeHandle handle, ref NativeOverlapped overlapped, out int numBytesWritten, int wait);
 
     [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool PeekNamedPipe(SafeHandle handle, byte[] buffer, uint nBufferSize, ref uint bytesRead, ref uint bytesAvail, ref uint BytesLeftThisMessage);
+    private static extern bool PeekNamedPipe(SafeHandle handle, byte[] buffer, uint nBufferSize, ref uint bytesRead, ref uint bytesAvail, ref uint bytesLeftThisMessage);
 
     public override void CloseWrite()
     {
@@ -45,11 +44,7 @@ internal class DockerPipeStream : WriteClosableStream, IPeekableStream
         // calls to achieve this since CoreCLR ignores a zero-byte write.
         var overlapped = new NativeOverlapped();
 
-#if NET45
-            var handle = _event.SafeWaitHandle;
-#else
         var handle = _event.GetSafeWaitHandle();
-#endif
 
         // Set the low bit to tell Windows not to send the result of this IO to the
         // completion port.
