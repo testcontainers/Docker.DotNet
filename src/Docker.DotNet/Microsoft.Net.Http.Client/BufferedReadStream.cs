@@ -185,10 +185,10 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
             switch (c)
             {
-                case '\r' when crIndex == -1:
+                case '\r':
                     crIndex = line.Length;
                     break;
-                case '\n' when lfIndex == -1:
+                case '\n':
                     lfIndex = line.Length;
                     break;
             }
