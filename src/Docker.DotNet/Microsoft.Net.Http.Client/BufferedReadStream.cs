@@ -61,7 +61,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     {
         if (disposing)
         {
-            if (Interlocked.Decrement(ref _bufferRefCount) == 0)
+            if (Interlocked.Exchange(ref _bufferRefCount, 0) == 1)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
@@ -159,91 +159,45 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-        const char nullChar = '\0';
+        var line = new StringBuilder(_buffer.Length);
 
-        const char cr = '\r';
+        var crIndex = -1;
 
-        const char lf = '\n';
+        var lfIndex = -1;
 
-        if (_bufferCount == 0)
+        bool crlfFound;
+
+        do
         {
-            _bufferOffset = 0;
-
-            var bufferNotInUse = Interlocked.Increment(ref _bufferRefCount) > 1;
-
-            try
+            if (_bufferCount == 0)
             {
-                if (bufferNotInUse)
-                {
-                    _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(e, "Failed to read from buffer.");
-                throw;
-            }
-            finally
-            {
-                var bufferReleased = Interlocked.Decrement(ref _bufferRefCount) == 0;
+                _bufferOffset = 0;
 
-                if (bufferNotInUse && bufferReleased)
-                {
-                    ArrayPool<byte>.Shared.Return(_buffer);
-                }
-            }
-        }
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            var content = Encoding.ASCII.GetString(_buffer.TakeWhile(value => value != nullChar).ToArray());
-            content = content.Replace("\r", "<CR>");
-            content = content.Replace("\n", "<LF>");
-            _logger.LogDebug("Raw buffer content: '{Content}'.", content);
-        }
-
-        var start = _bufferOffset;
-
-        var end = -1;
-
-        for (var i = _bufferOffset; i < _buffer.Length; i++)
-        {
-            // If a null terminator is found, skip the rest of the buffer.
-            if (_buffer[i] == nullChar)
-            {
-                _logger.LogDebug("Null terminator found at position: {Position}.", i);
-                end = i;
-                break;
+                _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
-            // Check if current byte is CR and the next byte is LF.
-            if (_buffer[i] == cr && i + 1 < _buffer.Length && _buffer[i + 1] == lf)
+            var c = (char)_buffer[_bufferOffset];
+            line.Append(c);
+
+            _bufferOffset++;
+            _bufferCount--;
+
+            switch (c)
             {
-                _logger.LogDebug("CRLF found at positions {CR} and {LF}.", i, i + 1);
-                end = i;
-                break;
+                case '\r' when crIndex == -1:
+                    crIndex = line.Length;
+                    break;
+                case '\n' when lfIndex == -1:
+                    lfIndex = line.Length;
+                    break;
             }
-        }
 
-        // No CRLF found, process the entire remaining buffer.
-        if (end == -1)
-        {
-            end = _buffer.Length;
-            _logger.LogDebug("No CRLF found. Setting end position to buffer length: {End}.", end);
+            crlfFound = crIndex + 1 == lfIndex;
         }
-        else
-        {
-            _bufferCount -= end - start + 2;
-            _bufferOffset = end + 2;
-            _logger.LogDebug("CRLF found. Consumed {Consumed} bytes. New offset: {Offset}, Remaining count: {RemainingBytes}.", end - start + 2, _bufferOffset, _bufferCount);
-        }
+        while (!crlfFound);
 
-        var length = end - start;
-        var line = Encoding.ASCII.GetString(_buffer, start, length);
-
-        _logger.LogDebug("String from positions {Start} to {End} (length {Length}): '{Line}'.", start, end, length, line);
-        return line;
+        return line.ToString(0, line.Length - 2);
     }
 
     private int ReadBuffer(byte[] buffer, int offset, int count)
