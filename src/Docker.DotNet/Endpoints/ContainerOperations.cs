@@ -1,4 +1,4 @@
-namespace Docker.DotNet;
+﻿namespace Docker.DotNet;
 
 internal class ContainerOperations : IContainerOperations
 {
@@ -318,7 +318,7 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<ContainerWaitResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/wait", null, null, null, TimeSpan.FromMilliseconds(Timeout.Infinite), cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ContainerWaitResponse>(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/wait", null, null, null, Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
     }
 
     public Task RemoveContainerAsync(string id, ContainerRemoveParameters parameters, CancellationToken cancellationToken = default)

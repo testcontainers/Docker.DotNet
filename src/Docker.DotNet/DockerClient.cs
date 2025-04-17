@@ -9,20 +9,15 @@ public sealed class DockerClient : IDockerClient
 
     private const string UserAgent = "Docker.DotNet";
 
-    private static readonly TimeSpan SInfiniteTimeout = Timeout.InfiniteTimeSpan;
-
     private readonly HttpClient _client;
 
     private readonly Uri _endpointBaseUri;
 
     private readonly Version _requestedApiVersion;
 
-    private readonly ILogger _logger;
-
     internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, ILogger logger = null)
     {
         _requestedApiVersion = requestedApiVersion;
-        _logger = logger ?? NullLogger.Instance;
 
         Configuration = configuration;
         DefaultTimeout = configuration.DefaultTimeout;
@@ -75,7 +70,7 @@ public sealed class DockerClient : IDockerClient
                         .ConfigureAwait(false);
 
                     return dockerStream;
-                }, _logger);
+                }, logger);
                 break;
 
             case "tcp":
@@ -85,11 +80,11 @@ public sealed class DockerClient : IDockerClient
                     Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler(_logger);
+                handler = new ManagedHandler(logger);
                 break;
 
             case "https":
-                handler = new ManagedHandler(_logger);
+                handler = new ManagedHandler(logger);
                 break;
 
             case "unix":
@@ -102,7 +97,7 @@ public sealed class DockerClient : IDockerClient
                         .ConfigureAwait(false);
 
                     return sock;
-                }, _logger);
+                }, logger);
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
 
@@ -113,7 +108,7 @@ public sealed class DockerClient : IDockerClient
         _endpointBaseUri = uri;
 
         _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
-        _client.Timeout = SInfiniteTimeout;
+        _client.Timeout = Timeout.InfiniteTimeSpan;
     }
 
     public DockerClientConfiguration Configuration { get; }
@@ -299,7 +294,7 @@ public sealed class DockerClient : IDockerClient
         IDictionary<string, string> headers,
         CancellationToken token)
     {
-        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, SInfiniteTimeout, token);
+        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, token);
     }
 
     internal async Task<Stream> MakeRequestForStreamAsync(
@@ -330,7 +325,7 @@ public sealed class DockerClient : IDockerClient
         IDictionary<string, string> headers,
         CancellationToken token)
     {
-        var response = await PrivateMakeRequestAsync(SInfiniteTimeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
+        var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
             .ConfigureAwait(false);
 
         await HandleIfErrorResponseAsync(response.StatusCode, response)
@@ -346,7 +341,7 @@ public sealed class DockerClient : IDockerClient
         IQueryString queryString,
         CancellationToken cancellationToken)
     {
-        var response = await PrivateMakeRequestAsync(SInfiniteTimeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, null, null, cancellationToken)
+        var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, null, null, cancellationToken)
             .ConfigureAwait(false);
 
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
@@ -367,7 +362,7 @@ public sealed class DockerClient : IDockerClient
         IDictionary<string, string> headers,
         CancellationToken cancellationToken)
     {
-        return MakeRequestForHijackedStreamAsync(errorHandlers, method, path, queryString, body, headers, SInfiniteTimeout, cancellationToken);
+        return MakeRequestForHijackedStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, cancellationToken);
     }
 
     internal async Task<WriteClosableStream> MakeRequestForHijackedStreamAsync(
@@ -418,22 +413,24 @@ public sealed class DockerClient : IDockerClient
         IRequestContent data,
         CancellationToken cancellationToken)
     {
-        var request = PrepareRequest(method, path, queryString, headers, data);
+        using var request = PrepareRequest(method, path, queryString, headers, data);
 
-        if (timeout != SInfiniteTimeout)
+        if (Timeout.InfiniteTimeSpan == timeout)
         {
-            using (var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-            {
-                timeoutTokenSource.CancelAfter(timeout);
-                return await _client.SendAsync(request, completionOption, timeoutTokenSource.Token)
-                    .ConfigureAwait(false);
-            }
-        }
+            var tcs = new TaskCompletionSource<HttpResponseMessage>();
 
-        var tcs = new TaskCompletionSource<HttpResponseMessage>();
-        using (cancellationToken.Register(() => tcs.SetCanceled()))
-        {
+            using var disposable = cancellationToken.Register(() => tcs.SetCanceled());
+
             return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
+                .ConfigureAwait(false);
+        }
+        else
+        {
+            using var timeoutCts = new CancellationTokenSource(timeout);
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
+
+            return await _client.SendAsync(request, completionOption, linkedCts.Token)
                 .ConfigureAwait(false);
         }
     }
