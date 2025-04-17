@@ -21,6 +21,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Driver")]
         public string Driver { get; set; }
 
+        [JsonPropertyName("EnableIPv4")]
+        public bool EnableIPv4 { get; set; }
+
         [JsonPropertyName("EnableIPv6")]
         public bool EnableIPv6 { get; set; }
 

@@ -6,25 +6,11 @@ namespace Docker.DotNet.Models
 {
     public class ContainerStatsResponse // (container.StatsResponse)
     {
-        public ContainerStatsResponse()
-        {
-        }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        public ContainerStatsResponse(Stats Stats)
-        {
-            if (Stats != null)
-            {
-                this.Read = Stats.Read;
-                this.PreRead = Stats.PreRead;
-                this.PidsStats = Stats.PidsStats;
-                this.BlkioStats = Stats.BlkioStats;
-                this.NumProcs = Stats.NumProcs;
-                this.StorageStats = Stats.StorageStats;
-                this.CPUStats = Stats.CPUStats;
-                this.PreCPUStats = Stats.PreCPUStats;
-                this.MemoryStats = Stats.MemoryStats;
-            }
-        }
+        [JsonPropertyName("id")]
+        public string ID { get; set; }
 
         [JsonPropertyName("read")]
         public DateTime Read { get; set; }
@@ -52,12 +38,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("memory_stats")]
         public MemoryStats MemoryStats { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("id")]
-        public string ID { get; set; }
 
         [JsonPropertyName("networks")]
         public IDictionary<string, NetworkStats> Networks { get; set; }

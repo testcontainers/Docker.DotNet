@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class MountPoint // (types.MountPoint)
+    public class MountPoint // (container.MountPoint)
     {
         [JsonPropertyName("Type")]
         public string Type { get; set; }

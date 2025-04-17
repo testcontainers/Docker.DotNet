@@ -188,6 +188,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("DefaultAddressPools")]
         public IList<NetworkAddressPool> DefaultAddressPools { get; set; }
 
+        [JsonPropertyName("FirewallBackend")]
+        public FirewallInfo FirewallBackend { get; set; }
+
         [JsonPropertyName("CDISpecDirs")]
         public IList<string> CDISpecDirs { get; set; }
 

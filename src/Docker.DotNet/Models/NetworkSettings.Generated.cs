@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class NetworkSettings // (types.NetworkSettings)
+    public class NetworkSettings // (container.NetworkSettings)
     {
         public NetworkSettings()
         {

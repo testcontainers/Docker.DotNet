@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class RootFS // (types.RootFS)
+    public class RootFS // (image.RootFS)
     {
         [JsonPropertyName("Type")]
         public string Type { get; set; }

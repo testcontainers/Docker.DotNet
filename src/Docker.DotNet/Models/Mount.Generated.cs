@@ -25,6 +25,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("VolumeOptions")]
         public VolumeOptions VolumeOptions { get; set; }
 
+        [JsonPropertyName("ImageOptions")]
+        public ImageOptions ImageOptions { get; set; }
+
         [JsonPropertyName("TmpfsOptions")]
         public TmpfsOptions TmpfsOptions { get; set; }
 
