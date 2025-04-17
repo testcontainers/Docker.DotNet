@@ -126,8 +126,8 @@ internal class DockerPipeStream : WriteClosableStream, IPeekableStream
     {
         if (disposing)
         {
-            _stream.Dispose();
             _event.Dispose();
+            _stream.Dispose();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.Tests;
+namespace Docker.DotNet.Tests;
 
 public static class CommonCommands
 {

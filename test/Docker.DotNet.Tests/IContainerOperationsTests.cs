@@ -655,9 +655,11 @@ public class IContainerOperationsTests
     [Fact]
     public async Task WaitContainerAsync_TokenIsCancelled_OperationCancelledException()
     {
+        using var waitContainerCts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
+
         var stopWatch = new Stopwatch();
 
-        using var waitContainerCts = new CancellationTokenSource(delay: TimeSpan.FromMinutes(5));
+        var delay = TimeSpan.FromSeconds(5);
 
         var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(
             new CreateContainerParameters
@@ -674,12 +676,10 @@ public class IContainerOperationsTests
 
         _testOutputHelper.WriteLine("Starting timeout to cancel WaitContainer operation.");
 
-        TimeSpan delay = TimeSpan.FromSeconds(5);
-
         waitContainerCts.CancelAfter(delay);
         stopWatch.Start();
 
-        // Will wait forever here if cancelation fails.
+        // Will wait forever here if cancellation fails.
         var waitContainerTask = _testFixture.DockerClient.Containers.WaitContainerAsync(createContainerResponse.ID, waitContainerCts.Token);
 
         _ = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
@@ -690,7 +690,7 @@ public class IContainerOperationsTests
         _testOutputHelper.WriteLine($"WaitContainerAsync: {stopWatch.Elapsed} elapsed");
 
         // Task should be cancelled when CancelAfter timespan expires
-        TimeSpan tolerance = TimeSpan.FromMilliseconds(500);
+        var tolerance = TimeSpan.FromMilliseconds(500);
 
         Assert.InRange(stopWatch.Elapsed, delay.Subtract(tolerance), delay.Add(tolerance));
         Assert.True(waitContainerTask.IsCanceled);

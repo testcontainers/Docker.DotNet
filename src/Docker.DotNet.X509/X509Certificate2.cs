@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD
+#if NETSTANDARD
 namespace Docker.DotNet.X509.Polyfills;
 
 using Org.BouncyCastle.Crypto;

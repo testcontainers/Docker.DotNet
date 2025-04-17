@@ -32,8 +32,8 @@ public class DockerClientConfiguration : IDisposable
 
         EndpointBaseUri = endpoint;
         Credentials = credentials ?? new AnonymousCredentials();
-        DefaultTimeout = TimeSpan.Equals(default, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
-        NamedPipeConnectTimeout = TimeSpan.Equals(default, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
+        DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
+        NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
     }
 
