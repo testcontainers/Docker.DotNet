@@ -21,6 +21,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("ParentId")]
         public string ParentID { get; set; }
 
+        [JsonPropertyName("Descriptor")]
+        public Descriptor Descriptor { get; set; }
+
         [JsonPropertyName("Manifests")]
         public IList<ManifestSummary> Manifests { get; set; }
 

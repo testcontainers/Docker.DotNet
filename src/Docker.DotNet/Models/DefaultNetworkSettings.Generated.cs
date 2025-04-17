@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class DefaultNetworkSettings // (types.DefaultNetworkSettings)
+    public class DefaultNetworkSettings // (container.DefaultNetworkSettings)
     {
         [JsonPropertyName("EndpointID")]
         public string EndpointID { get; set; }

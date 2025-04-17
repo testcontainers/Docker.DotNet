@@ -20,6 +20,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("DriverOpts")]
         public IDictionary<string, string> DriverOpts { get; set; }
 
+        [JsonPropertyName("GwPriority")]
+        public long GwPriority { get; set; }
+
         [JsonPropertyName("NetworkID")]
         public string NetworkID { get; set; }
 

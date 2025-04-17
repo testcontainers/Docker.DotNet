@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class ContainerProcessesResponse // (container.ContainerTopOKBody)
+    public class ContainerProcessesResponse // (container.TopResponse)
     {
         [JsonPropertyName("Processes")]
         public IList<IList<string>> Processes { get; set; }

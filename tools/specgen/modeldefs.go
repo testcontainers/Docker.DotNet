@@ -55,7 +55,7 @@ type CommitContainerChangesParameters struct {
 }
 
 // CommitContainerChangesResponse for POST /commit
-type CommitContainerChangesResponse types.IDResponse
+type CommitContainerChangesResponse container.CommitResponse
 
 // CreateContainerParameters for POST /containers/create
 type CreateContainerParameters struct {
@@ -185,7 +185,7 @@ type ContainersPruneParameters struct {
 type ContainerExecCreateParameters container.ExecOptions
 
 // ContainerExecCreateResponse for POST /containers/(id)/exec
-type ContainerExecCreateResponse types.IDResponse
+type ContainerExecCreateResponse container.ExecCreateResponse
 
 // ContainerExecStartParameters for POST /exec/(id)/start
 type ContainerExecStartParameters container.ExecStartOptions

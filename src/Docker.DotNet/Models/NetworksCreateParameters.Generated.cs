@@ -15,6 +15,7 @@ namespace Docker.DotNet.Models
             {
                 this.Driver = CreateOptions.Driver;
                 this.Scope = CreateOptions.Scope;
+                this.EnableIPv4 = CreateOptions.EnableIPv4;
                 this.EnableIPv6 = CreateOptions.EnableIPv6;
                 this.IPAM = CreateOptions.IPAM;
                 this.Internal = CreateOptions.Internal;
@@ -32,6 +33,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Scope")]
         public string Scope { get; set; }
+
+        [JsonPropertyName("EnableIPv4")]
+        public bool? EnableIPv4 { get; set; }
 
         [JsonPropertyName("EnableIPv6")]
         public bool? EnableIPv6 { get; set; }

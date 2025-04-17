@@ -105,7 +105,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 	},
 	typeToKey(reflect.TypeOf(swarm.UpdateConfig{})):    {Name: "SwarmUpdateConfig"},
 	typeToKey(reflect.TypeOf(swarm.ConfigReference{})): {Name: "SwarmConfigReference"},
-	typeToKey(reflect.TypeOf(types.Container{})): {
+	typeToKey(reflect.TypeOf(container.Summary{})): {
 		Name: "ContainerListResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
@@ -117,24 +117,24 @@ var typesToDisambiguate = map[string]*CSModelType{
 			CSProperty{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.ExecInspect{})): {Name: "ContainerExecInspectResponse"},
-	typeToKey(reflect.TypeOf(types.ContainerJSON{})):   {Name: "ContainerInspectResponse"},
-	typeToKey(reflect.TypeOf(types.ContainerJSONBase{})): {
+	typeToKey(reflect.TypeOf(container.ExecInspect{})):     {Name: "ContainerExecInspectResponse"},
+	typeToKey(reflect.TypeOf(container.InspectResponse{})): {Name: "ContainerInspectResponse"},
+	typeToKey(reflect.TypeOf(container.ContainerJSONBase{})): {
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.PathStat{})):           {Name: "ContainerPathStatResponse"},
-	typeToKey(reflect.TypeOf(container.ContainerTopOKBody{})): {Name: "ContainerProcessesResponse"},
-	typeToKey(reflect.TypeOf(container.PruneReport{})):        {Name: "ContainersPruneResponse"},
-	typeToKey(reflect.TypeOf(image.DeleteResponse{})):         {Name: "ImageDeleteResponse"},
+	typeToKey(reflect.TypeOf(container.PathStat{})):    {Name: "ContainerPathStatResponse"},
+	typeToKey(reflect.TypeOf(container.TopResponse{})): {Name: "ContainerProcessesResponse"},
+	typeToKey(reflect.TypeOf(container.PruneReport{})): {Name: "ContainersPruneResponse"},
+	typeToKey(reflect.TypeOf(image.DeleteResponse{})):  {Name: "ImageDeleteResponse"},
 	typeToKey(reflect.TypeOf(image.HistoryResponseItem{})): {
 		Name: "ImageHistoryResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.ImageInspect{})): {
+	typeToKey(reflect.TypeOf(image.InspectResponse{})): {
 		Name: "ImageInspectResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
@@ -187,7 +187,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/json
 	reflect.TypeOf(ContainersListParameters{}),
-	reflect.TypeOf(types.Container{}),
+	reflect.TypeOf(container.Summary{}),
 
 	// POST /containers/prune
 	reflect.TypeOf(ContainersPruneParameters{}),
@@ -219,7 +219,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/json
 	reflect.TypeOf(ContainerInspectParameters{}),
-	reflect.TypeOf(types.ContainerJSON{}),
+	reflect.TypeOf(container.InspectResponse{}),
 
 	// POST /containers/(id)/kill
 	reflect.TypeOf(ContainerKillParameters{}),
@@ -251,7 +251,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/top
 	reflect.TypeOf(ContainerListProcessesParameters{}),
-	reflect.TypeOf(container.ContainerTopOKBody{}),
+	reflect.TypeOf(container.TopResponse{}),
 
 	// POST /containers/(id)/unpause
 
@@ -305,7 +305,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(image.HistoryResponseItem{}),
 
 	// GET /images/(id)/json
-	reflect.TypeOf(types.ImageInspect{}),
+	reflect.TypeOf(image.InspectResponse{}),
 
 	// POST /images/(id)/push
 	reflect.TypeOf(ImagePushParameters{}),

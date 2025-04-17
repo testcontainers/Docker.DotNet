@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class ContainerInspectResponse // (types.ContainerJSON)
+    public class ContainerInspectResponse // (container.InspectResponse)
     {
         public ContainerInspectResponse()
         {
@@ -24,7 +24,6 @@ namespace Docker.DotNet.Models
                 this.HostnamePath = ContainerJSONBase.HostnamePath;
                 this.HostsPath = ContainerJSONBase.HostsPath;
                 this.LogPath = ContainerJSONBase.LogPath;
-                this.Node = ContainerJSONBase.Node;
                 this.Name = ContainerJSONBase.Name;
                 this.RestartCount = ContainerJSONBase.RestartCount;
                 this.Driver = ContainerJSONBase.Driver;
@@ -53,7 +52,7 @@ namespace Docker.DotNet.Models
         public IList<string> Args { get; set; }
 
         [JsonPropertyName("State")]
-        public ContainerState State { get; set; }
+        public State State { get; set; }
 
         [JsonPropertyName("Image")]
         public string Image { get; set; }
@@ -69,9 +68,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("LogPath")]
         public string LogPath { get; set; }
-
-        [JsonPropertyName("Node")]
-        public ContainerNode Node { get; set; }
 
         [JsonPropertyName("Name")]
         public string Name { get; set; }
@@ -101,7 +97,7 @@ namespace Docker.DotNet.Models
         public HostConfig HostConfig { get; set; }
 
         [JsonPropertyName("GraphDriver")]
-        public GraphDriverData GraphDriver { get; set; }
+        public DriverData GraphDriver { get; set; }
 
         [JsonPropertyName("SizeRw")]
         public long? SizeRw { get; set; }
@@ -117,5 +113,8 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettings NetworkSettings { get; set; }
+
+        [JsonPropertyName("ImageManifestDescriptor")]
+        public Descriptor ImageManifestDescriptor { get; set; }
     }
 }

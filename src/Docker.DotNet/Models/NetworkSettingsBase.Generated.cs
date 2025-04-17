@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class NetworkSettingsBase // (types.NetworkSettingsBase)
+    public class NetworkSettingsBase // (container.NetworkSettingsBase)
     {
         [JsonPropertyName("Bridge")]
         public string Bridge { get; set; }

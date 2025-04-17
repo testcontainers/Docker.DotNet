@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class ContainerJSONBase // (types.ContainerJSONBase)
+    public class ContainerJSONBase // (container.ContainerJSONBase)
     {
         [JsonPropertyName("Id")]
         public string ID { get; set; }
@@ -19,7 +19,7 @@ namespace Docker.DotNet.Models
         public IList<string> Args { get; set; }
 
         [JsonPropertyName("State")]
-        public ContainerState State { get; set; }
+        public State State { get; set; }
 
         [JsonPropertyName("Image")]
         public string Image { get; set; }
@@ -35,9 +35,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("LogPath")]
         public string LogPath { get; set; }
-
-        [JsonPropertyName("Node")]
-        public ContainerNode Node { get; set; }
 
         [JsonPropertyName("Name")]
         public string Name { get; set; }
@@ -67,7 +64,7 @@ namespace Docker.DotNet.Models
         public HostConfig HostConfig { get; set; }
 
         [JsonPropertyName("GraphDriver")]
-        public GraphDriverData GraphDriver { get; set; }
+        public DriverData GraphDriver { get; set; }
 
         [JsonPropertyName("SizeRw")]
         public long? SizeRw { get; set; }

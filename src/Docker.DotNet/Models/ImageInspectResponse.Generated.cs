@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class ImageInspectResponse // (types.ImageInspect)
+    public class ImageInspectResponse // (image.InspectResponse)
     {
         [JsonPropertyName("Id")]
         public string ID { get; set; }
@@ -58,12 +58,18 @@ namespace Docker.DotNet.Models
         public long VirtualSize { get; set; }
 
         [JsonPropertyName("GraphDriver")]
-        public GraphDriverData GraphDriver { get; set; }
+        public DriverData GraphDriver { get; set; }
 
         [JsonPropertyName("RootFS")]
         public RootFS RootFS { get; set; }
 
         [JsonPropertyName("Metadata")]
         public Metadata Metadata { get; set; }
+
+        [JsonPropertyName("Descriptor")]
+        public Descriptor Descriptor { get; set; }
+
+        [JsonPropertyName("Manifests")]
+        public IList<ManifestSummary> Manifests { get; set; }
     }
 }
