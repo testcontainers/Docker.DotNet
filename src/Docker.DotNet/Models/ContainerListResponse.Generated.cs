@@ -45,6 +45,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Status")]
         public string Status { get; set; }
 
+        [JsonPropertyName("HostConfig")]
+        public SummaryHostConfig HostConfig { get; set; }
+
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettingsSummary NetworkSettings { get; set; }
 

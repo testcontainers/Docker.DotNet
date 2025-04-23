@@ -503,7 +503,6 @@ func csType(t reflect.Type, _ bool) CSType {
 		if t.Elem() == EmptyStruct {
 			return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, EmptyStruct>", csType(t.Key(), false).Name), false}
 		}
-
 		return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, %s>", csType(t.Key(), false).Name, csType(t.Elem(), false).Name), false}
 	case reflect.Ptr:
 		return csType(t.Elem(), true)
@@ -541,12 +540,38 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 		}
 
 		if f.Type.Kind() == reflect.Struct && f.Type.Name() == "" {
-			// TODO: Inline struct definitions. Probably need to write an inline class named the property name?
-			continue
-		}
+			inlineStructName := t.Name() + f.Name
 
-		// If the type is anonymous we need to inline its values to this model.
-		if f.Anonymous {
+			inlineModel := &CSModelType{
+				Name:       inlineStructName,
+				SourceName: fmt.Sprintf("%s.%s", t, f.Name),
+			}
+
+			reflectTypeMembers(f.Type, inlineModel)
+
+			reflectedTypes[typeToKey(f.Type)] = inlineModel
+
+			csProp := CSProperty{
+				Name: f.Name,
+				Type: CSType{"", inlineStructName, false},
+			}
+
+			jsonTag := strings.Split(f.Tag.Get("json"), ",")
+			jsonName := f.Name
+			if jsonTag[0] != "" {
+				jsonName = jsonTag[0]
+			}
+
+			csProp.Attributes = append(csProp.Attributes, CSAttribute{
+				Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName", false},
+				Arguments: []CSArgument{
+					{Value: jsonName, Type: CSInboxTypesMap[reflect.String]},
+				},
+			})
+
+			m.Properties = append(m.Properties, csProp)
+		} else if f.Anonymous {
+			// If the type is anonymous we need to inline its values to this model.
 			clen := len(m.Constructors)
 			if clen == 0 {
 				// We need to add a default constructor and a custom one since its the first time.

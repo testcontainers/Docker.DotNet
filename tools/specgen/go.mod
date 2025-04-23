@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/docker v28.1.0+incompatible
+	github.com/docker/docker v28.1.1+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect

@@ -13,6 +13,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Available")]
         public bool Available { get; set; }
 
+        [JsonPropertyName("Size")]
+        public ManifestSummarySize Size { get; set; }
+
         [JsonPropertyName("Kind")]
         public string Kind { get; set; }
 
