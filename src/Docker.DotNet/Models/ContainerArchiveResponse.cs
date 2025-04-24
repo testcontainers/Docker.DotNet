@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models;
 
-public class GetArchiveFromContainerResponse
+public class ContainerArchiveResponse
 {
     public ContainerPathStatResponse Stat { get; set; }
 
