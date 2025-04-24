@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class HealthcheckResult // (types.HealthcheckResult)
+    public class HealthcheckResult // (container.HealthcheckResult)
     {
         [JsonPropertyName("Start")]
         public DateTime Start { get; set; }

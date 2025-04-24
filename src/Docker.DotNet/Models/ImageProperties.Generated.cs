@@ -8,6 +8,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Platform")]
         public Platform Platform { get; set; }
 
+        [JsonPropertyName("Size")]
+        public ImagePropertiesSize Size { get; set; }
+
         [JsonPropertyName("Containers")]
         public IList<string> Containers { get; set; }
     }

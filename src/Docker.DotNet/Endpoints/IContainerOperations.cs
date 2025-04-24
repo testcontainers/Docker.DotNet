@@ -347,13 +347,13 @@ public interface IContainerOperations
     /// <param name="statOnly">If <see langword="true"/>, the method will only return file information; otherwise, it will return a
     /// stream of the filesystem as a tarball.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
-    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="GetArchiveFromContainerResponse"/>, which holds
+    /// <returns>A <see cref="Task{TResult}"/> that resolves to a <see cref="ContainerArchiveResponse"/>, which holds
     /// either the files or a <see cref="Stream"/> if the tarball.</returns>
     /// <exception cref="DockerContainerNotFoundException">No such container was found, or the path does not exist.</exception>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default);
+    Task<ContainerArchiveResponse> GetArchiveFromContainerAsync(string id, ContainerPathStatParameters parameters, bool statOnly, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Extracts a tar archive into a container's filesystem.

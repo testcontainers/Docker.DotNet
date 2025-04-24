@@ -5,6 +5,9 @@ namespace Docker.DotNet.Models
 {
     public class VersionResponse // (types.Version)
     {
+        [JsonPropertyName("Platform")]
+        public VersionPlatform Platform { get; set; }
+
         [JsonPropertyName("Components")]
         public IList<ComponentVersion> Components { get; set; }
 

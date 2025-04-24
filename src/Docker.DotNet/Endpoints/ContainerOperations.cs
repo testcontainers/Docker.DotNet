@@ -337,7 +337,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Delete, $"containers/{id}", queryParameters, cancellationToken);
     }
 
-    public async Task<GetArchiveFromContainerResponse> GetArchiveFromContainerAsync(string id, GetArchiveFromContainerParameters parameters, bool statOnly, CancellationToken cancellationToken = default)
+    public async Task<ContainerArchiveResponse> GetArchiveFromContainerAsync(string id, ContainerPathStatParameters parameters, bool statOnly, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -349,7 +349,7 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<GetArchiveFromContainerParameters>(parameters);
+        IQueryString queryParameters = new QueryString<ContainerPathStatParameters>(parameters);
 
         var response = await _client.MakeRequestForStreamedResponseAsync(new[] { NoSuchContainerHandler }, statOnly ? HttpMethod.Head : HttpMethod.Get, $"containers/{id}/archive", queryParameters, cancellationToken);
 
@@ -359,7 +359,7 @@ internal class ContainerOperations : IContainerOperations
 
         var pathStat = DockerClient.JsonSerializer.Deserialize<ContainerPathStatResponse>(bytes);
 
-        return new GetArchiveFromContainerResponse
+        return new ContainerArchiveResponse
         {
             Stat = pathStat,
             Stream = statOnly ? null : response.Body

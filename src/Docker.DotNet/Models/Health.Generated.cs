@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class Health // (types.Health)
+    public class Health // (container.Health)
     {
         [JsonPropertyName("Status")]
         public string Status { get; set; }

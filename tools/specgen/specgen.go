@@ -105,7 +105,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 	},
 	typeToKey(reflect.TypeOf(swarm.UpdateConfig{})):    {Name: "SwarmUpdateConfig"},
 	typeToKey(reflect.TypeOf(swarm.ConfigReference{})): {Name: "SwarmConfigReference"},
-	typeToKey(reflect.TypeOf(types.Container{})): {
+	typeToKey(reflect.TypeOf(container.Summary{})): {
 		Name: "ContainerListResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
@@ -117,24 +117,24 @@ var typesToDisambiguate = map[string]*CSModelType{
 			CSProperty{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.ExecInspect{})): {Name: "ContainerExecInspectResponse"},
-	typeToKey(reflect.TypeOf(types.ContainerJSON{})):   {Name: "ContainerInspectResponse"},
-	typeToKey(reflect.TypeOf(types.ContainerJSONBase{})): {
+	typeToKey(reflect.TypeOf(container.ExecInspect{})):     {Name: "ContainerExecInspectResponse"},
+	typeToKey(reflect.TypeOf(container.InspectResponse{})): {Name: "ContainerInspectResponse"},
+	typeToKey(reflect.TypeOf(container.ContainerJSONBase{})): {
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.PathStat{})):           {Name: "ContainerPathStatResponse"},
-	typeToKey(reflect.TypeOf(container.ContainerTopOKBody{})): {Name: "ContainerProcessesResponse"},
-	typeToKey(reflect.TypeOf(container.PruneReport{})):        {Name: "ContainersPruneResponse"},
-	typeToKey(reflect.TypeOf(image.DeleteResponse{})):         {Name: "ImageDeleteResponse"},
+	typeToKey(reflect.TypeOf(container.PathStat{})):    {Name: "ContainerPathStatResponse"},
+	typeToKey(reflect.TypeOf(container.TopResponse{})): {Name: "ContainerProcessesResponse"},
+	typeToKey(reflect.TypeOf(container.PruneReport{})): {Name: "ContainersPruneResponse"},
+	typeToKey(reflect.TypeOf(image.DeleteResponse{})):  {Name: "ImageDeleteResponse"},
 	typeToKey(reflect.TypeOf(image.HistoryResponseItem{})): {
 		Name: "ImageHistoryResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(types.ImageInspect{})): {
+	typeToKey(reflect.TypeOf(image.InspectResponse{})): {
 		Name: "ImageInspectResponse",
 		Properties: []CSProperty{
 			CSProperty{Name: "Created", Type: CSType{"System", "DateTime", false}},
@@ -187,7 +187,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/json
 	reflect.TypeOf(ContainersListParameters{}),
-	reflect.TypeOf(types.Container{}),
+	reflect.TypeOf(container.Summary{}),
 
 	// POST /containers/prune
 	reflect.TypeOf(ContainersPruneParameters{}),
@@ -219,7 +219,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/json
 	reflect.TypeOf(ContainerInspectParameters{}),
-	reflect.TypeOf(types.ContainerJSON{}),
+	reflect.TypeOf(container.InspectResponse{}),
 
 	// POST /containers/(id)/kill
 	reflect.TypeOf(ContainerKillParameters{}),
@@ -251,7 +251,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/top
 	reflect.TypeOf(ContainerListProcessesParameters{}),
-	reflect.TypeOf(container.ContainerTopOKBody{}),
+	reflect.TypeOf(container.TopResponse{}),
 
 	// POST /containers/(id)/unpause
 
@@ -305,7 +305,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(image.HistoryResponseItem{}),
 
 	// GET /images/(id)/json
-	reflect.TypeOf(types.ImageInspect{}),
+	reflect.TypeOf(image.InspectResponse{}),
 
 	// POST /images/(id)/push
 	reflect.TypeOf(ImagePushParameters{}),
@@ -503,7 +503,6 @@ func csType(t reflect.Type, _ bool) CSType {
 		if t.Elem() == EmptyStruct {
 			return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, EmptyStruct>", csType(t.Key(), false).Name), false}
 		}
-
 		return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, %s>", csType(t.Key(), false).Name, csType(t.Elem(), false).Name), false}
 	case reflect.Ptr:
 		return csType(t.Elem(), true)
@@ -541,12 +540,38 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 		}
 
 		if f.Type.Kind() == reflect.Struct && f.Type.Name() == "" {
-			// TODO: Inline struct definitions. Probably need to write an inline class named the property name?
-			continue
-		}
+			inlineStructName := t.Name() + f.Name
 
-		// If the type is anonymous we need to inline its values to this model.
-		if f.Anonymous {
+			inlineModel := &CSModelType{
+				Name:       inlineStructName,
+				SourceName: fmt.Sprintf("%s.%s", t, f.Name),
+			}
+
+			reflectTypeMembers(f.Type, inlineModel)
+
+			reflectedTypes[typeToKey(f.Type)] = inlineModel
+
+			csProp := CSProperty{
+				Name: f.Name,
+				Type: CSType{"", inlineStructName, false},
+			}
+
+			jsonTag := strings.Split(f.Tag.Get("json"), ",")
+			jsonName := f.Name
+			if jsonTag[0] != "" {
+				jsonName = jsonTag[0]
+			}
+
+			csProp.Attributes = append(csProp.Attributes, CSAttribute{
+				Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName", false},
+				Arguments: []CSArgument{
+					{Value: jsonName, Type: CSInboxTypesMap[reflect.String]},
+				},
+			})
+
+			m.Properties = append(m.Properties, csProp)
+		} else if f.Anonymous {
+			// If the type is anonymous we need to inline its values to this model.
 			clen := len(m.Constructors)
 			if clen == 0 {
 				// We need to add a default constructor and a custom one since its the first time.

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class Port // (types.Port)
+    public class Port // (container.Port)
     {
         [JsonPropertyName("IP")]
         public string IP { get; set; }

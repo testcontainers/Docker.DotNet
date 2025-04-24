@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Docker.DotNet.Models
 {
-    public class ContainerListResponse // (types.Container)
+    public class ContainerListResponse // (container.Summary)
     {
         [JsonPropertyName("Id")]
         public string ID { get; set; }
@@ -17,6 +17,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("ImageID")]
         public string ImageID { get; set; }
+
+        [JsonPropertyName("ImageManifestDescriptor")]
+        public Descriptor ImageManifestDescriptor { get; set; }
 
         [JsonPropertyName("Command")]
         public string Command { get; set; }
@@ -42,8 +45,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Status")]
         public string Status { get; set; }
 
+        [JsonPropertyName("HostConfig")]
+        public SummaryHostConfig HostConfig { get; set; }
+
         [JsonPropertyName("NetworkSettings")]
-        public SummaryNetworkSettings NetworkSettings { get; set; }
+        public NetworkSettingsSummary NetworkSettings { get; set; }
 
         [JsonPropertyName("Mounts")]
         public IList<MountPoint> Mounts { get; set; }
