@@ -87,7 +87,7 @@ internal static class RequestExtensions
 #if NET6_0_OR_GREATER
         return request.Options.TryGetValue(new HttpRequestOptionsKey<T>(key), out var obj) ? obj : default;
 #else
-            return request.Properties.TryGetValue(key, out var obj) ? (T)obj : default;
+        return request.Properties.TryGetValue(key, out var obj) ? (T)obj : default;
 #endif
     }
 
@@ -96,7 +96,7 @@ internal static class RequestExtensions
 #if NET6_0_OR_GREATER
         request.Options.Set(new HttpRequestOptionsKey<T>(key), value);
 #else
-            request.Properties[key] = value;
+        request.Properties[key] = value;
 #endif
     }
 }

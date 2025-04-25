@@ -11,6 +11,8 @@ public class CertificateCredentials : Credentials
         _certificate = certificate;
     }
 
+    public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
+
     public override void Dispose()
     {
         Dispose(true);
@@ -24,11 +26,17 @@ public class CertificateCredentials : Credentials
 
     public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
-        if (handler is HttpClientHandler httpClientHandler)
+        if (handler is not ManagedHandler managedHandler)
         {
-            httpClientHandler.ClientCertificates.Add(_certificate);
-            httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+            return handler;
         }
+
+        if (!managedHandler.ClientCertificates.Contains(_certificate))
+        {
+            managedHandler.ClientCertificates.Add(_certificate);
+        }
+
+        managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
 
         return handler;
     }
