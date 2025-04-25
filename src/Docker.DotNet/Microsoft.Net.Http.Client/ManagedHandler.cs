@@ -6,6 +6,12 @@ public class ManagedHandler : HttpMessageHandler
 {
     private readonly ILogger _logger;
 
+    private readonly StreamOpener _streamOpener;
+
+    private readonly SocketOpener _socketOpener;
+
+    private IWebProxy _proxy;
+
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
 
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
@@ -13,7 +19,7 @@ public class ManagedHandler : HttpMessageHandler
     public ManagedHandler(ILogger logger)
     {
         _logger = logger;
-        _socketOpener = TCPSocketOpenerAsync;
+        _socketOpener = TcpSocketOpenerAsync;
     }
 
     public ManagedHandler(StreamOpener opener, ILogger logger)
@@ -36,6 +42,7 @@ public class ManagedHandler : HttpMessageHandler
             {
                 _proxy = WebRequest.DefaultWebProxy;
             }
+
             return _proxy;
         }
         set
@@ -50,55 +57,48 @@ public class ManagedHandler : HttpMessageHandler
 
     public RedirectMode RedirectMode { get; set; } = RedirectMode.NoDowngrade;
 
-    public X509CertificateCollection ClientCertificates { get; set; }
-
     public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
 
-    private StreamOpener _streamOpener;
-    private SocketOpener _socketOpener;
-    private IWebProxy _proxy;
+    public X509CertificateCollection ClientCertificates { get; set; } = new X509Certificate2Collection();
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
-        if (request == null)
+        if (httpRequestMessage == null)
         {
-            throw new ArgumentNullException(nameof(request));
+            throw new ArgumentNullException(nameof(httpRequestMessage));
         }
 
-        HttpResponseMessage response = null;
-        int redirectCount = 0;
-        bool retry;
+        HttpResponseMessage httpResponseMessage = null;
 
-        do
+        for (var i = 0; i < MaxAutomaticRedirects; i++)
         {
-            retry = false;
-            response = await ProcessRequestAsync(request, cancellationToken);
-            if (redirectCount < MaxAutomaticRedirects && IsAllowedRedirectResponse(request, response))
+            httpResponseMessage?.Dispose();
+
+            httpResponseMessage = await ProcessRequestAsync(httpRequestMessage, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!IsRedirectResponse(httpRequestMessage, httpResponseMessage))
             {
-                redirectCount++;
-                retry = true;
+                return httpResponseMessage;
             }
+        }
 
-        } while (retry);
-
-        return response;
+        return httpResponseMessage;
     }
 
-    private bool IsAllowedRedirectResponse(HttpRequestMessage request, HttpResponseMessage response)
+    private bool IsRedirectResponse(HttpRequestMessage request, HttpResponseMessage response)
     {
-        // Are redirects enabled?
+        if (response.StatusCode < HttpStatusCode.MovedPermanently || response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            return false;
+        }
+
         if (RedirectMode == RedirectMode.None)
         {
             return false;
         }
 
-        // Status codes 301 and 302
-        if (response.StatusCode != HttpStatusCode.Redirect && response.StatusCode != HttpStatusCode.Moved)
-        {
-            return false;
-        }
-
-        Uri location = response.Headers.Location;
+        var location = response.Headers.Location;
 
         if (location == null)
         {
@@ -108,9 +108,9 @@ public class ManagedHandler : HttpMessageHandler
         if (!location.IsAbsoluteUri)
         {
             request.RequestUri = location;
-            request.SetPathAndQueryProperty(null);
-            request.SetAddressLineProperty(null);
             request.Headers.Authorization = null;
+            request.SetAddressLineProperty(null);
+            request.SetPathAndQueryProperty(null);
             return true;
         }
 
@@ -123,15 +123,15 @@ public class ManagedHandler : HttpMessageHandler
 
         // Reset fields calculated from the URI.
         request.RequestUri = location;
-        request.SetSchemeProperty(null);
-        request.Headers.Host = null;
         request.Headers.Authorization = null;
-        request.SetHostProperty(null);
+        request.Headers.Host = null;
         request.SetConnectionHostProperty(null);
-        request.SetPortProperty(null);
         request.SetConnectionPortProperty(null);
-        request.SetPathAndQueryProperty(null);
+        request.SetSchemeProperty(null);
+        request.SetHostProperty(null);
+        request.SetPortProperty(null);
         request.SetAddressLineProperty(null);
+        request.SetPathAndQueryProperty(null);
         return true;
     }
 
@@ -146,6 +146,7 @@ public class ManagedHandler : HttpMessageHandler
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
         Socket socket;
         Stream transport;
+
         try
         {
             if (_socketOpener != null)
@@ -159,17 +160,15 @@ public class ManagedHandler : HttpMessageHandler
                 transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
             }
         }
-        catch (SocketException sox)
+        catch (SocketException e)
         {
-            throw new HttpRequestException("Connection failed", sox);
+            throw new HttpRequestException("Connection failed.", e);
         }
 
         if (proxyMode == ProxyMode.Tunnel)
         {
             await TunnelThroughProxyAsync(request, transport, cancellationToken);
         }
-
-        System.Diagnostics.Debug.Assert(!(proxyMode == ProxyMode.Http && request.IsHttps()));
 
         if (request.IsHttps())
         {
@@ -184,7 +183,7 @@ public class ManagedHandler : HttpMessageHandler
     }
 
     // Data comes from either the request.RequestUri or from the request.Properties
-    private void ProcessUrl(HttpRequestMessage request)
+    private static void ProcessUrl(HttpRequestMessage request)
     {
         string scheme = request.GetSchemeProperty();
         if (string.IsNullOrWhiteSpace(scheme))
@@ -196,7 +195,8 @@ public class ManagedHandler : HttpMessageHandler
             scheme = request.RequestUri.Scheme;
             request.SetSchemeProperty(scheme);
         }
-        if (!(request.IsHttp() || request.IsHttps()))
+
+        if (!request.IsHttp() && !request.IsHttps())
         {
             throw new InvalidOperationException("Only HTTP or HTTPS are supported, not: " + request.RequestUri.Scheme);
         }
@@ -211,6 +211,7 @@ public class ManagedHandler : HttpMessageHandler
             host = request.RequestUri.DnsSafeHost;
             request.SetHostProperty(host);
         }
+
         string connectionHost = request.GetConnectionHostProperty();
         if (string.IsNullOrWhiteSpace(connectionHost))
         {
@@ -227,6 +228,7 @@ public class ManagedHandler : HttpMessageHandler
             port = request.RequestUri.Port;
             request.SetPortProperty(port);
         }
+
         int? connectionPort = request.GetConnectionPortProperty();
         if (!connectionPort.HasValue)
         {
@@ -248,7 +250,7 @@ public class ManagedHandler : HttpMessageHandler
         }
     }
 
-    private void ProcessHostHeader(HttpRequestMessage request)
+    private static void ProcessHostHeader(HttpRequestMessage request)
     {
         if (string.IsNullOrWhiteSpace(request.Headers.Host))
         {
@@ -279,7 +281,7 @@ public class ManagedHandler : HttpMessageHandler
 
         try
         {
-            if (!UseProxy || (Proxy == null) || Proxy.IsBypassed(request.RequestUri))
+            if (!UseProxy || Proxy == null || Proxy.IsBypassed(request.RequestUri))
             {
                 return ProxyMode.None;
             }
@@ -306,13 +308,14 @@ public class ManagedHandler : HttpMessageHandler
             request.SetConnectionPortProperty(proxyUri.Port);
             return ProxyMode.Http;
         }
-        // Tunneling generates a completely seperate request, don't alter the original, just the connection address.
+
+        // Tunneling generates a completely separate request, don't alter the original, just the connection address.
         request.SetConnectionHostProperty(proxyUri.DnsSafeHost);
         request.SetConnectionPortProperty(proxyUri.Port);
         return ProxyMode.Tunnel;
     }
 
-    private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
+    private static async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
         var addresses = await Dns.GetHostAddressesAsync(host)
             .ConfigureAwait(false);
