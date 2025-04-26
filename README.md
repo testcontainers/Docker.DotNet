@@ -23,8 +23,7 @@ Run the following command in the "Package Manager Console":
 
 **Visual Studio**
 
-Right click to your project in Visual Studio, choose "Manage NuGet Packages" and search for "Docker.DotNet" and click "Install".
-(see [NuGet Gallery][nuget-gallery].)
+Right click to your project in Visual Studio, choose "Manage NuGet Packages" and search for "Docker.DotNet.Enhanced" and click "Install" (see [NuGet Gallery][nuget-gallery]).
 
 **.NET Core Command Line Interface**
 
@@ -75,9 +74,9 @@ DockerClient client = new DockerClientConfiguration(
 
 ```csharp
 IList<ContainerListResponse> containers = await client.Containers.ListContainersAsync(
-	new ContainersListParameters
+    new ContainersListParameters
     {
-		Limit = 10,
+        Limit = 10,
     });
 ```
 
