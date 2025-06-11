@@ -141,7 +141,7 @@ public class ManagedHandler : HttpMessageHandler
 
         ProcessUrl(request);
         ProcessHostHeader(request);
-        request.Headers.ConnectionClose = true; // TODO: Connection re-use is not supported.
+        request.Headers.ConnectionClose = !request.Headers.Contains("Connection"); // TODO: Connection reuse is not supported.
 
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
         Socket socket;
