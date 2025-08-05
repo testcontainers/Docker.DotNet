@@ -387,7 +387,7 @@ public sealed class DockerClient : IDockerClient
         }
 
         headers.Add("Upgrade", "tcp");
-        headers.Add("Connection", "Upgrade");
+        headers.Add("Connection", "upgrade");
 
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
