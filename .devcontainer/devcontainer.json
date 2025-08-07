@@ -8,11 +8,9 @@
     "NUGET_XMLDOC_MODE": "skip"
   },
   "features": {
+    "ghcr.io/devcontainers-extra/features/podman-homebrew:1": {},
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/git-lfs:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "moby": true
-    },
     "ghcr.io/devcontainers/features/dotnet:2.3.0": {
       "version": "9.0",
       "installUsingApt": false
@@ -29,6 +27,7 @@
       }
     }
   },
+  "runArgs": ["--privileged"],
   "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && git lfs checkout",
   "postStartCommand": ["dotnet", "build", "${containerWorkspaceFolder}/Docker.DotNet.sln", "/consoleLoggerParameters:NoSummary", "/property:GenerateFullPaths=true", "/property:Configuration=Debug", "/property:Platform=Any CPU"]
 }
