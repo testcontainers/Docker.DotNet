@@ -18,7 +18,7 @@ internal sealed class JsonSerializer
 
     public HttpContent GetJsonContent<T>(T value)
     {
-        return JsonContent.Create(value, options: _options);
+        return new StringContent(Serialize(value), Encoding.UTF8, "application/json");
     }
 
     public string Serialize<T>(T value)
