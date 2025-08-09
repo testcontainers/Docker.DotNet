@@ -4,6 +4,10 @@ internal sealed class JsonSerializer
 {
     private readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 
+    static JsonSerializer()
+    {
+    }
+
     private JsonSerializer()
     {
         _options.Converters.Add(new JsonEnumMemberConverter<RestartPolicyKind>());
@@ -16,9 +20,9 @@ internal sealed class JsonSerializer
     public static JsonSerializer Instance { get; }
         = new JsonSerializer();
 
-    public HttpContent GetJsonContent<T>(T value)
+    public HttpContent GetHttpContent<T>(T value)
     {
-        return JsonContent.Create(value, options: _options);
+        return new StringContent(Serialize(value), Encoding.UTF8, "application/json");
     }
 
     public string Serialize<T>(T value)

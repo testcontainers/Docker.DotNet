@@ -23,6 +23,6 @@ internal class JsonRequestContent<T> : IRequestContent
 
     public HttpContent GetContent()
     {
-        return _serializer.GetJsonContent(_value);
+        return _serializer.GetHttpContent(_value);
     }
 }
