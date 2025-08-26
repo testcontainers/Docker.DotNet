@@ -34,7 +34,7 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        ManagedHandler handler;
+        HttpMessageHandler handler;
         var uri = Configuration.EndpointBaseUri;
         switch (uri.Scheme.ToLowerInvariant())
         {
@@ -80,11 +80,17 @@ public sealed class DockerClient : IDockerClient
                     Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler(logger);
+                if (configuration.NativeHttpHandler)
+                    handler = new HttpClientHandler();
+                else
+                    handler = new ManagedHandler(logger);
                 break;
 
             case "https":
-                handler = new ManagedHandler(logger);
+                if (configuration.NativeHttpHandler)
+                    handler = new HttpClientHandler();
+                else
+                    handler = new ManagedHandler(logger);
                 break;
 
             case "unix":

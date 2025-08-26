@@ -21,7 +21,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public TestFixture(IMessageSink messageSink)
     {
         _messageSink = messageSink;
-        DockerClientConfiguration = new DockerClientConfiguration();
+        DockerClientConfiguration = new DockerClientConfiguration(nativeHttpHandler: true);
         DockerClient = DockerClientConfiguration.CreateClient(logger: this);
         Cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet tests timed out."));

@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Authentication;
+
 namespace Docker.DotNet.X509;
 
 public class CertificateCredentials : Credentials
@@ -24,17 +28,37 @@ public class CertificateCredentials : Credentials
 
     public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
-        if (handler is not ManagedHandler managedHandler)
+        if (handler is ManagedHandler managedHandler)
         {
-            return handler;
+            if (!managedHandler.ClientCertificates.Contains(_certificate))
+            {
+                managedHandler.ClientCertificates.Add(_certificate);
+            }
+
+            managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
+
+            return managedHandler;
         }
 
-        if (!managedHandler.ClientCertificates.Contains(_certificate))
+        if (handler is HttpClientHandler nativeHandler)
         {
-            managedHandler.ClientCertificates.Add(_certificate);
-        }
+            if (!nativeHandler.ClientCertificates.Contains(_certificate))
+            {
+                nativeHandler.ClientCertificates.Add(_certificate);
+            }
 
-        managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
+            nativeHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            nativeHandler.CheckCertificateRevocationList = false;
+            nativeHandler.AllowAutoRedirect = false;
+            nativeHandler.UseProxy = false;
+            nativeHandler.AllowAutoRedirect = true;
+            nativeHandler.MaxAutomaticRedirections = 20;
+            nativeHandler.Proxy = null;
+            nativeHandler.SslProtocols = SslProtocols.Tls12;
+            nativeHandler.ServerCertificateCustomValidationCallback += (message, certificate, chain, errors) => ServerCertificateValidationCallback?.Invoke(message, certificate, chain, errors) ?? false;
+
+            return nativeHandler;
+        }
 
         return handler;
     }
