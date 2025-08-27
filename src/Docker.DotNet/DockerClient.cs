@@ -44,6 +44,11 @@ public sealed class DockerClient : IDockerClient
                     throw new Exception("TLS not supported over npipe");
                 }
 
+                if (Configuration.NativeHttpHandler)
+                {
+                    throw new Exception("Npipe not supported with native handler");
+                }
+
                 var segments = uri.Segments;
                 if (segments.Length != 3 || !segments[1].Equals("pipe/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -77,23 +82,36 @@ public sealed class DockerClient : IDockerClient
             case "http":
                 var builder = new UriBuilder(uri)
                 {
-                    Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
+                    Scheme = Configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                if (configuration.NativeHttpHandler)
+                if (Configuration.NativeHttpHandler)
+                {
                     handler = new HttpClientHandler();
+                }
                 else
+                {
                     handler = new ManagedHandler(logger);
+                }
                 break;
 
             case "https":
-                if (configuration.NativeHttpHandler)
+                if (Configuration.NativeHttpHandler)
+                {
                     handler = new HttpClientHandler();
+                }
                 else
+                {
                     handler = new ManagedHandler(logger);
+                }
                 break;
 
             case "unix":
+                if (Configuration.NativeHttpHandler)
+                {
+                    throw new Exception("Unix sockets not supported with native handler");
+                }
+
                 var pipeString = uri.LocalPath;
                 handler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
@@ -108,7 +126,7 @@ public sealed class DockerClient : IDockerClient
                 break;
 
             default:
-                throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
+                throw new Exception($"Unknown URL scheme {Configuration.EndpointBaseUri.Scheme}");
         }
 
         _endpointBaseUri = uri;
@@ -401,12 +419,21 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        if (response.Content is not HttpConnectionResponseContent content)
+        if (Configuration.NativeHttpHandler)
         {
-            throw new NotSupportedException("message handler does not support hijacked streams");
+            var stream = await response.Content.ReadAsStreamAsync()
+                .ConfigureAwait(false);
+            return new WriteClosableStreamWrapper(stream);
         }
+        else
+        {
+            if (response.Content is not HttpConnectionResponseContent content)
+            {
+                throw new NotSupportedException("message handler does not support hijacked streams");
+            }
 
-        return content.HijackStream();
+            return content.HijackStream();
+        }
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
