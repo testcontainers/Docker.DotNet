@@ -21,8 +21,11 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public TestFixture(IMessageSink messageSink)
     {
         _messageSink = messageSink;
-        DockerClientConfiguration = new DockerClientConfiguration(nativeHttpHandler: true);
-        DockerClient = DockerClientConfiguration.CreateClient(logger: this);
+        DockerClients = new Dictionary<DockerClientType, DockerClient>
+        {
+            { DockerClientType.Managed, new DockerClientConfiguration().CreateClient(logger: this) },
+            { DockerClientType.Native, new DockerClientConfiguration(endpoint: new Uri("http://localhost:2375"), nativeHttpHandler: true).CreateClient(logger: this) }
+        };
         Cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet tests timed out."));
     }
@@ -40,14 +43,9 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         = Guid.NewGuid().ToString("N");
 
     /// <summary>
-    /// Gets the Docker client configuration.
+    /// Gets the Docker clients.
     /// </summary>
-    public DockerClientConfiguration DockerClientConfiguration { get; }
-
-    /// <summary>
-    /// Gets the Docker client.
-    /// </summary>
-    public DockerClient DockerClient { get; }
+    public Dictionary<DockerClientType, DockerClient> DockerClients { get; }
 
     /// <summary>
     /// Gets the cancellation token source.
@@ -67,11 +65,11 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         const string tag = "3.20";
 
         // Create image
-        await DockerClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = repository, Tag = tag }, null, this, Cts.Token)
+        await DockerClients[DockerClientType.Managed].Images.CreateImageAsync(new ImagesCreateParameters { FromImage = repository, Tag = tag }, null, this, Cts.Token)
             .ConfigureAwait(false);
 
         // Get images
-        var images = await DockerClient.Images.ListImagesAsync(
+        var images = await DockerClients[DockerClientType.Managed].Images.ListImagesAsync(
                 new ImagesListParameters
                 {
                     Filters = new Dictionary<string, IDictionary<string, bool>>
@@ -88,13 +86,13 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         Image = images.Single();
 
         // Tag image
-        await DockerClient.Images.TagImageAsync(Image.ID, new ImageTagParameters { RepositoryName = Repository, Tag = Tag }, Cts.Token)
+        await DockerClients[DockerClientType.Managed].Images.TagImageAsync(Image.ID, new ImageTagParameters { RepositoryName = Repository, Tag = Tag }, Cts.Token)
             .ConfigureAwait(false);
 
         // Init a new swarm, if not part of an existing one
         try
         {
-            _ = await DockerClient.Swarm.InitSwarmAsync(new SwarmInitParameters { AdvertiseAddr = "10.10.10.10", ListenAddr = "127.0.0.1" }, Cts.Token)
+            _ = await DockerClients[DockerClientType.Managed].Swarm.InitSwarmAsync(new SwarmInitParameters { AdvertiseAddr = "10.10.10.10", ListenAddr = "127.0.0.1" }, Cts.Token)
                 .ConfigureAwait(false);
 
             _hasInitializedSwarm = true;
@@ -112,11 +110,11 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     {
         if (_hasInitializedSwarm)
         {
-            await DockerClient.Swarm.LeaveSwarmAsync(new SwarmLeaveParameters { Force = true }, Cts.Token)
+            await DockerClients[DockerClientType.Managed].Swarm.LeaveSwarmAsync(new SwarmLeaveParameters { Force = true }, Cts.Token)
                 .ConfigureAwait(false);
         }
 
-        var containers = await DockerClient.Containers.ListContainersAsync(
+        var containers = await DockerClients[DockerClientType.Managed].Containers.ListContainersAsync(
                 new ContainersListParameters
                 {
                     Filters = new Dictionary<string, IDictionary<string, bool>>
@@ -130,7 +128,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
                 }, Cts.Token)
             .ConfigureAwait(false);
 
-        var images = await DockerClient.Images.ListImagesAsync(
+        var images = await DockerClients[DockerClientType.Managed].Images.ListImagesAsync(
                 new ImagesListParameters
                 {
                     Filters = new Dictionary<string, IDictionary<string, bool>>
@@ -146,13 +144,13 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
 
         foreach (var container in containers)
         {
-            await DockerClient.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters { Force = true }, Cts.Token)
+            await DockerClients[DockerClientType.Managed].Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters { Force = true }, Cts.Token)
                 .ConfigureAwait(false);
         }
 
         foreach (var image in images)
         {
-            await DockerClient.Images.DeleteImageAsync(image.ID, new ImageDeleteParameters { Force = true }, Cts.Token)
+            await DockerClients[DockerClientType.Managed].Images.DeleteImageAsync(image.ID, new ImageDeleteParameters { Force = true }, Cts.Token)
                 .ConfigureAwait(false);
         }
     }
@@ -161,8 +159,11 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public void Dispose()
     {
         Cts.Dispose();
-        DockerClient.Dispose();
-        DockerClientConfiguration.Dispose();
+        foreach (var client in DockerClients.Values)
+        {
+            client?.Dispose();
+        }
+        DockerClients.Clear();
     }
 
     /// <inheritdoc />
