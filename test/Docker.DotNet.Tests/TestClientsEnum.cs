@@ -2,7 +2,8 @@ namespace Docker.DotNet.Tests
 {
     public enum DockerClientType
     {
-        Managed = 1,
-        Native = 2
+        ManagedPipe = 1,
+        ManagedHttp = 2,
+        NativeHttp = 3
     }
 }
