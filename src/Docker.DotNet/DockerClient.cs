@@ -87,7 +87,16 @@ public sealed class DockerClient : IDockerClient
                 uri = builder.Uri;
                 if (Configuration.NativeHttpHandler)
                 {
+#if NET6_0_OR_GREATER
+                    handler = new SocketsHttpHandler()
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                        MaxConnectionsPerServer = 10
+                    };
+#else
                     handler = new HttpClientHandler();
+#endif
                 }
                 else
                 {
@@ -98,7 +107,16 @@ public sealed class DockerClient : IDockerClient
             case "https":
                 if (Configuration.NativeHttpHandler)
                 {
+#if NET6_0_OR_GREATER
+                    handler = new SocketsHttpHandler()
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                        MaxConnectionsPerServer = 10
+                    };
+#else
                     handler = new HttpClientHandler();
+#endif
                 }
                 else
                 {
