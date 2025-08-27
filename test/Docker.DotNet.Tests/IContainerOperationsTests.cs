@@ -346,7 +346,7 @@ public class IContainerOperationsTests
 
         Assert.NotEmpty(containerStatsList);
         Assert.Single(containerStatsList);
-        _testOutputHelper.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
+        _testOutputHelper.WriteLine($"ContainerStats count: {containerStatsList.Count}");
     }
 
     [Theory]
@@ -441,7 +441,7 @@ public class IContainerOperationsTests
 
         Assert.NotEmpty(containerStatsList);
         Assert.Single(containerStatsList);
-        _testOutputHelper.WriteLine($"ConntainerStats count: {containerStatsList.Count}");
+        _testOutputHelper.WriteLine($"ContainerStats count: {containerStatsList.Count}");
     }
 
     [Theory]
