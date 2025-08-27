@@ -49,11 +49,10 @@ public class CertificateCredentials : Credentials
 
             nativeHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
             nativeHandler.CheckCertificateRevocationList = false;
-            nativeHandler.AllowAutoRedirect = false;
-            nativeHandler.UseProxy = false;
+            nativeHandler.UseProxy = true;
             nativeHandler.AllowAutoRedirect = true;
             nativeHandler.MaxAutomaticRedirections = 20;
-            nativeHandler.Proxy = null;
+            nativeHandler.Proxy = WebRequest.DefaultWebProxy;
             nativeHandler.SslProtocols = SslProtocols.Tls12;
             nativeHandler.ServerCertificateCustomValidationCallback += (message, certificate, chain, errors) => ServerCertificateValidationCallback?.Invoke(message, certificate, chain, errors) ?? false;
 
