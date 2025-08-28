@@ -325,6 +325,63 @@ public class IContainerOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetContainerLogs_SpeedTest_Tty_False_Follow_True_Requires_Task_To_Be_Cancelled(DockerClientType clientType)
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var runtimeInSeconds = 15;
+
+        var createContainerResponse = await _testFixture.DockerClients[clientType].Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _testFixture.Image.ID,
+                Entrypoint = CommonCommands.EchoToStdoutAndStderrFast,
+                Tty = false
+            },
+            _testFixture.Cts.Token
+        );
+
+        await _testFixture.DockerClients[clientType].Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _testFixture.Cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(runtimeInSeconds));
+
+        var counter = 0;
+        try
+        {
+            await _testFixture.DockerClients[clientType].Containers.GetContainerLogsAsync(
+                createContainerResponse.ID,
+                new ContainerLogsParameters
+                {
+                    ShowStderr = true,
+                    ShowStdout = true,
+                    Timestamps = true,
+                    Follow = true
+                },
+                new Progress<string>(m => counter++),
+                containerLogsCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+
+        await _testFixture.DockerClients[clientType].Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _testFixture.Cts.Token
+        );
+
+        _testOutputHelper.WriteLine($"ClientType {clientType}: Line count: {counter}");
+
+        Assert.True(counter > runtimeInSeconds * 200000, $"Line count {counter} is less than expected {runtimeInSeconds * 200000}");
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
     public async Task GetContainerLogs_Tty_True_Follow_True_Requires_Task_To_Be_Cancelled(DockerClientType clientType)
     {
         using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
