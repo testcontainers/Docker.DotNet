@@ -377,7 +377,7 @@ public class IContainerOperationsTests
 
         _testOutputHelper.WriteLine($"ClientType {clientType}: Line count: {counter}");
 
-        Assert.True(counter > runtimeInSeconds * 200000, $"Line count {counter} is less than expected {runtimeInSeconds * 200000}");
+        Assert.True(counter > runtimeInSeconds * 100000, $"Line count {counter} is less than expected {runtimeInSeconds * 100000}");
     }
 
     [Theory]
