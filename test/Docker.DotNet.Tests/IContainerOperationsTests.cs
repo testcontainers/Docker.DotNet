@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Docker.DotNet.Tests;
 
 [Collection(nameof(TestCollection))]
@@ -126,6 +128,113 @@ public class IContainerOperationsTests
         _testOutputHelper.WriteLine($"Line count: {logList.Count}");
 
         Assert.NotEmpty(logList);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetContainerLogs_Parallel_Tty_False_Follow_False_ReadsLogs(DockerClientType clientType)
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var parallelContainerCount = 3;
+        var parallelThreadCount = 100;
+        var runtimeInSeconds = 9;
+
+        var containerIds = new string[parallelContainerCount];
+
+        ParallelOptions parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = parallelContainerCount,
+            CancellationToken = _testFixture.Cts.Token
+        };
+
+        await Parallel.ForEachAsync(Enumerable.Range(0, parallelContainerCount), parallelOptions, async (parallel, ct) =>
+        {
+            var createContainerResponse = await _testFixture.DockerClients[clientType].Containers.CreateContainerAsync(
+                new CreateContainerParameters
+                {
+                    Image = _testFixture.Image.ID,
+                    Entrypoint = CommonCommands.EchoToStdoutAndStderr,
+                    Tty = false
+                },
+                _testFixture.Cts.Token
+            );
+
+            await _testFixture.DockerClients[clientType].Containers.StartContainerAsync(
+                createContainerResponse.ID,
+                new ContainerStartParameters(),
+                _testFixture.Cts.Token
+            );
+            containerIds[parallel] = createContainerResponse.ID;
+        });
+
+        await Task.Delay(TimeSpan.FromSeconds(runtimeInSeconds));
+
+        await Parallel.ForEachAsync(Enumerable.Range(0, parallelContainerCount), parallelOptions, async (parallel, ct) =>
+        {
+            await _testFixture.DockerClients[clientType].Containers.StopContainerAsync(
+                containerIds[parallel],
+                new ContainerStopParameters(),
+                _testFixture.Cts.Token
+            );
+        });
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(1));
+
+        var logLists = new ConcurrentDictionary<int, string>();
+        var threads = new List<Thread>();
+
+        for (int parallel = 0; parallel < parallelContainerCount * parallelThreadCount; parallel++)
+        {
+            int index = parallel;
+            string containerId = containerIds[parallel % parallelContainerCount];
+            CancellationToken ct = containerLogsCts.Token;
+
+            var thread = new Thread(() =>
+            {
+                var logList = new StringBuilder(2000);
+                try
+                {
+                    var task = _testFixture.DockerClients[clientType].Containers.GetContainerLogsAsync(
+                        containerId,
+                        new ContainerLogsParameters
+                        {
+                            ShowStderr = true,
+                            ShowStdout = true,
+                            Timestamps = true,
+                            Follow = false
+                        },
+                        new Progress<string>(m => logList.AppendLine(m)),
+                        ct
+                    );
+
+                    task.GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+
+                Thread.Sleep(100);
+
+                logLists.TryAdd(index, logList.ToString());
+                logList.Clear();
+            });
+
+            threads.Add(thread);
+            thread.Start();
+        }
+
+        foreach (var thread in threads)
+        {
+            thread.Join();
+        }
+
+        var averageLineCount = logLists.Values.Average(logs => logs.Split('\n').Count());
+
+        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}");
+
+        // one container should produce 2 lines per second (stdout + stderr) plus 1 for last empty line of split
+        Assert.True(averageLineCount > (runtimeInSeconds + 1) * 2, $"Average line count {averageLineCount:N1} is less than expected {(runtimeInSeconds + 1) * 2}");
     }
 
     [Theory]
