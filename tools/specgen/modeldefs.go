@@ -86,6 +86,13 @@ type ContainerPathStatParameters struct {
 	Path string `rest:"query,path,required"`
 }
 
+// CopyToContainerParameters for PUT /containers/(id)/archive
+type CopyToContainerParameters struct {
+	Path                      string `rest:"query,path,required"`
+	AllowOverwriteDirWithFile bool   `rest:"query,noOverwriteDirNonDir"`
+	CopyUIDGID                bool   `rest:"query,copyUIDGID"`
+}
+
 // ContainerAttachParameters for POST /containers/(id)/attach
 type ContainerAttachParameters struct {
 	Stream     bool   `rest:"query"`
