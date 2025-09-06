@@ -159,7 +159,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-        var line = new StringBuilder();
+        var line = new StringBuilder(30);
 
         var crIndex = -1;
 
