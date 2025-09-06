@@ -200,6 +200,9 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(ContainerPathStatParameters{}),
 	reflect.TypeOf(container.PathStat{}),
 
+	// PUT /containers/(id)/archive
+	reflect.TypeOf(CopyToContainerParameters{}),
+
 	// POST /containers/(id)/attach
 	reflect.TypeOf(ContainerAttachParameters{}),
 
@@ -207,11 +210,6 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// GET /containers/(id)/changes
 	reflect.TypeOf(container.FilesystemChange{}),
-
-	// OBSOLETE - POST /containers/(id)/copy
-
-	// GET /containers/(id)/export
-	// TODO: TAR Stream
 
 	// POST /containers/(id)/exec
 	reflect.TypeOf(ContainerExecCreateParameters{}),

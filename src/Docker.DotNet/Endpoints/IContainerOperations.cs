@@ -368,7 +368,7 @@ public interface IContainerOperations
     /// <exception cref="DockerApiException">Permission is denied (the volume or container rootfs is marked read-only),
     /// the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default);
+    Task ExtractArchiveToContainerAsync(string id, CopyToContainerParameters parameters, Stream stream, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes stopped containers.
