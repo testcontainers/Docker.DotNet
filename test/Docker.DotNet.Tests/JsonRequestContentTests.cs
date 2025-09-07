@@ -11,12 +11,6 @@ public sealed class JsonRequestContentTests
     }
 
     [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenValueIsDefault()
-    {
-        Assert.Throws<ArgumentNullException>(() => new JsonRequestContent<int>(0, JsonSerializer.Instance));
-    }
-
-    [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenSerializerIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => new JsonRequestContent<object>(new(), null));

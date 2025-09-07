@@ -1,13 +1,14 @@
 namespace Docker.DotNet;
 
 internal class JsonRequestContent<T> : IRequestContent
+    where T : class
 {
     private readonly T _value;
     private readonly JsonSerializer _serializer;
 
     public JsonRequestContent(T val, JsonSerializer serializer)
     {
-        if (EqualityComparer<T>.Default.Equals(val, default))
+        if (val == null)
         {
             throw new ArgumentNullException(nameof(val));
         }
