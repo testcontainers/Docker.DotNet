@@ -7,7 +7,7 @@ internal class JsonRequestContent<T> : IRequestContent
 
     public JsonRequestContent(T val, JsonSerializer serializer)
     {
-        if (EqualityComparer<T>.Default.Equals(val))
+        if (EqualityComparer<T>.Default.Equals(val, default))
         {
             throw new ArgumentNullException(nameof(val));
         }
