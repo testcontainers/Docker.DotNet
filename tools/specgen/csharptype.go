@@ -3,13 +3,46 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types/registry"
 )
+
+var GlobalUsings map[string]bool
+
+func init() {
+	GlobalUsings = readGlobalUsings()
+}
+
+// Reads the global usings from the Docker.DotNet.csproj file.
+func readGlobalUsings() map[string]bool {
+	csprojPath := filepath.Join("..", "..", "src", "Docker.DotNet", "Docker.DotNet.csproj")
+
+	data, err := os.ReadFile(csprojPath)
+	if err != nil {
+		fmt.Printf("Warning: Could not read .csproj file: %v\n", err)
+		return make(map[string]bool)
+	}
+
+	usings := make(map[string]bool)
+
+	re := regexp.MustCompile(`<Using\s+Include="([^"]+)"\s*/>`)
+	matches := re.FindAllStringSubmatch(string(data), -1)
+
+	for _, match := range matches {
+		if len(match) > 1 && match[1] != "" {
+			usings[match[1]] = true
+		}
+	}
+
+	return usings
+}
 
 // EmptyStruct is a type that represents a struct with no exported values.
 var EmptyStruct = reflect.TypeOf(struct{}{})
@@ -171,7 +204,9 @@ func (t *CSModelType) Write(w io.Writer) {
 		fmt.Fprintf(w, "using %s;\n", u)
 	}
 
-	fmt.Fprintln(w, "")
+	if len(usings) > 0 {
+		fmt.Fprintln(w, "")
+	}
 
 	fmt.Fprintln(w, "namespace Docker.DotNet.Models")
 	fmt.Fprintln(w, "{")
@@ -219,6 +254,10 @@ func calcUsings(t *CSModelType) []string {
 
 func safeAddUsing(using string, usings []string, added map[string]bool) []string {
 	if using != "" {
+		if _, isGlobal := GlobalUsings[using]; isGlobal {
+			return usings
+		}
+
 		if _, ok := added[using]; !ok {
 			added[using] = true
 			return append(usings, using)
