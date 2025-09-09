@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Net.NetworkInformation;
+
 
 namespace Docker.DotNet.Tests;
 
@@ -144,6 +146,10 @@ public class IContainerOperationsTests
 
         long memoryUsageBefore = GC.GetTotalAllocatedBytes(true);
 
+        long socketsBefore = IPGlobalProperties.GetIPGlobalProperties()
+                                .GetTcpIPv4Statistics()
+                                .CurrentConnections;
+
         ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = parallelContainerCount,
@@ -231,11 +237,18 @@ public class IContainerOperationsTests
             thread.Join();
         }
 
+        long socketsAfter = IPGlobalProperties.GetIPGlobalProperties()
+                                .GetTcpIPv4Statistics()
+                                .CurrentConnections;
+
+        if (clientType == DockerClientType.ManagedPipe)
+            socketsAfter = socketsBefore = 0;
+
         long memoryUsageAfter = GC.GetTotalAllocatedBytes(true);
 
         var averageLineCount = logLists.Values.Average(logs => logs.Split('\n').Count());
 
-        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}");
+        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}, sockets: {socketsAfter - socketsBefore:N0}");
 
         // one container should produce 2 lines per second (stdout + stderr) plus 1 for last empty line of split
         Assert.True(averageLineCount > (runtimeInSeconds + 1) * 2, $"Average line count {averageLineCount:N1} is less than expected {(runtimeInSeconds + 1) * 2}");
