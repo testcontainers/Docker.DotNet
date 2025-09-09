@@ -150,6 +150,9 @@ public class IContainerOperationsTests
                                 .GetTcpIPv4Statistics()
                                 .CurrentConnections;
 
+        Process process = Process.GetCurrentProcess();
+        TimeSpan cpuTimeBefore = process.TotalProcessorTime;
+
         ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = parallelContainerCount,
@@ -237,6 +240,8 @@ public class IContainerOperationsTests
             thread.Join();
         }
 
+        TimeSpan cpuTimeAfter = process.TotalProcessorTime;
+
         long socketsAfter = IPGlobalProperties.GetIPGlobalProperties()
                                 .GetTcpIPv4Statistics()
                                 .CurrentConnections;
@@ -248,7 +253,7 @@ public class IContainerOperationsTests
 
         var averageLineCount = logLists.Values.Average(logs => logs.Split('\n').Count());
 
-        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}, sockets: {socketsAfter - socketsBefore:N0}");
+        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}, cpu ticks: {cpuTimeAfter.Ticks - cpuTimeBefore.Ticks:N0}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}, sockets: {socketsAfter - socketsBefore:N0}");
 
         // one container should produce 2 lines per second (stdout + stderr) plus 1 for last empty line of split
         Assert.True(averageLineCount > (runtimeInSeconds + 1) * 2, $"Average line count {averageLineCount:N1} is less than expected {(runtimeInSeconds + 1) * 2}");
