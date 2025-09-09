@@ -264,7 +264,7 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        var queryParameters = new QueryString<ContainerRenameParameters>(parameters ?? throw new ArgumentNullException(nameof(parameters)));
+        var queryParameters = new QueryString<ContainerRenameParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/rename", queryParameters, cancellationToken);
     }
 

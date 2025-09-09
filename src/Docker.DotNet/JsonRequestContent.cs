@@ -1,7 +1,6 @@
 namespace Docker.DotNet;
 
-internal class JsonRequestContent<T> : IRequestContent
-    where T : class
+internal class JsonRequestContent<T> : IRequestContent where T : class
 {
     private readonly T _value;
     private readonly JsonSerializer _serializer;
