@@ -176,7 +176,7 @@ internal class SwarmOperations : ISwarmOperations
 
     async Task ISwarmOperations.UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken)
     {
-        var query = new QueryString<SwarmUpdateParameters>(parameters ?? throw new ArgumentNullException(nameof(parameters)));
+        var query = new QueryString<SwarmUpdateParameters>(parameters);
         var body = new JsonRequestContent<Spec>(parameters.Spec, DockerClient.JsonSerializer);
         await _client.MakeRequestAsync(
             new ApiResponseErrorHandlingDelegate[]

@@ -22,6 +22,7 @@
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq" />
+    <Using Include="System.Net.Http" />
     <Using Include="System.Reflection" />
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
