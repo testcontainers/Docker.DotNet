@@ -142,6 +142,8 @@ public class IContainerOperationsTests
 
         var containerIds = new string[parallelContainerCount];
 
+        long memoryUsageBefore = GC.GetTotalAllocatedBytes(true);
+
         ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = parallelContainerCount,
@@ -229,12 +231,15 @@ public class IContainerOperationsTests
             thread.Join();
         }
 
+        long memoryUsageAfter = GC.GetTotalAllocatedBytes(true);
+
         var averageLineCount = logLists.Values.Average(logs => logs.Split('\n').Count());
 
-        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}");
+        _testOutputHelper.WriteLine($"ClientType {clientType}: avg. Line count: {averageLineCount:N1}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}");
 
         // one container should produce 2 lines per second (stdout + stderr) plus 1 for last empty line of split
         Assert.True(averageLineCount > (runtimeInSeconds + 1) * 2, $"Average line count {averageLineCount:N1} is less than expected {(runtimeInSeconds + 1) * 2}");
+        GC.Collect();
     }
 
     [Theory]
@@ -349,6 +354,8 @@ public class IContainerOperationsTests
 
         containerLogsCts.CancelAfter(TimeSpan.FromSeconds(runtimeInSeconds));
 
+        long memoryUsageBefore = GC.GetTotalAllocatedBytes(true);
+
         var counter = 0;
         try
         {
@@ -369,15 +376,20 @@ public class IContainerOperationsTests
 
         }
 
+
+        long memoryUsageAfter = GC.GetTotalAllocatedBytes(true);
+
         await _testFixture.DockerClients[clientType].Containers.StopContainerAsync(
             createContainerResponse.ID,
             new ContainerStopParameters(),
             _testFixture.Cts.Token
         );
 
-        _testOutputHelper.WriteLine($"ClientType {clientType}: Line count: {counter}");
+        _testOutputHelper.WriteLine($"ClientType {clientType}: Line count: {counter}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}");
 
         Assert.True(counter > runtimeInSeconds * 100000, $"Line count {counter} is less than expected {runtimeInSeconds * 100000}");
+
+        GC.Collect();
     }
 
     [Theory]
