@@ -40,7 +40,11 @@ public class CertificateCredentials : Credentials
             return managedHandler;
         }
 
+#if NET6_0_OR_GREATER
+        if (handler is SocketsHttpHandler nativeHandler)
+#else
         if (handler is HttpClientHandler nativeHandler)
+#endif
         {
             if (!nativeHandler.ClientCertificates.Contains(_certificate))
             {
