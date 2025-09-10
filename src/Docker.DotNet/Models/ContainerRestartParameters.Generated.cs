@@ -1,4 +1,3 @@
-
 namespace Docker.DotNet.Models
 {
     public class ContainerRestartParameters // (main.ContainerRestartParameters)
