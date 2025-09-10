@@ -12,12 +12,18 @@ public class ISwarmOperationsTests
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    public async Task GetFilteredServicesByName_Succeeds()
+    public static IEnumerable<object[]> GetDockerClientTypes() =>
+        Enum.GetValues(typeof(DockerClientType))
+            .Cast<DockerClientType>()
+            .Select(t => new object[] { t });
+
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetFilteredServicesByName_Succeeds(DockerClientType clientType)
     {
         var serviceName = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}";
 
-        var firstServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var firstServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -26,7 +32,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var secondServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -35,7 +41,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var thirdServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -44,7 +50,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(new ServiceListParameters
+        var services = await _testFixture.DockerClients[clientType].Swarm.ListServicesAsync(new ServiceListParameters
         {
             Filters = new Dictionary<string, IDictionary<string, bool>>
             {
@@ -57,15 +63,16 @@ public class ISwarmOperationsTests
 
         Assert.Single(services);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(firstServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(secondServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(thirdServiceId);
     }
 
-    [Fact]
-    public async Task GetFilteredServicesById_Succeeds()
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetFilteredServicesById_Succeeds(DockerClientType clientType)
     {
-        var firstServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var firstServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -74,7 +81,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var secondServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -83,7 +90,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var thirdServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -92,7 +99,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(new ServiceListParameters
+        var services = await _testFixture.DockerClients[clientType].Swarm.ListServicesAsync(new ServiceListParameters
         {
             Filters = new Dictionary<string, IDictionary<string, bool>>
             {
@@ -105,17 +112,18 @@ public class ISwarmOperationsTests
 
         Assert.Single(services);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(firstServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(secondServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(thirdServiceId);
     }
 
-    [Fact]
-    public async Task GetServices_Succeeds()
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetServices_Succeeds(DockerClientType clientType)
     {
-        var initialServiceCount = (await _testFixture.DockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None)).Count();
+        var initialServiceCount = (await _testFixture.DockerClients[clientType].Swarm.ListServicesAsync(cancellationToken: CancellationToken.None)).Count();
 
-        var firstServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var firstServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -124,7 +132,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var secondServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -133,7 +141,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var thirdServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -142,23 +150,24 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None);
+        var services = await _testFixture.DockerClients[clientType].Swarm.ListServicesAsync(cancellationToken: CancellationToken.None);
 
         Assert.True(services.Count() > initialServiceCount);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(firstServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(secondServiceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(thirdServiceId);
     }
 
-    [Fact]
-    public async Task GetServiceLogs_Succeeds()
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task GetServiceLogs_Succeeds(DockerClientType clientType)
     {
         var cts = new CancellationTokenSource();
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token, cts.Token);
 
         var serviceName = $"service-withLogs-{Guid.NewGuid().ToString().Substring(1, 10)}";
-        var serviceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
+        var serviceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
@@ -167,7 +176,7 @@ public class ISwarmOperationsTests
             }
         })).ID;
 
-        using var stream = await _testFixture.DockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
+        using var stream = await _testFixture.DockerClients[clientType].Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
         {
             Follow = true,
             ShowStdout = true,
@@ -246,6 +255,6 @@ public class ISwarmOperationsTests
         Assert.NotNull(logLines);
         Assert.NotEmpty(logLines);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(serviceId);
+        await _testFixture.DockerClients[clientType].Swarm.RemoveServiceAsync(serviceId);
     }
 }
