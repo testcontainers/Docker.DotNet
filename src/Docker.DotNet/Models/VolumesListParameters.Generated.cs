@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Docker.DotNet.Models
 {
     public class VolumesListParameters // (main.VolumesListParameters)
