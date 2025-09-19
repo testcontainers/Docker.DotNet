@@ -6,7 +6,7 @@ namespace Docker.DotNet.Models
         {
         }
 
-        public CommitContainerChangesParameters(Config Config)
+        public CommitContainerChangesParameters(ContainerConfig Config)
         {
             if (Config != null)
             {

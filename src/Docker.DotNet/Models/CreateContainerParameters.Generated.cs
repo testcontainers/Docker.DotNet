@@ -6,7 +6,7 @@ namespace Docker.DotNet.Models
         {
         }
 
-        public CreateContainerParameters(Config Config)
+        public CreateContainerParameters(ContainerConfig Config)
         {
             if (Config != null)
             {

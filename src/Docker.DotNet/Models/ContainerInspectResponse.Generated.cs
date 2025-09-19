@@ -105,7 +105,7 @@ namespace Docker.DotNet.Models
         public IList<MountPoint> Mounts { get; set; }
 
         [JsonPropertyName("Config")]
-        public Config Config { get; set; }
+        public ContainerConfig Config { get; set; }
 
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettings NetworkSettings { get; set; }

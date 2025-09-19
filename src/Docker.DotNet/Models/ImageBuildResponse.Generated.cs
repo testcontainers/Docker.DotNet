@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class ImageBuildResponse // (types.ImageBuildResponse)
+    public class ImageBuildResponse // (build.ImageBuildResponse)
     {
         [JsonPropertyName("Body")]
         public object Body { get; set; }

@@ -23,9 +23,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("AttachStdout")]
         public bool AttachStdout { get; set; }
 
-        [JsonPropertyName("Detach")]
-        public bool Detach { get; set; }
-
         [JsonPropertyName("DetachKeys")]
         public string DetachKeys { get; set; }
 
@@ -37,5 +34,8 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Cmd")]
         public IList<string> Cmd { get; set; }
+
+        [JsonPropertyName("Detach")]
+        public bool Detach { get; set; }
     }
 }

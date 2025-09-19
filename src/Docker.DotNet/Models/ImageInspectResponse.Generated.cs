@@ -24,7 +24,7 @@ namespace Docker.DotNet.Models
         public string Container { get; set; }
 
         [JsonPropertyName("ContainerConfig")]
-        public Config ContainerConfig { get; set; }
+        public ContainerConfig ContainerConfig { get; set; }
 
         [JsonPropertyName("DockerVersion")]
         public string DockerVersion { get; set; }
@@ -33,7 +33,7 @@ namespace Docker.DotNet.Models
         public string Author { get; set; }
 
         [JsonPropertyName("Config")]
-        public Config Config { get; set; }
+        public DockerOCIImageConfig Config { get; set; }
 
         [JsonPropertyName("Architecture")]
         public string Architecture { get; set; }
