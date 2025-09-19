@@ -62,12 +62,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("IPv4Forwarding")]
         public bool IPv4Forwarding { get; set; }
 
-        [JsonPropertyName("BridgeNfIptables")]
-        public bool BridgeNfIptables { get; set; }
-
-        [JsonPropertyName("BridgeNfIp6tables")]
-        public bool BridgeNfIP6tables { get; set; }
-
         [JsonPropertyName("Debug")]
         public bool Debug { get; set; }
 
@@ -190,6 +184,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("CDISpecDirs")]
         public IList<string> CDISpecDirs { get; set; }
+
+        [JsonPropertyName("DiscoveredDevices")]
+        public IList<DeviceInfo> DiscoveredDevices { get; set; }
 
         [JsonPropertyName("Containerd")]
         public ContainerdInfo Containerd { get; set; }

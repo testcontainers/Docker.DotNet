@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class Config // (container.Config)
+    public class ContainerConfig // (container.Config)
     {
         [JsonPropertyName("Hostname")]
         public string Hostname { get; set; }
