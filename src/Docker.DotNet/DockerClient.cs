@@ -34,7 +34,7 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        ManagedHandler handler;
+        HttpMessageHandler handler;
         var uri = Configuration.EndpointBaseUri;
         switch (uri.Scheme.ToLowerInvariant())
         {
@@ -42,6 +42,11 @@ public sealed class DockerClient : IDockerClient
                 if (Configuration.Credentials.IsTlsCredentials())
                 {
                     throw new Exception("TLS not supported over npipe");
+                }
+
+                if (Configuration.NativeHttpHandler)
+                {
+                    throw new Exception("Npipe not supported with native handler");
                 }
 
                 var segments = uri.Segments;
@@ -77,17 +82,54 @@ public sealed class DockerClient : IDockerClient
             case "http":
                 var builder = new UriBuilder(uri)
                 {
-                    Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
+                    Scheme = Configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler(logger);
+                if (Configuration.NativeHttpHandler)
+                {
+#if NET6_0_OR_GREATER
+                    handler = new SocketsHttpHandler()
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                        MaxConnectionsPerServer = 10
+                    };
+#else
+                    handler = new HttpClientHandler();
+#endif
+                }
+                else
+                {
+                    handler = new ManagedHandler(logger);
+                }
                 break;
 
             case "https":
-                handler = new ManagedHandler(logger);
+                if (Configuration.NativeHttpHandler)
+                {
+#if NET6_0_OR_GREATER
+                    handler = new SocketsHttpHandler()
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                        MaxConnectionsPerServer = 10
+                    };
+#else
+                    handler = new HttpClientHandler();
+#endif
+                }
+                else
+                {
+                    handler = new ManagedHandler(logger);
+                }
                 break;
 
             case "unix":
+                if (Configuration.NativeHttpHandler)
+                {
+                    throw new Exception("Unix sockets not supported with native handler");
+                }
+
                 var pipeString = uri.LocalPath;
                 handler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
@@ -102,7 +144,7 @@ public sealed class DockerClient : IDockerClient
                 break;
 
             default:
-                throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
+                throw new Exception($"Unknown URL scheme {Configuration.EndpointBaseUri.Scheme}");
         }
 
         _endpointBaseUri = uri;
@@ -395,12 +437,21 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        if (response.Content is not HttpConnectionResponseContent content)
+        if (Configuration.NativeHttpHandler)
         {
-            throw new NotSupportedException("message handler does not support hijacked streams");
+            var stream = await response.Content.ReadAsStreamAsync()
+                .ConfigureAwait(false);
+            return new WriteClosableStreamWrapper(stream);
         }
+        else
+        {
+            if (response.Content is not HttpConnectionResponseContent content)
+            {
+                throw new NotSupportedException("message handler does not support hijacked streams");
+            }
 
-        return content.HijackStream();
+            return content.HijackStream();
+        }
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(

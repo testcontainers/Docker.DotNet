@@ -8,8 +8,9 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        bool nativeHttpHandler = false)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders, nativeHttpHandler)
     {
     }
 
@@ -18,7 +19,8 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        bool nativeHttpHandler = false)
     {
         if (endpoint == null)
         {
@@ -33,8 +35,9 @@ public class DockerClientConfiguration : IDisposable
         EndpointBaseUri = endpoint;
         Credentials = credentials ?? new AnonymousCredentials();
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
-        NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
+        NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromSeconds(10) : namedPipeConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
+        NativeHttpHandler = nativeHttpHandler;
     }
 
     /// <summary>
@@ -49,6 +52,8 @@ public class DockerClientConfiguration : IDisposable
     public TimeSpan DefaultTimeout { get; }
 
     public TimeSpan NamedPipeConnectTimeout { get; }
+
+    public bool NativeHttpHandler { get; }
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
