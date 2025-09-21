@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -8,6 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    services:
+      docker:
+        image: docker:28.1-dind
+        env:
+          DOCKER_TLS_CERTDIR: ""
+        ports:
+          - 2375:2375
+        options: >-
+          --privileged
+          --health-cmd "docker info || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         framework:
