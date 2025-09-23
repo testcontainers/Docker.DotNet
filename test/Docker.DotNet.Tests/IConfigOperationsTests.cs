@@ -13,13 +13,11 @@ public class IConfigOperationsTests
     }
 
     public static IEnumerable<object[]> GetDockerClientTypes() =>
-        Enum.GetValues(typeof(DockerClientType))
-            .Cast<DockerClientType>()
-            .Select(t => new object[] { t });
+        TestFixture.GetDockerClientTypes();
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task SwarmConfig_CanCreateAndRead(DockerClientType clientType)
+    public async Task SwarmConfig_CanCreateAndRead(TestClientsEnum clientType)
     {
         var currentConfigs = await _testFixture.DockerClients[clientType].Configs.ListConfigsAsync();
 

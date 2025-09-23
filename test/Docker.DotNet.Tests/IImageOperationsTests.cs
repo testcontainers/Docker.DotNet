@@ -13,13 +13,11 @@ public class IImageOperationsTests
     }
 
     public static IEnumerable<object[]> GetDockerClientTypes() =>
-        Enum.GetValues(typeof(DockerClientType))
-            .Cast<DockerClientType>()
-            .Select(t => new object[] { t });
+        TestFixture.GetDockerClientTypes();
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task CreateImageAsync_TaskCancelled_ThrowsTaskCanceledException(DockerClientType clientType)
+    public async Task CreateImageAsync_TaskCancelled_ThrowsTaskCanceledException(TestClientsEnum clientType)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
 
@@ -55,7 +53,7 @@ public class IImageOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException(DockerClientType clientType)
+    public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException(TestClientsEnum clientType)
     {
         return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClients[clientType].Images.CreateImageAsync(
             new ImagesCreateParameters
@@ -67,7 +65,7 @@ public class IImageOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task DeleteImageAsync_RemovesImage(DockerClientType clientType)
+    public async Task DeleteImageAsync_RemovesImage(TestClientsEnum clientType)
     {
         var newImageTag = Guid.NewGuid().ToString();
 

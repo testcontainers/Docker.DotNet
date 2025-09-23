@@ -13,13 +13,11 @@ public class IVolumeOperationsTests
     }
 
     public static IEnumerable<object[]> GetDockerClientTypes() =>
-        Enum.GetValues(typeof(DockerClientType))
-            .Cast<DockerClientType>()
-            .Select(t => new object[] { t });
+        TestFixture.GetDockerClientTypes();
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task ListAsync_VolumeExists_Succeeds(DockerClientType clientType)
+    public async Task ListAsync_VolumeExists_Succeeds(TestClientsEnum clientType)
     {
         const string volumeName = "docker-dotnet-test-volume";
 

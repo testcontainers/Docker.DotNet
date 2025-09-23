@@ -13,13 +13,11 @@ public class ISwarmOperationsTests
     }
 
     public static IEnumerable<object[]> GetDockerClientTypes() =>
-        Enum.GetValues(typeof(DockerClientType))
-            .Cast<DockerClientType>()
-            .Select(t => new object[] { t });
+        TestFixture.GetDockerClientTypes();
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetFilteredServicesByName_Succeeds(DockerClientType clientType)
+    public async Task GetFilteredServicesByName_Succeeds(TestClientsEnum clientType)
     {
         var serviceName = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}";
 
@@ -28,7 +26,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = serviceName,
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -37,7 +35,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -46,7 +44,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -70,14 +68,14 @@ public class ISwarmOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetFilteredServicesById_Succeeds(DockerClientType clientType)
+    public async Task GetFilteredServicesById_Succeeds(TestClientsEnum clientType)
     {
         var firstServiceId = (await _testFixture.DockerClients[clientType].Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
             Service = new ServiceSpec
             {
                 Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -86,7 +84,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -95,7 +93,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -119,7 +117,7 @@ public class ISwarmOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetServices_Succeeds(DockerClientType clientType)
+    public async Task GetServices_Succeeds(TestClientsEnum clientType)
     {
         var initialServiceCount = (await _testFixture.DockerClients[clientType].Swarm.ListServicesAsync(cancellationToken: CancellationToken.None)).Count();
 
@@ -128,7 +126,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -137,7 +135,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -146,7 +144,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID } }
             }
         })).ID;
 
@@ -161,7 +159,7 @@ public class ISwarmOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetServiceLogs_Succeeds(DockerClientType clientType)
+    public async Task GetServiceLogs_Succeeds(TestClientsEnum clientType)
     {
         var cts = new CancellationTokenSource();
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token, cts.Token);
@@ -172,7 +170,7 @@ public class ISwarmOperationsTests
             Service = new ServiceSpec
             {
                 Name = serviceName,
-                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID, Command = CommonCommands.EchoToStdoutAndStderr } }
+                TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Images[TestFixture.GetDaemonForClient(clientType)].ID, Command = CommonCommands.EchoToStdoutAndStderr } }
             }
         })).ID;
 

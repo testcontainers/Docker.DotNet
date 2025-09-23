@@ -13,9 +13,7 @@ public class ISystemOperationsTests
     }
 
     public static IEnumerable<object[]> GetDockerClientTypes() =>
-        Enum.GetValues(typeof(DockerClientType))
-            .Cast<DockerClientType>()
-            .Select(t => new object[] { t });
+        TestFixture.GetDockerClientTypes();
 
     [Fact]
     public void Docker_IsRunning()
@@ -30,7 +28,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetSystemInfoAsync_Succeeds(DockerClientType clientType)
+    public async Task GetSystemInfoAsync_Succeeds(TestClientsEnum clientType)
     {
         var info = await _testFixture.DockerClients[clientType].System.GetSystemInfoAsync();
         Assert.NotNull(info.Architecture);
@@ -38,7 +36,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task GetVersionAsync_Succeeds(DockerClientType clientType)
+    public async Task GetVersionAsync_Succeeds(TestClientsEnum clientType)
     {
         var version = await _testFixture.DockerClients[clientType].System.GetVersionAsync();
         Assert.NotNull(version.APIVersion);
@@ -46,7 +44,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsAsync_EmptyContainersList_CanBeCancelled(DockerClientType clientType)
+    public async Task MonitorEventsAsync_EmptyContainersList_CanBeCancelled(TestClientsEnum clientType)
     {
         var progress = new Progress<Message>();
 
@@ -60,21 +58,21 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsAsync_NullParameters_Throws(DockerClientType clientType)
+    public async Task MonitorEventsAsync_NullParameters_Throws(TestClientsEnum clientType)
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() => _testFixture.DockerClients[clientType].System.MonitorEventsAsync(null, null));
     }
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsAsync_NullProgress_Throws(DockerClientType clientType)
+    public async Task MonitorEventsAsync_NullProgress_Throws(TestClientsEnum clientType)
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() => _testFixture.DockerClients[clientType].System.MonitorEventsAsync(new ContainerEventsParameters(), null));
     }
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsAsync_Succeeds(DockerClientType clientType)
+    public async Task MonitorEventsAsync_Succeeds(TestClientsEnum clientType)
     {
         var newTag = $"MonitorTests-{Guid.NewGuid().ToString().Substring(1, 10)}";
 
@@ -116,7 +114,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsAsync_IsCancelled_NoStreamCorruption(DockerClientType clientType)
+    public async Task MonitorEventsAsync_IsCancelled_NoStreamCorruption(TestClientsEnum clientType)
     {
         var rand = new Random();
         var sw = new Stopwatch();
@@ -181,7 +179,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task MonitorEventsFiltered_Succeeds(DockerClientType clientType)
+    public async Task MonitorEventsFiltered_Succeeds(TestClientsEnum clientType)
     {
         string newTag = $"MonitorTests-{Guid.NewGuid().ToString().Substring(1, 10)}";
         string newImageRepositoryName = Guid.NewGuid().ToString();
@@ -247,6 +245,8 @@ public class ISystemOperationsTests
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
         var task = Task.Run(() => _testFixture.DockerClients[clientType].System.MonitorEventsAsync(eventsParams, progress, cts.Token));
 
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
         await _testFixture.DockerClients[clientType].Images.TagImageAsync($"{_testFixture.Repository}:{_testFixture.Tag}", new ImageTagParameters { RepositoryName = _testFixture.Repository, Tag = newTag });
         await _testFixture.DockerClients[clientType].Images.DeleteImageAsync($"{_testFixture.Repository}:{newTag}", new ImageDeleteParameters());
 
@@ -264,7 +264,7 @@ public class ISystemOperationsTests
 
     [Theory]
     [MemberData(nameof(GetDockerClientTypes))]
-    public async Task PingAsync_Succeeds(DockerClientType clientType)
+    public async Task PingAsync_Succeeds(TestClientsEnum clientType)
     {
         await _testFixture.DockerClients[clientType].System.PingAsync();
     }
