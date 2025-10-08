@@ -12,15 +12,19 @@ public class IImageOperationsTests
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    public async Task CreateImageAsync_TaskCancelled_ThrowsTaskCanceledException()
+    public static IEnumerable<object[]> GetDockerClientTypes() =>
+        TestFixture.GetDockerClientTypes();
+
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task CreateImageAsync_TaskCancelled_ThrowsTaskCanceledException(TestClientsEnum clientType)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
 
         var newTag = Guid.NewGuid().ToString();
         var newRepositoryName = Guid.NewGuid().ToString();
 
-        await _testFixture.DockerClient.Images.TagImageAsync(
+        await _testFixture.DockerClients[clientType].Images.TagImageAsync(
             $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
@@ -30,7 +34,7 @@ public class IImageOperationsTests
             cts.Token
         );
 
-        var createImageTask = _testFixture.DockerClient.Images.CreateImageAsync(
+        var createImageTask = _testFixture.DockerClients[clientType].Images.CreateImageAsync(
             new ImagesCreateParameters
             {
                 FromImage = $"{newRepositoryName}:{newTag}"
@@ -47,10 +51,11 @@ public class IImageOperationsTests
         Assert.True(createImageTask.IsCanceled);
     }
 
-    [Fact]
-    public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException()
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException(TestClientsEnum clientType)
     {
-        return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Images.CreateImageAsync(
+        return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClients[clientType].Images.CreateImageAsync(
             new ImagesCreateParameters
             {
                 FromImage = "1.2.3.Apparently&this$is+not-a_valid%repository//name",
@@ -58,12 +63,13 @@ public class IImageOperationsTests
             }, null, null));
     }
 
-    [Fact]
-    public async Task DeleteImageAsync_RemovesImage()
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task DeleteImageAsync_RemovesImage(TestClientsEnum clientType)
     {
         var newImageTag = Guid.NewGuid().ToString();
 
-        await _testFixture.DockerClient.Images.TagImageAsync(
+        await _testFixture.DockerClients[clientType].Images.TagImageAsync(
             $"{_testFixture.Repository}:{_testFixture.Tag}",
             new ImageTagParameters
             {
@@ -73,18 +79,18 @@ public class IImageOperationsTests
             _testFixture.Cts.Token
         );
 
-        var inspectExistingImageResponse = await _testFixture.DockerClient.Images.InspectImageAsync(
+        var inspectExistingImageResponse = await _testFixture.DockerClients[clientType].Images.InspectImageAsync(
             $"{_testFixture.Repository}:{newImageTag}",
             _testFixture.Cts.Token
         );
 
-        await _testFixture.DockerClient.Images.DeleteImageAsync(
+        await _testFixture.DockerClients[clientType].Images.DeleteImageAsync(
             $"{_testFixture.Repository}:{newImageTag}",
             new ImageDeleteParameters(),
             _testFixture.Cts.Token
         );
 
-        Task inspectDeletedImageTask = _testFixture.DockerClient.Images.InspectImageAsync(
+        Task inspectDeletedImageTask = _testFixture.DockerClients[clientType].Images.InspectImageAsync(
             $"{_testFixture.Repository}:{newImageTag}",
             _testFixture.Cts.Token
         );

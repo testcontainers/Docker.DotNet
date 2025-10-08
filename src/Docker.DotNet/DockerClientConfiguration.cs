@@ -7,9 +7,8 @@ public class DockerClientConfiguration : IDisposable
     public DockerClientConfiguration(
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
-        TimeSpan namedPipeConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, defaultHttpRequestHeaders)
     {
     }
 
@@ -17,7 +16,6 @@ public class DockerClientConfiguration : IDisposable
         Uri endpoint,
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
-        TimeSpan namedPipeConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
     {
         if (endpoint == null)
@@ -33,7 +31,6 @@ public class DockerClientConfiguration : IDisposable
         EndpointBaseUri = endpoint;
         Credentials = credentials ?? new AnonymousCredentials();
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
-        NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
     }
 
@@ -48,11 +45,44 @@ public class DockerClientConfiguration : IDisposable
 
     public TimeSpan DefaultTimeout { get; }
 
-    public TimeSpan NamedPipeConnectTimeout { get; }
-
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
-        return new DockerClient(this, requestedApiVersion, logger);
+        var scheme = EndpointBaseUri.Scheme;
+        if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
+            scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+        {
+            scheme = "Http";
+        }
+        
+        // Try to find a loaded handler factory that matches the scheme and Docker.DotNet
+        var factoryType = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => a.FullName.Contains("Docker.DotNet", StringComparison.OrdinalIgnoreCase))
+        .SelectMany(a => a.GetTypes())
+        .FirstOrDefault(t =>
+            typeof(IDockerHandlerFactory).IsAssignableFrom(t) &&
+            !t.IsInterface && !t.IsAbstract &&
+            (t.Name.Contains(scheme, StringComparison.OrdinalIgnoreCase) ||
+             t.Namespace?.Contains(scheme, StringComparison.OrdinalIgnoreCase) == true)
+        );
+
+        if (factoryType == null)
+        {
+            throw new InvalidOperationException($"No Docker handler factory implementation found for scheme '{scheme}'. Please reference at least one handler package (e.g., NPipe, Unix, NativeHttp, LegacyHttp).");
+        }
+
+        var factory = (IDockerHandlerFactory)Activator.CreateInstance(factoryType);
+
+        return new DockerClient(this, requestedApiVersion, factory, logger);
+    }
+
+    public DockerClient CreateClient(Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
+    {
+        if (handlerFactory == null)
+        {
+            throw new ArgumentNullException(nameof(handlerFactory));
+        }
+
+        return new DockerClient(this, requestedApiVersion, handlerFactory, logger);
     }
 
     public void Dispose()

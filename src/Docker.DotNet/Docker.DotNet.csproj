@@ -48,6 +48,5 @@
     <Using Include="Docker.DotNet.Models" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Logging.Abstractions" />
-    <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
 </Project>

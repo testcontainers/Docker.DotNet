@@ -8,6 +8,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    services:
+      # Docker without TLS (plain TCP) !DEPRECATED! with next docker release
+      docker-no-tls:
+        image: docker:28.1-dind
+        env:
+          DOCKER_TLS_CERTDIR: ""
+        ports:
+          - 2375:2375
+        options: >-
+          --privileged
+
+      # Docker with TLS (secure TCP)
+      docker-tls:
+        image: docker:28.1-dind
+        env:
+          DOCKER_TLS_CERTDIR: /certs
+        ports:
+          - 2376:2376
+        options: >-
+          --privileged
+        volumes:
+          - ${{ github.workspace }}/certs:/certs
+
     strategy:
       matrix:
         framework:
@@ -16,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          path: test
           fetch-depth: 0
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -23,5 +47,45 @@ jobs:
           dotnet-version: 9.x
       - name: Build
         run: dotnet build -c Release --framework ${{ matrix.framework }}
+        working-directory: test
+
+      - name: Pack client cert, key, ca for C# docker client
+        run: |
+          mkdir -p ${{ github.workspace }}/certs
+          sudo chmod 777 ${{ github.workspace }}/certs
+
+          # create pfx
+          openssl pkcs12 -export -out ${{ github.workspace }}/certs/client.pfx -inkey ${{ github.workspace }}/certs/client/key.pem -in ${{ github.workspace }}/certs/client/cert.pem -certfile ${{ github.workspace }}/certs/client/ca.pem -passout pass:
+
+      - name: Wait for Docker (no TLS) to be healthy
+        run: |
+          for i in {1..10}; do
+            if docker --host=tcp://localhost:2375 version; then
+              echo "Docker (no TLS) is ready!"
+              exit 0
+            fi
+            echo "Waiting for Docker (no TLS) to be ready..."
+            sleep 3
+          done
+          echo "Docker (no TLS) did not become ready in time."
+          exit 1
+
+      - name: Wait for Docker (with TLS) to be healthy
+        run: |
+          for i in {1..10}; do
+            if docker --host=tcp://localhost:2376 --tlsverify \
+              --tlscacert=${{ github.workspace }}/certs/client/ca.pem \
+              --tlscert=${{ github.workspace }}/certs/client/cert.pem \
+              --tlskey=${{ github.workspace }}/certs/client/key.pem version; then
+              echo "Docker (TLS) is ready!"
+              exit 0
+            fi
+            echo "Waiting for Docker (TLS) to be ready..."
+            sleep 3
+          done
+          echo "Docker (TLS) did not become ready in time."
+          exit 1
+
       - name: Test
         run: dotnet test -c Release --framework ${{ matrix.framework }} --no-build --logger console
+        working-directory: test
