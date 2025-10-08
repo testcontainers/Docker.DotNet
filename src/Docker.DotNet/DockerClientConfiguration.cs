@@ -53,17 +53,17 @@ public class DockerClientConfiguration : IDisposable
         {
             scheme = "Http";
         }
-        
+
         // Try to find a loaded handler factory that matches the scheme and Docker.DotNet
         var factoryType = AppDomain.CurrentDomain.GetAssemblies()
-        .Where(a => a.FullName.Contains("Docker.DotNet", StringComparison.OrdinalIgnoreCase))
-        .SelectMany(a => a.GetTypes())
-        .FirstOrDefault(t =>
-            typeof(IDockerHandlerFactory).IsAssignableFrom(t) &&
-            !t.IsInterface && !t.IsAbstract &&
-            (t.Name.Contains(scheme, StringComparison.OrdinalIgnoreCase) ||
-             t.Namespace?.Contains(scheme, StringComparison.OrdinalIgnoreCase) == true)
-        );
+            .Where(a => a.FullName.IndexOf("Docker.DotNet", StringComparison.OrdinalIgnoreCase) >= 0)
+            .SelectMany(a => a.GetTypes())
+            .FirstOrDefault(t =>
+                typeof(IDockerHandlerFactory).IsAssignableFrom(t) &&
+                !t.IsInterface && !t.IsAbstract &&
+                (t.Name.IndexOf(scheme, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                t.Namespace?.IndexOf(scheme, StringComparison.OrdinalIgnoreCase) >= 0)
+            );
 
         if (factoryType == null)
         {
