@@ -12,10 +12,14 @@ public class IConfigOperationsTests
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    public async Task SwarmConfig_CanCreateAndRead()
+    public static IEnumerable<object[]> GetDockerClientTypes() =>
+        TestFixture.GetDockerClientTypes();
+
+    [Theory]
+    [MemberData(nameof(GetDockerClientTypes))]
+    public async Task SwarmConfig_CanCreateAndRead(TestClientsEnum clientType)
     {
-        var currentConfigs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
+        var currentConfigs = await _testFixture.DockerClients[clientType].Configs.ListConfigsAsync();
 
         _testOutputHelper.WriteLine($"Current Configs: {currentConfigs.Count}");
 
@@ -31,15 +35,15 @@ public class IConfigOperationsTests
             Config = testConfigSpec
         };
 
-        var createdConfig = await _testFixture.DockerClient.Configs.CreateConfigAsync(configParameters);
+        var createdConfig = await _testFixture.DockerClients[clientType].Configs.CreateConfigAsync(configParameters);
         Assert.NotNull(createdConfig.ID);
         _testOutputHelper.WriteLine($"Config created: {createdConfig.ID}");
 
-        var configs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
+        var configs = await _testFixture.DockerClients[clientType].Configs.ListConfigsAsync();
         Assert.Contains(configs, c => c.ID == createdConfig.ID);
         _testOutputHelper.WriteLine($"Current Configs: {configs.Count}");
 
-        var configResponse = await _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID);
+        var configResponse = await _testFixture.DockerClients[clientType].Configs.InspectConfigAsync(createdConfig.ID);
 
         Assert.NotNull(configResponse);
 
@@ -51,8 +55,8 @@ public class IConfigOperationsTests
 
         _testOutputHelper.WriteLine("Config created is the same.");
 
-        await _testFixture.DockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
+        await _testFixture.DockerClients[clientType].Configs.RemoveConfigAsync(createdConfig.ID);
 
-        await Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID));
+        await Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClients[clientType].Configs.InspectConfigAsync(createdConfig.ID));
     }
 }
