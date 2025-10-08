@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Docker.DotNet.LegacyHttp</AssemblyName>
+    <PackageId>Docker.DotNet.LegacyHttp</PackageId>
+    <Description>Docker.DotNet.LegacyHttp is a library that allows you to connect via http(s) with a Docker engine programmatically in your .NET applications.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Security" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+</Project>

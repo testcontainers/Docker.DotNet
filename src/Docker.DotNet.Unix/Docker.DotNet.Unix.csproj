@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Docker.DotNet.Unix</AssemblyName>
+    <PackageId>Docker.DotNet.Unix</PackageId>
+    <Description>Docker.DotNet.Unix is a library that allows you to connect via unix socket with a Docker engine programmatically in your .NET applications.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Security" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+</Project>
