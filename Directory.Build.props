@@ -2,7 +2,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <!-- Strong-naming  -->
+  <!-- Strong-naming -->
   <PropertyGroup Label="Signing">
     <DebugType>embedded</DebugType>
     <SignAssembly>true</SignAssembly>
