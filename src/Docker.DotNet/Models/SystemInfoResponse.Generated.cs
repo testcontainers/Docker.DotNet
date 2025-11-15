@@ -38,12 +38,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("SwapLimit")]
         public bool SwapLimit { get; set; }
 
-        [JsonPropertyName("KernelMemory")]
-        public bool KernelMemory { get; set; }
-
-        [JsonPropertyName("KernelMemoryTCP")]
-        public bool KernelMemoryTCP { get; set; }
-
         [JsonPropertyName("CpuCfsPeriod")]
         public bool CPUCfsPeriod { get; set; }
 

@@ -2,6 +2,33 @@ namespace Docker.DotNet.Models
 {
     public class NetworkResponse // (network.Inspect)
     {
+        public NetworkResponse()
+        {
+        }
+
+        public NetworkResponse(Network Network)
+        {
+            if (Network != null)
+            {
+                this.Name = Network.Name;
+                this.ID = Network.ID;
+                this.Created = Network.Created;
+                this.Scope = Network.Scope;
+                this.Driver = Network.Driver;
+                this.EnableIPv4 = Network.EnableIPv4;
+                this.EnableIPv6 = Network.EnableIPv6;
+                this.IPAM = Network.IPAM;
+                this.Internal = Network.Internal;
+                this.Attachable = Network.Attachable;
+                this.Ingress = Network.Ingress;
+                this.ConfigFrom = Network.ConfigFrom;
+                this.ConfigOnly = Network.ConfigOnly;
+                this.Options = Network.Options;
+                this.Labels = Network.Labels;
+                this.Peers = Network.Peers;
+            }
+        }
+
         [JsonPropertyName("Name")]
         public string Name { get; set; }
 
@@ -41,9 +68,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("ConfigOnly")]
         public bool ConfigOnly { get; set; }
 
-        [JsonPropertyName("Containers")]
-        public IDictionary<string, EndpointResource> Containers { get; set; }
-
         [JsonPropertyName("Options")]
         public IDictionary<string, string> Options { get; set; }
 
@@ -53,7 +77,13 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Peers")]
         public IList<PeerInfo> Peers { get; set; }
 
+        [JsonPropertyName("Containers")]
+        public IDictionary<string, EndpointResource> Containers { get; set; }
+
         [JsonPropertyName("Services")]
         public IDictionary<string, ServiceInfo> Services { get; set; }
+
+        [JsonPropertyName("Status")]
+        public Status Status { get; set; }
     }
 }

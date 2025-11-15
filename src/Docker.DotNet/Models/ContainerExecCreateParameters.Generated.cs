@@ -8,11 +8,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Privileged")]
         public bool Privileged { get; set; }
 
-        [JsonPropertyName("Tty")]
-        public bool Tty { get; set; }
+        [JsonPropertyName("TTY")]
+        public bool TTY { get; set; }
 
         [JsonPropertyName("ConsoleSize")]
-        public ulong[] ConsoleSize { get; set; }
+        public ConsoleSize ConsoleSize { get; set; }
 
         [JsonPropertyName("AttachStdin")]
         public bool AttachStdin { get; set; }
@@ -34,8 +34,5 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Cmd")]
         public IList<string> Cmd { get; set; }
-
-        [JsonPropertyName("Detach")]
-        public bool Detach { get; set; }
     }
 }

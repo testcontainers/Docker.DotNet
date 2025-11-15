@@ -24,7 +24,7 @@ namespace Docker.DotNet.Models
         public DateTime Created { get; set; }
 
         [JsonPropertyName("Ports")]
-        public IList<Port> Ports { get; set; }
+        public IList<PortSummary> Ports { get; set; }
 
         [JsonPropertyName("SizeRw")]
         public long SizeRw { get; set; }
@@ -43,6 +43,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("HostConfig")]
         public SummaryHostConfig HostConfig { get; set; }
+
+        [JsonPropertyName("Health")]
+        public HealthSummary Health { get; set; }
 
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettingsSummary NetworkSettings { get; set; }

@@ -17,7 +17,13 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("annotations")]
         public IDictionary<string, string> Annotations { get; set; }
 
+        [JsonPropertyName("data")]
+        public IList<byte> Data { get; set; }
+
         [JsonPropertyName("platform")]
         public Platform Platform { get; set; }
+
+        [JsonPropertyName("artifactType")]
+        public string ArtifactType { get; set; }
     }
 }

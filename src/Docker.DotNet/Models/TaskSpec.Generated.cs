@@ -6,7 +6,7 @@ namespace Docker.DotNet.Models
         public ContainerSpec ContainerSpec { get; set; }
 
         [JsonPropertyName("PluginSpec")]
-        public PluginSpec PluginSpec { get; set; }
+        public RuntimeSpec PluginSpec { get; set; }
 
         [JsonPropertyName("NetworkAttachmentSpec")]
         public NetworkAttachmentSpec NetworkAttachmentSpec { get; set; }
