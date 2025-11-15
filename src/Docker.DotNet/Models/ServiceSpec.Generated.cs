@@ -33,9 +33,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("RollbackConfig")]
         public SwarmUpdateConfig RollbackConfig { get; set; }
 
-        [JsonPropertyName("Networks")]
-        public IList<NetworkAttachmentConfig> Networks { get; set; }
-
         [JsonPropertyName("EndpointSpec")]
         public EndpointSpec EndpointSpec { get; set; }
     }

@@ -4,8 +4,5 @@ namespace Docker.DotNet.Models
     {
         [JsonPropertyName("ID")]
         public string ID { get; set; }
-
-        [JsonPropertyName("Expected")]
-        public string Expected { get; set; }
     }
 }

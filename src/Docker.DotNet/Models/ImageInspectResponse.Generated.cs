@@ -11,23 +11,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("RepoDigests")]
         public IList<string> RepoDigests { get; set; }
 
-        [JsonPropertyName("Parent")]
-        public string Parent { get; set; }
-
         [JsonPropertyName("Comment")]
         public string Comment { get; set; }
 
         [JsonPropertyName("Created")]
         public DateTime Created { get; set; }
-
-        [JsonPropertyName("Container")]
-        public string Container { get; set; }
-
-        [JsonPropertyName("ContainerConfig")]
-        public ContainerConfig ContainerConfig { get; set; }
-
-        [JsonPropertyName("DockerVersion")]
-        public string DockerVersion { get; set; }
 
         [JsonPropertyName("Author")]
         public string Author { get; set; }
@@ -49,9 +37,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Size")]
         public long Size { get; set; }
-
-        [JsonPropertyName("VirtualSize")]
-        public long VirtualSize { get; set; }
 
         [JsonPropertyName("GraphDriver")]
         public DriverData GraphDriver { get; set; }

@@ -11,9 +11,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("auth")]
         public string Auth { get; set; }
 
-        [JsonPropertyName("email")]
-        public string Email { get; set; }
-
         [JsonPropertyName("serveraddress")]
         public string ServerAddress { get; set; }
 

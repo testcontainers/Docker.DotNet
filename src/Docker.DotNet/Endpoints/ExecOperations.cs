@@ -58,6 +58,6 @@ internal class ExecOperations : IExecOperations
         var stream = await _client.MakeRequestForHijackedStreamAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/start", null, data, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(stream, !parameters.Tty);
+        return new MultiplexedStream(stream, !parameters.TTY);
     }
 }

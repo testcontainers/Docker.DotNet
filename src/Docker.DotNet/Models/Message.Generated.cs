@@ -2,15 +2,6 @@ namespace Docker.DotNet.Models
 {
     public class Message // (events.Message)
     {
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
-
-        [JsonPropertyName("id")]
-        public string ID { get; set; }
-
-        [JsonPropertyName("from")]
-        public string From { get; set; }
-
         [JsonPropertyName("Type")]
         public string Type { get; set; }
 

@@ -28,5 +28,8 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("StopSignal")]
         public string StopSignal { get; set; }
+
+        [JsonPropertyName("ArgsEscaped")]
+        public bool ArgsEscaped { get; set; }
     }
 }

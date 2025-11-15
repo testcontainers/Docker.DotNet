@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class NetworkConnectParameters // (network.ConnectOptions)
+    public class NetworkConnectParameters // (client.NetworkConnectOptions)
     {
         [JsonPropertyName("Container")]
         public string Container { get; set; }

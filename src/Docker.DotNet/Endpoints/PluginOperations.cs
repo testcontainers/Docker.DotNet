@@ -24,7 +24,7 @@ internal class PluginOperations : IPluginOperations
         return await _client.MakeRequestAsync<Plugin[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IList<PluginPrivilege>> GetPluginPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<Privilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
     {
         if (parameters == null)
         {
@@ -32,7 +32,7 @@ internal class PluginOperations : IPluginOperations
         }
 
         var query = new QueryString<PluginGetPrivilegeParameters>(parameters);
-        return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<Privilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
     }
 
     public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
@@ -47,7 +47,7 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters.Privileges));
         }
 
-        var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
+        var data = new JsonRequestContent<IList<Privilege>>(parameters.Privileges, DockerClient.JsonSerializer);
 
         IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
         return StreamUtil.MonitorStreamForMessagesAsync(
@@ -118,7 +118,7 @@ internal class PluginOperations : IPluginOperations
         }
 
         var query = new QueryString<PluginUpgradeParameters>(parameters);
-        var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
+        var data = new JsonRequestContent<IList<Privilege>>(parameters.Privileges, DockerClient.JsonSerializer);
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", query, data, cancellationToken);
     }
 

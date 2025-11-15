@@ -9,7 +9,7 @@ namespace Docker.DotNet.Models
         public string EndpointID { get; set; }
 
         [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; }
+        public IList<byte> MacAddress { get; set; }
 
         [JsonPropertyName("IPv4Address")]
         public string IPv4Address { get; set; }
