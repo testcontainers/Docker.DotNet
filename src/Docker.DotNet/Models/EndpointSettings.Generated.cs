@@ -30,7 +30,7 @@ namespace Docker.DotNet.Models
         public string IPAddress { get; set; }
 
         [JsonPropertyName("MacAddress")]
-        public IList<byte> MacAddress { get; set; }
+        public string MacAddress { get; set; }
 
         [JsonPropertyName("IPPrefixLen")]
         public long IPPrefixLen { get; set; }

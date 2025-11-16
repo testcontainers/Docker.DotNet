@@ -23,6 +23,7 @@ import (
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/api/types/volume"
 	"github.com/moby/moby/client"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 var reflectedTypes = map[string]*CSModelType{}
@@ -38,6 +39,15 @@ func typeToKey(t reflect.Type) string {
 type ImageLoadResult struct{}
 
 var typesToDisambiguate = map[string]*CSModelType{
+	typeToKey(reflect.TypeOf(ocispec.Descriptor{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
 	typeToKey(reflect.TypeOf(container.Config{})): {
 		Name: "ContainerConfig",
 		Properties: []CSProperty{
@@ -95,20 +105,39 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(registry.AuthResponse{})):   {Name: "AuthResponse"},
 	typeToKey(reflect.TypeOf(registry.SearchResult{})):   {Name: "ImageSearchResponse"},
 	typeToKey(reflect.TypeOf(runtime.PluginPrivilege{})): {Name: "RuntimePluginPrivilege"},
-	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})):        {Name: "SwarmConfigSpec"},
-	typeToKey(reflect.TypeOf(swarm.Driver{})):            {Name: "SwarmDriver"},
-	typeToKey(reflect.TypeOf(swarm.InitRequest{})):       {Name: "SwarmInitParameters"},
-	typeToKey(reflect.TypeOf(swarm.IPAMConfig{})):        {Name: "SwarmIPAMConfig"},
-	typeToKey(reflect.TypeOf(swarm.JoinRequest{})):       {Name: "SwarmJoinParameters"},
-	typeToKey(reflect.TypeOf(swarm.Limit{})):             {Name: "SwarmLimit"},
-	typeToKey(reflect.TypeOf(swarm.Network{})):           {Name: "SwarmNetwork"},
-	typeToKey(reflect.TypeOf(swarm.Node{})):              {Name: "NodeListResponse"},
-	typeToKey(reflect.TypeOf(swarm.NodeSpec{})):          {Name: "NodeUpdateParameters"},
-	typeToKey(reflect.TypeOf(swarm.Platform{})):          {Name: "SwarmPlatform"},
-	typeToKey(reflect.TypeOf(swarm.Resources{})):         {Name: "SwarmResources"},
-	typeToKey(reflect.TypeOf(swarm.RestartPolicy{})):     {Name: "SwarmRestartPolicy"},
-	typeToKey(reflect.TypeOf(swarm.Service{})):           {Name: "SwarmService"},
-	typeToKey(reflect.TypeOf(swarm.Swarm{})):             {Name: "SwarmInspectResponse"},
+	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})): {
+		Name: "SwarmConfigSpec",
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.SecretSpec{})): {
+		Name: "SwarmSecretSpec",
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.Driver{})):        {Name: "SwarmDriver"},
+	typeToKey(reflect.TypeOf(swarm.InitRequest{})):   {Name: "SwarmInitParameters"},
+	typeToKey(reflect.TypeOf(swarm.IPAMConfig{})):    {Name: "SwarmIPAMConfig"},
+	typeToKey(reflect.TypeOf(swarm.JoinRequest{})):   {Name: "SwarmJoinParameters"},
+	typeToKey(reflect.TypeOf(swarm.Limit{})):         {Name: "SwarmLimit"},
+	typeToKey(reflect.TypeOf(swarm.Network{})):       {Name: "SwarmNetwork"},
+	typeToKey(reflect.TypeOf(swarm.Node{})):          {Name: "NodeListResponse"},
+	typeToKey(reflect.TypeOf(swarm.NodeSpec{})):      {Name: "NodeUpdateParameters"},
+	typeToKey(reflect.TypeOf(swarm.Platform{})):      {Name: "SwarmPlatform"},
+	typeToKey(reflect.TypeOf(swarm.Resources{})):     {Name: "SwarmResources"},
+	typeToKey(reflect.TypeOf(swarm.RestartPolicy{})): {Name: "SwarmRestartPolicy"},
+	typeToKey(reflect.TypeOf(swarm.Service{})):       {Name: "SwarmService"},
+	typeToKey(reflect.TypeOf(swarm.Swarm{})):         {Name: "SwarmInspectResponse"},
 	typeToKey(reflect.TypeOf(swarm.Task{})): {
 		Name: "TaskResponse",
 		Properties: []CSProperty{
@@ -118,6 +147,20 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(swarm.TaskStatus{})): {
 		Properties: []CSProperty{
 			{Name: "State", Type: CSType{"", "TaskState", false}},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.TLSInfo{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "CertIssuerSubject",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+			{
+				Name:       "CertIssuerPublicKey",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
 		},
 	},
 	typeToKey(reflect.TypeOf(swarm.UpdateConfig{})):    {Name: "SwarmUpdateConfig"},
@@ -134,7 +177,12 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.ExecInspectResponse{})): {Name: "ContainerExecInspectResponse"},
+	typeToKey(reflect.TypeOf(container.ExecInspectResponse{})): {
+		Name: "ContainerExecInspectResponse",
+		Properties: []CSProperty{
+			{Name: "DetachKeys", Type: CSType{"", "string", false}},
+		},
+	},
 	typeToKey(reflect.TypeOf(container.InspectResponse{})): {
 		Name: "ContainerInspectResponse",
 		Properties: []CSProperty{

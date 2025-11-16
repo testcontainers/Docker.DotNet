@@ -67,7 +67,7 @@ public class ISystemOperationsTests
 
         var progressMessage = new Progress<Message>(m =>
         {
-            _testOutputHelper.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Actor.Attributes["image"]} - {m.Type}");
+            _testOutputHelper.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Actor.Attributes["name"]} - {m.Type}");
             wasProgressCalled = true;
             Assert.NotNull(m);
         });
@@ -219,7 +219,7 @@ public class ISystemOperationsTests
         {
             Interlocked.Increment(ref progressCalledCounter);
             Assert.True(m.Action == "tag" || m.Action == "untag");
-            _testOutputHelper.WriteLine($"MonitorEventsFiltered_Succeeds: Message - {m.Action} - {m.Actor.Attributes["image"]} - {m.Type}");
+            _testOutputHelper.WriteLine($"MonitorEventsFiltered_Succeeds: Message - {m.Action} - {m.Actor.Attributes["name"]} - {m.Type}");
         });
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);

@@ -29,6 +29,6 @@ namespace Docker.DotNet.Models
         public DateTime UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public SecretSpec Spec { get; set; }
+        public SwarmSecretSpec Spec { get; set; }
     }
 }
