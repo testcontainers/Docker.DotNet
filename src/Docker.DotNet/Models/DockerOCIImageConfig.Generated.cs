@@ -19,6 +19,7 @@ namespace Docker.DotNet.Models
                 this.WorkingDir = ImageConfig.WorkingDir;
                 this.Labels = ImageConfig.Labels;
                 this.StopSignal = ImageConfig.StopSignal;
+                this.ArgsEscaped = ImageConfig.ArgsEscaped;
             }
 
             if (DockerOCIImageConfigExt != null)
@@ -55,6 +56,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("StopSignal")]
         public string StopSignal { get; set; }
+
+        [JsonPropertyName("ArgsEscaped")]
+        public bool ArgsEscaped { get; set; }
 
         [JsonPropertyName("Healthcheck")]
         public HealthcheckConfig Healthcheck { get; set; }

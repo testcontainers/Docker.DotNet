@@ -34,8 +34,5 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Size")]
         public long Size { get; set; }
-
-        [JsonPropertyName("VirtualSize")]
-        public long VirtualSize { get; set; }
     }
 }

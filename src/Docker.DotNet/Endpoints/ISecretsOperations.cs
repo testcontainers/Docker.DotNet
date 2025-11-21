@@ -20,7 +20,7 @@ public interface ISecretsOperations
     /// 409 - Name conflicts with an existing object.
     /// 500 - Server error.
     /// </remarks>
-    Task<SecretCreateResponse> CreateAsync(SecretSpec body, CancellationToken cancellationToken = default(CancellationToken));
+    Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>
     /// Inspect a secret

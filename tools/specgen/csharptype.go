@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+	"net"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -11,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types/registry"
+	"github.com/moby/moby/api/types/network"
 )
 
 var GlobalUsings map[string]bool
@@ -71,9 +73,14 @@ var CSInboxTypesMap = map[reflect.Kind]CSType{
 
 // CSCustomTypeMap is a map from Go reflected types to C# types.
 var CSCustomTypeMap = map[reflect.Type]CSType{
-	reflect.TypeOf(time.Time{}):         {"System", "DateTime", true},
-	reflect.TypeOf(registry.NetIPNet{}): {"", "string", false},
-	EmptyStruct:                         {"", "BUG_IN_CONVERSION", false},
+	reflect.TypeOf(net.IP{}):               {"", "string", false},
+	reflect.TypeOf(net.IPNet{}):            {"", "string", false},
+	reflect.TypeOf(netip.Addr{}):           {"", "string", false},
+	reflect.TypeOf(netip.Prefix{}):         {"", "string", false},
+	reflect.TypeOf(network.HardwareAddr{}): {"", "string", false},
+	reflect.TypeOf(network.Port{}):         {"", "string", false},
+	reflect.TypeOf(time.Time{}):            {"System", "DateTime", true},
+	EmptyStruct:                            {"", "BUG_IN_CONVERSION", false},
 }
 
 // CSArgument is a type that represents a C# argument that can

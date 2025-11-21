@@ -1,14 +1,14 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginPrivilege // (types.PluginPrivilege)
+    public class RuntimePrivilege // (swarm.RuntimePrivilege)
     {
-        [JsonPropertyName("Name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("Description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonPropertyName("Value")]
+        [JsonPropertyName("value")]
         public IList<string> Value { get; set; }
     }
 }

@@ -59,9 +59,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("NetworkDisabled")]
         public bool NetworkDisabled { get; set; }
 
-        [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; }
-
         [JsonPropertyName("OnBuild")]
         public IList<string> OnBuild { get; set; }
 

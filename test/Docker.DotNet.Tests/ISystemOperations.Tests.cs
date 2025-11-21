@@ -67,7 +67,7 @@ public class ISystemOperationsTests
 
         var progressMessage = new Progress<Message>(m =>
         {
-            _testOutputHelper.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Status} {m.From} - {m.Type}");
+            _testOutputHelper.WriteLine($"MonitorEventsAsync_Succeeds: Message - {m.Action} - {m.Actor.Attributes["name"]} - {m.Type}");
             wasProgressCalled = true;
             Assert.NotNull(m);
         });
@@ -102,8 +102,7 @@ public class ISystemOperationsTests
     [Fact]
     public async Task MonitorEventsAsync_IsCancelled_NoStreamCorruption()
     {
-        var rand = new Random();
-        var sw = new Stopwatch();
+        var stopwatch = new Stopwatch();
 
         for (int i = 0; i < 20; ++i)
         {
@@ -132,15 +131,11 @@ public class ISystemOperationsTests
                     }, CancellationToken.None);
 
                 // (4) Wait for a short bit again and cancel the monitor task - if we get lucky, we the list images call will grab the same buffer while
-                sw.Restart();
-                var iterations = rand.Next(15000000);
+                stopwatch.Restart();
 
-                for (var j = 0; j < iterations; j++)
-                {
-                    // noop
-                }
+                await Task.Delay(100, CancellationToken.None);
 
-                _testOutputHelper.WriteLine($"Waited for {sw.Elapsed.TotalMilliseconds} ms");
+                _testOutputHelper.WriteLine($"Waited for {stopwatch.Elapsed.TotalMilliseconds} ms");
 
                 await cts.CancelAsync();
 
@@ -223,8 +218,8 @@ public class ISystemOperationsTests
         var progress = new Progress<Message>(m =>
         {
             Interlocked.Increment(ref progressCalledCounter);
-            Assert.True(m.Status == "tag" || m.Status == "untag");
-            _testOutputHelper.WriteLine($"MonitorEventsFiltered_Succeeds: Message received: {m.Action} - {m.Status} {m.From} - {m.Type}");
+            Assert.True(m.Action == "tag" || m.Action == "untag");
+            _testOutputHelper.WriteLine($"MonitorEventsFiltered_Succeeds: Message - {m.Action} - {m.Actor.Attributes["name"]} - {m.Type}");
         });
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);

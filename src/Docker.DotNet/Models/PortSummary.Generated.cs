@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class Port // (container.Port)
+    public class PortSummary // (container.PortSummary)
     {
         [JsonPropertyName("IP")]
         public string IP { get; set; }

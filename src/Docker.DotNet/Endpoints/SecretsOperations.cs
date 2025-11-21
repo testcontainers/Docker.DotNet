@@ -14,14 +14,14 @@ internal class SecretsOperations : ISecretsOperations
         return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SecretSpec body, CancellationToken cancellationToken)
+    async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken)
     {
         if (body == null)
         {
             throw new ArgumentNullException(nameof(body));
         }
 
-        var data = new JsonRequestContent<SecretSpec>(body, DockerClient.JsonSerializer);
+        var data = new JsonRequestContent<SwarmSecretSpec>(body, DockerClient.JsonSerializer);
         return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken).ConfigureAwait(false);
     }
 

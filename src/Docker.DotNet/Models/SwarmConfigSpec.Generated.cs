@@ -22,6 +22,7 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string> Labels { get; set; }
 
         [JsonPropertyName("Data")]
+        [JsonConverter(typeof(Base64Converter))]
         public IList<byte> Data { get; set; }
 
         [JsonPropertyName("Templating")]
