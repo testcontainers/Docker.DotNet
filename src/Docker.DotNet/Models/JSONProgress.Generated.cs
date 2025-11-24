@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class Progress // (jsonstream.Progress)
+    public class JSONProgress // (jsonstream.Progress)
     {
         [JsonPropertyName("current")]
         public long Current { get; set; }

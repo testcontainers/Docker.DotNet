@@ -9,7 +9,7 @@ namespace Docker.DotNet.Models
         public string Status { get; set; }
 
         [JsonPropertyName("progressDetail")]
-        public Progress Progress { get; set; }
+        public JSONProgress Progress { get; set; }
 
         [JsonPropertyName("id")]
         public string ID { get; set; }

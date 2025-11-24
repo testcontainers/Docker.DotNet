@@ -89,6 +89,9 @@ var typesToDisambiguate = map[string]*CSModelType{
 			},
 		},
 	},
+	typeToKey(reflect.TypeOf(jsonstream.Progress{})): {
+		Name: "JSONProgress",
+	},
 	typeToKey(reflect.TypeOf(CreateContainerParameters{})): {
 		Properties: []CSProperty{
 			{
