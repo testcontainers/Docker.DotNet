@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigInterface // (types.PluginConfigInterface)
+    public class PluginInterface // (plugin.Interface)
     {
         [JsonPropertyName("ProtocolScheme")]
         public string ProtocolScheme { get; set; }

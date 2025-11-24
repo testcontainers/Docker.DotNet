@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class RuntimeSpec // (swarm.RuntimeSpec)
+    public class SwarmRuntimeSpec // (swarm.RuntimeSpec)
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }

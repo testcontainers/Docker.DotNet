@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class Privilege // (plugin.Privilege)
+    public class PluginPrivilege // (plugin.Privilege)
     {
         [JsonPropertyName("Name")]
         public string Name { get; set; }

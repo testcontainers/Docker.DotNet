@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginInterfaceType // (types.PluginInterfaceType)
+    public class PluginCapabilityID // (plugin.CapabilityID)
     {
         [JsonPropertyName("Capability")]
         public string Capability { get; set; }

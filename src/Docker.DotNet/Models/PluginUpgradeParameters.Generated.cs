@@ -9,6 +9,6 @@ namespace Docker.DotNet.Models
         public AuthConfig RegistryAuth { get; set; }
 
         [JsonPropertyName("Privileges")]
-        public IList<Privilege> Privileges { get; set; }
+        public IList<PluginPrivilege> Privileges { get; set; }
     }
 }

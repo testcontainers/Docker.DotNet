@@ -1,12 +1,9 @@
 namespace Docker.DotNet.Models
 {
-    public class VersionResponse // (types.Version)
+    public class VersionResponse // (system.VersionResponse)
     {
         [JsonPropertyName("Platform")]
-        public VersionPlatform Platform { get; set; }
-
-        [JsonPropertyName("Components")]
-        public IList<ComponentVersion> Components { get; set; }
+        public PlatformInfo Platform { get; set; }
 
         [JsonPropertyName("Version")]
         public string Version { get; set; }
@@ -17,17 +14,20 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("MinAPIVersion")]
         public string MinAPIVersion { get; set; }
 
-        [JsonPropertyName("GitCommit")]
-        public string GitCommit { get; set; }
-
-        [JsonPropertyName("GoVersion")]
-        public string GoVersion { get; set; }
-
         [JsonPropertyName("Os")]
         public string Os { get; set; }
 
         [JsonPropertyName("Arch")]
         public string Arch { get; set; }
+
+        [JsonPropertyName("Components")]
+        public IList<ComponentVersion> Components { get; set; }
+
+        [JsonPropertyName("GitCommit")]
+        public string GitCommit { get; set; }
+
+        [JsonPropertyName("GoVersion")]
+        public string GoVersion { get; set; }
 
         [JsonPropertyName("KernelVersion")]
         public string KernelVersion { get; set; }

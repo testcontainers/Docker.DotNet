@@ -9,13 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/build"
-	"github.com/docker/docker/api/types/swarm/runtime"
-	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/api/types/jsonstream"
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/api/types/plugin"
 	"github.com/moby/moby/api/types/registry"
@@ -76,7 +73,11 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(container.RestartPolicy{})): {
 		Properties: []CSProperty{{Name: "Name", Type: CSType{"", "RestartPolicyKind", false}}},
 	},
-	typeToKey(reflect.TypeOf(jsonmessage.JSONMessage{})): {
+	typeToKey(reflect.TypeOf(jsonstream.Error{})): {
+		Name: "JSONError",
+	},
+	typeToKey(reflect.TypeOf(jsonstream.Message{})): {
+		Name: "JSONMessage",
 		Properties: []CSProperty{
 			{
 				Name: "Time",
@@ -97,14 +98,14 @@ var typesToDisambiguate = map[string]*CSModelType{
 			},
 		},
 	},
-	typeToKey(reflect.TypeOf(volume.AccessMode{})):       {Name: "VolumeAccessMode"},
-	typeToKey(reflect.TypeOf(volume.Info{})):             {Name: "VolumeInfo"},
-	typeToKey(reflect.TypeOf(volume.Secret{})):           {Name: "VolumeSecret"},
-	typeToKey(reflect.TypeOf(volume.Topology{})):         {Name: "VolumeTopology"},
-	typeToKey(reflect.TypeOf(network.Task{})):            {Name: "NetworkTask"},
-	typeToKey(reflect.TypeOf(registry.AuthResponse{})):   {Name: "AuthResponse"},
-	typeToKey(reflect.TypeOf(registry.SearchResult{})):   {Name: "ImageSearchResponse"},
-	typeToKey(reflect.TypeOf(runtime.PluginPrivilege{})): {Name: "RuntimePluginPrivilege"},
+	typeToKey(reflect.TypeOf(volume.AccessMode{})):     {Name: "VolumeAccessMode"},
+	typeToKey(reflect.TypeOf(volume.Info{})):           {Name: "VolumeInfo"},
+	typeToKey(reflect.TypeOf(volume.Secret{})):         {Name: "VolumeSecret"},
+	typeToKey(reflect.TypeOf(volume.Topology{})):       {Name: "VolumeTopology"},
+	typeToKey(reflect.TypeOf(network.Task{})):          {Name: "NetworkTask"},
+	typeToKey(reflect.TypeOf(registry.AuthResponse{})): {Name: "AuthResponse"},
+	typeToKey(reflect.TypeOf(registry.SearchResult{})): {Name: "ImageSearchResponse"},
+	typeToKey(reflect.TypeOf(swarm.RuntimeSpec{})):     {Name: "SwarmRuntimeSpec"},
 	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})): {
 		Name: "SwarmConfigSpec",
 		Properties: []CSProperty{
@@ -220,14 +221,27 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(client.NetworkDisconnectOptions{})): {Name: "NetworkDisconnectParameters"},
 	typeToKey(reflect.TypeOf(network.PruneReport{})):             {Name: "NetworksPruneResponse"},
 	typeToKey(reflect.TypeOf(network.Inspect{})):                 {Name: "NetworkResponse"},
-	typeToKey(reflect.TypeOf(types.PluginConfigInterface{})): {
-		Name: "PluginConfigInterface",
+	typeToKey(reflect.TypeOf(plugin.Args{})):                     {Name: "PluginArgs"},
+	typeToKey(reflect.TypeOf(plugin.CapabilityID{})):             {Name: "PluginCapabilityID"},
+	typeToKey(reflect.TypeOf(plugin.Config{})):                   {Name: "PluginConfig"},
+	typeToKey(reflect.TypeOf(plugin.Device{})):                   {Name: "PluginDevice"},
+	typeToKey(reflect.TypeOf(plugin.Env{})):                      {Name: "PluginEnv"},
+	typeToKey(reflect.TypeOf(plugin.LinuxConfig{})):              {Name: "PluginLinuxConfig"},
+	typeToKey(reflect.TypeOf(plugin.Mount{})):                    {Name: "PluginMount"},
+	typeToKey(reflect.TypeOf(plugin.NetworkConfig{})):            {Name: "PluginNetworkConfig"},
+	typeToKey(reflect.TypeOf(plugin.Privilege{})):                {Name: "PluginPrivilege"},
+	typeToKey(reflect.TypeOf(plugin.RootFS{})):                   {Name: "PluginRootFS"},
+	typeToKey(reflect.TypeOf(plugin.Settings{})):                 {Name: "PluginSettings"},
+	typeToKey(reflect.TypeOf(plugin.User{})):                     {Name: "PluginUser"},
+	typeToKey(reflect.TypeOf(plugin.Interface{})): {
+		Name: "PluginInterface",
 		Properties: []CSProperty{
 			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>", false}},
 		},
 	},
+
 	typeToKey(reflect.TypeOf(container.StatsResponse{})): {Name: "ContainerStatsResponse"},
-	typeToKey(reflect.TypeOf(types.Version{})):           {Name: "VersionResponse"},
+	typeToKey(reflect.TypeOf(system.VersionResponse{})):  {Name: "VersionResponse"},
 	typeToKey(reflect.TypeOf(volume.PruneReport{})):      {Name: "VolumesPruneResponse"},
 	typeToKey(reflect.TypeOf(VolumeResponse{})):          {Name: "VolumeResponse"},
 }
@@ -240,7 +254,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /build
 	reflect.TypeOf(ImageBuildParameters{}),
-	reflect.TypeOf(build.ImageBuildResponse{}),
+	reflect.TypeOf(client.ImageBuildResult{}),
 
 	// POST /commit
 	reflect.TypeOf(CommitContainerChangesParameters{}),
@@ -339,7 +353,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /images/create
 	reflect.TypeOf(ImagesCreateParameters{}),
-	reflect.TypeOf(jsonmessage.JSONMessage{}),
+	reflect.TypeOf(jsonstream.Message{}),
 
 	// GET /images/get
 	// TODO: stream
@@ -407,7 +421,7 @@ var dockerTypesToReflect = []reflect.Type{
 	// GET /plugins
 	// []Plugin
 	reflect.TypeOf(PluginListParameters{}),
-	reflect.TypeOf(types.Plugin{}),
+	reflect.TypeOf(plugin.Plugin{}),
 
 	// GET /plugins/privileges
 	// []Privilege
@@ -443,7 +457,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(PluginConfigureParameters{}),
 
 	// GET /version
-	reflect.TypeOf(types.Version{}),
+	reflect.TypeOf(system.VersionResponse{}),
 
 	// GET /volumes
 	reflect.TypeOf(VolumesListParameters{}),
