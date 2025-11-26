@@ -10,6 +10,7 @@ internal sealed class JsonSerializer
 
     private JsonSerializer()
     {
+        _options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         _options.Converters.Add(new JsonEnumMemberConverter<RestartPolicyKind>());
         _options.Converters.Add(new JsonEnumMemberConverter<TaskState>());
         _options.Converters.Add(new JsonDateTimeConverter());
