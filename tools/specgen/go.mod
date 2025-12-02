@@ -3,8 +3,8 @@ module github.com/dotnet/Docker.DotNet/tools/specgen
 go 1.24.0
 
 require (
-	github.com/moby/moby/api v1.52.1-0.20251119163722-1fa8a3155618
-	github.com/moby/moby/client v0.1.1-0.20251119163722-1fa8a3155618
+	github.com/moby/moby/api v1.52.1-0.20251128103149-9a84135d5240
+	github.com/moby/moby/client v0.2.2-0.20251128103149-9a84135d5240
 	github.com/opencontainers/image-spec v1.1.1
 )
 

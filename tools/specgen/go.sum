@@ -27,8 +27,12 @@ github.com/moby/docker-image-spec v1.3.1 h1:jMKff3w6PgbfSa69GfNg+zN/XLhfXJGnEx3N
 github.com/moby/docker-image-spec v1.3.1/go.mod h1:eKmb5VW8vQEh/BAr2yvVNvuiJuY6UIocYsFu/DxxRpo=
 github.com/moby/moby/api v1.52.1-0.20251119163722-1fa8a3155618 h1:wpNMHn2Tqbs/HEvGyskQcCaf7nptj2rnH2ED8/dDR8k=
 github.com/moby/moby/api v1.52.1-0.20251119163722-1fa8a3155618/go.mod h1:8mb+ReTlisw4pS6BRzCMts5M49W5M7bKt1cJy/YbAqc=
+github.com/moby/moby/api v1.52.1-0.20251128103149-9a84135d5240 h1:iUXoNduZHK2e9J/o29+7Zgcs07SnSTwURkh0e+ra86M=
+github.com/moby/moby/api v1.52.1-0.20251128103149-9a84135d5240/go.mod h1:8mb+ReTlisw4pS6BRzCMts5M49W5M7bKt1cJy/YbAqc=
 github.com/moby/moby/client v0.1.1-0.20251119163722-1fa8a3155618 h1:eFftLw+l+zczLYpeHuaqtUhex02NH7OP+78F+X80mRI=
 github.com/moby/moby/client v0.1.1-0.20251119163722-1fa8a3155618/go.mod h1:O+/tw5d4a1Ha/ZA/tPxIZJapJRUS6LNZ1wiVRxYHyUE=
+github.com/moby/moby/client v0.2.2-0.20251128103149-9a84135d5240 h1:9mkIdtmxPRmEfb/8fWf/oBJQBahgj/PXatn4MojZVbU=
+github.com/moby/moby/client v0.2.2-0.20251128103149-9a84135d5240/go.mod h1:O+/tw5d4a1Ha/ZA/tPxIZJapJRUS6LNZ1wiVRxYHyUE=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
