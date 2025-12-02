@@ -5,10 +5,10 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Detach")]
         public bool Detach { get; set; }
 
-        [JsonPropertyName("Tty")]
-        public bool Tty { get; set; }
+        [JsonPropertyName("TTY")]
+        public bool TTY { get; set; }
 
         [JsonPropertyName("ConsoleSize")]
-        public ulong[] ConsoleSize { get; set; }
+        public ConsoleSize ConsoleSize { get; set; }
     }
 }

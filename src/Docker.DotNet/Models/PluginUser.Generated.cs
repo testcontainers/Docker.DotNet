@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigUser // (types.PluginConfigUser)
+    public class PluginUser // (plugin.User)
     {
         [JsonPropertyName("GID")]
         public uint GID { get; set; }

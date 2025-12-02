@@ -1,12 +1,12 @@
 namespace Docker.DotNet.Models
 {
-    public class Secret // (swarm.Secret)
+    public class SwarmNetwork // (swarm.Network)
     {
-        public Secret()
+        public SwarmNetwork()
         {
         }
 
-        public Secret(Meta Meta)
+        public SwarmNetwork(Meta Meta)
         {
             if (Meta != null)
             {
@@ -29,6 +29,12 @@ namespace Docker.DotNet.Models
         public DateTime UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public SwarmSecretSpec Spec { get; set; }
+        public NetworkSpec Spec { get; set; }
+
+        [JsonPropertyName("DriverState")]
+        public SwarmDriver DriverState { get; set; }
+
+        [JsonPropertyName("IPAMOptions")]
+        public IPAMOptions IPAMOptions { get; set; }
     }
 }

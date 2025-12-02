@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class Plugin // (types.Plugin)
+    public class Plugin // (plugin.Plugin)
     {
         [JsonPropertyName("Config")]
         public PluginConfig Config { get; set; }

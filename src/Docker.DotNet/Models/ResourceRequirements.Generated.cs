@@ -7,5 +7,11 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Reservations")]
         public SwarmResources Reservations { get; set; }
+
+        [JsonPropertyName("SwapBytes")]
+        public long? SwapBytes { get; set; }
+
+        [JsonPropertyName("MemorySwappiness")]
+        public long? MemorySwappiness { get; set; }
     }
 }

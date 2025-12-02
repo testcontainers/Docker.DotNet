@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigLinux // (types.PluginConfigLinux)
+    public class PluginLinuxConfig // (plugin.LinuxConfig)
     {
         [JsonPropertyName("AllowAllDevices")]
         public bool AllowAllDevices { get; set; }

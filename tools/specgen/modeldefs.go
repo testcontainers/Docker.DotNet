@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/registry"
-	"github.com/docker/docker/api/types/swarm"
-	"github.com/docker/docker/api/types/volume"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/plugin"
+	"github.com/moby/moby/api/types/registry"
+	"github.com/moby/moby/api/types/swarm"
+	"github.com/moby/moby/api/types/volume"
+	"github.com/moby/moby/client"
 )
 
 // Args map
@@ -189,13 +190,13 @@ type ContainersPruneParameters struct {
 }
 
 // ContainerExecCreateParameters for POST /containers/(id)/exec
-type ContainerExecCreateParameters container.ExecOptions
+type ContainerExecCreateParameters client.ExecCreateOptions
 
 // ContainerExecCreateResponse for POST /containers/(id)/exec
 type ContainerExecCreateResponse container.ExecCreateResponse
 
 // ContainerExecStartParameters for POST /exec/(id)/start
-type ContainerExecStartParameters container.ExecStartOptions
+type ContainerExecStartParameters client.ExecStartOptions
 
 // ImagesCreateParameters for POST /images/create
 type ImagesCreateParameters struct {
@@ -276,10 +277,10 @@ type PluginGetPrivilegeParameters struct {
 
 // PluginInstallParameters for POST /plugins/pull
 type PluginInstallParameters struct {
-	Remote       string                 `rest:"query,remote,required"`
-	Name         string                 `rest:"query"`
-	RegistryAuth registry.AuthConfig    `rest:"headers,X-Registry-Auth"`
-	Privileges   types.PluginPrivileges `rest:"body,,required"`
+	Remote       string              `rest:"query,remote,required"`
+	Name         string              `rest:"query"`
+	RegistryAuth registry.AuthConfig `rest:"headers,X-Registry-Auth"`
+	Privileges   plugin.Privileges   `rest:"body,,required"`
 }
 
 // PluginRemoveParameters for DELETE /plugins/(name)
@@ -299,9 +300,9 @@ type PluginDisableParameters struct {
 
 // PluginUpgradeParameters for POST /plugins/(name)/upgrade
 type PluginUpgradeParameters struct {
-	Remote       string                 `rest:"query,remote,required"`
-	RegistryAuth registry.AuthConfig    `rest:"headers,X-Registry-Auth"`
-	Privileges   types.PluginPrivileges `rest:"body,,required"`
+	Remote       string              `rest:"query,remote,required"`
+	RegistryAuth registry.AuthConfig `rest:"headers,X-Registry-Auth"`
+	Privileges   plugin.Privileges   `rest:"body,,required"`
 }
 
 // PluginCreateParameters for POST /plugins/create

@@ -9,18 +9,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/build"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/events"
-	"github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/registry"
-	"github.com/docker/docker/api/types/swarm"
-	"github.com/docker/docker/api/types/swarm/runtime"
-	"github.com/docker/docker/api/types/system"
-	"github.com/docker/docker/api/types/volume"
-	"github.com/docker/docker/pkg/jsonmessage"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/events"
+	"github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/api/types/jsonstream"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/plugin"
+	"github.com/moby/moby/api/types/registry"
+	"github.com/moby/moby/api/types/swarm"
+	"github.com/moby/moby/api/types/system"
+	"github.com/moby/moby/api/types/volume"
+	"github.com/moby/moby/client"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 var reflectedTypes = map[string]*CSModelType{}
@@ -29,7 +29,22 @@ func typeToKey(t reflect.Type) string {
 	return t.String()
 }
 
+// TODO: This type is no longer public (the JSON bool field was removed).
+// Only the interface is available. For now, create an empty type so the
+// code compiles, and we'll figure out the proper implementation later:
+// https://github.com/moby/moby/blob/master/client/image_load.go
+type ImageLoadResult struct{}
+
 var typesToDisambiguate = map[string]*CSModelType{
+	typeToKey(reflect.TypeOf(ocispec.Descriptor{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
 	typeToKey(reflect.TypeOf(container.Config{})): {
 		Name: "ContainerConfig",
 		Properties: []CSProperty{
@@ -58,11 +73,24 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(container.RestartPolicy{})): {
 		Properties: []CSProperty{{Name: "Name", Type: CSType{"", "RestartPolicyKind", false}}},
 	},
-	typeToKey(reflect.TypeOf(jsonmessage.JSONMessage{})): {
+	typeToKey(reflect.TypeOf(jsonstream.Error{})): {
+		Name: "JSONError",
+	},
+	typeToKey(reflect.TypeOf(jsonstream.Message{})): {
+		Name: "JSONMessage",
 		Properties: []CSProperty{
-			{Name: "Time", Type: CSType{"System", "DateTime", false}},
-			{Name: "Aux", Type: CSType{"", "ObjectExtensionData", false}},
+			{
+				Name: "Time",
+				Type: CSType{"System", "DateTime", false},
+			},
+			{
+				Name: "Aux",
+				Type: CSType{"", "ObjectExtensionData", false},
+			},
 		},
+	},
+	typeToKey(reflect.TypeOf(jsonstream.Progress{})): {
+		Name: "JSONProgress",
 	},
 	typeToKey(reflect.TypeOf(CreateContainerParameters{})): {
 		Properties: []CSProperty{
@@ -73,27 +101,46 @@ var typesToDisambiguate = map[string]*CSModelType{
 			},
 		},
 	},
-	typeToKey(reflect.TypeOf(volume.AccessMode{})):           {Name: "VolumeAccessMode"},
-	typeToKey(reflect.TypeOf(volume.Info{})):                 {Name: "VolumeInfo"},
-	typeToKey(reflect.TypeOf(volume.Secret{})):               {Name: "VolumeSecret"},
-	typeToKey(reflect.TypeOf(volume.Topology{})):             {Name: "VolumeTopology"},
-	typeToKey(reflect.TypeOf(network.Task{})):                {Name: "NetworkTask"},
-	typeToKey(reflect.TypeOf(registry.AuthenticateOKBody{})): {Name: "AuthResponse"},
-	typeToKey(reflect.TypeOf(registry.SearchResult{})):       {Name: "ImageSearchResponse"},
-	typeToKey(reflect.TypeOf(runtime.PluginPrivilege{})):     {Name: "RuntimePluginPrivilege"},
-	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})):            {Name: "SwarmConfigSpec"},
-	typeToKey(reflect.TypeOf(swarm.Driver{})):                {Name: "SwarmDriver"},
-	typeToKey(reflect.TypeOf(swarm.InitRequest{})):           {Name: "SwarmInitParameters"},
-	typeToKey(reflect.TypeOf(swarm.IPAMConfig{})):            {Name: "SwarmIPAMConfig"},
-	typeToKey(reflect.TypeOf(swarm.JoinRequest{})):           {Name: "SwarmJoinParameters"},
-	typeToKey(reflect.TypeOf(swarm.Limit{})):                 {Name: "SwarmLimit"},
-	typeToKey(reflect.TypeOf(swarm.Platform{})):              {Name: "SwarmPlatform"},
-	typeToKey(reflect.TypeOf(swarm.Node{})):                  {Name: "NodeListResponse"},
-	typeToKey(reflect.TypeOf(swarm.NodeSpec{})):              {Name: "NodeUpdateParameters"},
-	typeToKey(reflect.TypeOf(swarm.Resources{})):             {Name: "SwarmResources"},
-	typeToKey(reflect.TypeOf(swarm.RestartPolicy{})):         {Name: "SwarmRestartPolicy"},
-	typeToKey(reflect.TypeOf(swarm.Service{})):               {Name: "SwarmService"},
-	typeToKey(reflect.TypeOf(swarm.Swarm{})):                 {Name: "SwarmInspectResponse"},
+	typeToKey(reflect.TypeOf(volume.AccessMode{})):     {Name: "VolumeAccessMode"},
+	typeToKey(reflect.TypeOf(volume.Info{})):           {Name: "VolumeInfo"},
+	typeToKey(reflect.TypeOf(volume.Secret{})):         {Name: "VolumeSecret"},
+	typeToKey(reflect.TypeOf(volume.Topology{})):       {Name: "VolumeTopology"},
+	typeToKey(reflect.TypeOf(registry.AuthResponse{})): {Name: "AuthResponse"},
+	typeToKey(reflect.TypeOf(registry.SearchResult{})): {Name: "ImageSearchResponse"},
+	typeToKey(reflect.TypeOf(swarm.RuntimeSpec{})):     {Name: "SwarmRuntimeSpec"},
+	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})): {
+		Name: "SwarmConfigSpec",
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.SecretSpec{})): {
+		Name: "SwarmSecretSpec",
+		Properties: []CSProperty{
+			{
+				Name:       "Data",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.Driver{})):        {Name: "SwarmDriver"},
+	typeToKey(reflect.TypeOf(swarm.InitRequest{})):   {Name: "SwarmInitParameters"},
+	typeToKey(reflect.TypeOf(swarm.IPAMConfig{})):    {Name: "SwarmIPAMConfig"},
+	typeToKey(reflect.TypeOf(swarm.JoinRequest{})):   {Name: "SwarmJoinParameters"},
+	typeToKey(reflect.TypeOf(swarm.Limit{})):         {Name: "SwarmLimit"},
+	typeToKey(reflect.TypeOf(swarm.Network{})):       {Name: "SwarmNetwork"},
+	typeToKey(reflect.TypeOf(swarm.Node{})):          {Name: "NodeListResponse"},
+	typeToKey(reflect.TypeOf(swarm.NodeSpec{})):      {Name: "NodeUpdateParameters"},
+	typeToKey(reflect.TypeOf(swarm.Platform{})):      {Name: "SwarmPlatform"},
+	typeToKey(reflect.TypeOf(swarm.Resources{})):     {Name: "SwarmResources"},
+	typeToKey(reflect.TypeOf(swarm.RestartPolicy{})): {Name: "SwarmRestartPolicy"},
+	typeToKey(reflect.TypeOf(swarm.Service{})):       {Name: "SwarmService"},
+	typeToKey(reflect.TypeOf(swarm.Swarm{})):         {Name: "SwarmInspectResponse"},
 	typeToKey(reflect.TypeOf(swarm.Task{})): {
 		Name: "TaskResponse",
 		Properties: []CSProperty{
@@ -103,6 +150,20 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(swarm.TaskStatus{})): {
 		Properties: []CSProperty{
 			{Name: "State", Type: CSType{"", "TaskState", false}},
+		},
+	},
+	typeToKey(reflect.TypeOf(swarm.TLSInfo{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "CertIssuerSubject",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
+			{
+				Name:       "CertIssuerPublicKey",
+				Type:       CSType{"", "IList<byte>", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+			},
 		},
 	},
 	typeToKey(reflect.TypeOf(swarm.UpdateConfig{})):    {Name: "SwarmUpdateConfig"},
@@ -119,9 +180,14 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(container.ExecInspect{})):     {Name: "ContainerExecInspectResponse"},
-	typeToKey(reflect.TypeOf(container.InspectResponse{})): {Name: "ContainerInspectResponse"},
-	typeToKey(reflect.TypeOf(container.ContainerJSONBase{})): {
+	typeToKey(reflect.TypeOf(container.ExecInspectResponse{})): {
+		Name: "ContainerExecInspectResponse",
+		Properties: []CSProperty{
+			{Name: "DetachKeys", Type: CSType{"", "string", false}},
+		},
+	},
+	typeToKey(reflect.TypeOf(container.InspectResponse{})): {
+		Name: "ContainerInspectResponse",
 		Properties: []CSProperty{
 			{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
@@ -142,29 +208,43 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(image.LoadResponse{})): {Name: "ImagesLoadResponse"},
-	typeToKey(reflect.TypeOf(image.PruneReport{})):  {Name: "ImagesPruneResponse"},
+	typeToKey(reflect.TypeOf(ImageLoadResult{})):   {Name: "ImagesLoadResponse"},
+	typeToKey(reflect.TypeOf(image.PruneReport{})): {Name: "ImagesPruneResponse"},
 	typeToKey(reflect.TypeOf(image.Summary{})): {
 		Name: "ImagesListResponse",
 		Properties: []CSProperty{
 			{Name: "Created", Type: CSType{"System", "DateTime", false}},
 		},
 	},
-	typeToKey(reflect.TypeOf(system.Info{})):               {Name: "SystemInfoResponse"},
-	typeToKey(reflect.TypeOf(network.ConnectOptions{})):    {Name: "NetworkConnectParameters"},
-	typeToKey(reflect.TypeOf(network.CreateRequest{})):     {Name: "NetworksCreateParameters"},
-	typeToKey(reflect.TypeOf(network.CreateResponse{})):    {Name: "NetworksCreateResponse"},
-	typeToKey(reflect.TypeOf(network.DisconnectOptions{})): {Name: "NetworkDisconnectParameters"},
-	typeToKey(reflect.TypeOf(network.PruneReport{})):       {Name: "NetworksPruneResponse"},
-	typeToKey(reflect.TypeOf(network.Inspect{})):           {Name: "NetworkResponse"},
-	typeToKey(reflect.TypeOf(types.PluginConfigInterface{})): {
-		Name: "PluginConfigInterface",
+	typeToKey(reflect.TypeOf(system.Info{})):                     {Name: "SystemInfoResponse"},
+	typeToKey(reflect.TypeOf(client.NetworkConnectOptions{})):    {Name: "NetworkConnectParameters"},
+	typeToKey(reflect.TypeOf(client.NetworkDisconnectOptions{})): {Name: "NetworkDisconnectParameters"},
+	typeToKey(reflect.TypeOf(network.CreateRequest{})):           {Name: "NetworksCreateParameters"},
+	typeToKey(reflect.TypeOf(network.CreateResponse{})):          {Name: "NetworksCreateResponse"},
+	typeToKey(reflect.TypeOf(network.Inspect{})):                 {Name: "NetworkResponse"},
+	typeToKey(reflect.TypeOf(network.PruneReport{})):             {Name: "NetworksPruneResponse"},
+	typeToKey(reflect.TypeOf(network.Task{})):                    {Name: "NetworkTask"},
+	typeToKey(reflect.TypeOf(plugin.Args{})):                     {Name: "PluginArgs"},
+	typeToKey(reflect.TypeOf(plugin.CapabilityID{})):             {Name: "PluginCapabilityID"},
+	typeToKey(reflect.TypeOf(plugin.Config{})):                   {Name: "PluginConfig"},
+	typeToKey(reflect.TypeOf(plugin.Device{})):                   {Name: "PluginDevice"},
+	typeToKey(reflect.TypeOf(plugin.Env{})):                      {Name: "PluginEnv"},
+	typeToKey(reflect.TypeOf(plugin.LinuxConfig{})):              {Name: "PluginLinuxConfig"},
+	typeToKey(reflect.TypeOf(plugin.Mount{})):                    {Name: "PluginMount"},
+	typeToKey(reflect.TypeOf(plugin.NetworkConfig{})):            {Name: "PluginNetworkConfig"},
+	typeToKey(reflect.TypeOf(plugin.Privilege{})):                {Name: "PluginPrivilege"},
+	typeToKey(reflect.TypeOf(plugin.RootFS{})):                   {Name: "PluginRootFS"},
+	typeToKey(reflect.TypeOf(plugin.Settings{})):                 {Name: "PluginSettings"},
+	typeToKey(reflect.TypeOf(plugin.User{})):                     {Name: "PluginUser"},
+	typeToKey(reflect.TypeOf(plugin.Interface{})): {
+		Name: "PluginInterface",
 		Properties: []CSProperty{
 			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>", false}},
 		},
 	},
+
 	typeToKey(reflect.TypeOf(container.StatsResponse{})): {Name: "ContainerStatsResponse"},
-	typeToKey(reflect.TypeOf(types.Version{})):           {Name: "VersionResponse"},
+	typeToKey(reflect.TypeOf(system.VersionResponse{})):  {Name: "VersionResponse"},
 	typeToKey(reflect.TypeOf(volume.PruneReport{})):      {Name: "VolumesPruneResponse"},
 	typeToKey(reflect.TypeOf(VolumeResponse{})):          {Name: "VolumeResponse"},
 }
@@ -173,11 +253,11 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /auth
 	reflect.TypeOf(registry.AuthConfig{}),
-	reflect.TypeOf(registry.AuthenticateOKBody{}),
+	reflect.TypeOf(registry.AuthResponse{}),
 
 	// POST /build
 	reflect.TypeOf(ImageBuildParameters{}),
-	reflect.TypeOf(build.ImageBuildResponse{}),
+	reflect.TypeOf(client.ImageBuildResult{}),
 
 	// POST /commit
 	reflect.TypeOf(CommitContainerChangesParameters{}),
@@ -186,6 +266,7 @@ var dockerTypesToReflect = []reflect.Type{
 	// POST /containers/create
 	reflect.TypeOf(CreateContainerParameters{}),
 	reflect.TypeOf(container.CreateResponse{}),
+	reflect.TypeOf(network.Port{}),
 
 	// GET /containers/json
 	reflect.TypeOf(ContainersListParameters{}),
@@ -266,7 +347,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(ContainerExecStartParameters{}),
 
 	// GET /exec/(id)/json
-	reflect.TypeOf(container.ExecInspect{}),
+	reflect.TypeOf(container.ExecInspectResponse{}),
 
 	// GET /events
 	reflect.TypeOf(ContainerEventsParameters{}),
@@ -275,7 +356,7 @@ var dockerTypesToReflect = []reflect.Type{
 
 	// POST /images/create
 	reflect.TypeOf(ImagesCreateParameters{}),
-	reflect.TypeOf(jsonmessage.JSONMessage{}),
+	reflect.TypeOf(jsonstream.Message{}),
 
 	// GET /images/get
 	// TODO: stream
@@ -287,7 +368,7 @@ var dockerTypesToReflect = []reflect.Type{
 	// POST /images/load
 	// TODO: headers: application/x-tar body.
 	reflect.TypeOf(ImageLoadParameters{}),
-	reflect.TypeOf(image.LoadResponse{}),
+	reflect.TypeOf(ImageLoadResult{}),
 
 	// POST /images/prune
 	reflect.TypeOf(ImagesPruneParameters{}),
@@ -335,20 +416,20 @@ var dockerTypesToReflect = []reflect.Type{
 	// DELETE /networks/(id)
 
 	// POST /networks/(id)/connect
-	reflect.TypeOf(network.ConnectOptions{}),
+	reflect.TypeOf(client.NetworkConnectOptions{}),
 
 	// POST /networks/(id)/disconnect
-	reflect.TypeOf(network.DisconnectOptions{}),
+	reflect.TypeOf(client.NetworkDisconnectOptions{}),
 
 	// GET /plugins
 	// []Plugin
 	reflect.TypeOf(PluginListParameters{}),
-	reflect.TypeOf(types.Plugin{}),
+	reflect.TypeOf(plugin.Plugin{}),
 
 	// GET /plugins/privileges
-	// []PluginPrivilege
+	// []Privilege
 	reflect.TypeOf(PluginGetPrivilegeParameters{}),
-	reflect.TypeOf(types.PluginPrivilege{}),
+	reflect.TypeOf(plugin.Privilege{}),
 
 	// POST /plugins/pull
 	// []PluginConfigArgs
@@ -379,7 +460,7 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(PluginConfigureParameters{}),
 
 	// GET /version
-	reflect.TypeOf(types.Version{}),
+	reflect.TypeOf(system.VersionResponse{}),
 
 	// GET /volumes
 	reflect.TypeOf(VolumesListParameters{}),

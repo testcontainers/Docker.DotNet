@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Models
 {
-    public class ComponentVersion // (types.ComponentVersion)
+    public class ComponentVersion // (system.ComponentVersion)
     {
         [JsonPropertyName("Name")]
         public string Name { get; set; }

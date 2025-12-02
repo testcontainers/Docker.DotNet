@@ -1,15 +1,12 @@
 namespace Docker.DotNet.Models
 {
-    public class PluginConfig // (types.PluginConfig)
+    public class PluginConfig // (plugin.Config)
     {
         [JsonPropertyName("Args")]
-        public PluginConfigArgs Args { get; set; }
+        public PluginArgs Args { get; set; }
 
         [JsonPropertyName("Description")]
         public string Description { get; set; }
-
-        [JsonPropertyName("DockerVersion")]
-        public string DockerVersion { get; set; }
 
         [JsonPropertyName("Documentation")]
         public string Documentation { get; set; }
@@ -21,19 +18,19 @@ namespace Docker.DotNet.Models
         public IList<PluginEnv> Env { get; set; }
 
         [JsonPropertyName("Interface")]
-        public PluginConfigInterface Interface { get; set; }
+        public PluginInterface Interface { get; set; }
 
         [JsonPropertyName("IpcHost")]
         public bool IpcHost { get; set; }
 
         [JsonPropertyName("Linux")]
-        public PluginConfigLinux Linux { get; set; }
+        public PluginLinuxConfig Linux { get; set; }
 
         [JsonPropertyName("Mounts")]
         public IList<PluginMount> Mounts { get; set; }
 
         [JsonPropertyName("Network")]
-        public PluginConfigNetwork Network { get; set; }
+        public PluginNetworkConfig Network { get; set; }
 
         [JsonPropertyName("PidHost")]
         public bool PidHost { get; set; }
@@ -42,12 +39,12 @@ namespace Docker.DotNet.Models
         public string PropagatedMount { get; set; }
 
         [JsonPropertyName("User")]
-        public PluginConfigUser User { get; set; }
+        public PluginUser User { get; set; }
 
         [JsonPropertyName("WorkDir")]
         public string WorkDir { get; set; }
 
         [JsonPropertyName("rootfs")]
-        public PluginConfigRootfs Rootfs { get; set; }
+        public PluginRootFS Rootfs { get; set; }
     }
 }
