@@ -10,7 +10,7 @@ public class HttpConnectionResponseContent : HttpContent
         _connection = connection;
     }
 
-    internal void ResolveResponseStream(bool chunked)
+    internal void ResolveResponseStream(bool chunked, bool isConnectionUpgrade)
     {
         if (_responseStream != null)
         {
@@ -20,7 +20,7 @@ public class HttpConnectionResponseContent : HttpContent
         {
             _responseStream = new ChunkedReadStream(_connection.Transport);
         }
-        else if (Headers.ContentLength.HasValue)
+        else if (!isConnectionUpgrade && Headers.ContentLength.HasValue)
         {
             _responseStream = new ContentLengthReadStream(_connection.Transport, Headers.ContentLength.Value);
         }

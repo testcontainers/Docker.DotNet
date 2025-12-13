@@ -147,28 +147,41 @@ internal sealed class HttpConnection : IDisposable
             }
         }
 
-        // TODO: We'll need to refactor this in the future.
+        // Response handling is based on headers and type. The implementation currently covers
+        // four main cases:
         //
-        // Depending on the request and response (headers), we need to handle the response
-        // differently. We need to distinguish between four types of responses:
+        // 1. Chunked transfer encoding (HTTP/1.1 `Transfer-Encoding: chunked`)
+        // 2. HTTP responses with a `Content-Length` header
+        //     - For 101 Switching Protocols, `Content-Length` is ignored per RFC 9110
+        // 3. Protocol upgrades (HTTP 101 + `Upgrade: tcp`)
+        //     - e.g., `/containers/{id}/attach` or `/exec/{id}/start`
+        // 4. Streaming responses without connection upgrade headers
+        //     - e.g., `/containers/{id}/logs`
         //
-        // 1. Chunked transfer encoding
-        // 2. HTTP with a `Content-Length` header
-        // 3. Hijacked TCP connections (using the connection upgrade headers)
-        //     - `/containers/{id}/attach`
-        //     - `/exec/{id}/start`
-        // 4. Streams without the connection upgrade headers
-        //     - `/containers/{id}/logs`
+        // This separation ensures chunked framing, streaming, and upgraded connections are handled
+        // correctly, while tolerating proxies that incorrectly send `Content-Length: 0` on upgrades.
+
+        var isSwitchingProtocols = response.StatusCode == HttpStatusCode.SwitchingProtocols;
 
         var isConnectionUpgrade = response.Headers.TryGetValues("Upgrade", out var responseHeaderValues)
-            && responseHeaderValues.Any(header => "tcp".Equals(header));
+            && responseHeaderValues.Any(header => "tcp".Equals(header, StringComparison.OrdinalIgnoreCase));
 
         var isStream = content.Headers.TryGetValues("Content-Type", out var contentHeaderValues)
-            && contentHeaderValues.Any(header => DockerStreamHeaders.Contains(header));
+            && contentHeaderValues.Any(DockerStreamHeaders.Contains);
 
-        var isChunkedTransferEncoding = (response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isStream) || (isStream && !isConnectionUpgrade);
+        // Treat the response as chunked for standard HTTP chunked or Docker raw-streams,
+        // but not for upgraded connections.
+        var isChunkedTransferEncoding = (response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isConnectionUpgrade)
+            || (!isConnectionUpgrade && isStream);
 
-        content.ResolveResponseStream(chunked: isChunkedTransferEncoding);
+        if (isSwitchingProtocols && isConnectionUpgrade)
+        {
+            content.ResolveResponseStream(false, true);
+        }
+        else
+        {
+            content.ResolveResponseStream(isChunkedTransferEncoding, isConnectionUpgrade);
+        }
 
         return response;
     }
