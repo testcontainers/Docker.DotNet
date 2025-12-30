@@ -89,17 +89,78 @@ public sealed class DockerClient : IDockerClient
 
             case "unix":
                 var pipeString = uri.LocalPath;
+                var unixSocketTimeout = Configuration.UnixSocketConnectTimeout;
+
+                if (Configuration.Credentials.IsTlsCredentials())
+                {
+                    throw new Exception("TLS not supported over unix socket");
+                }
+
+#if NET8_0_OR_GREATER
+                var socketsHandler = new SocketsHttpHandler
+                {
+                    ConnectCallback = async (context, cancellationToken) =>
+                    {
+                        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                        try
+                        {
+                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                            using var timeoutCts = new CancellationTokenSource(unixSocketTimeout);
+                            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
+
+                            await socket.ConnectAsync(new System.Net.Sockets.UnixDomainSocketEndPoint(pipeString), linkedCts.Token)
+                                .ConfigureAwait(false);
+
+                            return new NetworkStream(socket, ownsSocket: true);
+                        }
+                        catch
+                        {
+                            socket.Dispose();
+                            throw;
+                        }
+                    },
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                    EnableMultipleHttp2Connections = false,
+                };
+
+                uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+                _endpointBaseUri = uri;
+
+                _client = new HttpClient(socketsHandler, true);
+                _client.Timeout = Timeout.InfiniteTimeSpan;
+                return;
+#else
                 handler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
                     var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                    try
+                    {
+                        sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-                    await sock.ConnectAsync(new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString))
-                        .ConfigureAwait(false);
+                        var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
+                        var connectTask = sock.ConnectAsync(endpoint);
+                        var timeoutTask = Task.Delay(unixSocketTimeout, cancellationToken);
 
-                    return sock;
+                        if (await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false) == timeoutTask)
+                        {
+                            sock.Dispose();
+                            throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {unixSocketTimeout.TotalSeconds} seconds.");
+                        }
+
+                        await connectTask.ConfigureAwait(false);
+                        return sock;
+                    }
+                    catch
+                    {
+                        sock.Dispose();
+                        throw;
+                    }
                 }, logger);
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
+#endif
 
             default:
                 throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");

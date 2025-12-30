@@ -8,8 +8,9 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        TimeSpan unixSocketConnectTimeout = default)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders, unixSocketConnectTimeout)
     {
     }
 
@@ -18,7 +19,8 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        TimeSpan unixSocketConnectTimeout = default)
     {
         if (endpoint == null)
         {
@@ -34,6 +36,7 @@ public class DockerClientConfiguration : IDisposable
         Credentials = credentials ?? new AnonymousCredentials();
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
         NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
+        UnixSocketConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, unixSocketConnectTimeout) ? TimeSpan.FromSeconds(30) : unixSocketConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
     }
 
@@ -49,6 +52,11 @@ public class DockerClientConfiguration : IDisposable
     public TimeSpan DefaultTimeout { get; }
 
     public TimeSpan NamedPipeConnectTimeout { get; }
+
+    /// <summary>
+    /// Gets the timeout for connecting to Unix domain sockets.
+    /// </summary>
+    public TimeSpan UnixSocketConnectTimeout { get; }
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
