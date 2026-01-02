@@ -89,17 +89,80 @@ public sealed class DockerClient : IDockerClient
 
             case "unix":
                 var pipeString = uri.LocalPath;
+                var socketTimeout = Configuration.SocketConnectTimeout;
+
+#if NET8_0_OR_GREATER
+                var socketsHandler = new SocketsHttpHandler
+                {
+                    ConnectCallback = async (context, cancellationToken) =>
+                    {
+                        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                        try
+                        {
+                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                            using var timeoutCts = new CancellationTokenSource(socketTimeout);
+                            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
+
+                            await socket.ConnectAsync(new System.Net.Sockets.UnixDomainSocketEndPoint(pipeString), linkedCts.Token)
+                                .ConfigureAwait(false);
+
+                            return new NetworkStream(socket, ownsSocket: true);
+                        }
+                        catch
+                        {
+                            socket.Dispose();
+                            throw;
+                        }
+                    },
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                    EnableMultipleHttp2Connections = false,
+                };
+
+                uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+                _endpointBaseUri = uri;
+
+                _client = new HttpClient(Configuration.Credentials.GetHandler(socketsHandler), true);
+                _client.Timeout = Timeout.InfiniteTimeSpan;
+                return;
+#else
                 handler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
                     var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                    try
+                    {
+                        sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-                    await sock.ConnectAsync(new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString))
-                        .ConfigureAwait(false);
+                        var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
+                        var connectTask = sock.ConnectAsync(endpoint);
 
-                    return sock;
+                        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        timeoutCts.CancelAfter(socketTimeout);
+                        var timeoutTask = Task.Delay(Timeout.InfiniteTimeSpan, timeoutCts.Token);
+
+                        if (await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false) == timeoutTask)
+                        {
+                            sock.Dispose();
+                            // Check if cancellation was requested by the caller before throwing timeout
+                            cancellationToken.ThrowIfCancellationRequested();
+                            throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {socketTimeout.TotalSeconds} seconds.");
+                        }
+
+                        // Cancel the timeout task to clean up the timer
+                        timeoutCts.Cancel();
+                        await connectTask.ConfigureAwait(false);
+                        return sock;
+                    }
+                    catch
+                    {
+                        sock.Dispose();
+                        throw;
+                    }
                 }, logger);
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
+#endif
 
             default:
                 throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
