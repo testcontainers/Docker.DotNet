@@ -123,7 +123,7 @@ public sealed class DockerClient : IDockerClient
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 _endpointBaseUri = uri;
 
-                _client = new HttpClient(socketsHandler, true);
+                _client = new HttpClient(Configuration.Credentials.GetHandler(socketsHandler), true);
                 _client.Timeout = Timeout.InfiniteTimeSpan;
                 return;
 #else
@@ -136,14 +136,21 @@ public sealed class DockerClient : IDockerClient
 
                         var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
                         var connectTask = sock.ConnectAsync(endpoint);
-                        var timeoutTask = Task.Delay(socketTimeout, cancellationToken);
+
+                        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        timeoutCts.CancelAfter(socketTimeout);
+                        var timeoutTask = Task.Delay(Timeout.InfiniteTimeSpan, timeoutCts.Token);
 
                         if (await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false) == timeoutTask)
                         {
                             sock.Dispose();
+                            // Check if cancellation was requested by the caller before throwing timeout
+                            cancellationToken.ThrowIfCancellationRequested();
                             throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {socketTimeout.TotalSeconds} seconds.");
                         }
 
+                        // Cancel the timeout task to clean up the timer
+                        timeoutCts.Cancel();
                         await connectTask.ConfigureAwait(false);
                         return sock;
                     }
