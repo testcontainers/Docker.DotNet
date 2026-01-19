@@ -90,33 +90,8 @@ public sealed class DockerClient : IDockerClient
             case "unix":
                 var pipeString = uri.LocalPath;
                 var socketTimeout = Configuration.SocketConnectTimeout;
-#if NET8_0_OR_GREATER
-                handler = new SocketsHttpHandler
-                {
-                    ConnectCallback = async (_, cancellationToken) =>
-                    {
-                        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-
-                        try
-                        {
-                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-
-                            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                            timeoutCts.CancelAfter(socketTimeout);
-
-                            await socket.ConnectAsync(new System.Net.Sockets.UnixDomainSocketEndPoint(pipeString), timeoutCts.Token)
-                                .ConfigureAwait(false);
-
-                            return new NetworkStream(socket, true);
-                        }
-                        catch
-                        {
-                            socket.Dispose();
-                            throw;
-                        }
-                    }
-                };
-#else
+                // ManagedHandler is required for hijacked stream support (attach/exec operations).
+                // SocketsHttpHandler doesn't support the HttpConnectionResponseContent needed for connection hijacking.
                 handler = new ManagedHandler(async (_, _, cancellationToken) =>
                 {
                     var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
@@ -150,7 +125,6 @@ public sealed class DockerClient : IDockerClient
                         throw;
                     }
                 }, logger);
-#endif
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
 
