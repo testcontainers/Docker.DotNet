@@ -11,6 +11,12 @@ public sealed class DockerClient : IDockerClient
 
     private readonly HttpClient _client;
 
+#if NET8_0_OR_GREATER
+    // Separate client for hijacked stream operations (attach/exec) when using SocketsHttpHandler.
+    // SocketsHttpHandler doesn't support connection hijacking, so we need ManagedHandler for those operations.
+    private readonly HttpClient _hijackClient;
+#endif
+
     private readonly Uri _endpointBaseUri;
 
     private readonly Version _requestedApiVersion;
@@ -90,8 +96,78 @@ public sealed class DockerClient : IDockerClient
             case "unix":
                 var pipeString = uri.LocalPath;
                 var socketTimeout = Configuration.SocketConnectTimeout;
-                // ManagedHandler is required for hijacked stream support (attach/exec operations).
+                uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+#if NET8_0_OR_GREATER
+                // Use SocketsHttpHandler for regular operations (better proxy compatibility)
+                handler = new SocketsHttpHandler
+                {
+                    ConnectCallback = async (_, cancellationToken) =>
+                    {
+                        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+
+                        try
+                        {
+                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                            timeoutCts.CancelAfter(socketTimeout);
+
+                            await socket.ConnectAsync(new System.Net.Sockets.UnixDomainSocketEndPoint(pipeString), timeoutCts.Token)
+                                .ConfigureAwait(false);
+
+                            return new NetworkStream(socket, true);
+                        }
+                        catch
+                        {
+                            socket.Dispose();
+                            throw;
+                        }
+                    }
+                };
+
+                // ManagedHandler is required for hijacked stream operations (attach/exec).
                 // SocketsHttpHandler doesn't support the HttpConnectionResponseContent needed for connection hijacking.
+                var hijackHandler = new ManagedHandler(async (_, _, cancellationToken) =>
+                {
+                    var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
+                    var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+
+                    try
+                    {
+                        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        timeoutCts.CancelAfter(socketTimeout);
+
+                        var connectTask = socket.ConnectAsync(endpoint);
+                        var timeoutTask = Task.Delay(Timeout.InfiniteTimeSpan, timeoutCts.Token);
+
+                        var completedTask = await Task.WhenAny(connectTask, timeoutTask)
+                            .ConfigureAwait(false);
+
+                        if (completedTask == timeoutTask)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {socketTimeout.TotalSeconds}s.");
+                        }
+
+                        await connectTask.ConfigureAwait(false);
+                        return socket;
+                    }
+                    catch
+                    {
+                        socket.Dispose();
+                        throw;
+                    }
+                }, logger);
+
+                _endpointBaseUri = uri;
+                _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
+                _client.Timeout = Timeout.InfiniteTimeSpan;
+                _hijackClient = new HttpClient(Configuration.Credentials.GetHandler(hijackHandler), true);
+                _hijackClient.Timeout = Timeout.InfiniteTimeSpan;
+                return;
+#else
                 handler = new ManagedHandler(async (_, _, cancellationToken) =>
                 {
                     var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
@@ -125,8 +201,8 @@ public sealed class DockerClient : IDockerClient
                         throw;
                     }
                 }, logger);
-                uri = new UriBuilder("http", uri.Segments.Last()).Uri;
                 break;
+#endif
 
             default:
                 throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
@@ -170,6 +246,9 @@ public sealed class DockerClient : IDockerClient
     {
         Configuration.Dispose();
         _client.Dispose();
+#if NET8_0_OR_GREATER
+        _hijackClient?.Dispose();
+#endif
     }
 
     internal Task MakeRequestAsync(
@@ -416,8 +495,14 @@ public sealed class DockerClient : IDockerClient
         headers.Add("Upgrade", "tcp");
         headers.Add("Connection", "upgrade");
 
+#if NET8_0_OR_GREATER
+        // Use _hijackClient for SocketsHttpHandler scenarios where _client doesn't support hijacking
+        var response = await PrivateMakeRequestAsync(_hijackClient ?? _client, timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
+            .ConfigureAwait(false);
+#else
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
+#endif
 
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
@@ -430,7 +515,21 @@ public sealed class DockerClient : IDockerClient
         return content.HijackStream();
     }
 
+    private Task<HttpResponseMessage> PrivateMakeRequestAsync(
+        TimeSpan timeout,
+        HttpCompletionOption completionOption,
+        HttpMethod method,
+        string path,
+        IQueryString queryString,
+        IDictionary<string, string> headers,
+        IRequestContent data,
+        CancellationToken cancellationToken)
+    {
+        return PrivateMakeRequestAsync(_client, timeout, completionOption, method, path, queryString, headers, data, cancellationToken);
+    }
+
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
+        HttpClient client,
         TimeSpan timeout,
         HttpCompletionOption completionOption,
         HttpMethod method,
@@ -448,7 +547,7 @@ public sealed class DockerClient : IDockerClient
 
             using var disposable = cancellationToken.Register(() => tcs.SetCanceled());
 
-            return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
+            return await await Task.WhenAny(tcs.Task, client.SendAsync(request, completionOption, cancellationToken))
                 .ConfigureAwait(false);
         }
         else
@@ -457,7 +556,7 @@ public sealed class DockerClient : IDockerClient
 
             using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
 
-            return await _client.SendAsync(request, completionOption, linkedCts.Token)
+            return await client.SendAsync(request, completionOption, linkedCts.Token)
                 .ConfigureAwait(false);
         }
     }
