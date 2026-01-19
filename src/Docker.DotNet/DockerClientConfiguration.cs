@@ -8,9 +8,9 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
-        TimeSpan socketConnectTimeout = default)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders, socketConnectTimeout)
+        TimeSpan socketConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, socketConnectTimeout, defaultHttpRequestHeaders)
     {
     }
 
@@ -19,8 +19,8 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
-        TimeSpan socketConnectTimeout = default)
+        TimeSpan socketConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
     {
         if (endpoint == null)
         {
@@ -54,7 +54,7 @@ public class DockerClientConfiguration : IDisposable
     public TimeSpan NamedPipeConnectTimeout { get; }
 
     /// <summary>
-    /// Gets the timeout for socket connections (Unix sockets and TCP).
+    /// Gets the timeout for Unix domain socket connections.
     /// </summary>
     public TimeSpan SocketConnectTimeout { get; }
 
