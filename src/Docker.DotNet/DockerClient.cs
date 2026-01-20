@@ -449,21 +449,7 @@ public sealed class DockerClient : IDockerClient
         return content.HijackStream();
     }
 
-    private Task<HttpResponseMessage> PrivateMakeRequestAsync(
-        TimeSpan timeout,
-        HttpCompletionOption completionOption,
-        HttpMethod method,
-        string path,
-        IQueryString queryString,
-        IDictionary<string, string> headers,
-        IRequestContent data,
-        CancellationToken cancellationToken)
-    {
-        return PrivateMakeRequestAsync(_client, timeout, completionOption, method, path, queryString, headers, data, cancellationToken);
-    }
-
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
-        HttpClient client,
         TimeSpan timeout,
         HttpCompletionOption completionOption,
         HttpMethod method,
@@ -481,7 +467,7 @@ public sealed class DockerClient : IDockerClient
 
             using var disposable = cancellationToken.Register(() => tcs.SetCanceled());
 
-            return await await Task.WhenAny(tcs.Task, client.SendAsync(request, completionOption, cancellationToken))
+            return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
                 .ConfigureAwait(false);
         }
         else
@@ -490,7 +476,7 @@ public sealed class DockerClient : IDockerClient
 
             using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
 
-            return await client.SendAsync(request, completionOption, linkedCts.Token)
+            return await _client.SendAsync(request, completionOption, linkedCts.Token)
                 .ConfigureAwait(false);
         }
     }
