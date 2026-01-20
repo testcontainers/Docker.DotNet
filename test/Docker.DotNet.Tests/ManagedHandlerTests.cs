@@ -58,10 +58,10 @@ public class ManagedHandlerTests
 
 #if NET6_0_OR_GREATER
     [Fact]
-    public void SocketConfiguration_HappyEyeballs_DefaultEnabled()
+    public void SocketConnectionConfiguration_HappyEyeballs_DefaultEnabled()
     {
         // Arrange & Act
-        var config = new SocketConfiguration();
+        var config = new SocketConnectionConfiguration();
 
         // Assert
         Assert.True(config.EnableHappyEyeballs);
@@ -69,10 +69,10 @@ public class ManagedHandlerTests
     }
 
     [Fact]
-    public void SocketConfiguration_HappyEyeballs_CanBeDisabled()
+    public void SocketConnectionConfiguration_HappyEyeballs_CanBeDisabled()
     {
         // Arrange
-        var config = new SocketConfiguration();
+        var config = new SocketConnectionConfiguration();
 
         // Act
         config.EnableHappyEyeballs = false;
@@ -82,10 +82,10 @@ public class ManagedHandlerTests
     }
 
     [Fact]
-    public void SocketConfiguration_HappyEyeballsDelay_CanBeCustomized()
+    public void SocketConnectionConfiguration_HappyEyeballsDelay_CanBeCustomized()
     {
         // Arrange
-        var config = new SocketConfiguration();
+        var config = new SocketConnectionConfiguration();
 
         // Act
         config.HappyEyeballsDelay = TimeSpan.FromMilliseconds(500);
@@ -169,10 +169,10 @@ public class ManagedHandlerTests
     }
 
     [Fact]
-    public void SocketConfiguration_FullConfiguration_AllPropertiesAccessible()
+    public void SocketConnectionConfiguration_FullConfiguration_AllPropertiesAccessible()
     {
         // Arrange & Act
-        var config = new SocketConfiguration();
+        var config = new SocketConnectionConfiguration();
 
         // Assert - All properties should be accessible
         Assert.True(config.KeepAlive);

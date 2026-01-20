@@ -11,7 +11,7 @@ public class ManagedHandler : HttpMessageHandler
 
     private readonly SocketOpener _socketOpener;
 
-    private readonly SocketConfiguration _socketConfiguration;
+    private readonly SocketConnectionConfiguration _socketConfiguration;
 
     private IWebProxy _proxy;
 
@@ -20,35 +20,35 @@ public class ManagedHandler : HttpMessageHandler
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
 
     public ManagedHandler(ILogger logger)
-        : this(logger, SocketConfiguration.Default)
+        : this(logger, SocketConnectionConfiguration.Default)
     {
     }
 
-    public ManagedHandler(ILogger logger, SocketConfiguration socketConfiguration)
+    public ManagedHandler(ILogger logger, SocketConnectionConfiguration socketConfiguration)
     {
         _logger = logger;
-        _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
+        _socketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
         _socketOpener = TcpSocketOpenerAsync;
     }
 
     public ManagedHandler(StreamOpener opener, ILogger logger)
     {
         _logger = logger;
-        _socketConfiguration = SocketConfiguration.Default;
+        _socketConfiguration = SocketConnectionConfiguration.Default;
         _streamOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
     public ManagedHandler(SocketOpener opener, ILogger logger)
     {
         _logger = logger;
-        _socketConfiguration = SocketConfiguration.Default;
+        _socketConfiguration = SocketConnectionConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
-    public ManagedHandler(SocketOpener opener, ILogger logger, SocketConfiguration socketConfiguration)
+    public ManagedHandler(SocketOpener opener, ILogger logger, SocketConnectionConfiguration socketConfiguration)
     {
         _logger = logger;
-        _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
+        _socketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 

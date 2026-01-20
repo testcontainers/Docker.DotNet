@@ -6,12 +6,12 @@ using System;
 /// Configuration options for socket connections.
 /// These settings help improve proxy compatibility and connection reliability.
 /// </summary>
-public sealed class SocketConfiguration
+public sealed class SocketConnectionConfiguration
 {
     /// <summary>
-    /// Default socket configuration with sensible defaults for Docker socket connections.
+    /// Default socket connection configuration with sensible defaults for Docker socket connections.
     /// </summary>
-    public static SocketConfiguration Default { get; } = new SocketConfiguration();
+    public static SocketConnectionConfiguration Default { get; } = new SocketConnectionConfiguration();
 
     /// <summary>
     /// Gets or sets whether TCP keep-alive is enabled.

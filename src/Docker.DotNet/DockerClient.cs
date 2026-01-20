@@ -83,17 +83,17 @@ public sealed class DockerClient : IDockerClient
                     Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler(logger, Configuration.SocketConfiguration);
+                handler = new ManagedHandler(logger, Configuration.SocketConnectionConfiguration);
                 break;
 
             case "https":
-                handler = new ManagedHandler(logger, Configuration.SocketConfiguration);
+                handler = new ManagedHandler(logger, Configuration.SocketConnectionConfiguration);
                 break;
 
             case "unix":
                 var pipeString = uri.LocalPath;
                 var socketTimeout = Configuration.SocketConnectTimeout;
-                var socketConfig = Configuration.SocketConfiguration;
+                var socketConfig = Configuration.SocketConnectionConfiguration;
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
 
                 // Use ManagedHandler for Unix socket connections.

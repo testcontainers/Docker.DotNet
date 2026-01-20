@@ -10,7 +10,7 @@ public class DockerClientConfiguration : IDisposable
         TimeSpan namedPipeConnectTimeout = default,
         TimeSpan socketConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
-        SocketConfiguration socketConfiguration = null)
+        SocketConnectionConfiguration socketConfiguration = null)
         : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, socketConnectTimeout, defaultHttpRequestHeaders, socketConfiguration)
     {
     }
@@ -22,7 +22,7 @@ public class DockerClientConfiguration : IDisposable
         TimeSpan namedPipeConnectTimeout = default,
         TimeSpan socketConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
-        SocketConfiguration socketConfiguration = null)
+        SocketConnectionConfiguration socketConfiguration = null)
     {
         if (endpoint == null)
         {
@@ -40,7 +40,7 @@ public class DockerClientConfiguration : IDisposable
         NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
         SocketConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, socketConnectTimeout) ? TimeSpan.FromSeconds(30) : socketConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
-        SocketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
+        SocketConnectionConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public class DockerClientConfiguration : IDisposable
     /// Gets the socket configuration options for connection handling.
     /// These settings help improve proxy compatibility and connection reliability.
     /// </summary>
-    public SocketConfiguration SocketConfiguration { get; }
+    public SocketConnectionConfiguration SocketConnectionConfiguration { get; }
 
     /// <summary>
     /// Gets the collection of default HTTP request headers.
