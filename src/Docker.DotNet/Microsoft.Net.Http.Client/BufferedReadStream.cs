@@ -14,21 +14,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     private int _bufferCount;
     private bool _disposed;
 
-#if NET6_0_OR_GREATER
-    private PipeReader _pipeReader;
-    private bool _usePipeReader = true;
-    private bool _pipeReaderFailed;
-
-    /// <summary>
-    /// Gets or sets whether to use PipeReader for line reading operations.
-    /// Default is true. Falls back to byte-by-byte reading on failure.
-    /// </summary>
-    public bool UsePipeReader
-    {
-        get => _usePipeReader;
-        set => _usePipeReader = value;
-    }
-#endif
 
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
@@ -92,10 +77,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
 
-#if NET6_0_OR_GREATER
-            _pipeReader?.Complete();
-#endif
-
             _inner.Dispose();
         }
 
@@ -115,13 +96,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         {
             ArrayPool<byte>.Shared.Return(_buffer);
         }
-
-#if NET6_0_OR_GREATER
-        if (_pipeReader != null)
-        {
-            await _pipeReader.CompleteAsync().ConfigureAwait(false);
-        }
-#endif
 
         await _inner.DisposeAsync().ConfigureAwait(false);
         GC.SuppressFinalize(this);
@@ -248,93 +222,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     }
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
-    {
-#if NET6_0_OR_GREATER
-        // Try PipeReader-based implementation first (more efficient)
-        if (_usePipeReader && !_pipeReaderFailed)
-        {
-            try
-            {
-                return await ReadLineWithPipeReaderAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                // Fall back to byte-by-byte on failure
-                _pipeReaderFailed = true;
-                _logger.LogWarning(ex, "PipeReader line reading failed, falling back to byte-by-byte implementation");
-            }
-        }
-#endif
-
-        return await ReadLineByteByByteAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-#if NET6_0_OR_GREATER
-    private async Task<string> ReadLineWithPipeReaderAsync(CancellationToken cancellationToken)
-    {
-        // Create PipeReader lazily
-        if (_pipeReader == null)
-        {
-            // First, consume any buffered data
-            if (_bufferCount > 0)
-            {
-                // We have buffered data, fall back to byte-by-byte for this call
-                // to avoid complexity of merging buffer with PipeReader
-                return await ReadLineByteByByteAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            _pipeReader = PipeReader.Create(_inner, new StreamPipeReaderOptions(leaveOpen: true));
-        }
-
-        while (true)
-        {
-            var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            var buffer = result.Buffer;
-
-            // Look for CRLF in the buffer
-            var position = buffer.PositionOf((byte)'\n');
-
-            if (position != null)
-            {
-                // Found newline - extract line up to it
-                var lineBuffer = buffer.Slice(0, position.Value);
-                var lineBytes = lineBuffer.ToArray();
-
-                // Remove trailing CR if present
-                var lineLength = lineBytes.Length;
-                if (lineLength > 0 && lineBytes[lineLength - 1] == '\r')
-                {
-                    lineLength--;
-                }
-
-                var line = Encoding.ASCII.GetString(lineBytes, 0, lineLength);
-
-                // Tell the PipeReader we've consumed up to and including the newline
-                _pipeReader.AdvanceTo(buffer.GetPosition(1, position.Value));
-
-                return line;
-            }
-
-            if (result.IsCompleted)
-            {
-                if (buffer.Length > 0)
-                {
-                    // Return remaining data as the last line
-                    var line = Encoding.ASCII.GetString(buffer.ToArray());
-                    _pipeReader.AdvanceTo(buffer.End);
-                    return line;
-                }
-
-                throw new EndOfStreamException("Unexpected end of stream while reading line");
-            }
-
-            // Tell the reader we need more data
-            _pipeReader.AdvanceTo(buffer.Start, buffer.End);
-        }
-    }
-#endif
-
-    private async Task<string> ReadLineByteByByteAsync(CancellationToken cancellationToken)
     {
         var line = new StringBuilder(32);
 

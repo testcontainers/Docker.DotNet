@@ -116,6 +116,12 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
                 .ConfigureAwait(false);
         }
 
+        // If InitializeAsync failed, Image may be null
+        if (Image == null)
+        {
+            return;
+        }
+
         var containers = await DockerClient.Containers.ListContainersAsync(
                 new ContainersListParameters
                 {

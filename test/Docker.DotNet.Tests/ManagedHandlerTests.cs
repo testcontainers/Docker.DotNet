@@ -389,38 +389,9 @@ public class ManagedHandlerTests
 
     #endregion
 
-    #region Phase 7: PipeReader Line Reading Tests
+    #region Phase 7: Line Reading Tests
 
 #if NET6_0_OR_GREATER
-    [Fact]
-    public void BufferedReadStream_UsePipeReader_DefaultTrue()
-    {
-        // Arrange
-        var mockStream = new MemoryStream();
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-
-        // Act
-        using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-
-        // Assert
-        Assert.True(bufferedStream.UsePipeReader);
-    }
-
-    [Fact]
-    public void BufferedReadStream_UsePipeReader_CanBeDisabled()
-    {
-        // Arrange
-        var mockStream = new MemoryStream();
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-
-        // Act
-        bufferedStream.UsePipeReader = false;
-
-        // Assert
-        Assert.False(bufferedStream.UsePipeReader);
-    }
-
     [Fact]
     public async Task BufferedReadStream_ReadLineAsync_ReadsLine()
     {
@@ -429,23 +400,6 @@ public class ManagedHandlerTests
         var mockStream = new MemoryStream(Encoding.ASCII.GetBytes(testData));
         var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
         await using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-
-        // Act
-        var line = await bufferedStream.ReadLineAsync(CancellationToken.None);
-
-        // Assert
-        Assert.Equal("HTTP/1.1 200 OK", line);
-    }
-
-    [Fact]
-    public async Task BufferedReadStream_ReadLineAsync_WithPipeReaderDisabled_ReadsLine()
-    {
-        // Arrange
-        var testData = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n";
-        var mockStream = new MemoryStream(Encoding.ASCII.GetBytes(testData));
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        await using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-        bufferedStream.UsePipeReader = false;
 
         // Act
         var line = await bufferedStream.ReadLineAsync(CancellationToken.None);
