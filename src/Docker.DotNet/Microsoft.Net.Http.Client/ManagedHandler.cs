@@ -15,8 +15,6 @@ public class ManagedHandler : HttpMessageHandler
 
     private IWebProxy _proxy;
 
-    private RetryPolicy _retryPolicy = RetryPolicy.Default;
-
 #if NET5_0_OR_GREATER
     private readonly ConnectionPool _connectionPool;
     private bool _enableConnectionPooling = true;
@@ -108,17 +106,6 @@ public class ManagedHandler : HttpMessageHandler
     /// Set to <see cref="Timeout.InfiniteTimeSpan"/> to disable connection timeout.
     /// </summary>
     public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// Gets or sets the retry policy for transient connection failures.
-    /// Set to <see cref="RetryPolicy.NoRetry"/> to disable retries.
-    /// Default uses exponential backoff with 3 retries.
-    /// </summary>
-    public RetryPolicy RetryPolicy
-    {
-        get => _retryPolicy;
-        set => _retryPolicy = value ?? RetryPolicy.NoRetry;
-    }
 
 #if NET5_0_OR_GREATER
     /// <summary>
@@ -562,14 +549,7 @@ public class ManagedHandler : HttpMessageHandler
         return ProxyMode.Tunnel;
     }
 
-    private Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
-    {
-        return _retryPolicy.ExecuteAsync(
-            ct => TcpSocketOpenerCoreAsync(host, port, ct),
-            cancellationToken);
-    }
-
-    private async Task<Socket> TcpSocketOpenerCoreAsync(string host, int port, CancellationToken cancellationToken)
+    private async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
 #if NET5_0_OR_GREATER
         // Use modern DNS resolution with cancellation support
