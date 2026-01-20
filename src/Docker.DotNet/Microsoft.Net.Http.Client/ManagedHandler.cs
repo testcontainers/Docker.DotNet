@@ -1,6 +1,7 @@
 namespace Microsoft.Net.Http.Client;
 
 using System;
+using Docker.DotNet;
 
 public class ManagedHandler : HttpMessageHandler
 {
@@ -10,6 +11,8 @@ public class ManagedHandler : HttpMessageHandler
 
     private readonly SocketOpener _socketOpener;
 
+    private readonly SocketConfiguration _socketConfiguration;
+
     private IWebProxy _proxy;
 
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
@@ -17,20 +20,35 @@ public class ManagedHandler : HttpMessageHandler
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
 
     public ManagedHandler(ILogger logger)
+        : this(logger, SocketConfiguration.Default)
+    {
+    }
+
+    public ManagedHandler(ILogger logger, SocketConfiguration socketConfiguration)
     {
         _logger = logger;
+        _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
         _socketOpener = TcpSocketOpenerAsync;
     }
 
     public ManagedHandler(StreamOpener opener, ILogger logger)
     {
         _logger = logger;
+        _socketConfiguration = SocketConfiguration.Default;
         _streamOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
     public ManagedHandler(SocketOpener opener, ILogger logger)
     {
         _logger = logger;
+        _socketConfiguration = SocketConfiguration.Default;
+        _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
+    }
+
+    public ManagedHandler(SocketOpener opener, ILogger logger, SocketConfiguration socketConfiguration)
+    {
+        _logger = logger;
+        _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
@@ -315,10 +333,16 @@ public class ManagedHandler : HttpMessageHandler
         return ProxyMode.Tunnel;
     }
 
-    private static async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
+    private async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
+#if NET5_0_OR_GREATER
+        // Use modern DNS resolution with cancellation support
+        var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken)
+            .ConfigureAwait(false);
+#else
         var addresses = await Dns.GetHostAddressesAsync(host)
             .ConfigureAwait(false);
+#endif
 
         if (addresses.Length == 0)
         {
@@ -333,8 +357,17 @@ public class ManagedHandler : HttpMessageHandler
 
             try
             {
+                // Apply socket configuration for better proxy compatibility
+                _socketConfiguration.ApplyTo(socket);
+
+#if NET5_0_OR_GREATER
+                // Use modern ConnectAsync with cancellation support
+                await socket.ConnectAsync(address, port, cancellationToken)
+                    .ConfigureAwait(false);
+#else
                 await socket.ConnectAsync(address, port)
                     .ConfigureAwait(false);
+#endif
 
                 return socket;
             }
