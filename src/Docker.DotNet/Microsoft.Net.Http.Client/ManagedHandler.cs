@@ -15,11 +15,6 @@ public class ManagedHandler : HttpMessageHandler
 
     private IWebProxy _proxy;
 
-#if NET5_0_OR_GREATER
-    private readonly ConnectionPool _connectionPool;
-    private bool _enableConnectionPooling = true;
-#endif
-
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
 
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
@@ -34,9 +29,6 @@ public class ManagedHandler : HttpMessageHandler
         _logger = logger;
         _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
         _socketOpener = TcpSocketOpenerAsync;
-#if NET5_0_OR_GREATER
-        _connectionPool = new ConnectionPool(logger);
-#endif
     }
 
     public ManagedHandler(StreamOpener opener, ILogger logger)
@@ -44,9 +36,6 @@ public class ManagedHandler : HttpMessageHandler
         _logger = logger;
         _socketConfiguration = SocketConfiguration.Default;
         _streamOpener = opener ?? throw new ArgumentNullException(nameof(opener));
-#if NET5_0_OR_GREATER
-        _connectionPool = new ConnectionPool(logger);
-#endif
     }
 
     public ManagedHandler(SocketOpener opener, ILogger logger)
@@ -54,9 +43,6 @@ public class ManagedHandler : HttpMessageHandler
         _logger = logger;
         _socketConfiguration = SocketConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
-#if NET5_0_OR_GREATER
-        _connectionPool = new ConnectionPool(logger);
-#endif
     }
 
     public ManagedHandler(SocketOpener opener, ILogger logger, SocketConfiguration socketConfiguration)
@@ -64,9 +50,6 @@ public class ManagedHandler : HttpMessageHandler
         _logger = logger;
         _socketConfiguration = socketConfiguration ?? SocketConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
-#if NET5_0_OR_GREATER
-        _connectionPool = new ConnectionPool(logger);
-#endif
     }
 
     public IWebProxy Proxy
@@ -106,24 +89,6 @@ public class ManagedHandler : HttpMessageHandler
     /// Set to <see cref="Timeout.InfiniteTimeSpan"/> to disable connection timeout.
     /// </summary>
     public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(30);
-
-#if NET5_0_OR_GREATER
-    /// <summary>
-    /// Gets or sets whether connection pooling is enabled.
-    /// Default is true. When enabled, connections are reused for subsequent requests.
-    /// Connection pooling is automatically disabled for hijacking requests (attach/exec).
-    /// </summary>
-    public bool EnableConnectionPooling
-    {
-        get => _enableConnectionPooling;
-        set => _enableConnectionPooling = value;
-    }
-
-    /// <summary>
-    /// Gets the connection pool used by this handler.
-    /// </summary>
-    internal ConnectionPool ConnectionPool => _connectionPool;
-#endif
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
@@ -205,184 +170,61 @@ public class ManagedHandler : HttpMessageHandler
 
         ProcessUrl(request);
         ProcessHostHeader(request);
-
-        // Check if this is a hijacking request (attach/exec) - these cannot use pooled connections
-        var isHijackingRequest = IsHijackingRequest(request);
-
-#if NET5_0_OR_GREATER
-        // For non-hijacking requests with pooling enabled, try to get a pooled connection
-        if (_enableConnectionPooling && !isHijackingRequest)
-        {
-            request.Headers.ConnectionClose = false; // Keep connection alive for pooling
-        }
-        else
-        {
-            request.Headers.ConnectionClose = !request.Headers.Contains("Connection");
-        }
-#else
         request.Headers.ConnectionClose = !request.Headers.Contains("Connection"); // TODO: Connection reuse is not supported.
-#endif
 
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
         Socket socket = null;
         Stream transport = null;
         BufferedReadStream bufferedReadStream = null;
 
-#if NET5_0_OR_GREATER
-        // Try to get a pooled connection first
-        bool usePooledConnection = false;
-        PooledConnection pooledConnection = null;
+        // Create linked cancellation token for connection timeout
+        using var timeoutCts = ConnectTimeout != Timeout.InfiniteTimeSpan
+            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+            : null;
 
-        if (_enableConnectionPooling && !isHijackingRequest && proxyMode == ProxyMode.None)
+        if (timeoutCts != null)
         {
-            try
-            {
-                if (_connectionPool.TryGetConnection(
-                    request.GetConnectionHostProperty(),
-                    request.GetConnectionPortProperty().Value,
-                    request.IsHttps(),
-                    out pooledConnection))
-                {
-                    socket = pooledConnection.Socket;
-                    transport = pooledConnection.Transport;
-                    bufferedReadStream = pooledConnection.BufferedStream;
-                    usePooledConnection = true;
-                    _logger.LogDebug("Using pooled connection for {Host}:{Port}",
-                        request.GetConnectionHostProperty(), request.GetConnectionPortProperty());
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error getting pooled connection, creating new connection");
-            }
+            timeoutCts.CancelAfter(ConnectTimeout);
         }
 
-        if (!usePooledConnection)
+        var effectiveCancellationToken = timeoutCts?.Token ?? cancellationToken;
+
+        try
         {
-#endif
-            // Create linked cancellation token for connection timeout
-            using var timeoutCts = ConnectTimeout != Timeout.InfiniteTimeSpan
-                ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
-                : null;
-
-            if (timeoutCts != null)
+            if (_socketOpener != null)
             {
-                timeoutCts.CancelAfter(ConnectTimeout);
+                socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
+                transport = new NetworkStream(socket, true);
             }
-
-            var effectiveCancellationToken = timeoutCts?.Token ?? cancellationToken;
-
-            try
+            else
             {
-                if (_socketOpener != null)
-                {
-                    socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
-                    transport = new NetworkStream(socket, true);
-                }
-                else
-                {
-                    socket = null;
-                    transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
-                }
+                socket = null;
+                transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (timeoutCts?.IsCancellationRequested == true && !cancellationToken.IsCancellationRequested)
-            {
-                throw new TimeoutException($"Connection to {request.GetConnectionHostProperty()}:{request.GetConnectionPortProperty()} timed out after {ConnectTimeout.TotalSeconds} seconds.");
-            }
-            catch (SocketException e)
-            {
-                throw new HttpRequestException("Connection failed.", e);
-            }
-
-            if (proxyMode == ProxyMode.Tunnel)
-            {
-                await TunnelThroughProxyAsync(request, transport, cancellationToken);
-            }
-
-            if (request.IsHttps())
-            {
-                transport = await EstablishSslAsync(transport, request.GetHostProperty(), cancellationToken).ConfigureAwait(false);
-            }
-
-            bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
-#if NET5_0_OR_GREATER
         }
-#endif
+        catch (OperationCanceledException) when (timeoutCts?.IsCancellationRequested == true && !cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException($"Connection to {request.GetConnectionHostProperty()}:{request.GetConnectionPortProperty()} timed out after {ConnectTimeout.TotalSeconds} seconds.");
+        }
+        catch (SocketException e)
+        {
+            throw new HttpRequestException("Connection failed.", e);
+        }
+
+        if (proxyMode == ProxyMode.Tunnel)
+        {
+            await TunnelThroughProxyAsync(request, transport, cancellationToken);
+        }
+
+        if (request.IsHttps())
+        {
+            transport = await EstablishSslAsync(transport, request.GetHostProperty(), cancellationToken).ConfigureAwait(false);
+        }
+
+        bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
 
         var connection = new HttpConnection(bufferedReadStream);
-
-#if NET5_0_OR_GREATER
-        // Create pool return callback for non-hijacking requests
-        Action<PooledConnection> poolReturnCallback = null;
-        if (_enableConnectionPooling && !isHijackingRequest && proxyMode == ProxyMode.None)
-        {
-            var host = request.GetConnectionHostProperty();
-            var port = request.GetConnectionPortProperty().Value;
-            var isHttps = request.IsHttps();
-
-            poolReturnCallback = pooledConn =>
-            {
-                try
-                {
-                    if (!_connectionPool.ReturnConnection(pooledConn))
-                    {
-                        pooledConn.Dispose();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Error returning connection to pool");
-                    pooledConn?.Dispose();
-                }
-            };
-        }
-
-        var responseContent = new HttpConnectionResponseContent(
-            connection,
-            _enableConnectionPooling && !isHijackingRequest && proxyMode == ProxyMode.None
-                ? _connectionPool.CreatePooledConnection(
-                    request.GetConnectionHostProperty(),
-                    request.GetConnectionPortProperty().Value,
-                    request.IsHttps(),
-                    socket,
-                    transport,
-                    bufferedReadStream)
-                : null,
-            poolReturnCallback);
-
-        var response = await connection.SendAsync(request, cancellationToken);
-
-        // Replace the content with our pooling-aware content
-        var originalContent = response.Content as HttpConnectionResponseContent;
-        if (originalContent != null && poolReturnCallback != null)
-        {
-            originalContent.SetPoolReturnCallback(
-                _connectionPool.CreatePooledConnection(
-                    request.GetConnectionHostProperty(),
-                    request.GetConnectionPortProperty().Value,
-                    request.IsHttps(),
-                    socket,
-                    transport,
-                    bufferedReadStream),
-                poolReturnCallback);
-        }
-
-        return response;
-#else
         return await connection.SendAsync(request, cancellationToken);
-#endif
-    }
-
-    private static bool IsHijackingRequest(HttpRequestMessage request)
-    {
-        // Check for requests that require connection hijacking
-        // These are typically attach/exec operations that upgrade the connection
-        var pathAndQuery = request.GetPathAndQueryProperty() ?? request.RequestUri?.PathAndQuery ?? string.Empty;
-
-        return pathAndQuery.Contains("/attach") ||
-               pathAndQuery.Contains("/exec/") ||
-               request.Headers.TryGetValues("Upgrade", out var upgradeValues) &&
-               upgradeValues.Any(v => "tcp".Equals(v, StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task<Stream> EstablishSslAsync(Stream transport, string targetHost, CancellationToken cancellationToken)
@@ -787,12 +629,6 @@ public class ManagedHandler : HttpMessageHandler
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
-        {
-#if NET5_0_OR_GREATER
-            _connectionPool?.Dispose();
-#endif
-        }
         base.Dispose(disposing);
     }
 }

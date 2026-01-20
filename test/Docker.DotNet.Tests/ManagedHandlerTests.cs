@@ -161,67 +161,6 @@ public class ManagedHandlerTests
 
     #endregion
 
-    #region Phase 5: Connection Pooling Tests
-
-#if NET5_0_OR_GREATER
-    [Fact]
-    public void ManagedHandler_ConnectionPooling_DefaultEnabled()
-    {
-        // Arrange & Act
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var handler = new ManagedHandler(logger);
-
-        // Assert
-        Assert.True(handler.EnableConnectionPooling);
-    }
-
-    [Fact]
-    public void ManagedHandler_ConnectionPooling_CanBeDisabled()
-    {
-        // Arrange
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var handler = new ManagedHandler(logger);
-
-        // Act
-        handler.EnableConnectionPooling = false;
-
-        // Assert
-        Assert.False(handler.EnableConnectionPooling);
-    }
-
-    [Fact]
-    public void ConnectionPool_Default_HasSensibleDefaults()
-    {
-        // Arrange & Act
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        var pool = new ConnectionPool(logger);
-
-        // Assert
-        Assert.Equal(TimeSpan.FromMinutes(2), pool.IdleTimeout);
-        Assert.Equal(TimeSpan.FromMinutes(10), pool.ConnectionLifetime);
-        Assert.Equal(10, pool.MaxConnectionsPerHost);
-
-        pool.Dispose();
-    }
-
-    [Fact]
-    public void ConnectionPool_TryGetConnection_ReturnsFalseWhenEmpty()
-    {
-        // Arrange
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var pool = new ConnectionPool(logger);
-
-        // Act
-        var result = pool.TryGetConnection("localhost", 2375, false, out var connection);
-
-        // Assert
-        Assert.False(result);
-        Assert.Null(connection);
-    }
-#endif
-
-    #endregion
-
     #region Phase 6: Modern Proxy Resolution Tests
 
     [Fact]
@@ -291,9 +230,6 @@ public class ManagedHandlerTests
         Assert.Null(handler.ServerCertificateValidationCallback);
         Assert.NotNull(handler.ClientCertificates);
         Assert.Equal(TimeSpan.FromSeconds(30), handler.ConnectTimeout);
-#if NET5_0_OR_GREATER
-        Assert.True(handler.EnableConnectionPooling);
-#endif
     }
 
     [Fact]
