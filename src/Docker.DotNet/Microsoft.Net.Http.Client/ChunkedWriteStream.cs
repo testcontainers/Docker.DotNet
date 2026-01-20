@@ -1,9 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class ChunkedWriteStream : Stream
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    , IAsyncDisposable
-#endif
 {
     private static readonly byte[] EndOfContentBytes = Encoding.ASCII.GetBytes("0\r\n\r\n");
 
@@ -92,33 +89,6 @@ internal sealed class ChunkedWriteStream : Stream
         return _inner.WriteAsync(EndOfContentBytes, 0, EndOfContentBytes.Length, cancellationToken);
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        if (buffer.Length == 0)
-        {
-            return;
-        }
-
-        const string crlf = "\r\n";
-
-        var chunkHeader = buffer.Length.ToString("X") + crlf;
-        var headerBytes = Encoding.ASCII.GetBytes(chunkHeader);
-
-        // Write the chunk header
-        await _inner.WriteAsync(headerBytes.AsMemory(), cancellationToken)
-            .ConfigureAwait(false);
-
-        // Write the chunk data
-        await _inner.WriteAsync(buffer, cancellationToken)
-            .ConfigureAwait(false);
-
-        // Write the chunk footer (CRLF)
-        await _inner.WriteAsync(headerBytes.AsMemory(headerBytes.Length - 2, 2), cancellationToken)
-            .ConfigureAwait(false);
-    }
-#endif
-
     protected override void Dispose(bool disposing)
     {
         if (!_disposed && disposing)
@@ -128,17 +98,4 @@ internal sealed class ChunkedWriteStream : Stream
         }
         base.Dispose(disposing);
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new ValueTask DisposeAsync()
-    {
-        if (!_disposed)
-        {
-            _disposed = true;
-            // Note: We don't dispose _inner here as it's owned by the caller
-        }
-        GC.SuppressFinalize(this);
-        return default;
-    }
-#endif
 }

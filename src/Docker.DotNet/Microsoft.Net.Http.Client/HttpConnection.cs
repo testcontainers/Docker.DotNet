@@ -1,9 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    , IAsyncDisposable
-#endif
 {
     private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
@@ -21,11 +18,7 @@ internal sealed class HttpConnection : IDisposable
             // Serialize headers & send
             string rawRequest = SerializeRequest(request);
             byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            await Transport.WriteAsync(requestBytes.AsMemory(), cancellationToken).ConfigureAwait(false);
-#else
             await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken).ConfigureAwait(false);
-#endif
 
             if (request.Content != null)
             {
@@ -205,11 +198,4 @@ internal sealed class HttpConnection : IDisposable
     {
         Transport.Dispose();
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public ValueTask DisposeAsync()
-    {
-        return Transport.DisposeAsync();
-    }
-#endif
 }

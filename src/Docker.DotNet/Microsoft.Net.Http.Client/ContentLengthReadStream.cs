@@ -1,9 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
 internal class ContentLengthReadStream : Stream
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    , IAsyncDisposable
-#endif
 {
     private readonly Stream _inner;
     private long _bytesRemaining;
@@ -123,27 +120,6 @@ internal class ContentLengthReadStream : Stream
         return read;
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        if (_disposed)
-        {
-            return 0;
-        }
-
-        if (_bytesRemaining == 0)
-        {
-            return 0;
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-        int toRead = (int)Math.Min(buffer.Length, _bytesRemaining);
-        int read = await _inner.ReadAsync(buffer.Slice(0, toRead), cancellationToken).ConfigureAwait(false);
-        UpdateBytesRemaining(read);
-        return read;
-    }
-#endif
-
     protected override void Dispose(bool disposing)
     {
         if (disposing && !_disposed)
@@ -153,18 +129,6 @@ internal class ContentLengthReadStream : Stream
             _inner.Dispose();
         }
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new async ValueTask DisposeAsync()
-    {
-        if (!_disposed)
-        {
-            _disposed = true;
-            await _inner.DisposeAsync().ConfigureAwait(false);
-        }
-        GC.SuppressFinalize(this);
-    }
-#endif
 
     private void CheckDisposed()
     {

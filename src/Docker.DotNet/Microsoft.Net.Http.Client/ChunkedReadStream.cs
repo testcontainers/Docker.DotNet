@@ -1,9 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class ChunkedReadStream : Stream
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    , IAsyncDisposable
-#endif
 {
     private readonly BufferedReadStream _inner;
     private int _chunkBytesRemaining;
@@ -126,59 +123,6 @@ internal sealed class ChunkedReadStream : Stream
         return readBytesCount;
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        if (_done)
-        {
-            return 0;
-        }
-
-        if (_chunkBytesRemaining == 0)
-        {
-            var headerLine = await _inner.ReadLineAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
-            {
-                throw new IOException($"Invalid chunk header encountered: '{headerLine}'.");
-            }
-        }
-
-        var readBytesCount = 0;
-
-        if (_chunkBytesRemaining > 0)
-        {
-            var remainingBytesCount = Math.Min(_chunkBytesRemaining, buffer.Length);
-
-            readBytesCount = await _inner.ReadAsync(buffer.Slice(0, remainingBytesCount), cancellationToken)
-                .ConfigureAwait(false);
-
-            if (readBytesCount == 0)
-            {
-                throw new EndOfStreamException();
-            }
-
-            _chunkBytesRemaining -= readBytesCount;
-        }
-
-        if (_chunkBytesRemaining == 0)
-        {
-            var emptyLine = await _inner.ReadLineAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(emptyLine))
-            {
-                throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
-            }
-
-            _done = readBytesCount == 0;
-        }
-
-        return readBytesCount;
-    }
-#endif
-
     public override void Write(byte[] buffer, int offset, int count)
     {
         _inner.Write(buffer, offset, count);
@@ -188,13 +132,6 @@ internal sealed class ChunkedReadStream : Stream
     {
         return _inner.WriteAsync(buffer, offset, count, cancellationToken);
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        return _inner.WriteAsync(buffer, cancellationToken);
-    }
-#endif
 
     public override long Seek(long offset, SeekOrigin origin)
     {
@@ -220,17 +157,4 @@ internal sealed class ChunkedReadStream : Stream
         }
         base.Dispose(disposing);
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new ValueTask DisposeAsync()
-    {
-        if (!_disposed)
-        {
-            _disposed = true;
-            // Note: We don't dispose _inner here as it's owned by HttpConnection
-        }
-        GC.SuppressFinalize(this);
-        return default;
-    }
-#endif
 }

@@ -1,9 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    , IAsyncDisposable
-#endif
 {
     private readonly Stream _inner;
     private readonly Socket _socket;
@@ -83,25 +80,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         base.Dispose(disposing);
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new async ValueTask DisposeAsync()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        if (Interlocked.Exchange(ref _bufferRefCount, 0) == 1)
-        {
-            ArrayPool<byte>.Shared.Return(_buffer);
-        }
-
-        await _inner.DisposeAsync().ConfigureAwait(false);
-        GC.SuppressFinalize(this);
-    }
-#endif
-
     public override long Seek(long offset, SeekOrigin origin)
     {
         throw new NotSupportedException();
@@ -132,13 +110,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         return _inner.WriteAsync(buffer, offset, count, cancellationToken);
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        return _inner.WriteAsync(buffer, cancellationToken);
-    }
-#endif
-
     public override int Read(byte[] buffer, int offset, int count)
     {
         int read = ReadBuffer(buffer, offset, count);
@@ -160,33 +131,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         return _inner.ReadAsync(buffer, offset, count, cancellationToken);
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        int read = ReadBufferMemory(buffer.Span);
-        if (read > 0)
-        {
-            return new ValueTask<int>(read);
-        }
-
-        return _inner.ReadAsync(buffer, cancellationToken);
-    }
-
-    private int ReadBufferMemory(Span<byte> destination)
-    {
-        if (_bufferCount > 0)
-        {
-            int toCopy = Math.Min(_bufferCount, destination.Length);
-            _buffer.AsSpan(_bufferOffset, toCopy).CopyTo(destination);
-            _bufferOffset += toCopy;
-            _bufferCount -= toCopy;
-            return toCopy;
-        }
-
-        return 0;
-    }
-#endif
 
     public override void CloseWrite()
     {

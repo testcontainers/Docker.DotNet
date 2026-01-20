@@ -11,71 +11,7 @@ using Xunit;
 /// </summary>
 public class ManagedHandlerTests
 {
-    #region Phase 1: Memory-Efficient APIs & IAsyncDisposable Tests
-
-    [Fact]
-    public async Task BufferedReadStream_ImplementsIAsyncDisposable()
-    {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        // Arrange
-        var mockStream = new MemoryStream(Encoding.ASCII.GetBytes("Hello, World!"));
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-
-        // Act & Assert
-        Assert.True(bufferedStream is IAsyncDisposable);
-        await ((IAsyncDisposable)bufferedStream).DisposeAsync();
-#else
-        await Task.CompletedTask;
-#endif
-    }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    [Fact]
-    public async Task BufferedReadStream_ReadAsyncMemory_ReadsFromBuffer()
-    {
-        // Arrange
-        var testData = "Hello, World!"u8.ToArray();
-        var mockStream = new MemoryStream(testData);
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        var bufferedStream = new BufferedReadStream(mockStream, null, logger);
-
-        // Act
-        var buffer = new byte[5];
-        var bytesRead = await bufferedStream.ReadAsync(buffer.AsMemory());
-
-        // Assert
-        Assert.Equal(5, bytesRead);
-        Assert.Equal("Hello", Encoding.ASCII.GetString(buffer));
-
-        await bufferedStream.DisposeAsync();
-    }
-
-    [Fact]
-    public async Task BufferedReadStream_WriteAsyncMemory_WritesToInner()
-    {
-        // Arrange
-        var outputStream = new MemoryStream();
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        var bufferedStream = new BufferedReadStream(outputStream, null, logger);
-
-        // Act
-        var data = "Test Data"u8.ToArray();
-        await bufferedStream.WriteAsync(data.AsMemory());
-
-        // Assert
-        outputStream.Position = 0;
-        var result = new byte[data.Length];
-        await outputStream.ReadAsync(result.AsMemory());
-        Assert.Equal("Test Data", Encoding.ASCII.GetString(result));
-
-        await bufferedStream.DisposeAsync();
-    }
-#endif
-
-    #endregion
-
-    #region Phase 2: Connection Timeout Tests
+    #region Connection Timeout Tests
 
     [Fact]
     public void ManagedHandler_ConnectTimeout_HasDefaultValue()
@@ -201,7 +137,7 @@ public class ManagedHandlerTests
         var testData = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n";
         var mockStream = new MemoryStream(Encoding.ASCII.GetBytes(testData));
         var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        await using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
+        using var bufferedStream = new BufferedReadStream(mockStream, null, logger);
 
         // Act
         var line = await bufferedStream.ReadLineAsync(CancellationToken.None);
