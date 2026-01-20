@@ -1,6 +1,9 @@
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    , IAsyncDisposable
+#endif
 {
     private readonly Stream _inner;
     private readonly Socket _socket;
@@ -9,6 +12,23 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     private int _bufferRefCount;
     private int _bufferOffset;
     private int _bufferCount;
+    private bool _disposed;
+
+#if NET6_0_OR_GREATER
+    private PipeReader _pipeReader;
+    private bool _usePipeReader = true;
+    private bool _pipeReaderFailed;
+
+    /// <summary>
+    /// Gets or sets whether to use PipeReader for line reading operations.
+    /// Default is true. Falls back to byte-by-byte reading on failure.
+    /// </summary>
+    public bool UsePipeReader
+    {
+        get => _usePipeReader;
+        set => _usePipeReader = value;
+    }
+#endif
 
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
@@ -59,18 +79,54 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     protected override void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
         {
+            _disposed = true;
             if (Interlocked.Exchange(ref _bufferRefCount, 0) == 1)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
+
+#if NET6_0_OR_GREATER
+            _pipeReader?.Complete();
+#endif
 
             _inner.Dispose();
         }
 
         base.Dispose(disposing);
     }
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    public new async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        if (Interlocked.Exchange(ref _bufferRefCount, 0) == 1)
+        {
+            ArrayPool<byte>.Shared.Return(_buffer);
+        }
+
+#if NET6_0_OR_GREATER
+        if (_pipeReader != null)
+        {
+            await _pipeReader.CompleteAsync().ConfigureAwait(false);
+        }
+#endif
+
+        await _inner.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
+    }
+#endif
 
     public override long Seek(long offset, SeekOrigin origin)
     {
@@ -102,6 +158,13 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         return _inner.WriteAsync(buffer, offset, count, cancellationToken);
     }
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        return _inner.WriteAsync(buffer, cancellationToken);
+    }
+#endif
+
     public override int Read(byte[] buffer, int offset, int count)
     {
         int read = ReadBuffer(buffer, offset, count);
@@ -123,6 +186,33 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         return _inner.ReadAsync(buffer, offset, count, cancellationToken);
     }
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        int read = ReadBufferMemory(buffer.Span);
+        if (read > 0)
+        {
+            return new ValueTask<int>(read);
+        }
+
+        return _inner.ReadAsync(buffer, cancellationToken);
+    }
+
+    private int ReadBufferMemory(Span<byte> destination)
+    {
+        if (_bufferCount > 0)
+        {
+            int toCopy = Math.Min(_bufferCount, destination.Length);
+            _buffer.AsSpan(_bufferOffset, toCopy).CopyTo(destination);
+            _bufferOffset += toCopy;
+            _bufferCount -= toCopy;
+            return toCopy;
+        }
+
+        return 0;
+    }
+#endif
 
     public override void CloseWrite()
     {
@@ -158,6 +248,93 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     }
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
+    {
+#if NET6_0_OR_GREATER
+        // Try PipeReader-based implementation first (more efficient)
+        if (_usePipeReader && !_pipeReaderFailed)
+        {
+            try
+            {
+                return await ReadLineWithPipeReaderAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // Fall back to byte-by-byte on failure
+                _pipeReaderFailed = true;
+                _logger.LogWarning(ex, "PipeReader line reading failed, falling back to byte-by-byte implementation");
+            }
+        }
+#endif
+
+        return await ReadLineByteByByteAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+#if NET6_0_OR_GREATER
+    private async Task<string> ReadLineWithPipeReaderAsync(CancellationToken cancellationToken)
+    {
+        // Create PipeReader lazily
+        if (_pipeReader == null)
+        {
+            // First, consume any buffered data
+            if (_bufferCount > 0)
+            {
+                // We have buffered data, fall back to byte-by-byte for this call
+                // to avoid complexity of merging buffer with PipeReader
+                return await ReadLineByteByByteAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            _pipeReader = PipeReader.Create(_inner, new StreamPipeReaderOptions(leaveOpen: true));
+        }
+
+        while (true)
+        {
+            var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            var buffer = result.Buffer;
+
+            // Look for CRLF in the buffer
+            var position = buffer.PositionOf((byte)'\n');
+
+            if (position != null)
+            {
+                // Found newline - extract line up to it
+                var lineBuffer = buffer.Slice(0, position.Value);
+                var lineBytes = lineBuffer.ToArray();
+
+                // Remove trailing CR if present
+                var lineLength = lineBytes.Length;
+                if (lineLength > 0 && lineBytes[lineLength - 1] == '\r')
+                {
+                    lineLength--;
+                }
+
+                var line = Encoding.ASCII.GetString(lineBytes, 0, lineLength);
+
+                // Tell the PipeReader we've consumed up to and including the newline
+                _pipeReader.AdvanceTo(buffer.GetPosition(1, position.Value));
+
+                return line;
+            }
+
+            if (result.IsCompleted)
+            {
+                if (buffer.Length > 0)
+                {
+                    // Return remaining data as the last line
+                    var line = Encoding.ASCII.GetString(buffer.ToArray());
+                    _pipeReader.AdvanceTo(buffer.End);
+                    return line;
+                }
+
+                throw new EndOfStreamException("Unexpected end of stream while reading line");
+            }
+
+            // Tell the reader we need more data
+            _pipeReader.AdvanceTo(buffer.Start, buffer.End);
+        }
+    }
+#endif
+
+    private async Task<string> ReadLineByteByByteAsync(CancellationToken cancellationToken)
     {
         var line = new StringBuilder(32);
 

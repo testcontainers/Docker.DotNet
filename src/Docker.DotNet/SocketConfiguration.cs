@@ -73,6 +73,26 @@ public sealed class SocketConfiguration
     /// </summary>
     public int? ReceiveBufferSize { get; set; }
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Gets or sets whether Happy Eyeballs (RFC 8305) is enabled for dual-stack hosts.
+    /// When enabled, IPv6 and IPv4 connections are raced to find the fastest route.
+    /// Default is true.
+    /// </summary>
+    /// <remarks>
+    /// Happy Eyeballs improves connection times on dual-stack networks by attempting
+    /// IPv6 first, then starting an IPv4 connection after a short delay if IPv6
+    /// hasn't connected yet, and using whichever connects first.
+    /// </remarks>
+    public bool EnableHappyEyeballs { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the delay before starting an IPv4 connection when Happy Eyeballs is enabled.
+    /// Default is 250ms as recommended by RFC 8305.
+    /// </summary>
+    public TimeSpan HappyEyeballsDelay { get; set; } = TimeSpan.FromMilliseconds(250);
+#endif
+
     /// <summary>
     /// Applies the configuration to a socket.
     /// </summary>
