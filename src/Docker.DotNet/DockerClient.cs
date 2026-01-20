@@ -60,7 +60,7 @@ public sealed class DockerClient : IDockerClient
                 var pipeName = uri.Segments[2];
 
                 uri = new UriBuilder("http", pipeName).Uri;
-                handler = new ManagedHandler(async (host, port, cancellationToken) =>
+                var pipeHandler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
                     var timeout = (int)Configuration.NamedPipeConnectTimeout.TotalMilliseconds;
                     var stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
@@ -71,6 +71,9 @@ public sealed class DockerClient : IDockerClient
 
                     return dockerStream;
                 }, logger);
+                // Named pipes are local connections - disable proxy resolution
+                pipeHandler.UseProxy = false;
+                handler = pipeHandler;
                 break;
 
             case "tcp":
@@ -97,7 +100,7 @@ public sealed class DockerClient : IDockerClient
                 // ManagedHandler is required for hijacked stream operations (attach/exec/logs)
                 // as it provides HttpConnectionResponseContent needed for connection hijacking.
                 // SocketsHttpHandler cannot support hijacking because it encapsulates the transport stream.
-                handler = new ManagedHandler(async (_, _, cancellationToken) =>
+                var unixHandler = new ManagedHandler(async (_, _, cancellationToken) =>
                 {
                     var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
                     var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
@@ -145,6 +148,9 @@ public sealed class DockerClient : IDockerClient
                         throw;
                     }
                 }, logger, socketConfig);
+                // Unix sockets are local connections - disable proxy resolution
+                unixHandler.UseProxy = false;
+                handler = unixHandler;
                 break;
 
             default:
