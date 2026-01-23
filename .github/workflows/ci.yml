@@ -11,7 +11,7 @@ jobs:
     services:
       # Docker without TLS (plain TCP) !DEPRECATED! with next docker release
       docker-no-tls:
-        image: docker:28.1-dind
+        image: docker:29.1.1-dind
         env:
           DOCKER_TLS_CERTDIR: ""
         ports:
@@ -21,7 +21,7 @@ jobs:
 
       # Docker with TLS (secure TCP)
       docker-tls:
-        image: docker:28.1-dind
+        image: docker:29.1.1-dind
         env:
           DOCKER_TLS_CERTDIR: /certs
         ports:
@@ -77,13 +77,13 @@ jobs:
               --tlscacert=${{ github.workspace }}/certs/client/ca.pem \
               --tlscert=${{ github.workspace }}/certs/client/cert.pem \
               --tlskey=${{ github.workspace }}/certs/client/key.pem version; then
-              echo "Docker (TLS) is ready!"
+              echo "Docker (with TLS) is ready!"
               exit 0
             fi
-            echo "Waiting for Docker (TLS) to be ready..."
+            echo "Waiting for Docker (with TLS) to be ready..."
             sleep 3
           done
-          echo "Docker (TLS) did not become ready in time."
+          echo "Docker (with TLS) did not become ready in time."
           exit 1
 
       - name: Test

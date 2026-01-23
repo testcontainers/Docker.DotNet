@@ -205,7 +205,7 @@ You can cancel streaming using the cancellation token. Or, if you wish to contin
 If you are [running Docker with TLS (HTTPS)][docker-tls], you can authenticate to the Docker instance using the [**`Docker.DotNet.Enhanced.X509`**][Docker.DotNet.X509] package. You can get this package from NuGet or by running the following command in the "Package Manager Console":
 
 ```console
-    PM> Install-Package Docker.DotNet.Enhanced.X509
+PM> Install-Package Docker.DotNet.Enhanced.X509
 ```
 
 Once you add `Docker.DotNet.Enhanced.X509` to your project, use the `CertificateCredentials` type:
@@ -221,7 +221,7 @@ If you don't want to authenticate you can omit the `credentials` parameter, whic
 The `CertFile` in the example above should be a PFX file (PKCS12 format), if you have PEM formatted certificates which Docker normally uses you can either convert it programmatically or use `openssl` tool to generate a PFX:
 
 ```console
-    openssl pkcs12 -export -inkey key.pem -in cert.pem -out key.pfx
+openssl pkcs12 -export -inkey key.pem -in cert.pem -out key.pfx
 ```
 
 (Here, your private key is `key.pem`, public key is `cert.pem` and output file is named `key.pfx`.) This will prompt a password for PFX file and then you can use this PFX file on Windows. If the certificate is self-signed, your application may reject the server certificate, in this case you might want to disable server certificate validation:
@@ -236,7 +236,7 @@ credentials.ServerCertificateValidationCallback = (o, c, ch, er) => true;
 If the Docker instance is secured with "Basic" HTTP authentication, you can use the [**`Docker.DotNet.Enhanced.BasicAuth`**][Docker.DotNet.BasicAuth] package. Get this package from NuGet or by running the following command in the "Package Manager Console":
 
 ```console
-    PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
+PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
 ```
 
 Once you added `Docker.DotNet.Enhanced.BasicAuth` to your project, use `BasicAuthCredentials` type:
