@@ -236,7 +236,7 @@ credentials.ServerCertificateValidationCallback = (o, c, ch, er) => true;
 If the Docker instance is secured with "Basic" HTTP authentication, you can use the [**`Docker.DotNet.Enhanced.BasicAuth`**][Docker.DotNet.BasicAuth] package. Get this package from NuGet or by running the following command in the "Package Manager Console":
 
 ```console
-    PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
+PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
 ```
 
 Once you added `Docker.DotNet.Enhanced.BasicAuth` to your project, use `BasicAuthCredentials` type:
