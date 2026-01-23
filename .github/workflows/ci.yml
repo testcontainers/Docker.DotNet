@@ -34,8 +34,8 @@ jobs:
     strategy:
       matrix:
         framework:
-          - net8.0
-          - net9.0
+          - 8.0
+          - 9.0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,9 +44,9 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.x
+          dotnet-version: ${{ matrix.framework }}
       - name: Build
-        run: dotnet build -c Release --framework ${{ matrix.framework }}
+        run: dotnet build -c Release --framework net${{ matrix.framework }}
         working-directory: test
 
       - name: Pack client cert, key, ca for C# docker client
@@ -87,5 +87,5 @@ jobs:
           exit 1
 
       - name: Test
-        run: dotnet test -c Release --framework ${{ matrix.framework }} --no-build --logger console
+        run: dotnet test -c Release --framework net${{ matrix.framework }} --no-build --logger console
         working-directory: test
