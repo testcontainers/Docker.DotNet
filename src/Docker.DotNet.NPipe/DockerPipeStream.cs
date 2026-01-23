@@ -42,13 +42,17 @@ internal class DockerPipeStream : WriteClosableStream, IPeekableStream
     {
         // The Docker daemon expects a write of zero bytes to signal the end of writes. Use native
         // calls to achieve this since CoreCLR ignores a zero-byte write.
+#pragma warning disable CA1416
         var overlapped = new NativeOverlapped();
+#pragma warning restore CA1416
 
         var handle = _event.GetSafeWaitHandle();
 
         // Set the low bit to tell Windows not to send the result of this IO to the
         // completion port.
+#pragma warning disable CA1416
         overlapped.EventHandle = (IntPtr)(handle.DangerousGetHandle().ToInt64() | 1);
+#pragma warning restore CA1416
         if (WriteFile(_stream.SafePipeHandle, IntPtr.Zero, 0, IntPtr.Zero, ref overlapped) == 0)
         {
             const int ERROR_IO_PENDING = 997;
