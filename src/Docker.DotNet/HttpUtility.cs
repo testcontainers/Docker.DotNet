@@ -1,10 +1,8 @@
 namespace Docker.DotNet;
 
-using System;
-
 internal static class HttpUtility
 {
-    public static Uri BuildUri(Uri baseUri, Version requestedApiVersion, string path, IQueryString queryString)
+    public static Uri BuildUri(Uri baseUri, System.Version requestedApiVersion, string path, IQueryString queryString)
     {
         if (baseUri == null)
         {

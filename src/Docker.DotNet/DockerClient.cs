@@ -1,8 +1,5 @@
 namespace Docker.DotNet;
 
-using System;
-using System.Reflection;
-
 public sealed class DockerClient : IDockerClient
 {
     internal readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
@@ -13,11 +10,11 @@ public sealed class DockerClient : IDockerClient
 
     private readonly Uri _endpointBaseUri;
 
-    private readonly Version _requestedApiVersion;
+    private readonly System.Version _requestedApiVersion;
 
     private readonly IDockerHandlerFactory _handlerFactory;
 
-    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, IDockerHandlerFactory handlerFactory = null, ILogger logger = null)
+    internal DockerClient(DockerClientConfiguration configuration, System.Version requestedApiVersion, IDockerHandlerFactory handlerFactory = null, ILogger logger = null)
     {
         _requestedApiVersion = requestedApiVersion;
         Configuration = configuration;
@@ -390,7 +387,7 @@ public sealed class DockerClient : IDockerClient
         }
 
         var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_endpointBaseUri, _requestedApiVersion, path, queryString));
-        request.Version = new Version(1, 1);
+        request.Version = new System.Version(1, 1);
         request.Headers.Add("User-Agent", UserAgent);
 
         var customHeaders = headers == null
