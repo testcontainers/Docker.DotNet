@@ -1,17 +1,5 @@
 namespace Microsoft.Net.Http.Client;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Logging;
-
 public class ManagedHandler : HttpMessageHandler
 {
     private readonly ILogger _logger;

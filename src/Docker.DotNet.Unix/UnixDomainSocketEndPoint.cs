@@ -1,10 +1,6 @@
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
+namespace Docker.DotNet.Unix;
 
-namespace Microsoft.Net.Http.Client;
-
-internal sealed class UnixDomainSocketEndPoint : EndPoint
+internal class UnixDomainSocketEndPoint : EndPoint
 {
     private const AddressFamily EndPointAddressFamily = AddressFamily.Unix;
 

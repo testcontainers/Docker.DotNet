@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Security.Authentication;
-
 namespace Docker.DotNet.X509;
 
 public class CertificateCredentials : Credentials

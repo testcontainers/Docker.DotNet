@@ -1,9 +1,3 @@
-using System.Buffers;
-using System.IO;
-using System.Net.Sockets;
-using Docker.DotNet;
-using Microsoft.Extensions.Logging;
-
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream

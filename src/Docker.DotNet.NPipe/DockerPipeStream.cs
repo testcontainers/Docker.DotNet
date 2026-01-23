@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-public sealed class DockerPipeStream : WriteClosableStream, IPeekableStream
+internal class DockerPipeStream : WriteClosableStream, IPeekableStream
 {
     private readonly EventWaitHandle _event = new EventWaitHandle(false, EventResetMode.AutoReset);
     private readonly PipeStream _stream;

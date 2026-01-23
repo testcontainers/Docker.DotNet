@@ -17,13 +17,15 @@
     <ProjectReference Include="..\..\src\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.LegacyHttp\Docker.DotNet.LegacyHttp.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
-    
   </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.Net.Security" />
+    <Using Include="System.Security.Cryptography.X509Certificates" />
+    <Using Include="System.IO" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq" />
@@ -32,6 +34,11 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Models" />
+    <Using Include="Docker.DotNet.LegacyHttp" />
+    <Using Include="Docker.DotNet.NativeHttp" />
+    <Using Include="Docker.DotNet.NPipe" />
+    <Using Include="Docker.DotNet.Unix" />
+    <Using Include="Docker.DotNet.X509" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Logging.Abstractions" />
     <Using Include="Xunit" />

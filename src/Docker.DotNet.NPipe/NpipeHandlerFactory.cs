@@ -1,9 +1,3 @@
-using System;
-using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
 namespace Docker.DotNet.NPipe
 {
     public class NpipeHandlerFactory : IDockerHandlerFactory
@@ -26,7 +20,7 @@ namespace Docker.DotNet.NPipe
             }
             var pipeName = uri.Segments[2];
             uri = new UriBuilder("http", pipeName).Uri;
-            
+
             return new Tuple<HttpMessageHandler, Uri>(
                 new Microsoft.Net.Http.Client.ManagedHandler(async (host, port, cancellationToken) =>
                 {

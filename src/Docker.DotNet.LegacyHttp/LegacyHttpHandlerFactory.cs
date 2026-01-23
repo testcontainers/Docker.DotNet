@@ -1,6 +1,3 @@
-using System;
-using Microsoft.Extensions.Logging;
-
 namespace Docker.DotNet.LegacyHttp
 {
     public class LegacyHttpHandlerFactory : IDockerHandlerFactory

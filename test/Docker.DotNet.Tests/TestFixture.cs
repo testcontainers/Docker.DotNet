@@ -1,12 +1,3 @@
-using System.IO;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using Docker.DotNet.LegacyHttp;
-using Docker.DotNet.NativeHttp;
-using Docker.DotNet.NPipe;
-using Docker.DotNet.Unix;
-using Docker.DotNet.X509;
-
 namespace Docker.DotNet.Tests;
 
 [CollectionDefinition(nameof(TestCollection))]

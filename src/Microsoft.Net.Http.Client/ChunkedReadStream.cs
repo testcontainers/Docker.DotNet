@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.IO;
-
 namespace Microsoft.Net.Http.Client;
 
 internal sealed class ChunkedReadStream : Stream

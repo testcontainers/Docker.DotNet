@@ -1,6 +1,3 @@
-using System;
-using Microsoft.Extensions.Logging;
-
 namespace Docker.DotNet.NativeHttp
 {
     public class NativeHttpHandlerFactory : IDockerHandlerFactory

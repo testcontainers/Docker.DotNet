@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace Microsoft.Net.Http.Client;
 
 internal class ContentLengthReadStream : Stream

@@ -19,6 +19,7 @@
     <Using Include="System.Net.Http" />
     <Using Include="System.IO.Pipes" />
     <Using Include="System.Net.Security" />
+    <Using Include="System.Security.Authentication" />
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
   </ItemGroup>

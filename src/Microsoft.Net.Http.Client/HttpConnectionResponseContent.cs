@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace Microsoft.Net.Http.Client;
 
 public class HttpConnectionResponseContent : HttpContent
@@ -32,7 +30,7 @@ public class HttpConnectionResponseContent : HttpContent
         }
     }
 
-    public Docker.DotNet.WriteClosableStream HijackStream()
+    public WriteClosableStream HijackStream()
     {
         if (_responseStream != _connection.Transport)
         {
