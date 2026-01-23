@@ -205,7 +205,7 @@ You can cancel streaming using the cancellation token. Or, if you wish to contin
 If you are [running Docker with TLS (HTTPS)][docker-tls], you can authenticate to the Docker instance using the [**`Docker.DotNet.Enhanced.X509`**][Docker.DotNet.X509] package. You can get this package from NuGet or by running the following command in the "Package Manager Console":
 
 ```console
-    PM> Install-Package Docker.DotNet.Enhanced.X509
+PM> Install-Package Docker.DotNet.Enhanced.X509
 ```
 
 Once you add `Docker.DotNet.Enhanced.X509` to your project, use the `CertificateCredentials` type:
