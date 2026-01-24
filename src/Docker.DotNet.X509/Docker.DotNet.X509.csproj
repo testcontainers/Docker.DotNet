@@ -13,14 +13,14 @@
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.IO" />
-    <Using Include="System.Net" />
-    <Using Include="System.Text" />
-    <Using Include="System.Security" />
-    <Using Include="System.Net.Http" />
     <Using Include="System.IO.Pipes" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
     <Using Include="System.Net.Security" />
+    <Using Include="System.Security" />
     <Using Include="System.Security.Authentication" />
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
+    <Using Include="System.Text" />
   </ItemGroup>
 </Project>

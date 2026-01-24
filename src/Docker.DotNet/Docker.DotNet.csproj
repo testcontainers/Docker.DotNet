@@ -24,8 +24,8 @@
     <Using Include="System.Diagnostics" />
     <Using Include="System.Globalization" />
     <Using Include="System.IO" />
-    <Using Include="System.IO.Pipes" />
     <Using Include="System.IO.Pipelines" />
+    <Using Include="System.IO.Pipes" />
     <Using Include="System.Linq" />
     <Using Include="System.Net" />
     <Using Include="System.Net.Http" />

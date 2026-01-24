@@ -10,16 +10,16 @@
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq" />
     <Using Include="System.Net" />
-    <Using Include="System.Net.Sockets" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Net.Sockets" />
     <Using Include="System.Runtime.InteropServices" />
     <Using Include="System.Security" />
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
-    <Using Include="System.Linq" />
     <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
   <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />

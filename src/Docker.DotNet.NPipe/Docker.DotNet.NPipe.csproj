@@ -9,6 +9,8 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.IO" />
+    <Using Include="System.IO.Pipes" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Runtime.InteropServices" />
@@ -16,8 +18,6 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
-    <Using Include="System.IO" />
-    <Using Include="System.IO.Pipes" />
     <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
   <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
