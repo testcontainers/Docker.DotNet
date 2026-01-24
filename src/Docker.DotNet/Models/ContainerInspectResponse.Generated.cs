@@ -1,44 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ContainerInspectResponse // (container.InspectResponse)
     {
-        public ContainerInspectResponse()
-        {
-        }
-
-        public ContainerInspectResponse(ContainerJSONBase ContainerJSONBase)
-        {
-            if (ContainerJSONBase != null)
-            {
-                this.ID = ContainerJSONBase.ID;
-                this.Created = ContainerJSONBase.Created;
-                this.Path = ContainerJSONBase.Path;
-                this.Args = ContainerJSONBase.Args;
-                this.State = ContainerJSONBase.State;
-                this.Image = ContainerJSONBase.Image;
-                this.ResolvConfPath = ContainerJSONBase.ResolvConfPath;
-                this.HostnamePath = ContainerJSONBase.HostnamePath;
-                this.HostsPath = ContainerJSONBase.HostsPath;
-                this.LogPath = ContainerJSONBase.LogPath;
-                this.Name = ContainerJSONBase.Name;
-                this.RestartCount = ContainerJSONBase.RestartCount;
-                this.Driver = ContainerJSONBase.Driver;
-                this.Platform = ContainerJSONBase.Platform;
-                this.MountLabel = ContainerJSONBase.MountLabel;
-                this.ProcessLabel = ContainerJSONBase.ProcessLabel;
-                this.AppArmorProfile = ContainerJSONBase.AppArmorProfile;
-                this.ExecIDs = ContainerJSONBase.ExecIDs;
-                this.HostConfig = ContainerJSONBase.HostConfig;
-                this.GraphDriver = ContainerJSONBase.GraphDriver;
-                this.SizeRw = ContainerJSONBase.SizeRw;
-                this.SizeRootFs = ContainerJSONBase.SizeRootFs;
-            }
-        }
-
         [JsonPropertyName("Id")]
         public string ID { get; set; }
 
@@ -99,6 +62,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("GraphDriver")]
         public DriverData GraphDriver { get; set; }
 
+        [JsonPropertyName("Storage")]
+        public Storage Storage { get; set; }
+
         [JsonPropertyName("SizeRw")]
         public long? SizeRw { get; set; }
 
@@ -109,7 +75,7 @@ namespace Docker.DotNet.Models
         public IList<MountPoint> Mounts { get; set; }
 
         [JsonPropertyName("Config")]
-        public Config Config { get; set; }
+        public ContainerConfig Config { get; set; }
 
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettings NetworkSettings { get; set; }

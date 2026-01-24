@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ContainerExecCreateParameters // (main.ContainerExecCreateParameters)
@@ -11,11 +8,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Privileged")]
         public bool Privileged { get; set; }
 
-        [JsonPropertyName("Tty")]
-        public bool Tty { get; set; }
+        [JsonPropertyName("TTY")]
+        public bool TTY { get; set; }
 
         [JsonPropertyName("ConsoleSize")]
-        public ulong[] ConsoleSize { get; set; }
+        public ConsoleSize ConsoleSize { get; set; }
 
         [JsonPropertyName("AttachStdin")]
         public bool AttachStdin { get; set; }
@@ -25,9 +22,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("AttachStdout")]
         public bool AttachStdout { get; set; }
-
-        [JsonPropertyName("Detach")]
-        public bool Detach { get; set; }
 
         [JsonPropertyName("DetachKeys")]
         public string DetachKeys { get; set; }

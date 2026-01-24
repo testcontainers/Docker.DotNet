@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class Descriptor // (v1.Descriptor)
@@ -20,7 +17,14 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("annotations")]
         public IDictionary<string, string> Annotations { get; set; }
 
+        [JsonPropertyName("data")]
+        [JsonConverter(typeof(Base64Converter))]
+        public IList<byte> Data { get; set; }
+
         [JsonPropertyName("platform")]
         public Platform Platform { get; set; }
+
+        [JsonPropertyName("artifactType")]
+        public string ArtifactType { get; set; }
     }
 }

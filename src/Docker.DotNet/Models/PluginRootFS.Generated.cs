@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigRootfs // (types.PluginConfigRootfs)
+    public class PluginRootFS // (plugin.RootFS)
     {
         [JsonPropertyName("diff_ids")]
         public IList<string> DiffIds { get; set; }

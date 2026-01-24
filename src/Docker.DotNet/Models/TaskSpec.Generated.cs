@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class TaskSpec // (swarm.TaskSpec)
@@ -9,7 +6,7 @@ namespace Docker.DotNet.Models
         public ContainerSpec ContainerSpec { get; set; }
 
         [JsonPropertyName("PluginSpec")]
-        public PluginSpec PluginSpec { get; set; }
+        public SwarmRuntimeSpec PluginSpec { get; set; }
 
         [JsonPropertyName("NetworkAttachmentSpec")]
         public NetworkAttachmentSpec NetworkAttachmentSpec { get; set; }

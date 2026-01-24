@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class RuntimePluginPrivilege // (runtime.PluginPrivilege)
+    public class RuntimePrivilege // (swarm.RuntimePrivilege)
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }

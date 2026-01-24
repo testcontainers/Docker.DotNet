@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class AuthResponse // (registry.AuthenticateOKBody)
+    public class AuthResponse // (registry.AuthResponse)
     {
         [JsonPropertyName("IdentityToken")]
         public string IdentityToken { get; set; }

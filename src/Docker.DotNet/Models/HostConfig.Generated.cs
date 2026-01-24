@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class HostConfig // (container.HostConfig)
@@ -32,8 +29,6 @@ namespace Docker.DotNet.Models
                 this.Devices = Resources.Devices;
                 this.DeviceCgroupRules = Resources.DeviceCgroupRules;
                 this.DeviceRequests = Resources.DeviceRequests;
-                this.KernelMemory = Resources.KernelMemory;
-                this.KernelMemoryTCP = Resources.KernelMemoryTCP;
                 this.MemoryReservation = Resources.MemoryReservation;
                 this.MemorySwap = Resources.MemorySwap;
                 this.MemorySwappiness = Resources.MemorySwappiness;
@@ -211,12 +206,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("DeviceRequests")]
         public IList<DeviceRequest> DeviceRequests { get; set; }
-
-        [JsonPropertyName("KernelMemory")]
-        public long KernelMemory { get; set; }
-
-        [JsonPropertyName("KernelMemoryTCP")]
-        public long KernelMemoryTCP { get; set; }
 
         [JsonPropertyName("MemoryReservation")]
         public long MemoryReservation { get; set; }

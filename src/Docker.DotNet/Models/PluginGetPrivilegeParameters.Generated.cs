@@ -1,4 +1,3 @@
-
 namespace Docker.DotNet.Models
 {
     public class PluginGetPrivilegeParameters // (main.PluginGetPrivilegeParameters)

@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class VersionPlatform // (types.Version.Platform)
+    public class PlatformInfo // (system.PlatformInfo)
     {
         [JsonPropertyName("Name")]
         public string Name { get; set; }

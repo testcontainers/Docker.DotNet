@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigInterface // (types.PluginConfigInterface)
+    public class PluginInterface // (plugin.Interface)
     {
         [JsonPropertyName("ProtocolScheme")]
         public string ProtocolScheme { get; set; }

@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-internal class QueryString<T> : IQueryString
+internal class QueryString<T> : IQueryString where T : class
 {
     private T Object { get; }
 

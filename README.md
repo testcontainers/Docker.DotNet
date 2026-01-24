@@ -194,7 +194,7 @@ To obtain this stream you can use:
 ```csharp
 Stream stream = await client.System.MonitorEventsAsync(
     new ContainerEventsParameters(),
-    new Progress<JSONMessage>(),
+    new Progress<Message>(),
     CancellationToken.None);
 ```
 

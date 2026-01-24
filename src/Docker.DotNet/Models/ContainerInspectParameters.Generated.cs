@@ -1,4 +1,3 @@
-
 namespace Docker.DotNet.Models
 {
     public class ContainerInspectParameters // (main.ContainerInspectParameters)

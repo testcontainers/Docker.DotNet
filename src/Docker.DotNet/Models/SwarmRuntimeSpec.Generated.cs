@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginSpec // (runtime.PluginSpec)
+    public class SwarmRuntimeSpec // (swarm.RuntimeSpec)
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
@@ -12,7 +9,7 @@ namespace Docker.DotNet.Models
         public string Remote { get; set; }
 
         [JsonPropertyName("privileges")]
-        public IList<RuntimePluginPrivilege> Privileges { get; set; }
+        public IList<RuntimePrivilege> Privileges { get; set; }
 
         [JsonPropertyName("disabled")]
         public bool Disabled { get; set; }

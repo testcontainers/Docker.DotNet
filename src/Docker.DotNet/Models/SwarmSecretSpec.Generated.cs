@@ -1,15 +1,12 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class SecretSpec // (swarm.SecretSpec)
+    public class SwarmSecretSpec // (swarm.SecretSpec)
     {
-        public SecretSpec()
+        public SwarmSecretSpec()
         {
         }
 
-        public SecretSpec(Annotations Annotations)
+        public SwarmSecretSpec(Annotations Annotations)
         {
             if (Annotations != null)
             {
@@ -25,6 +22,7 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string> Labels { get; set; }
 
         [JsonPropertyName("Data")]
+        [JsonConverter(typeof(Base64Converter))]
         public IList<byte> Data { get; set; }
 
         [JsonPropertyName("Driver")]

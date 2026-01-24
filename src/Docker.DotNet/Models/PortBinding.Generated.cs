@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PortBinding // (nat.PortBinding)
+    public class PortBinding // (network.PortBinding)
     {
         [JsonPropertyName("HostIp")]
         public string HostIP { get; set; }

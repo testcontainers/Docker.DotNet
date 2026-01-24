@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ImagesListResponse // (image.Summary)
@@ -38,8 +34,5 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Size")]
         public long Size { get; set; }
-
-        [JsonPropertyName("VirtualSize")]
-        public long VirtualSize { get; set; }
     }
 }

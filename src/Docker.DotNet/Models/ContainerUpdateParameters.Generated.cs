@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ContainerUpdateParameters // (main.ContainerUpdateParameters)
@@ -32,8 +29,6 @@ namespace Docker.DotNet.Models
                 this.Devices = UpdateConfig.Devices;
                 this.DeviceCgroupRules = UpdateConfig.DeviceCgroupRules;
                 this.DeviceRequests = UpdateConfig.DeviceRequests;
-                this.KernelMemory = UpdateConfig.KernelMemory;
-                this.KernelMemoryTCP = UpdateConfig.KernelMemoryTCP;
                 this.MemoryReservation = UpdateConfig.MemoryReservation;
                 this.MemorySwap = UpdateConfig.MemorySwap;
                 this.MemorySwappiness = UpdateConfig.MemorySwappiness;
@@ -104,12 +99,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("DeviceRequests")]
         public IList<DeviceRequest> DeviceRequests { get; set; }
-
-        [JsonPropertyName("KernelMemory")]
-        public long KernelMemory { get; set; }
-
-        [JsonPropertyName("KernelMemoryTCP")]
-        public long KernelMemoryTCP { get; set; }
 
         [JsonPropertyName("MemoryReservation")]
         public long MemoryReservation { get; set; }

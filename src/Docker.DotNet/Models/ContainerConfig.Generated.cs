@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class Config // (container.Config)
+    public class ContainerConfig // (container.Config)
     {
         [JsonPropertyName("Hostname")]
         public string Hostname { get; set; }
@@ -62,9 +58,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("NetworkDisabled")]
         public bool NetworkDisabled { get; set; }
-
-        [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; }
 
         [JsonPropertyName("OnBuild")]
         public IList<string> OnBuild { get; set; }

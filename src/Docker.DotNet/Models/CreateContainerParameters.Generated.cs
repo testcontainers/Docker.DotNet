@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class CreateContainerParameters // (main.CreateContainerParameters)
@@ -10,7 +6,7 @@ namespace Docker.DotNet.Models
         {
         }
 
-        public CreateContainerParameters(Config Config)
+        public CreateContainerParameters(ContainerConfig Config)
         {
             if (Config != null)
             {
@@ -33,7 +29,6 @@ namespace Docker.DotNet.Models
                 this.WorkingDir = Config.WorkingDir;
                 this.Entrypoint = Config.Entrypoint;
                 this.NetworkDisabled = Config.NetworkDisabled;
-                this.MacAddress = Config.MacAddress;
                 this.OnBuild = Config.OnBuild;
                 this.Labels = Config.Labels;
                 this.StopSignal = Config.StopSignal;
@@ -104,9 +99,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("NetworkDisabled")]
         public bool NetworkDisabled { get; set; }
-
-        [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; }
 
         [JsonPropertyName("OnBuild")]
         public IList<string> OnBuild { get; set; }

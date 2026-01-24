@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class EndpointSettings // (network.EndpointSettings)
@@ -13,9 +10,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Aliases")]
         public IList<string> Aliases { get; set; }
-
-        [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; }
 
         [JsonPropertyName("DriverOpts")]
         public IDictionary<string, string> DriverOpts { get; set; }
@@ -34,6 +28,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("IPAddress")]
         public string IPAddress { get; set; }
+
+        [JsonPropertyName("MacAddress")]
+        public string MacAddress { get; set; }
 
         [JsonPropertyName("IPPrefixLen")]
         public long IPPrefixLen { get; set; }

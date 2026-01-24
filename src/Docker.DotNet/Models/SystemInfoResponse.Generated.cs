@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class SystemInfoResponse // (system.Info)
@@ -41,12 +38,6 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("SwapLimit")]
         public bool SwapLimit { get; set; }
 
-        [JsonPropertyName("KernelMemory")]
-        public bool KernelMemory { get; set; }
-
-        [JsonPropertyName("KernelMemoryTCP")]
-        public bool KernelMemoryTCP { get; set; }
-
         [JsonPropertyName("CpuCfsPeriod")]
         public bool CPUCfsPeriod { get; set; }
 
@@ -64,12 +55,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("IPv4Forwarding")]
         public bool IPv4Forwarding { get; set; }
-
-        [JsonPropertyName("BridgeNfIptables")]
-        public bool BridgeNfIptables { get; set; }
-
-        [JsonPropertyName("BridgeNfIp6tables")]
-        public bool BridgeNfIP6tables { get; set; }
 
         [JsonPropertyName("Debug")]
         public bool Debug { get; set; }
@@ -193,6 +178,9 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("CDISpecDirs")]
         public IList<string> CDISpecDirs { get; set; }
+
+        [JsonPropertyName("DiscoveredDevices")]
+        public IList<DeviceInfo> DiscoveredDevices { get; set; }
 
         [JsonPropertyName("Containerd")]
         public ContainerdInfo Containerd { get; set; }

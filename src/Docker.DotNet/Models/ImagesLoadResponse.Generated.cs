@@ -1,13 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class ImagesLoadResponse // (image.LoadResponse)
+    public class ImagesLoadResponse // (main.ImageLoadResult)
     {
-        [JsonPropertyName("Body")]
-        public object Body { get; set; }
-
-        [JsonPropertyName("JSON")]
-        public bool JSON { get; set; }
     }
 }

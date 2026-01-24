@@ -3,13 +3,48 @@ package main
 import (
 	"fmt"
 	"io"
+	"net"
+	"net/netip"
+	"os"
+	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types/registry"
+	"github.com/moby/moby/api/types/network"
 )
+
+var GlobalUsings map[string]bool
+
+func init() {
+	GlobalUsings = readGlobalUsings()
+}
+
+// Reads the global usings from the Docker.DotNet.csproj file.
+func readGlobalUsings() map[string]bool {
+	csprojPath := filepath.Join("..", "..", "src", "Docker.DotNet", "Docker.DotNet.csproj")
+
+	data, err := os.ReadFile(csprojPath)
+	if err != nil {
+		fmt.Printf("Warning: Could not read .csproj file: %v\n", err)
+		return make(map[string]bool)
+	}
+
+	usings := make(map[string]bool)
+
+	re := regexp.MustCompile(`<Using\s+Include="([^"]+)"\s*/>`)
+	matches := re.FindAllStringSubmatch(string(data), -1)
+
+	for _, match := range matches {
+		if len(match) > 1 && match[1] != "" {
+			usings[match[1]] = true
+		}
+	}
+
+	return usings
+}
 
 // EmptyStruct is a type that represents a struct with no exported values.
 var EmptyStruct = reflect.TypeOf(struct{}{})
@@ -38,9 +73,14 @@ var CSInboxTypesMap = map[reflect.Kind]CSType{
 
 // CSCustomTypeMap is a map from Go reflected types to C# types.
 var CSCustomTypeMap = map[reflect.Type]CSType{
-	reflect.TypeOf(time.Time{}):         {"System", "DateTime", true},
-	reflect.TypeOf(registry.NetIPNet{}): {"", "string", false},
-	EmptyStruct:                         {"", "BUG_IN_CONVERSION", false},
+	reflect.TypeOf(net.IP{}):               {"", "string", false},
+	reflect.TypeOf(net.IPNet{}):            {"", "string", false},
+	reflect.TypeOf(netip.Addr{}):           {"", "string", false},
+	reflect.TypeOf(netip.Prefix{}):         {"", "string", false},
+	reflect.TypeOf(network.HardwareAddr{}): {"", "string", false},
+	reflect.TypeOf(network.Port{}):         {"", "string", false},
+	reflect.TypeOf(time.Time{}):            {"System", "DateTime", true},
+	EmptyStruct:                            {"", "BUG_IN_CONVERSION", false},
 }
 
 // CSArgument is a type that represents a C# argument that can
@@ -171,7 +211,9 @@ func (t *CSModelType) Write(w io.Writer) {
 		fmt.Fprintf(w, "using %s;\n", u)
 	}
 
-	fmt.Fprintln(w, "")
+	if len(usings) > 0 {
+		fmt.Fprintln(w, "")
+	}
 
 	fmt.Fprintln(w, "namespace Docker.DotNet.Models")
 	fmt.Fprintln(w, "{")
@@ -219,6 +261,10 @@ func calcUsings(t *CSModelType) []string {
 
 func safeAddUsing(using string, usings []string, added map[string]bool) []string {
 	if using != "" {
+		if _, isGlobal := GlobalUsings[using]; isGlobal {
+			return usings
+		}
+
 		if _, ok := added[using]; !ok {
 			added[using] = true
 			return append(usings, using)

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ServiceSpec // (swarm.ServiceSpec)
@@ -35,9 +32,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("RollbackConfig")]
         public SwarmUpdateConfig RollbackConfig { get; set; }
-
-        [JsonPropertyName("Networks")]
-        public IList<NetworkAttachmentConfig> Networks { get; set; }
 
         [JsonPropertyName("EndpointSpec")]
         public EndpointSpec EndpointSpec { get; set; }

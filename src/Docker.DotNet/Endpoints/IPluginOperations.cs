@@ -28,7 +28,7 @@ public interface IPluginOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<IList<PluginPrivilege>> GetPluginPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>
     /// Install a plugin.

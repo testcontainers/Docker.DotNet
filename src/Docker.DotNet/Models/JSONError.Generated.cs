@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class JSONError // (jsonmessage.JSONError)
+    public class JSONError // (jsonstream.Error)
     {
         [JsonPropertyName("code")]
         public long Code { get; set; }

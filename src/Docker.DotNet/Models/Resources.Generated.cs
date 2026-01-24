@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class Resources // (container.Resources)
@@ -61,12 +58,6 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("DeviceRequests")]
         public IList<DeviceRequest> DeviceRequests { get; set; }
-
-        [JsonPropertyName("KernelMemory")]
-        public long KernelMemory { get; set; }
-
-        [JsonPropertyName("KernelMemoryTCP")]
-        public long KernelMemoryTCP { get; set; }
 
         [JsonPropertyName("MemoryReservation")]
         public long MemoryReservation { get; set; }

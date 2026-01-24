@@ -1,6 +1,3 @@
-using System;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class Meta // (swarm.Meta)

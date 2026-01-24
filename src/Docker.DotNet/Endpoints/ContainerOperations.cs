@@ -264,7 +264,7 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        var queryParameters = new QueryString<ContainerRenameParameters>(parameters ?? throw new ArgumentNullException(nameof(parameters)));
+        var queryParameters = new QueryString<ContainerRenameParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/rename", queryParameters, cancellationToken);
     }
 
@@ -366,7 +366,7 @@ internal class ContainerOperations : IContainerOperations
         };
     }
 
-    public Task ExtractArchiveToContainerAsync(string id, ContainerPathStatParameters parameters, Stream stream, CancellationToken cancellationToken = default)
+    public Task ExtractArchiveToContainerAsync(string id, CopyToContainerParameters parameters, Stream stream, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -378,7 +378,7 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerPathStatParameters>(parameters);
+        IQueryString queryParameters = new QueryString<CopyToContainerParameters>(parameters);
 
         var data = new BinaryRequestContent(stream, "application/x-tar");
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Put, $"containers/{id}/archive", queryParameters, data, cancellationToken);

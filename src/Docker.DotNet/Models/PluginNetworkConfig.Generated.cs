@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginConfigNetwork // (types.PluginConfigNetwork)
+    public class PluginNetworkConfig // (plugin.NetworkConfig)
     {
         [JsonPropertyName("Type")]
         public string Type { get; set; }

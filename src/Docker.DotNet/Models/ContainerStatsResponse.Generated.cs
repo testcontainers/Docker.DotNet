@@ -1,22 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
     public class ContainerStatsResponse // (container.StatsResponse)
     {
+        [JsonPropertyName("id")]
+        public string ID { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("id")]
-        public string ID { get; set; }
+        [JsonPropertyName("os_type")]
+        public string OSType { get; set; }
 
         [JsonPropertyName("read")]
         public DateTime Read { get; set; }
 
-        [JsonPropertyName("preread")]
-        public DateTime PreRead { get; set; }
+        [JsonPropertyName("cpu_stats")]
+        public CPUStats CPUStats { get; set; }
+
+        [JsonPropertyName("memory_stats")]
+        public MemoryStats MemoryStats { get; set; }
+
+        [JsonPropertyName("networks")]
+        public IDictionary<string, NetworkStats> Networks { get; set; }
 
         [JsonPropertyName("pids_stats")]
         public PidsStats PidsStats { get; set; }
@@ -30,16 +35,10 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("storage_stats")]
         public StorageStats StorageStats { get; set; }
 
-        [JsonPropertyName("cpu_stats")]
-        public CPUStats CPUStats { get; set; }
+        [JsonPropertyName("preread")]
+        public DateTime PreRead { get; set; }
 
         [JsonPropertyName("precpu_stats")]
         public CPUStats PreCPUStats { get; set; }
-
-        [JsonPropertyName("memory_stats")]
-        public MemoryStats MemoryStats { get; set; }
-
-        [JsonPropertyName("networks")]
-        public IDictionary<string, NetworkStats> Networks { get; set; }
     }
 }

@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginMount // (types.PluginMount)
+    public class PluginMount // (plugin.Mount)
     {
         [JsonPropertyName("Description")]
         public string Description { get; set; }

@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
 namespace Docker.DotNet.Models
 {
-    public class PluginPrivilege // (types.PluginPrivilege)
+    public class PluginPrivilege // (plugin.Privilege)
     {
         [JsonPropertyName("Name")]
         public string Name { get; set; }
