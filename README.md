@@ -32,7 +32,7 @@ Right click to your project in Visual Studio, choose "Manage NuGet Packages" and
 Run the following command from your favorite shell or terminal:
 
 ```console
-> dotnet add package Docker.DotNet.Enhanced
+dotnet add package Docker.DotNet.Enhanced
 ```
 
 **Development Builds**
@@ -264,12 +264,12 @@ DockerClient client = config.CreateClient(new Version(1, 49));
 Here are typical exceptions thrown from the client library:
 
 - **`DockerApiException`** is thrown when Docker Engine API responds with a non-success result. Subclasses:
-  - **`DockerContainerNotFoundException`**
-  - **`DockerImageNotFoundException`**
+    - **`DockerContainerNotFoundException`**
+    - **`DockerImageNotFoundException`**
 - **`TaskCanceledException`** is thrown from `System.Net.Http.HttpClient` library by design. It is not a friendly exception, but it indicates your request has timed out. (default request timeout is 100 seconds.)
-  - Long-running methods (e.g. `WaitContainerAsync`, `StopContainerAsync`) and methods that return Stream (e.g. `CreateImageAsync`, `GetContainerLogsAsync`) have timeout value overridden with infinite timespan by this library.
+    - Long-running methods (e.g. `WaitContainerAsync`, `StopContainerAsync`) and methods that return Stream (e.g. `CreateImageAsync`, `GetContainerLogsAsync`) have timeout value overridden with infinite timespan by this library.
 - **`ArgumentNullException`** is thrown when one of the required parameters are missing/empty.
-  - Consider reading the [Docker Remote API reference][docker-remote-api] and source code of the corresponding method you are going to use in from this library. This way you can easily find out which parameters are required and their format.
+    - Consider reading the [Docker Remote API reference][docker-remote-api] and source code of the corresponding method you are going to use in from this library. This way you can easily find out which parameters are required and their format.
 
 ## License
 
