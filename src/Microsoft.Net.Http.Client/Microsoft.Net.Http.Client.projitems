@@ -9,19 +9,19 @@
     <Import_RootNamespace>Microsoft.Net.Http.Client</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Using Include="Docker.DotNet" />
     <Using Include="System" />
     <Using Include="System.Buffers" />
     <Using Include="System.Collections.Generic" />
-    <Using Include="System.Net" />
-    <Using Include="System.Net.Sockets" />
-    <Using Include="System.Net.Security" />
+    <Using Include="System.Globalization" />
     <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Security" />
+    <Using Include="System.Net.Sockets" />
     <Using Include="System.Security" />
     <Using Include="System.Security.Authentication" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
-    <Using Include="System.Globalization" />
-    <Using Include="System.Linq" />
+    <Using Include="Docker.DotNet" />
     <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
   <ItemGroup>

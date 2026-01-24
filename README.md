@@ -20,7 +20,7 @@ You can add this library to your project using [NuGet][nuget].
 Run the following command in the "Package Manager Console":
 
 ```console
-> PM> Install-Package Docker.DotNet.Enhanced
+PM> Install-Package Docker.DotNet.Enhanced
 ```
 
 **Visual Studio**
