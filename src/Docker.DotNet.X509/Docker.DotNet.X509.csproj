@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Docker.DotNet.X509</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.X509</PackageId>
-    <Description>Docker.DotNet.X509 is a library that allows you to use certificate authentication with a remote Docker engine programmatically in your .NET applications.</Description>
+    <Description>A Docker.DotNet extension that adds X.509 client certificate authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup Condition="$(TargetFrameworkIdentifier) == '.NETStandard'">
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />

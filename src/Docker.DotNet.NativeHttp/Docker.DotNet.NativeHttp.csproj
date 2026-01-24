@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Docker.DotNet.NativeHttp</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.NativeHttp</PackageId>
-    <Description>Docker.DotNet.NativeHttp is a library that allows you to connect via http(s) with a Docker engine programmatically in your .NET applications.</Description>
+    <Description>A Docker.DotNet transport implementation for HTTP(S) Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />

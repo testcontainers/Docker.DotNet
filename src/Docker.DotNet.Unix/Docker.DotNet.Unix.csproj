@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Docker.DotNet.Unix</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.Unix</PackageId>
-    <Description>Docker.DotNet.Unix is a library that allows you to connect via unix socket with a Docker engine programmatically in your .NET applications.</Description>
+    <Description>A Docker.DotNet transport implementation for Unix domain socket Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
