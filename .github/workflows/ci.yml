@@ -33,10 +33,13 @@ jobs:
 
     strategy:
       matrix:
-        framework:
-          - 8.0
-          - 9.0
-          - 10.0
+        include:
+          - sdk: 8.x
+            tfm: net8.0
+          - sdk: 9.x
+            tfm: net9.0
+          - sdk: 10.x
+            tfm: net10.0
 
     steps:
       - uses: actions/checkout@v4
@@ -47,18 +50,16 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.framework }}
+          dotnet-version: ${{ matrix.sdk }}
 
       - name: Build
-        run: dotnet build -c Release --framework net${{ matrix.framework }}
+        run: dotnet build -c Release --framework ${{ matrix.tfm }}
         working-directory: test
 
-      - name: Pack client cert, key, ca for C# docker client
+      - name: Pack client cert, key, ca for .NET Docker client
         run: |
           mkdir -p ${{ github.workspace }}/certs
           sudo chmod 777 ${{ github.workspace }}/certs
-
-          # create pfx
           openssl pkcs12 -export -out ${{ github.workspace }}/certs/client.pfx -inkey ${{ github.workspace }}/certs/client/key.pem -in ${{ github.workspace }}/certs/client/cert.pem -certfile ${{ github.workspace }}/certs/client/ca.pem -passout pass:
 
       - name: Wait for Docker (no TLS) to be healthy
@@ -91,5 +92,5 @@ jobs:
           exit 1
 
       - name: Test
-        run: dotnet test -c Release --framework net${{ matrix.framework }} --no-build --logger console
+        run: dotnet test -c Release --framework ${{ matrix.tfm }} --no-build --logger console
         working-directory: test
