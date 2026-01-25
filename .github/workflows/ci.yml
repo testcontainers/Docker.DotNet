@@ -29,7 +29,7 @@ jobs:
         options: >-
           --privileged
         volumes:
-          - ${{ github.workspace }}/certs:/certs
+          - /tmp/certs:/certs
 
     strategy:
       matrix:
@@ -57,10 +57,10 @@ jobs:
       - name: Pack client cert, key, ca for .NET Docker client
         run: |
           openssl pkcs12 -export \
-            -out "${{ github.workspace }}/certs/client.pfx" \
-            -inkey "${{ github.workspace }}/certs/client/key.pem" \
-            -in "${{ github.workspace }}/certs/client/cert.pem" \
-            -certfile "${{ github.workspace }}/certs/client/ca.pem" \
+            -out "/tmp/certs/client.pfx" \
+            -inkey "/tmp/certs/client/key.pem" \
+            -in "/tmp/certs/client/cert.pem" \
+            -certfile "/tmp/certs/client/ca.pem" \
             -passout pass:
 
       - name: Wait for Docker (no TLS) to be healthy
@@ -80,9 +80,9 @@ jobs:
         run: |
           for i in {1..10}; do
             if docker --host=tcp://localhost:2376 --tlsverify \
-              --tlscacert=${{ github.workspace }}/certs/client/ca.pem \
-              --tlscert=${{ github.workspace }}/certs/client/cert.pem \
-              --tlskey=${{ github.workspace }}/certs/client/key.pem version; then
+              --tlscacert=/tmp/certs/client/ca.pem \
+              --tlscert=/tmp/certs/client/cert.pem \
+              --tlskey=/tmp/certs/client/key.pem version; then
               echo "Docker (with TLS) is ready!"
               exit 0
             fi
