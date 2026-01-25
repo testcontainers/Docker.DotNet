@@ -10,9 +10,8 @@ public sealed class SocketConnectionConfiguration
 {
     /// <summary>
     /// Default socket connection configuration with sensible defaults for Docker socket connections.
-    /// Returns a new instance each time to prevent shared state mutation.
     /// </summary>
-    public static SocketConnectionConfiguration Default => new SocketConnectionConfiguration();
+    public static SocketConnectionConfiguration Default { get; } = new SocketConnectionConfiguration();
 
     /// <summary>
     /// Gets or sets whether TCP keep-alive is enabled.
