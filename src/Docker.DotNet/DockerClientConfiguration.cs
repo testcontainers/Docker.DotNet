@@ -50,7 +50,7 @@ public class DockerClientConfiguration : IDisposable
 
     public TimeSpan NamedPipeConnectTimeout { get; }
 
-    public DockerClient CreateClient(System.Version requestedApiVersion = null, ILogger logger = null)
+    public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
         var scheme = EndpointBaseUri.Scheme;
         if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
@@ -87,7 +87,7 @@ public class DockerClientConfiguration : IDisposable
         return new DockerClient(this, requestedApiVersion, factory, logger);
     }
 
-    public DockerClient CreateClient(System.Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
+    public DockerClient CreateClient(Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
     {
         if (handlerFactory == null)
         {
