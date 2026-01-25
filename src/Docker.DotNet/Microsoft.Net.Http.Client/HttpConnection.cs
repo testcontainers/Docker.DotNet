@@ -18,27 +18,35 @@ internal sealed class HttpConnection : IDisposable
             // Serialize headers & send
             string rawRequest = SerializeRequest(request);
             byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
-            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken);
+            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken).ConfigureAwait(false);
 
             if (request.Content != null)
             {
                 if (request.Content.Headers.ContentLength.HasValue)
                 {
-                    await request.Content.CopyToAsync(Transport);
+#if NET5_0_OR_GREATER
+                    await request.Content.CopyToAsync(Transport, cancellationToken).ConfigureAwait(false);
+#else
+                    await request.Content.CopyToAsync(Transport).ConfigureAwait(false);
+#endif
                 }
                 else
                 {
                     // The length of the data is unknown. Send it in chunked mode.
                     using (var chunkedStream = new ChunkedWriteStream(Transport))
                     {
-                        await request.Content.CopyToAsync(chunkedStream);
-                        await chunkedStream.EndContentAsync(cancellationToken);
+#if NET5_0_OR_GREATER
+                        await request.Content.CopyToAsync(chunkedStream, cancellationToken).ConfigureAwait(false);
+#else
+                        await request.Content.CopyToAsync(chunkedStream).ConfigureAwait(false);
+#endif
+                        await chunkedStream.EndContentAsync(cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
 
             // Receive headers
-            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
+            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken).ConfigureAwait(false);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
             return CreateResponseMessage(responseLines);

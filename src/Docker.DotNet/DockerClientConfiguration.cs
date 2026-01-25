@@ -8,8 +8,10 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+        TimeSpan socketConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        SocketConnectionConfiguration socketConfiguration = null)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, socketConnectTimeout, defaultHttpRequestHeaders, socketConfiguration)
     {
     }
 
@@ -18,7 +20,9 @@ public class DockerClientConfiguration : IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        TimeSpan socketConnectTimeout = default,
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        SocketConnectionConfiguration socketConfiguration = null)
     {
         if (endpoint == null)
         {
@@ -34,21 +38,46 @@ public class DockerClientConfiguration : IDisposable
         Credentials = credentials ?? new AnonymousCredentials();
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
         NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
+        SocketConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, socketConnectTimeout) ? TimeSpan.FromSeconds(30) : socketConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
+        SocketConnectionConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
     }
+
+    /// <summary>
+    /// Gets the Docker endpoint base URI.
+    /// </summary>
+    public Uri EndpointBaseUri { get; }
+
+    /// <summary>
+    /// Gets the credentials used for authentication.
+    /// </summary>
+    public Credentials Credentials { get; }
+
+    /// <summary>
+    /// Gets the default timeout for API requests.
+    /// </summary>
+    public TimeSpan DefaultTimeout { get; }
+
+    /// <summary>
+    /// Gets the timeout for named pipe connections (Windows).
+    /// </summary>
+    public TimeSpan NamedPipeConnectTimeout { get; }
+
+    /// <summary>
+    /// Gets the timeout for Unix domain socket connections.
+    /// </summary>
+    public TimeSpan SocketConnectTimeout { get; }
+
+    /// <summary>
+    /// Gets the socket configuration options for connection handling.
+    /// These settings help improve proxy compatibility and connection reliability.
+    /// </summary>
+    public SocketConnectionConfiguration SocketConnectionConfiguration { get; }
 
     /// <summary>
     /// Gets the collection of default HTTP request headers.
     /// </summary>
     public IReadOnlyDictionary<string, string> DefaultHttpRequestHeaders { get; }
-
-    public Uri EndpointBaseUri { get; }
-
-    public Credentials Credentials { get; }
-
-    public TimeSpan DefaultTimeout { get; }
-
-    public TimeSpan NamedPipeConnectTimeout { get; }
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {

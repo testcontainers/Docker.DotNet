@@ -34,7 +34,7 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        ManagedHandler handler;
+        HttpMessageHandler handler;
         var uri = Configuration.EndpointBaseUri;
         switch (uri.Scheme.ToLowerInvariant())
         {
@@ -60,7 +60,7 @@ public sealed class DockerClient : IDockerClient
                 var pipeName = uri.Segments[2];
 
                 uri = new UriBuilder("http", pipeName).Uri;
-                handler = new ManagedHandler(async (host, port, cancellationToken) =>
+                var pipeHandler = new ManagedHandler(async (host, port, cancellationToken) =>
                 {
                     var timeout = (int)Configuration.NamedPipeConnectTimeout.TotalMilliseconds;
                     var stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
@@ -71,6 +71,9 @@ public sealed class DockerClient : IDockerClient
 
                     return dockerStream;
                 }, logger);
+                // Named pipes are local connections - disable proxy resolution
+                pipeHandler.UseProxy = false;
+                handler = pipeHandler;
                 break;
 
             case "tcp":
@@ -80,25 +83,71 @@ public sealed class DockerClient : IDockerClient
                     Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                 };
                 uri = builder.Uri;
-                handler = new ManagedHandler(logger);
+                handler = new ManagedHandler(logger, Configuration.SocketConnectionConfiguration);
                 break;
 
             case "https":
-                handler = new ManagedHandler(logger);
+                handler = new ManagedHandler(logger, Configuration.SocketConnectionConfiguration);
                 break;
 
             case "unix":
                 var pipeString = uri.LocalPath;
-                handler = new ManagedHandler(async (host, port, cancellationToken) =>
-                {
-                    var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-
-                    await sock.ConnectAsync(new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString))
-                        .ConfigureAwait(false);
-
-                    return sock;
-                }, logger);
+                var socketTimeout = Configuration.SocketConnectTimeout;
+                var socketConfig = Configuration.SocketConnectionConfiguration;
                 uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+
+                // Use ManagedHandler for Unix socket connections.
+                // ManagedHandler is required for hijacked stream operations (attach/exec/logs)
+                // as it provides HttpConnectionResponseContent needed for connection hijacking.
+                // SocketsHttpHandler cannot support hijacking because it encapsulates the transport stream.
+                var unixHandler = new ManagedHandler(async (_, _, cancellationToken) =>
+                {
+                    var endpoint = new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString);
+                    var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+
+                    try
+                    {
+                        // Apply socket configuration for better proxy compatibility
+                        socketConfig.ApplyTo(socket);
+
+                        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        timeoutCts.CancelAfter(socketTimeout);
+
+#if NET5_0_OR_GREATER
+                        // Use modern ConnectAsync with cancellation support
+                        await socket.ConnectAsync(endpoint, timeoutCts.Token)
+                            .ConfigureAwait(false);
+#else
+                        var connectTask = socket.ConnectAsync(endpoint);
+                        var timeoutTask = Task.Delay(Timeout.InfiniteTimeSpan, timeoutCts.Token);
+
+                        var completedTask = await Task.WhenAny(connectTask, timeoutTask)
+                            .ConfigureAwait(false);
+
+                        if (completedTask == timeoutTask)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {socketTimeout.TotalSeconds}s.");
+                        }
+
+                        await connectTask.ConfigureAwait(false);
+#endif
+                        return socket;
+                    }
+                    catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                    {
+                        socket.Dispose();
+                        throw new TimeoutException($"Connection to Unix socket '{pipeString}' timed out after {socketTimeout.TotalSeconds}s.");
+                    }
+                    catch
+                    {
+                        socket.Dispose();
+                        throw;
+                    }
+                }, logger, socketConfig);
+                // Unix sockets are local connections - disable proxy resolution
+                unixHandler.UseProxy = false;
+                handler = unixHandler;
                 break;
 
             default:

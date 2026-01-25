@@ -122,8 +122,9 @@ internal class ContentLengthReadStream : Stream
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && !_disposed)
         {
+            _disposed = true;
             // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
             _inner.Dispose();
         }

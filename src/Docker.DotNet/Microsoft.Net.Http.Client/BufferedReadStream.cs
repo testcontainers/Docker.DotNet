@@ -9,6 +9,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     private int _bufferRefCount;
     private int _bufferOffset;
     private int _bufferCount;
+    private bool _disposed;
 
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
@@ -59,8 +60,14 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     protected override void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
         {
+            _disposed = true;
             if (Interlocked.Exchange(ref _bufferRefCount, 0) == 1)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);

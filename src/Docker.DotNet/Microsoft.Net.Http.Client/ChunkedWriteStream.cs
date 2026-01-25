@@ -5,6 +5,7 @@ internal sealed class ChunkedWriteStream : Stream
     private static readonly byte[] EndOfContentBytes = Encoding.ASCII.GetBytes("0\r\n\r\n");
 
     private readonly Stream _inner;
+    private bool _disposed;
 
     public ChunkedWriteStream(Stream stream)
     {
@@ -86,5 +87,15 @@ internal sealed class ChunkedWriteStream : Stream
     public Task EndContentAsync(CancellationToken cancellationToken)
     {
         return _inner.WriteAsync(EndOfContentBytes, 0, EndOfContentBytes.Length, cancellationToken);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed && disposing)
+        {
+            _disposed = true;
+            // Note: We don't dispose _inner here as it's owned by the caller
+        }
+        base.Dispose(disposing);
     }
 }

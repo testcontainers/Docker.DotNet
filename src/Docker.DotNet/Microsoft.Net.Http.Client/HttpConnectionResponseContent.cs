@@ -62,7 +62,7 @@ public class HttpConnectionResponseContent : HttpContent
         {
             if (disposing)
             {
-                _responseStream.Dispose();
+                _responseStream?.Dispose();
                 _connection.Dispose();
             }
         }

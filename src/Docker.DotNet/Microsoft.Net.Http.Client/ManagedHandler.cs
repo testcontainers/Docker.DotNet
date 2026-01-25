@@ -1,6 +1,7 @@
 namespace Microsoft.Net.Http.Client;
 
 using System;
+using Docker.DotNet;
 
 public class ManagedHandler : HttpMessageHandler
 {
@@ -10,6 +11,8 @@ public class ManagedHandler : HttpMessageHandler
 
     private readonly SocketOpener _socketOpener;
 
+    private readonly SocketConnectionConfiguration _socketConfiguration;
+
     private IWebProxy _proxy;
 
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
@@ -17,20 +20,35 @@ public class ManagedHandler : HttpMessageHandler
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
 
     public ManagedHandler(ILogger logger)
+        : this(logger, SocketConnectionConfiguration.Default)
+    {
+    }
+
+    public ManagedHandler(ILogger logger, SocketConnectionConfiguration socketConfiguration)
     {
         _logger = logger;
+        _socketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
         _socketOpener = TcpSocketOpenerAsync;
     }
 
     public ManagedHandler(StreamOpener opener, ILogger logger)
     {
         _logger = logger;
+        _socketConfiguration = SocketConnectionConfiguration.Default;
         _streamOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
     public ManagedHandler(SocketOpener opener, ILogger logger)
     {
         _logger = logger;
+        _socketConfiguration = SocketConnectionConfiguration.Default;
+        _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
+    }
+
+    public ManagedHandler(SocketOpener opener, ILogger logger, SocketConnectionConfiguration socketConfiguration)
+    {
+        _logger = logger;
+        _socketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
@@ -40,7 +58,12 @@ public class ManagedHandler : HttpMessageHandler
         {
             if (_proxy == null)
             {
+#if NET6_0_OR_GREATER
+                // Use modern HttpClient.DefaultProxy for better proxy resolution
+                _proxy = HttpClient.DefaultProxy;
+#else
                 _proxy = WebRequest.DefaultWebProxy;
+#endif
             }
 
             return _proxy;
@@ -172,14 +195,43 @@ public class ManagedHandler : HttpMessageHandler
 
         if (request.IsHttps())
         {
-            SslStream sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
-            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12, false);
-            transport = sslStream;
+            transport = await EstablishSslAsync(transport, request.GetHostProperty(), cancellationToken).ConfigureAwait(false);
         }
 
         var bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
         var connection = new HttpConnection(bufferedReadStream);
         return await connection.SendAsync(request, cancellationToken);
+    }
+
+    private async Task<Stream> EstablishSslAsync(Stream transport, string targetHost, CancellationToken cancellationToken)
+    {
+        var sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
+
+        try
+        {
+#if NET5_0_OR_GREATER
+            // Use modern SslClientAuthenticationOptions for better TLS configuration
+            var sslOptions = new SslClientAuthenticationOptions
+            {
+                TargetHost = targetHost,
+                ClientCertificates = ClientCertificates,
+                // Let the OS choose the best protocol (TLS 1.2/1.3)
+                EnabledSslProtocols = SslProtocols.None,
+                CertificateRevocationCheckMode = X509RevocationMode.NoCheck
+            };
+
+            await sslStream.AuthenticateAsClientAsync(sslOptions, cancellationToken).ConfigureAwait(false);
+#else
+            // Fallback for older frameworks - use TLS 1.2 as minimum
+            await sslStream.AuthenticateAsClientAsync(targetHost, ClientCertificates, SslProtocols.Tls12, checkCertificateRevocation: false).ConfigureAwait(false);
+#endif
+            return sslStream;
+        }
+        catch
+        {
+            sslStream.Dispose();
+            throw;
+        }
     }
 
     // Data comes from either the request.RequestUri or from the request.Properties
@@ -315,16 +367,43 @@ public class ManagedHandler : HttpMessageHandler
         return ProxyMode.Tunnel;
     }
 
-    private static async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
+    private async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
+#if NET5_0_OR_GREATER
+        // Use modern DNS resolution with cancellation support
+        var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken)
+            .ConfigureAwait(false);
+#else
         var addresses = await Dns.GetHostAddressesAsync(host)
             .ConfigureAwait(false);
+#endif
 
         if (addresses.Length == 0)
         {
             throw new Exception($"Unable to resolve any IP addresses for the host '{host}'.");
         }
 
+#if NET6_0_OR_GREATER
+        // Use Happy Eyeballs if enabled and we have both IPv6 and IPv4 addresses
+        if (_socketConfiguration.EnableHappyEyeballs)
+        {
+            var ipv6Addresses = addresses.Where(a => a.AddressFamily == AddressFamily.InterNetworkV6).ToArray();
+            var ipv4Addresses = addresses.Where(a => a.AddressFamily == AddressFamily.InterNetwork).ToArray();
+
+            if (ipv6Addresses.Length > 0 && ipv4Addresses.Length > 0)
+            {
+                return await ConnectWithHappyEyeballsAsync(ipv6Addresses, ipv4Addresses, port, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+#endif
+
+        // Fallback to sequential connection attempts
+        return await ConnectSequentialAsync(addresses, port, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<Socket> ConnectSequentialAsync(IPAddress[] addresses, int port, CancellationToken cancellationToken)
+    {
         var exceptions = new List<Exception>();
 
         foreach (var address in addresses)
@@ -333,8 +412,17 @@ public class ManagedHandler : HttpMessageHandler
 
             try
             {
+                // Apply socket configuration for better proxy compatibility
+                _socketConfiguration.ApplyTo(socket);
+
+#if NET5_0_OR_GREATER
+                // Use modern ConnectAsync with cancellation support
+                await socket.ConnectAsync(address, port, cancellationToken)
+                    .ConfigureAwait(false);
+#else
                 await socket.ConnectAsync(address, port)
                     .ConfigureAwait(false);
+#endif
 
                 return socket;
             }
@@ -347,6 +435,141 @@ public class ManagedHandler : HttpMessageHandler
 
         throw new AggregateException(exceptions);
     }
+
+#if NET6_0_OR_GREATER
+    private async Task<Socket> ConnectWithHappyEyeballsAsync(
+        IPAddress[] ipv6Addresses,
+        IPAddress[] ipv4Addresses,
+        int port,
+        CancellationToken cancellationToken)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var exceptions = new ConcurrentBag<Exception>();
+        Socket winningSocket = null;
+
+        // Start IPv6 connection attempts
+        var ipv6Task = Task.Run(async () =>
+        {
+            try
+            {
+                return await ConnectToAddressesAsync(ipv6Addresses, port, cts.Token).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+                return null;
+            }
+        }, cts.Token);
+
+        // Start IPv4 connection after delay (Happy Eyeballs delay)
+        var ipv4Task = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(_socketConfiguration.HappyEyeballsDelay, cts.Token).ConfigureAwait(false);
+
+                // Only proceed if IPv6 hasn't connected yet
+                if (!ipv6Task.IsCompleted)
+                {
+                    return await ConnectToAddressesAsync(ipv4Addresses, port, cts.Token).ConfigureAwait(false);
+                }
+
+                return null;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+                return null;
+            }
+        }, cts.Token);
+
+        // Keep track of all tasks for cleanup
+        var allTasks = new List<Task<Socket>> { ipv6Task, ipv4Task };
+        var pendingTasks = new List<Task<Socket>>(allTasks);
+
+        while (pendingTasks.Count > 0)
+        {
+            var completedTask = await Task.WhenAny(pendingTasks).ConfigureAwait(false);
+            pendingTasks.Remove(completedTask);
+
+            try
+            {
+                var socket = await completedTask.ConfigureAwait(false);
+                if (socket != null && socket.Connected)
+                {
+                    winningSocket = socket;
+                    cts.Cancel(); // Cancel the other connection attempt
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+        }
+
+        // Clean up any remaining sockets from tasks that didn't win
+        foreach (var task in allTasks)
+        {
+            // Skip the winning task
+            if (winningSocket != null && task.IsCompletedSuccessfully)
+            {
+                try
+                {
+                    var socket = await task.ConfigureAwait(false);
+                    if (socket != null && socket != winningSocket)
+                    {
+                        socket.Dispose();
+                    }
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
+            }
+        }
+
+        if (winningSocket != null)
+        {
+            return winningSocket;
+        }
+
+        throw new AggregateException("Failed to connect using Happy Eyeballs.", exceptions);
+    }
+
+    private async Task<Socket> ConnectToAddressesAsync(IPAddress[] addresses, int port, CancellationToken cancellationToken)
+    {
+        foreach (var address in addresses)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                _socketConfiguration.ApplyTo(socket);
+                await socket.ConnectAsync(address, port, cancellationToken).ConfigureAwait(false);
+                return socket;
+            }
+            catch (OperationCanceledException)
+            {
+                socket.Dispose();
+                throw;
+            }
+            catch
+            {
+                socket.Dispose();
+                // Try next address
+            }
+        }
+
+        return null;
+    }
+#endif
 
     private async Task TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, CancellationToken cancellationToken)
     {
@@ -383,5 +606,10 @@ public class ManagedHandler : HttpMessageHandler
             transport.Dispose();
             throw new HttpRequestException("Failed to negotiate the proxy tunnel: " + connectResponse);
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
     }
 }

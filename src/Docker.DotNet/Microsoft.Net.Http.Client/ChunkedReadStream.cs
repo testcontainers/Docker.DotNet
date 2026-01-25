@@ -5,6 +5,7 @@ internal sealed class ChunkedReadStream : Stream
     private readonly BufferedReadStream _inner;
     private int _chunkBytesRemaining;
     private bool _done;
+    private bool _disposed;
 
     public ChunkedReadStream(BufferedReadStream stream)
     {
@@ -145,5 +146,15 @@ internal sealed class ChunkedReadStream : Stream
     public override void Flush()
     {
         _inner.Flush();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed && disposing)
+        {
+            _disposed = true;
+            // Note: We don't dispose _inner here as it's owned by HttpConnection
+        }
+        base.Dispose(disposing);
     }
 }
