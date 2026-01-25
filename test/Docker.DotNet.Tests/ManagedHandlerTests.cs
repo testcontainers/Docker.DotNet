@@ -11,50 +11,7 @@ using Xunit;
 /// </summary>
 public class ManagedHandlerTests
 {
-    #region Connection Timeout Tests
-
-    [Fact]
-    public void ManagedHandler_ConnectTimeout_HasDefaultValue()
-    {
-        // Arrange & Act
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var handler = new ManagedHandler(logger);
-
-        // Assert
-        Assert.Equal(TimeSpan.FromSeconds(30), handler.ConnectTimeout);
-    }
-
-    [Fact]
-    public void ManagedHandler_ConnectTimeout_CanBeSet()
-    {
-        // Arrange
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var handler = new ManagedHandler(logger);
-
-        // Act
-        handler.ConnectTimeout = TimeSpan.FromSeconds(60);
-
-        // Assert
-        Assert.Equal(TimeSpan.FromSeconds(60), handler.ConnectTimeout);
-    }
-
-    [Fact]
-    public void ManagedHandler_ConnectTimeout_CanBeDisabled()
-    {
-        // Arrange
-        var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ManagedHandlerTests>();
-        using var handler = new ManagedHandler(logger);
-
-        // Act
-        handler.ConnectTimeout = Timeout.InfiniteTimeSpan;
-
-        // Assert
-        Assert.Equal(Timeout.InfiniteTimeSpan, handler.ConnectTimeout);
-    }
-
-    #endregion
-
-    #region Phase 4: Happy Eyeballs Tests
+    #region Happy Eyeballs Tests
 
 #if NET6_0_OR_GREATER
     [Fact]
@@ -165,7 +122,6 @@ public class ManagedHandlerTests
         Assert.Equal(RedirectMode.NoDowngrade, handler.RedirectMode);
         Assert.Null(handler.ServerCertificateValidationCallback);
         Assert.NotNull(handler.ClientCertificates);
-        Assert.Equal(TimeSpan.FromSeconds(30), handler.ConnectTimeout);
     }
 
     [Fact]

@@ -84,12 +84,6 @@ public class ManagedHandler : HttpMessageHandler
 
     public X509CertificateCollection ClientCertificates { get; set; } = new X509Certificate2Collection();
 
-    /// <summary>
-    /// Gets or sets the connection timeout. Default is 30 seconds.
-    /// Set to <see cref="Timeout.InfiniteTimeSpan"/> to disable connection timeout.
-    /// </summary>
-    public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(30);
-
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
         if (httpRequestMessage == null)
@@ -173,38 +167,21 @@ public class ManagedHandler : HttpMessageHandler
         request.Headers.ConnectionClose = !request.Headers.Contains("Connection"); // TODO: Connection reuse is not supported.
 
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
-        Socket socket = null;
-        Stream transport = null;
-        BufferedReadStream bufferedReadStream = null;
-
-        // Create linked cancellation token for connection timeout
-        using var timeoutCts = ConnectTimeout != Timeout.InfiniteTimeSpan
-            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
-            : null;
-
-        if (timeoutCts != null)
-        {
-            timeoutCts.CancelAfter(ConnectTimeout);
-        }
-
-        var effectiveCancellationToken = timeoutCts?.Token ?? cancellationToken;
+        Socket socket;
+        Stream transport;
 
         try
         {
             if (_socketOpener != null)
             {
-                socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
+                socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
                 transport = new NetworkStream(socket, true);
             }
             else
             {
                 socket = null;
-                transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, effectiveCancellationToken).ConfigureAwait(false);
+                transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
             }
-        }
-        catch (OperationCanceledException) when (timeoutCts?.IsCancellationRequested == true && !cancellationToken.IsCancellationRequested)
-        {
-            throw new TimeoutException($"Connection to {request.GetConnectionHostProperty()}:{request.GetConnectionPortProperty()} timed out after {ConnectTimeout.TotalSeconds} seconds.");
         }
         catch (SocketException e)
         {
@@ -221,8 +198,7 @@ public class ManagedHandler : HttpMessageHandler
             transport = await EstablishSslAsync(transport, request.GetHostProperty(), cancellationToken).ConfigureAwait(false);
         }
 
-        bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
-
+        var bufferedReadStream = new BufferedReadStream(transport, socket, _logger);
         var connection = new HttpConnection(bufferedReadStream);
         return await connection.SendAsync(request, cancellationToken);
     }
