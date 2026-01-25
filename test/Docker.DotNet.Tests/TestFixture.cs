@@ -33,14 +33,13 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
 
         try
         {
-            var tempDir = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE");
 #if NET9_0_OR_GREATER
-            var credentials = new CertificateCredentials(X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(tempDir, "certs", "client.pfx"), ""))
+            var credentials = new CertificateCredentials(X509CertificateLoader.LoadPkcs12FromFile(Path.Combine("/home/runner/certs/client.pfx"), ""))
             {
                 ServerCertificateValidationCallback = ValidateServerCertificate
             };
 #else
-            var credentials = new CertificateCredentials(new X509Certificate2(Path.Combine(tempDir, "certs", "client.pfx"), ""))
+            var credentials = new CertificateCredentials(new X509Certificate2("/home/runner/certs/client.pfx", ""))
             {
                 ServerCertificateValidationCallback = ValidateServerCertificate
             };
@@ -93,7 +92,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     /// <summary>
     /// Gets or sets the Docker image.
     /// </summary>
-    public Dictionary<TestDaemonsEnum, ImagesListResponse> Images { get; private set; }
+    public Dictionary<TestDaemonsEnum, ImagesListResponse> Images { get; }
 
     /// <inheritdoc />
     public async Task InitializeAsync()
@@ -241,7 +240,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
             if (_isDisposed.TryGetValue(daemon, out var disposed) && disposed)
                 continue;
 
-            if (_hasInitializedSwarm.TryGetValue(daemon, out var swarm) && swarm)
+            if (true || _hasInitializedSwarm.TryGetValue(daemon, out var swarm) && swarm)
             {
                 await DockerClients[GetClientForDaemon(daemon)].Swarm.LeaveSwarmAsync(new SwarmLeaveParameters { Force = true }, Cts.Token)
                     .ConfigureAwait(false);
