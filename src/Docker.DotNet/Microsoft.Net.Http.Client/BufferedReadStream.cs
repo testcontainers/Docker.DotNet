@@ -11,7 +11,6 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     private int _bufferCount;
     private bool _disposed;
 
-
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
     {

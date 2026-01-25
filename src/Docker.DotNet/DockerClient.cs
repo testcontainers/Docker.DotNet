@@ -108,10 +108,7 @@ public sealed class DockerClient : IDockerClient
                     try
                     {
                         // Apply socket configuration for better proxy compatibility
-                        if (socketConfig.KeepAlive)
-                        {
-                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                        }
+                        socketConfig.ApplyTo(socket);
 
                         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                         timeoutCts.CancelAfter(socketTimeout);

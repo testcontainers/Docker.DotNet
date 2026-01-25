@@ -511,13 +511,14 @@ public class ManagedHandler : HttpMessageHandler
             }
         }, cts.Token);
 
-        // Wait for either to complete
-        var completedTasks = new List<Task<Socket>> { ipv6Task, ipv4Task };
+        // Keep track of all tasks for cleanup
+        var allTasks = new List<Task<Socket>> { ipv6Task, ipv4Task };
+        var pendingTasks = new List<Task<Socket>>(allTasks);
 
-        while (completedTasks.Count > 0)
+        while (pendingTasks.Count > 0)
         {
-            var completedTask = await Task.WhenAny(completedTasks).ConfigureAwait(false);
-            completedTasks.Remove(completedTask);
+            var completedTask = await Task.WhenAny(pendingTasks).ConfigureAwait(false);
+            pendingTasks.Remove(completedTask);
 
             try
             {
@@ -536,19 +537,23 @@ public class ManagedHandler : HttpMessageHandler
         }
 
         // Clean up any remaining sockets from tasks that didn't win
-        foreach (var task in completedTasks)
+        foreach (var task in allTasks)
         {
-            try
+            // Skip the winning task
+            if (winningSocket != null && task.IsCompletedSuccessfully)
             {
-                if (task.IsCompletedSuccessfully)
+                try
                 {
                     var socket = await task.ConfigureAwait(false);
-                    socket?.Dispose();
+                    if (socket != null && socket != winningSocket)
+                    {
+                        socket.Dispose();
+                    }
                 }
-            }
-            catch
-            {
-                // Ignore cleanup errors
+                catch
+                {
+                    // Ignore cleanup errors
+                }
             }
         }
 
