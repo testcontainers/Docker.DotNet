@@ -1,5 +1,7 @@
 namespace Docker.DotNet;
 
+using System;
+
 public sealed class DockerClient : IDockerClient
 {
     internal readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
@@ -10,12 +12,15 @@ public sealed class DockerClient : IDockerClient
 
     private readonly Uri _endpointBaseUri;
 
-    private readonly System.Version _requestedApiVersion;
+    private readonly Version _requestedApiVersion;
 
-    private readonly IDockerHandlerFactory _handlerFactory;
-
-    internal DockerClient(DockerClientConfiguration configuration, System.Version requestedApiVersion, IDockerHandlerFactory handlerFactory = null, ILogger logger = null)
+    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
     {
+        if (handlerFactory == null)
+        {
+            throw new ArgumentNullException(nameof(handlerFactory));
+        }
+
         _requestedApiVersion = requestedApiVersion;
         Configuration = configuration;
         DefaultTimeout = configuration.DefaultTimeout;
@@ -32,13 +37,11 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        _handlerFactory = handlerFactory ?? throw new InvalidOperationException("No handler factory provided");
+        var (handler, endpoint) = handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
 
-        var handlerAndUri = _handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
-
-        _endpointBaseUri = handlerAndUri.Item2;
-        _client = new HttpClient(Configuration.Credentials.GetHandler(handlerAndUri.Item1), true);
+        _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
         _client.Timeout = Timeout.InfiniteTimeSpan;
+        _endpointBaseUri = endpoint;
     }
 
     public DockerClientConfiguration Configuration { get; }
@@ -387,7 +390,7 @@ public sealed class DockerClient : IDockerClient
         }
 
         var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_endpointBaseUri, _requestedApiVersion, path, queryString));
-        request.Version = new System.Version(1, 1);
+        request.Version = new Version(1, 1);
         request.Headers.Add("User-Agent", UserAgent);
 
         var customHeaders = headers == null

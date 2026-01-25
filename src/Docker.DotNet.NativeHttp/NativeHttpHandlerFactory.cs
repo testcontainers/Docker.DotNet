@@ -1,32 +1,29 @@
-namespace Docker.DotNet.NativeHttp
-{
-    public class NativeHttpHandlerFactory : IDockerHandlerFactory
-    {
-        public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
-        {
+namespace Docker.DotNet.NativeHttp;
 
-            var builder = new UriBuilder(uri)
-            {
-                Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
-            };
-            uri = builder.Uri;
+public class NativeHttpHandlerFactory : IDockerHandlerFactory
+{
+    private const int MaxConnectionsPerServer = 10;
+
+    private static readonly TimeSpan PooledConnectionLifetime = TimeSpan.FromMinutes(5);
+
+    private static readonly TimeSpan PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2);
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
+    {
+        var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        uri = new UriBuilder(uri) { Scheme = scheme }.Uri;
 
 #if NET6_0_OR_GREATER
-            return new Tuple<HttpMessageHandler, Uri>(
-                new SocketsHttpHandler()
-                {
-                    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-                    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-                    MaxConnectionsPerServer = 10
-                },
-                uri
-            );
+        var handler = new SocketsHttpHandler
+        {
+            MaxConnectionsPerServer = MaxConnectionsPerServer,
+            PooledConnectionLifetime = PooledConnectionLifetime,
+            PooledConnectionIdleTimeout = PooledConnectionIdleTimeout,
+        };
 #else
-            return new Tuple<HttpMessageHandler, Uri>(
-                new HttpClientHandler(),
-                uri
-            );
+        var handler = new HttpClientHandler();
 #endif
-        }
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 }

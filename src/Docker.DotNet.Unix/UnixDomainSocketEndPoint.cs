@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Unix;
 
-internal class UnixDomainSocketEndPoint : EndPoint
+internal sealed class UnixDomainSocketEndPoint : EndPoint
 {
     private const AddressFamily EndPointAddressFamily = AddressFamily.Unix;
 

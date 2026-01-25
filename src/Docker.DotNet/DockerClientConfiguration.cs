@@ -1,12 +1,15 @@
 namespace Docker.DotNet;
 
+using System;
+
 public class DockerClientConfiguration : IDisposable
 {
     public DockerClientConfiguration(
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
+        TimeSpan namedPipeConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, defaultHttpRequestHeaders)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
     {
     }
 
@@ -14,6 +17,7 @@ public class DockerClientConfiguration : IDisposable
         Uri endpoint,
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
+        TimeSpan namedPipeConnectTimeout = default,
         IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
     {
         if (endpoint == null)
@@ -29,6 +33,7 @@ public class DockerClientConfiguration : IDisposable
         EndpointBaseUri = endpoint;
         Credentials = credentials ?? new AnonymousCredentials();
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
+        NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
     }
 
@@ -42,6 +47,8 @@ public class DockerClientConfiguration : IDisposable
     public Credentials Credentials { get; }
 
     public TimeSpan DefaultTimeout { get; }
+
+    public TimeSpan NamedPipeConnectTimeout { get; }
 
     public DockerClient CreateClient(System.Version requestedApiVersion = null, ILogger logger = null)
     {

@@ -21,6 +21,7 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
   <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
 </Project>
