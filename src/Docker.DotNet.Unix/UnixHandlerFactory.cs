@@ -4,8 +4,9 @@ public class UnixHandlerFactory : IDockerHandlerFactory
 {
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
     {
+        var socketName = uri.Segments.Last();
         var socketPath = uri.LocalPath;
-        uri = new UriBuilder(uri) { Scheme = Uri.UriSchemeHttp, Host = uri.Segments.Last() }.Uri;
+        uri = new UriBuilder(Uri.UriSchemeHttp, socketName).Uri;
 
         var socketOpener = new ManagedHandler.SocketOpener(async (_, _, _) =>
         {

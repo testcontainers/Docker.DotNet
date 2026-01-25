@@ -19,7 +19,7 @@ public class NpipeHandlerFactory : IDockerHandlerFactory
         var pipeName = uri.Segments[2];
 
         var serverName = "localhost".Equals(uri.Host, StringComparison.OrdinalIgnoreCase) ? "." : uri.Host;
-        uri = new UriBuilder(uri) { Scheme = Uri.UriSchemeHttp, Host = pipeName }.Uri;
+        uri = new UriBuilder(Uri.UriSchemeHttp, pipeName).Uri;
 
         var streamOpener = new ManagedHandler.StreamOpener(async (_, _, cancellationToken) =>
         {
