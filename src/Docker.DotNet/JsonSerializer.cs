@@ -74,6 +74,15 @@ internal sealed class JsonSerializer
 
     private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument jsonDocument)
     {
+        // Skip leading null bytes (Docker 29.x can include them between JSON documents)
+        buffer = SkipLeadingNullBytes(buffer);
+
+        if (buffer.IsEmpty)
+        {
+            jsonDocument = null;
+            return false;
+        }
+
         var reader = new Utf8JsonReader(buffer, isFinalBlock: false, default);
 
         if (JsonDocument.TryParseValue(ref reader, out jsonDocument))
@@ -82,6 +91,27 @@ internal sealed class JsonSerializer
             return true;
         }
 
+        jsonDocument = null;
         return false;
+    }
+
+    private static ReadOnlySequence<byte> SkipLeadingNullBytes(ReadOnlySequence<byte> buffer)
+    {
+        long nullByteCount = 0;
+
+        foreach (var segment in buffer)
+        {
+            var span = segment.Span;
+            var idx = span.IndexOfAnyExcept((byte)0);
+            if (idx >= 0)
+            {
+                nullByteCount += idx;
+                return nullByteCount > 0 ? buffer.Slice(nullByteCount) : buffer;
+            }
+            nullByteCount += span.Length;
+        }
+
+        // All bytes are null - return empty slice from the original buffer to preserve position compatibility
+        return buffer.Slice(buffer.Length);
     }
 }
