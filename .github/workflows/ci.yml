@@ -29,7 +29,7 @@ jobs:
         options: >-
           --privileged
         volumes:
-          - /tmp/certs:/certs
+          - ${{ env.HOME }}/certs:/certs
 
     strategy:
       matrix:
@@ -56,11 +56,12 @@ jobs:
 
       - name: Pack client cert, key, ca for .NET Docker client
         run: |
+          sudo chown -R $USER:$USER $HOME/certs
           openssl pkcs12 -export \
-            -out "/tmp/certs/client.pfx" \
-            -inkey "/tmp/certs/client/key.pem" \
-            -in "/tmp/certs/client/cert.pem" \
-            -certfile "/tmp/certs/client/ca.pem" \
+            -out "$HOME/certs/client.pfx" \
+            -inkey "$HOME/certs/client/key.pem" \
+            -in "$HOME/certs/client/cert.pem" \
+            -certfile "$HOME/certs/client/ca.pem" \
             -passout pass:
 
       - name: Wait for Docker (no TLS) to be healthy
@@ -80,9 +81,9 @@ jobs:
         run: |
           for i in {1..10}; do
             if docker --host=tcp://localhost:2376 --tlsverify \
-              --tlscacert=/tmp/certs/client/ca.pem \
-              --tlscert=/tmp/certs/client/cert.pem \
-              --tlskey=/tmp/certs/client/key.pem version; then
+              --tlscacert="$HOME/certs/client/ca.pem" \
+              --tlscert="$HOME/certs/client/cert.pem" \
+              --tlskey="$HOME/certs/client/key.pem" version; then
               echo "Docker (with TLS) is ready!"
               exit 0
             fi
