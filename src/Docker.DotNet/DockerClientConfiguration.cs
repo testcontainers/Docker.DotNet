@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 using System;
 
-public class DockerClientConfiguration : IDisposable
+public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 {
     public DockerClientConfiguration(
         Credentials credentials = null,
@@ -52,39 +52,16 @@ public class DockerClientConfiguration : IDisposable
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
-        var scheme = EndpointBaseUri.Scheme;
-        if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
-            scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+        return EndpointBaseUri.Scheme.ToLower() switch
         {
-            scheme = "Http";
-        }
-
-        // Try to find a handler factory assembly in base directory that matches the scheme and Docker.DotNet
-        var filenameOfFactoryAssembly = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll")
-        .FirstOrDefault(a =>
-            a.ToLower().Contains("Docker.DotNet".ToLower())
-            && a.ToLower().Contains(scheme.ToLower()));
-
-        if (filenameOfFactoryAssembly == null)
-        {
-            throw new InvalidOperationException($"No Docker handler factory assembly found for scheme '{scheme}'. Please reference at least one handler package (e.g., NPipe, Unix, NativeHttp, LegacyHttp).");
-        }
-
-        var factoryAssembly = Assembly.LoadFile(filenameOfFactoryAssembly);
-
-        var factoryType = factoryAssembly.GetTypes().FirstOrDefault(t =>
-            typeof(IDockerHandlerFactory).IsAssignableFrom(t) &&
-            !t.IsInterface && !t.IsAbstract
-        );
-
-        if (factoryType == null)
-        {
-            throw new InvalidOperationException($"No Docker handler factory implementation found for scheme '{scheme}' in assembly '{factoryAssembly.FullName}'.");
-        }
-
-        var factory = (IDockerHandlerFactory)Activator.CreateInstance(factoryType);
-
-        return new DockerClient(this, requestedApiVersion, factory, logger);
+            "npipe" => CreateClient(requestedApiVersion, new NPipe.HandlerFactory(), logger),
+            "unix" => CreateClient(requestedApiVersion, new Unix.HandlerFactory(), logger),
+            "http" or "https" =>
+                Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
+                CreateClient(requestedApiVersion, new NativeHttp.HandlerFactory(), logger) :
+                CreateClient(requestedApiVersion, new LegacyHttp.HandlerFactory(), logger),
+            _ => throw new NotSupportedException($"The URI scheme '{EndpointBaseUri.Scheme}' is not supported."),
+        };
     }
 
     public DockerClient CreateClient(Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)

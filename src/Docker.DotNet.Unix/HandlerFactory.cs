@@ -1,8 +1,8 @@
 namespace Docker.DotNet.Unix;
 
-public class UnixHandlerFactory : IDockerHandlerFactory
+public class HandlerFactory : IDockerHandlerFactory
 {
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
         var socketName = uri.Segments.Last();
         var socketPath = uri.LocalPath;

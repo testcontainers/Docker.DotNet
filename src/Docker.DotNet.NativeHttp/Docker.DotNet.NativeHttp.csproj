@@ -5,10 +5,12 @@
     <Description>A Docker.DotNet transport implementation for HTTP(S) Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.IO" />
+    <Using Include="System.IO.Pipes" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Runtime.InteropServices" />
@@ -17,5 +19,6 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Docker.DotNet.HandlerFactory" />
   </ItemGroup>
 </Project>

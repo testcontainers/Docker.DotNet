@@ -23,6 +23,7 @@
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="Docker.DotNet" />
     <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BufferedReadStream.cs" />

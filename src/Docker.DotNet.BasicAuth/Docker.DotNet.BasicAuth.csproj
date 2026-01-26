@@ -5,7 +5,7 @@
     <Description>A Docker.DotNet extension that adds Basic Authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
@@ -16,5 +16,6 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
+    <Using Include="Docker.DotNet.HandlerFactory" />
   </ItemGroup>
 </Project>

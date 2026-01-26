@@ -8,7 +8,7 @@
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
@@ -22,5 +22,6 @@
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
+    <Using Include="Docker.DotNet.HandlerFactory" />
   </ItemGroup>
 </Project>

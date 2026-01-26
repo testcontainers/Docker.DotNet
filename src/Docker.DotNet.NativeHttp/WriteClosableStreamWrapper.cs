@@ -1,4 +1,4 @@
-namespace Docker.DotNet;
+namespace Docker.DotNet.NativeHttp;
 
 public class WriteClosableStreamWrapper : WriteClosableStream
 {

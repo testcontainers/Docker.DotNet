@@ -46,7 +46,15 @@
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet" />
     <Using Include="Docker.DotNet.Models" />
+    <Using Include="Docker.DotNet.HandlerFactory" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.LegacyHttp\Docker.DotNet.LegacyHttp.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj" />
   </ItemGroup>
 </Project>

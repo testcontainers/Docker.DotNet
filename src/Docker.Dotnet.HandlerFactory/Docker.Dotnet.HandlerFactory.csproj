@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Docker.DotNet.HandlerFactory</AssemblyName>
+    <PackageId>Docker.DotNet.Enhanced.HandlerFactory</PackageId>
+    <Description></Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Buffers" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.IO" />
+    <Using Include="System.IO.Pipelines" />
+    <Using Include="System.IO.Pipes" />
+    <Using Include="System.Security" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-namespace Docker.DotNet;
+namespace Docker.DotNet.HandlerFactory;
 
 public abstract class WriteClosableStream : Stream
 {

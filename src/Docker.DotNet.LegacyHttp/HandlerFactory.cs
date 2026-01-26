@@ -1,8 +1,8 @@
 namespace Docker.DotNet.LegacyHttp;
 
-public class LegacyHttpHandlerFactory : IDockerHandlerFactory
+public class HandlerFactory : IDockerHandlerFactory
 {
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
         var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         uri = new UriBuilder(uri) { Scheme = scheme }.Uri;

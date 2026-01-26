@@ -1,8 +1,8 @@
 namespace Docker.DotNet.NPipe;
 
-public class NpipeHandlerFactory : IDockerHandlerFactory
+public class HandlerFactory : IDockerHandlerFactory
 {
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
         if (configuration.Credentials.IsTlsCredentials())
         {
@@ -23,7 +23,7 @@ public class NpipeHandlerFactory : IDockerHandlerFactory
 
         var streamOpener = new ManagedHandler.StreamOpener(async (_, _, cancellationToken) =>
         {
-            var clientStream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
+            var clientStream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.Asynchronous);
 
             var dockerStream = new DockerPipeStream(clientStream);
 

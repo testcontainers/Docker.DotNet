@@ -328,26 +328,16 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        // Use reflection to support different handler without direct reference
-        var hijackMethod = HijackStreamHelper.GetHijackMethodFromType(response.Content.GetType());
-
-        if (hijackMethod == null)
+        return _endpointBaseUri.Scheme.ToLower() switch
         {
-            // Native http handler
-            var stream = await response.Content.ReadAsStreamAsync()
-                .ConfigureAwait(false);
-            return new WriteClosableStreamWrapper(stream);
-        }
-        else
-        {
-            var hijackedStream = hijackMethod.Invoke(response.Content, null) as WriteClosableStream;
-            if (hijackedStream == null)
-            {
-                throw new NotSupportedException("HijackStream did not return a WriteClosableStream");
-            }
-
-            return hijackedStream;
-        }
+            "npipe" => NPipe.HijackStreamHelper.HijackStream(response.Content),
+            "unix" => Unix.HijackStreamHelper.HijackStream(response.Content),
+            "http" or "https" =>
+                Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
+                NativeHttp.HijackStreamHelper.HijackStream(response.Content) :
+                LegacyHttp.HijackStreamHelper.HijackStream(response.Content),
+            _ => throw new NotSupportedException($"The URI scheme '{_endpointBaseUri.Scheme}' is not supports stream hijacking."),
+        };
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(

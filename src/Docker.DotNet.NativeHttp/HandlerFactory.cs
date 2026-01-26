@@ -1,6 +1,6 @@
 namespace Docker.DotNet.NativeHttp;
 
-public class NativeHttpHandlerFactory : IDockerHandlerFactory
+public class HandlerFactory : IDockerHandlerFactory
 {
     private const int MaxConnectionsPerServer = 10;
 
@@ -8,7 +8,7 @@ public class NativeHttpHandlerFactory : IDockerHandlerFactory
 
     private static readonly TimeSpan PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2);
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, DockerClientConfiguration configuration, ILogger logger)
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
         var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         uri = new UriBuilder(uri) { Scheme = scheme }.Uri;
