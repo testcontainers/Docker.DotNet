@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -24,7 +24,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Microsoft.Net.Http.Client",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.Tests", "test\Docker.DotNet.Tests\Docker.DotNet.Tests.csproj", "{248C5D51-2B33-4A06-A0EA-AA709F752E52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.HandlerFactory", "src\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj", "{22C42314-615F-4B11-B111-58F1D6D54F4D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.Handler.Abstractions", "src\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj", "{22C42314-615F-4B11-B111-58F1D6D54F4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

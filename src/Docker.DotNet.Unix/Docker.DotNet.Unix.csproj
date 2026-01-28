@@ -5,7 +5,7 @@
     <Description>A Docker.DotNet transport implementation for Unix domain socket Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet.HandlerFactory\Docker.DotNet.HandlerFactory.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
@@ -20,9 +20,9 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
+    <Using Include="Docker.DotNet.HandlerFactory" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Net.Http.Client" />
-    <Using Include="Docker.DotNet.HandlerFactory" />
   </ItemGroup>
   <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
 </Project>
