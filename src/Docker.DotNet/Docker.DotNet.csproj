@@ -5,15 +5,15 @@
     <Description>A .NET client for the Docker Engine API with fully asynchronous, non-blocking, object-oriented APIs.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+    <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
-    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
-    <PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.IO.Pipelines" />
+    <PackageReference Include="System.Net.Http.Json" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
