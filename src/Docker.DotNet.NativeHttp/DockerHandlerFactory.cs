@@ -1,6 +1,6 @@
 namespace Docker.DotNet.NativeHttp;
 
-public class HandlerFactory : IDockerHandlerFactory
+public class DockerHandlerFactory : IDockerHandlerFactory
 {
     private const int MaxConnectionsPerServer = 10;
 

@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Unix;
 
-public class HandlerFactory : IDockerHandlerFactory
+public class DockerHandlerFactory : IDockerHandlerFactory
 {
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {

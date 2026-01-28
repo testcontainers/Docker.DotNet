@@ -1,6 +1,6 @@
 namespace Docker.DotNet.NPipe;
 
-public class HandlerFactory : IDockerHandlerFactory
+public class DockerHandlerFactory : IDockerHandlerFactory
 {
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
@@ -23,7 +23,7 @@ public class HandlerFactory : IDockerHandlerFactory
 
         var streamOpener = new ManagedHandler.StreamOpener(async (_, _, cancellationToken) =>
         {
-            var clientStream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.Asynchronous);
+            var clientStream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
             var dockerStream = new DockerPipeStream(clientStream);
 

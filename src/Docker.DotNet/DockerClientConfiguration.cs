@@ -54,12 +54,12 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
     {
         return EndpointBaseUri.Scheme.ToLower() switch
         {
-            "npipe" => CreateClient(requestedApiVersion, new NPipe.HandlerFactory(), logger),
-            "unix" => CreateClient(requestedApiVersion, new Unix.HandlerFactory(), logger),
+            "npipe" => CreateClient(requestedApiVersion, new NPipe.DockerHandlerFactory(), logger),
+            "unix" => CreateClient(requestedApiVersion, new Unix.DockerHandlerFactory(), logger),
             "http" or "https" =>
                 Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
-                CreateClient(requestedApiVersion, new NativeHttp.HandlerFactory(), logger) :
-                CreateClient(requestedApiVersion, new LegacyHttp.HandlerFactory(), logger),
+                CreateClient(requestedApiVersion, new NativeHttp.DockerHandlerFactory(), logger) :
+                CreateClient(requestedApiVersion, new LegacyHttp.DockerHandlerFactory(), logger),
             _ => throw new NotSupportedException($"The URI scheme '{EndpointBaseUri.Scheme}' is not supported."),
         };
     }
