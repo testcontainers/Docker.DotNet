@@ -22,6 +22,6 @@
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
-    <Using Include="Docker.DotNet.HandlerFactory" />
+    <Using Include="Docker.DotNet.Handler.Abstractions" />
   </ItemGroup>
 </Project>

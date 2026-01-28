@@ -1,4 +1,4 @@
-namespace Docker.DotNet.HandlerFactory;
+namespace Docker.DotNet.Handler.Abstractions;
 
 public abstract class Credentials : IDisposable
 {

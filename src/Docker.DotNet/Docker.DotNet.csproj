@@ -52,7 +52,7 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet" />
-    <Using Include="Docker.DotNet.HandlerFactory" />
+    <Using Include="Docker.DotNet.Handler.Abstractions" />
     <Using Include="Docker.DotNet.Models" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Logging.Abstractions" />
