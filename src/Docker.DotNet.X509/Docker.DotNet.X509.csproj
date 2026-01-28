@@ -2,25 +2,26 @@
   <PropertyGroup>
     <AssemblyName>Docker.DotNet.X509</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.X509</PackageId>
-    <Description>Docker.DotNet.X509 is a library that allows you to use certificate authentication with a remote Docker engine programmatically in your .NET applications.</Description>
+    <Description>A Docker.DotNet extension that adds X.509 client certificate authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
+    <PackageReference Include="BouncyCastle.Cryptography" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet\Docker.DotNet.csproj" />
+    <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.IO" />
-    <Using Include="System.Net" />
-    <Using Include="System.Text" />
-    <Using Include="System.Security" />
-    <Using Include="System.Net.Http" />
     <Using Include="System.IO.Pipes" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
     <Using Include="System.Net.Security" />
+    <Using Include="System.Security" />
+    <Using Include="System.Security.Authentication" />
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
-    <Using Include="Microsoft.Net.Http.Client" />
+    <Using Include="System.Text" />
+    <Using Include="Docker.DotNet.Handler.Abstractions" />
   </ItemGroup>
 </Project>

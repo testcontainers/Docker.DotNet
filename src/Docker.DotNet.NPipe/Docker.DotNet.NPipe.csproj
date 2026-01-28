@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Docker.DotNet.BasicAuth</AssemblyName>
-    <PackageId>Docker.DotNet.Enhanced.BasicAuth</PackageId>
-    <Description>A Docker.DotNet extension that adds Basic Authentication for remote Docker Engine connections.</Description>
+    <AssemblyName>Docker.DotNet.NPipe</AssemblyName>
+    <PackageId>Docker.DotNet.Enhanced.NPipe</PackageId>
+    <Description>A Docker.DotNet transport implementation for Windows named pipe (npipe) Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.IO" />
+    <Using Include="System.IO.Pipes" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Runtime.InteropServices" />
@@ -17,5 +19,8 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
+  <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
 </Project>
