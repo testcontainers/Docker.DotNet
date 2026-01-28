@@ -47,4 +47,14 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
 
         return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(streamOpener, logger), uri);
     }
+
+    public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
+    {
+        if (content is not HttpConnectionResponseContent hijackable)
+        {
+            throw new NotSupportedException("Not supported content type for stream hijacking.");
+        }
+
+        return Task.FromResult(hijackable.HijackStream());
+    }
 }

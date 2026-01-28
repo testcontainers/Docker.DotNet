@@ -14,6 +14,8 @@ public sealed class DockerClient : IDockerClient
 
     private readonly Version _requestedApiVersion;
 
+    private readonly IDockerHandlerFactory _handlerFactory;
+
     internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
     {
         if (handlerFactory == null)
@@ -22,6 +24,8 @@ public sealed class DockerClient : IDockerClient
         }
 
         _requestedApiVersion = requestedApiVersion;
+        _handlerFactory = handlerFactory;
+
         Configuration = configuration;
         DefaultTimeout = configuration.DefaultTimeout;
 
@@ -37,7 +41,7 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        var (handler, endpoint) = handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
+        var (handler, endpoint) = _handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
 
         _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
         _client.Timeout = Timeout.InfiniteTimeSpan;
@@ -328,16 +332,8 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        return _endpointBaseUri.Scheme.ToLower() switch
-        {
-            "npipe" => NPipe.HijackStreamHelper.HijackStream(response.Content),
-            "unix" => Unix.HijackStreamHelper.HijackStream(response.Content),
-            "http" or "https" =>
-                Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
-                NativeHttp.HijackStreamHelper.HijackStream(response.Content) :
-                LegacyHttp.HijackStreamHelper.HijackStream(response.Content),
-            _ => throw new NotSupportedException($"The URI scheme '{_endpointBaseUri.Scheme}' is not supports stream hijacking."),
-        };
+        return await _handlerFactory.HijackStreamAsync(response.Content)
+            .ConfigureAwait(false);
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
@@ -410,7 +406,7 @@ public sealed class DockerClient : IDockerClient
         if (isErrorResponse)
         {
             // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway and
+            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
             // we want to report the response body in the error message as it contains potentially useful info.
             responseBody = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);
@@ -441,7 +437,7 @@ public sealed class DockerClient : IDockerClient
         if (isErrorResponse)
         {
             // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway and
+            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
             // we want to report the response body in the error message as it contains potentially useful info.
             responseBody = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);

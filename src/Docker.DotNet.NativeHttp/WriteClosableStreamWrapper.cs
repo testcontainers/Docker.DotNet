@@ -1,51 +1,56 @@
 namespace Docker.DotNet.NativeHttp;
 
-public class WriteClosableStreamWrapper : WriteClosableStream
+internal sealed class WriteClosableStreamWrapper(Stream stream) : WriteClosableStream
 {
-    private readonly Stream _baseStream;
+    private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
-    public WriteClosableStreamWrapper(Stream baseStream)
-    {
-        _baseStream = baseStream ?? throw new ArgumentNullException(nameof(baseStream));
-    }
+    public override bool CanRead
+        => _stream.CanRead;
 
-    public override void CloseWrite()
-    {
-        _baseStream.Close(); // Replace with half-close logic if available
-    }
+    public override bool CanWrite
+        => _stream.CanWrite;
 
-    public override bool CanRead => _baseStream.CanRead;
-    public override bool CanSeek => _baseStream.CanSeek;
-    public override bool CanWrite => _baseStream.CanWrite;
-    public override bool CanCloseWrite => true;
-    public override long Length => _baseStream.Length;
+    public override bool CanSeek
+        => _stream.CanSeek;
+
+    public override bool CanCloseWrite
+        => true;
+
+    public override long Length
+        => _stream.Length;
 
     public override long Position
     {
-        get => _baseStream.Position;
-        set => _baseStream.Position = value;
+        get => _stream.Position;
+        set => _stream.Position = value;
     }
 
-    public override void Flush() => _baseStream.Flush();
+    public override void Flush()
+        => _stream.Flush();
 
-    public override int Read(byte[] buffer, int offset, int count) =>
-        _baseStream.Read(buffer, offset, count);
+    public override int Read(byte[] buffer, int offset, int count)
+        => _stream.Read(buffer, offset, count);
 
-    public override long Seek(long offset, SeekOrigin origin) =>
-        _baseStream.Seek(offset, origin);
+    public override void Write(byte[] buffer, int offset, int count)
+        => _stream.Write(buffer, offset, count);
 
-    public override void SetLength(long value) =>
-        _baseStream.SetLength(value);
+    public override long Seek(long offset, SeekOrigin origin)
+        => _stream.Seek(offset, origin);
 
-    public override void Write(byte[] buffer, int offset, int count) =>
-        _baseStream.Write(buffer, offset, count);
+    // Replace with half-close logic if available.
+    public override void CloseWrite()
+        => _stream.Close();
+
+    public override void SetLength(long value)
+        => _stream.SetLength(value);
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            _baseStream.Dispose();
+            _stream.Dispose();
         }
+
         base.Dispose(disposing);
     }
 }

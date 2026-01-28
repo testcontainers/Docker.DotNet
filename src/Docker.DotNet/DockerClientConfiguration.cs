@@ -56,7 +56,7 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
         {
             "npipe" => CreateClient(requestedApiVersion, NPipe.DockerHandlerFactory.Instance, logger),
             "unix" => CreateClient(requestedApiVersion, Unix.DockerHandlerFactory.Instance, logger),
-            "http" or "https" =>
+            "tcp" or "http" or "https" =>
                 Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
                 CreateClient(requestedApiVersion, NativeHttp.DockerHandlerFactory.Instance, logger) :
                 CreateClient(requestedApiVersion, LegacyHttp.DockerHandlerFactory.Instance, logger),

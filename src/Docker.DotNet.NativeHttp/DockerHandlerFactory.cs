@@ -32,4 +32,12 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
 
         return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
+
+    public async Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
+    {
+        var stream = await content.ReadAsStreamAsync()
+            .ConfigureAwait(false);
+        
+        return new WriteClosableStreamWrapper(stream);
+    }
 }
