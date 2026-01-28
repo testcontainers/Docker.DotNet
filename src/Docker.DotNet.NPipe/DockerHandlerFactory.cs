@@ -1,7 +1,13 @@
 namespace Docker.DotNet.NPipe;
 
-public class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory
 {
+    private DockerHandlerFactory()
+    {
+    }
+
+    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
         if (configuration.Credentials.IsTlsCredentials())
