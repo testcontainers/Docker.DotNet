@@ -4,6 +4,8 @@ using System;
 
 public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 {
+    private static readonly bool NativeHttpEnabled = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1";
+
     public DockerClientConfiguration(
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
@@ -52,16 +54,17 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
-        return EndpointBaseUri.Scheme.ToLower() switch
+        var handlerFactory = EndpointBaseUri.Scheme.ToLowerInvariant() switch
         {
-            "npipe" => CreateClient(requestedApiVersion, NPipe.DockerHandlerFactory.Instance, logger),
-            "unix" => CreateClient(requestedApiVersion, Unix.DockerHandlerFactory.Instance, logger),
-            "tcp" or "http" or "https" =>
-                Environment.GetEnvironmentVariable("DOCKER_DOTNET_USE_NATIVE_HTTP") == "1" ?
-                CreateClient(requestedApiVersion, NativeHttp.DockerHandlerFactory.Instance, logger) :
-                CreateClient(requestedApiVersion, LegacyHttp.DockerHandlerFactory.Instance, logger),
-            _ => throw new NotSupportedException($"The URI scheme '{EndpointBaseUri.Scheme}' is not supported."),
+            "npipe" => NPipe.DockerHandlerFactory.Instance,
+            "unix" => Unix.DockerHandlerFactory.Instance,
+            "tcp" or "http" or "https" => NativeHttpEnabled
+                ? NativeHttp.DockerHandlerFactory.Instance
+                : LegacyHttp.DockerHandlerFactory.Instance,
+            _ => throw new NotSupportedException($"The URI scheme '{EndpointBaseUri.Scheme}' is not supported.")
         };
+
+        return CreateClient(requestedApiVersion, handlerFactory, logger);
     }
 
     public DockerClient CreateClient(Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)

@@ -33,7 +33,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
     {
         if (content is not HttpConnectionResponseContent hijackable)
         {
-            throw new NotSupportedException("Not supported content type for stream hijacking.");
+            throw new NotSupportedException("The content type is not supported for stream hijacking.");
         }
 
         return Task.FromResult(hijackable.HijackStream());

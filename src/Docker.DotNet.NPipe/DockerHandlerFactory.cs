@@ -19,7 +19,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
 
         if (segments.Length != 3 || !"pipe/".Equals(segments[1], StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException("The endpoint is not a valid npipe URI.");
+            throw new InvalidOperationException("The endpoint is not a npipe URI.");
         }
 
         var pipeName = uri.Segments[2];
@@ -52,7 +52,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
     {
         if (content is not HttpConnectionResponseContent hijackable)
         {
-            throw new NotSupportedException("Not supported content type for stream hijacking.");
+            throw new NotSupportedException("The content type is not supported for stream hijacking.");
         }
 
         return Task.FromResult(hijackable.HijackStream());
