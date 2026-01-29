@@ -12,10 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj" />
-    <ProjectReference Include="..\..\src\Docker.DotNet.LegacyHttp\Docker.DotNet.LegacyHttp.csproj" />
-    <ProjectReference Include="..\..\src\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj" />
-    <ProjectReference Include="..\..\src\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj" />
-    <ProjectReference Include="..\..\src\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.X509\Docker.DotNet.X509.csproj" />
   </ItemGroup>
   <ItemGroup>
