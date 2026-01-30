@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       # Docker without TLS (plain TCP) !DEPRECATED! with next docker release
-      docker-no-tls:
+      docker-without-tls:
         image: docker:29.1.1-dind
         env:
           DOCKER_TLS_CERTDIR: ""
@@ -20,7 +20,7 @@ jobs:
           --privileged
 
       # Docker with TLS (secure TCP)
-      docker-tls:
+      docker-with-tls:
         image: docker:29.1.1-dind
         env:
           DOCKER_TLS_CERTDIR: /certs
@@ -32,14 +32,46 @@ jobs:
           - /home/runner/certs:/certs
 
     strategy:
+      fail-fast: false
       matrix:
-        include:
+        dotnet:
           - sdk: 8.x
             tfm: net8.0
           - sdk: 9.x
             tfm: net9.0
           - sdk: 10.x
             tfm: net10.0
+        docker:
+          - name: unix
+            docker_host: unix:///var/run/docker.sock
+            tls_verify: ""
+            cert_path: ""
+            native_http: 0
+            needs_dind: false
+          - name: tcp-2375
+            docker_host: tcp://localhost:2375
+            tls_verify: ""
+            cert_path: ""
+            native_http: 0
+            needs_dind: true
+          - name: tcp-2376-tls
+            docker_host: tcp://localhost:2376
+            tls_verify: 1
+            cert_path: /home/runner/certs/client
+            native_http: 0
+            needs_dind: true
+          - name: tcp-2375-native
+            docker_host: tcp://localhost:2375
+            tls_verify: ""
+            cert_path: ""
+            native_http: 1
+            needs_dind: true
+          - name: tcp-2376-tls-native
+            docker_host: tcp://localhost:2376
+            tls_verify: 1
+            cert_path: /home/runner/certs/client
+            native_http: 1
+            needs_dind: true
 
     steps:
       - uses: actions/checkout@v6
@@ -49,12 +81,16 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ matrix.sdk }}
+          dotnet-version: ${{ matrix.dotnet.sdk }}
 
       - name: Build
-        run: dotnet build -c Release --framework ${{ matrix.tfm }}
+        run: >-
+          dotnet build
+          --configuration Release
+          --framework ${{ matrix.dotnet.tfm }}
 
-      - name: Pack client cert, key, ca for .NET Docker client
+      - name: Create client PKCS#12 bundle
+        if: ${{ matrix.docker.tls_verify == 1 }}
         run: |
           sudo chown -R $USER:$USER $HOME/certs
           openssl pkcs12 -export \
@@ -64,34 +100,47 @@ jobs:
             -certfile "$HOME/certs/client/ca.pem" \
             -passout pass:
 
-      - name: Wait for Docker (no TLS) to be healthy
+      - name: Wait for Docker to be healthy (2375)
+        if: ${{ matrix.docker.needs_dind && matrix.docker.docker_host == 'tcp://localhost:2375' }}
         run: |
           for i in {1..10}; do
             if docker --host=tcp://localhost:2375 version; then
-              echo "Docker (no TLS) is ready!"
+              echo "Docker is ready on port 2375"
               exit 0
             fi
-            echo "Waiting for Docker (no TLS) to be ready..."
+            echo "Waiting for Docker on port 2375..."
             sleep 3
           done
-          echo "Docker (no TLS) did not become ready in time."
+          echo "Docker on port 2375 did not become ready in time."
           exit 1
 
-      - name: Wait for Docker (with TLS) to be healthy
+      - name: Wait for Docker to be healthy (2376)
+        if: ${{ matrix.docker.needs_dind && matrix.docker.docker_host == 'tcp://localhost:2376' }}
         run: |
           for i in {1..10}; do
             if docker --host=tcp://localhost:2376 --tlsverify \
               --tlscacert="$HOME/certs/client/ca.pem" \
               --tlscert="$HOME/certs/client/cert.pem" \
               --tlskey="$HOME/certs/client/key.pem" version; then
-              echo "Docker (with TLS) is ready!"
+              echo "Docker is ready on port 2376"
               exit 0
             fi
-            echo "Waiting for Docker (with TLS) to be ready..."
+            echo "Waiting for Docker on port 2376..."
             sleep 3
           done
-          echo "Docker (with TLS) did not become ready in time."
+          echo "Docker on port 2376 did not become ready in time."
           exit 1
 
-      - name: Test
-        run: dotnet test -c Release --framework ${{ matrix.tfm }} --no-build --logger console
+      - name: Test (${{ matrix.docker.name }})
+        run: >-
+          dotnet test
+          --configuration Release
+          --framework ${{ matrix.dotnet.tfm }}
+          --no-restore
+          --no-build
+          --logger console
+        env:
+          DOCKER_HOST: ${{ matrix.docker.docker_host }}
+          DOCKER_TLS_VERIFY: ${{ matrix.docker.tls_verify }}
+          DOCKER_CERT_PATH: ${{ matrix.docker.cert_path }}
+          DOCKER_DOTNET_NATIVE_HTTP_ENABLED: ${{ matrix.docker.native_http }}
