@@ -54,7 +54,27 @@ public sealed class DockerTlsCertificates
         EnsureFileExists(keyPemPath);
 
 #if NET9_0_OR_GREATER
-        return X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
+        var certificate = X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
+
+        if (OperatingSystem.IsWindows())
+        {
+            var pfxBytes = certificate.Export(X509ContentType.Pfx);
+            certificate.Dispose();
+            return X509CertificateLoader.LoadPkcs12(pfxBytes, password: null);
+        }
+
+        return certificate;
+#elif NET6_0_OR_GREATER
+        var certificate = X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
+
+        if (OperatingSystem.IsWindows())
+        {
+            var pfxBytes = certificate.Export(X509ContentType.Pfx);
+            certificate.Dispose();
+            return new X509Certificate2(pfxBytes);
+        }
+
+        return certificate;
 #elif NETSTANDARD
         return Polyfills.X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
 #else
