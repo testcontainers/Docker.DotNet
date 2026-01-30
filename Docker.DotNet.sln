@@ -1,4 +1,4 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -6,25 +6,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{85990620-78A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{AA4B8CC2-1431-4FC7-9DF3-533EC6C86D3A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.BasicAuth", "src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj", "{E1F24B25-E027-45E0-A6E1-E08138F1F95D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.LegacyHttp", "src\Docker.DotNet.LegacyHttp\Docker.DotNet.LegacyHttp.csproj", "{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.NativeHttp", "src\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj", "{E5F6A7B8-C9D0-41E2-3F45-5678901234EF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.NPipe", "src\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj", "{A1B2C3D4-E5F6-47A8-9B0C-1234567890AB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.Unix", "src\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj", "{B2C3D4E5-F6A7-48B9-0C1D-2345678901BC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.X509", "src\Docker.DotNet.X509\Docker.DotNet.X509.csproj", "{89BD76AD-78C9-4E4A-96A2-E5DA6D4AFA44}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet", "src\Docker.DotNet\Docker.DotNet.csproj", "{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Microsoft.Net.Http.Client", "src\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.shproj", "{DAE2DE68-9B3E-4D5D-8802-EC97B94160ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.BasicAuth", "src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj", "{E1F24B25-E027-45E0-A6E1-E08138F1F95D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.Handler.Abstractions", "src\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj", "{22C42314-615F-4B11-B111-58F1D6D54F4D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.DotNet.Tests", "test\Docker.DotNet.Tests\Docker.DotNet.Tests.csproj", "{248C5D51-2B33-4A06-A0EA-AA709F752E52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.LegacyHttp", "src\Docker.DotNet.LegacyHttp\Docker.DotNet.LegacyHttp.csproj", "{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.NativeHttp", "src\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj", "{E5F6A7B8-C9D0-41E2-3F45-5678901234EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.NPipe", "src\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj", "{A1B2C3D4-E5F6-47A8-9B0C-1234567890AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.Unix", "src\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj", "{B2C3D4E5-F6A7-48B9-0C1D-2345678901BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.X509", "src\Docker.DotNet.X509\Docker.DotNet.X509.csproj", "{89BD76AD-78C9-4E4A-96A2-E5DA6D4AFA44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet", "src\Docker.DotNet\Docker.DotNet.csproj", "{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Net.Http.Client", "src\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.shproj", "{DAE2DE68-9B3E-4D5D-8802-EC97B94160ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.Tests", "test\Docker.DotNet.Tests\Docker.DotNet.Tests.csproj", "{248C5D51-2B33-4A06-A0EA-AA709F752E52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +48,18 @@ Global
 		{E1F24B25-E027-45E0-A6E1-E08138F1F95D}.Release|x64.Build.0 = Release|Any CPU
 		{E1F24B25-E027-45E0-A6E1-E08138F1F95D}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1F24B25-E027-45E0-A6E1-E08138F1F95D}.Release|x86.Build.0 = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x64.Build.0 = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x86.Build.0 = Debug|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x64.ActiveCfg = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x64.Build.0 = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x86.ActiveCfg = Release|Any CPU
+		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x86.Build.0 = Release|Any CPU
 		{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -120,18 +132,6 @@ Global
 		{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}.Release|x64.Build.0 = Release|Any CPU
 		{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}.Release|x86.ActiveCfg = Release|Any CPU
 		{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}.Release|x86.Build.0 = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x64.Build.0 = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Debug|x86.Build.0 = Debug|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x64.ActiveCfg = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x64.Build.0 = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x86.ActiveCfg = Release|Any CPU
-		{22C42314-615F-4B11-B111-58F1D6D54F4D}.Release|x86.Build.0 = Release|Any CPU
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -150,6 +150,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E1F24B25-E027-45E0-A6E1-E08138F1F95D} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
+		{22C42314-615F-4B11-B111-58F1D6D54F4D} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{D4E5F6A7-B8C9-40D1-2E3F-4567890123DE} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{E5F6A7B8-C9D0-41E2-3F45-5678901234EF} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{A1B2C3D4-E5F6-47A8-9B0C-1234567890AB} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
@@ -157,7 +158,6 @@ Global
 		{89BD76AD-78C9-4E4A-96A2-E5DA6D4AFA44} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{DAE2DE68-9B3E-4D5D-8802-EC97B94160ED} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
-		{22C42314-615F-4B11-B111-58F1D6D54F4D} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52} = {AA4B8CC2-1431-4FC7-9DF3-533EC6C86D3A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
