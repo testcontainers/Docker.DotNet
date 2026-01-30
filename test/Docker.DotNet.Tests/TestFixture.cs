@@ -225,56 +225,29 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         }
 
         var caPemPath = Path.Combine(certPath, "ca.pem");
-        var clientCertPemPath = Path.Combine(certPath, "cert.pem");
-        var clientKeyPemPath = Path.Combine(certPath, "key.pem");
-        var clientPfxPath = Path.Combine(certPath, "client.pfx");
+        var certPemPath = Path.Combine(certPath, "cert.pem");
+        var keyPemPath = Path.Combine(certPath, "key.pem");
+        var pfxPath = Path.Combine(certPath, "client.pfx");
 
-        X509Certificate2 clientCertificate;
+        DockerTlsCertificates tlsCertificates;
 
-        if (File.Exists(clientCertPemPath) && File.Exists(clientKeyPemPath))
+        if (File.Exists(certPemPath) && File.Exists(keyPemPath))
         {
-            clientCertificate = RsaUtil.GetCertFromPem(clientCertPemPath, clientKeyPemPath);
+            tlsCertificates = DockerTlsCertificates.LoadFromDirectory(certPath, loadCertificateAuthority: true);
         }
-        else if (File.Exists(clientPfxPath))
+        else if (File.Exists(pfxPath))
         {
-            clientCertificate = RsaUtil.GetCertFromPfx(clientPfxPath, string.Empty);
+            var clientCertificate = DockerTlsCertificates.LoadCertificateFromPfxFile(pfxPath, string.Empty);
+            var caCertificate = File.Exists(caPemPath) ? DockerTlsCertificates.LoadCertificateAuthorityFromPemFile(caPemPath) : null;
+
+            tlsCertificates = new DockerTlsCertificates(clientCertificate, caCertificate);
         }
         else
         {
-            throw new FileNotFoundException($"Could not locate Docker TLS client credentials. Looked for '{clientCertPemPath}', '{clientKeyPemPath}', and '{clientPfxPath}'.");
+            throw new FileNotFoundException($"Could not locate Docker TLS client credentials. Looked for '{certPemPath}', '{keyPemPath}', and '{pfxPath}'.");
         }
 
-        var credentials = new CertificateCredentials(clientCertificate);
-
-        if (File.Exists(caPemPath))
-        {
-#if NET9_0_OR_GREATER
-            var caCertificate = X509CertificateLoader.LoadCertificateFromFile(caPemPath);
-#else
-            var caCertificate = new X509Certificate2(caPemPath);
-#endif
-
-            credentials.ServerCertificateValidationCallback = (_, certificate, _, _) =>
-            {
-                if (certificate is null)
-                {
-                    return false;
-                }
-
-                if (certificate is not X509Certificate2 serverCertificate2)
-                {
-                    return false;
-                }
-
-                using var chain = new X509Chain();
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-                chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-                chain.ChainPolicy.CustomTrustStore.Add(caCertificate);
-                return chain.Build(serverCertificate2);
-            };
-        }
-
-        return credentials;
+        return tlsCertificates.CreateCredentials();
     }
 
     private sealed class Disposable : IDisposable
