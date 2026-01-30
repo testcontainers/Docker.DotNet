@@ -1,7 +1,6 @@
 namespace Docker.DotNet;
 
 using System;
-using System.IO.Pipes;
 
 public sealed class DockerClient : IDockerClient
 {
@@ -15,9 +14,17 @@ public sealed class DockerClient : IDockerClient
 
     private readonly Version _requestedApiVersion;
 
-    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, ILogger logger = null)
+    private readonly IDockerHandlerFactory _handlerFactory;
+
+    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
     {
+        if (handlerFactory == null)
+        {
+            throw new ArgumentNullException(nameof(handlerFactory));
+        }
+
         _requestedApiVersion = requestedApiVersion;
+        _handlerFactory = handlerFactory;
 
         Configuration = configuration;
         DefaultTimeout = configuration.DefaultTimeout;
@@ -34,81 +41,11 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
 
-        ManagedHandler handler;
-        var uri = Configuration.EndpointBaseUri;
-        switch (uri.Scheme.ToLowerInvariant())
-        {
-            case "npipe":
-                if (Configuration.Credentials.IsTlsCredentials())
-                {
-                    throw new Exception("TLS not supported over npipe");
-                }
-
-                var segments = uri.Segments;
-                if (segments.Length != 3 || !segments[1].Equals("pipe/", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new ArgumentException($"{Configuration.EndpointBaseUri} is not a valid npipe URI");
-                }
-
-                var serverName = uri.Host;
-                if (string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase))
-                {
-                    // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
-                    serverName = ".";
-                }
-
-                var pipeName = uri.Segments[2];
-
-                uri = new UriBuilder("http", pipeName).Uri;
-                handler = new ManagedHandler(async (host, port, cancellationToken) =>
-                {
-                    var timeout = (int)Configuration.NamedPipeConnectTimeout.TotalMilliseconds;
-                    var stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
-                    var dockerStream = new DockerPipeStream(stream);
-
-                    await stream.ConnectAsync(timeout, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    return dockerStream;
-                }, logger);
-                break;
-
-            case "tcp":
-            case "http":
-                var builder = new UriBuilder(uri)
-                {
-                    Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
-                };
-                uri = builder.Uri;
-                handler = new ManagedHandler(logger);
-                break;
-
-            case "https":
-                handler = new ManagedHandler(logger);
-                break;
-
-            case "unix":
-                var pipeString = uri.LocalPath;
-                handler = new ManagedHandler(async (host, port, cancellationToken) =>
-                {
-                    var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-
-                    await sock.ConnectAsync(new Microsoft.Net.Http.Client.UnixDomainSocketEndPoint(pipeString))
-                        .ConfigureAwait(false);
-
-                    return sock;
-                }, logger);
-                uri = new UriBuilder("http", uri.Segments.Last()).Uri;
-                break;
-
-            default:
-                throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
-        }
-
-        _endpointBaseUri = uri;
+        var (handler, endpoint) = _handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
 
         _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
         _client.Timeout = Timeout.InfiniteTimeSpan;
+        _endpointBaseUri = endpoint;
     }
 
     public DockerClientConfiguration Configuration { get; }
@@ -395,12 +332,8 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        if (response.Content is not HttpConnectionResponseContent content)
-        {
-            throw new NotSupportedException("message handler does not support hijacked streams");
-        }
-
-        return content.HijackStream();
+        return await _handlerFactory.HijackStreamAsync(response.Content)
+            .ConfigureAwait(false);
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
@@ -473,7 +406,7 @@ public sealed class DockerClient : IDockerClient
         if (isErrorResponse)
         {
             // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway and
+            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
             // we want to report the response body in the error message as it contains potentially useful info.
             responseBody = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);
@@ -504,7 +437,7 @@ public sealed class DockerClient : IDockerClient
         if (isErrorResponse)
         {
             // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway and
+            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
             // we want to report the response body in the error message as it contains potentially useful info.
             responseBody = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);

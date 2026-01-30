@@ -1,4 +1,4 @@
-namespace Microsoft.Net.Http.Client;
+namespace Docker.DotNet.Handler.Abstractions;
 
 public abstract class WriteClosableStream : Stream
 {

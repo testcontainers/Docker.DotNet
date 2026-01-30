@@ -12,6 +12,18 @@ public static class X509Certificate2
 {
     private static readonly X509CertificateParser CertificateParser = new X509CertificateParser();
 
+    public static System.Security.Cryptography.X509Certificates.X509Certificate2 CreateFromPemFile(string certPemFilePath)
+    {
+        if (!File.Exists(certPemFilePath))
+        {
+            throw new FileNotFoundException(certPemFilePath);
+        }
+
+        var certificate = CertificateParser.ReadCertificate(File.ReadAllBytes(certPemFilePath));
+
+        return new System.Security.Cryptography.X509Certificates.X509Certificate2(certificate.GetEncoded());
+    }
+
     public static System.Security.Cryptography.X509Certificates.X509Certificate2 CreateFromPemFile(string certPemFilePath, string keyPemFilePath)
     {
         if (!File.Exists(certPemFilePath))

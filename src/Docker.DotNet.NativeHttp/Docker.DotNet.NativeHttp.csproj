@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Docker.DotNet.BasicAuth</AssemblyName>
-    <PackageId>Docker.DotNet.Enhanced.BasicAuth</PackageId>
-    <Description>A Docker.DotNet extension that adds Basic Authentication for remote Docker Engine connections.</Description>
+    <AssemblyName>Docker.DotNet.NativeHttp</AssemblyName>
+    <PackageId>Docker.DotNet.Enhanced.NativeHttp</PackageId>
+    <Description>A Docker.DotNet transport implementation for HTTP(S) Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.IO" />
+    <Using Include="System.IO.Pipes" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Runtime.InteropServices" />
@@ -17,5 +19,6 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
+    <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
 </Project>

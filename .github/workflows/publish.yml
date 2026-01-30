@@ -12,11 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x
       - name: Install NBGV tool
@@ -28,7 +28,7 @@ jobs:
       - name: Push packages to NuGet.org
         run: dotnet nuget push ./packages/Docker.DotNet.*.nupkg --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
       - name: Create Release
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             github.rest.repos.createRelease({

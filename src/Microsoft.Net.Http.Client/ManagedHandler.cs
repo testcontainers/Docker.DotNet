@@ -1,7 +1,5 @@
 namespace Microsoft.Net.Http.Client;
 
-using System;
-
 public class ManagedHandler : HttpMessageHandler
 {
     private readonly ILogger _logger;
