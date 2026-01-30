@@ -94,7 +94,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER $HOME/certs
           openssl pkcs12 -export \
-            -out "$HOME/certs/client.pfx" \
+            -out "$HOME/certs/client/client.pfx" \
             -inkey "$HOME/certs/client/key.pem" \
             -in "$HOME/certs/client/cert.pem" \
             -certfile "$HOME/certs/client/ca.pem" \
