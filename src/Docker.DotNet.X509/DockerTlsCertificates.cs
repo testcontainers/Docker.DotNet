@@ -106,7 +106,7 @@ public sealed class DockerTlsCertificates
 #elif NETSTANDARD
         return Polyfills.X509Certificate2.CreateFromPemFile(caPemPath);
 #else
-        return X509Certificate2.CreateFromPemFile(caPemPath);
+        return new X509Certificate2(caPemPath);
 #endif
     }
 
