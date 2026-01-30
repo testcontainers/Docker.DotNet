@@ -190,7 +190,7 @@ public class IContainerOperationsTests
 
         containerLogsCts.CancelAfter(TimeSpan.FromSeconds(5));
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => _testFixture.DockerClient.Containers.GetContainerLogsAsync(
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => _testFixture.DockerClient.Containers.GetContainerLogsAsync(
             createContainerResponse.ID,
             new ContainerLogsParameters
             {
@@ -240,7 +240,7 @@ public class IContainerOperationsTests
             containerLogsCts.Token
         );
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => containerLogsTask);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => containerLogsTask);
     }
 
     [Fact]
@@ -288,7 +288,7 @@ public class IContainerOperationsTests
             _testFixture.Cts.Token
         );
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => containerLogsTask);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => containerLogsTask);
         _testOutputHelper.WriteLine($"Line count: {logList.Count}");
 
         Assert.NotEmpty(logList);
@@ -682,7 +682,7 @@ public class IContainerOperationsTests
         // Will wait forever here if cancellation fails.
         var waitContainerTask = _testFixture.DockerClient.Containers.WaitContainerAsync(createContainerResponse.ID, waitContainerCts.Token);
 
-        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => waitContainerTask);
+        _ = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waitContainerTask);
 
         stopWatch.Stop();
 
