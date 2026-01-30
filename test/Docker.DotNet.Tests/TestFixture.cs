@@ -248,7 +248,11 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
 
         if (File.Exists(caPemPath))
         {
-            var caCertificate = X509Certificate2.CreateFromPemFile(caPemPath);
+#if NET9_0_OR_GREATER
+            var caCertificate = X509CertificateLoader.LoadCertificateFromFile(caPemPath);
+#else
+            var caCertificate = new X509Certificate2(caPemPath);
+#endif
 
             credentials.ServerCertificateValidationCallback = (_, certificate, _, _) =>
             {
