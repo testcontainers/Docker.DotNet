@@ -2,6 +2,7 @@ namespace Docker.DotNet;
 
 using System;
 using System.IO.Pipes;
+using System.Net.WebSockets;
 
 public sealed class DockerClient : IDockerClient
 {
@@ -375,6 +376,13 @@ public sealed class DockerClient : IDockerClient
         TimeSpan timeout,
         CancellationToken cancellationToken)
     {
+        var portainerStream = await TryCreatePortainerWebSocketStreamAsync(path, cancellationToken)
+            .ConfigureAwait(false);
+        if (portainerStream != null)
+        {
+            return portainerStream;
+        }
+
         // The Docker Engine API docs sounds like these headers are optional, but if they
         // aren't include in the request, the daemon doesn't set up the raw stream
         // correctly. Either the headers are always required, or they're necessary
@@ -401,6 +409,146 @@ public sealed class DockerClient : IDockerClient
         }
 
         return content.HijackStream();
+    }
+
+    private async Task<WriteClosableStream> TryCreatePortainerWebSocketStreamAsync(string path, CancellationToken cancellationToken)
+    {
+        if (!TryGetPortainerEndpointInfo(out var endpointId, out var basePathPrefix))
+        {
+            return null;
+        }
+
+        if (TryParseExecStartPath(path, out var execId))
+        {
+            return await ConnectPortainerWebSocketAsync(basePathPrefix, "exec", endpointId, execId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (TryParseAttachPath(path, out var containerId))
+        {
+            return await ConnectPortainerWebSocketAsync(basePathPrefix, "attach", endpointId, containerId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return null;
+    }
+
+    private bool TryGetPortainerEndpointInfo(out string endpointId, out string basePathPrefix)
+    {
+        endpointId = null;
+        basePathPrefix = string.Empty;
+
+        var path = _endpointBaseUri.AbsolutePath ?? string.Empty;
+        const string marker = "/api/endpoints/";
+        var markerIndex = path.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        basePathPrefix = path.Substring(0, markerIndex);
+        var remaining = path.Substring(markerIndex + marker.Length);
+        var segments = remaining.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length < 2)
+        {
+            return false;
+        }
+
+        endpointId = segments[0];
+        if (string.IsNullOrWhiteSpace(endpointId) || !endpointId.All(char.IsDigit))
+        {
+            return false;
+        }
+
+        if (segments[1].Equals("docker", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return segments.Length >= 3
+               && segments[1].Equals("agent", StringComparison.OrdinalIgnoreCase)
+               && segments[2].Equals("docker", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryParseExecStartPath(string path, out string execId)
+    {
+        execId = null;
+        var segments = path.Trim('/').Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 3
+            && segments[0].Equals("exec", StringComparison.OrdinalIgnoreCase)
+            && segments[2].Equals("start", StringComparison.OrdinalIgnoreCase))
+        {
+            execId = segments[1];
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseAttachPath(string path, out string containerId)
+    {
+        containerId = null;
+        var segments = path.Trim('/').Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 3
+            && segments[0].Equals("containers", StringComparison.OrdinalIgnoreCase)
+            && segments[2].Equals("attach", StringComparison.OrdinalIgnoreCase))
+        {
+            containerId = segments[1];
+            return true;
+        }
+
+        return false;
+    }
+
+    private async Task<WriteClosableStream> ConnectPortainerWebSocketAsync(string basePathPrefix, string target, string endpointId, string resourceId, CancellationToken cancellationToken)
+    {
+        var uriBuilder = new UriBuilder(_endpointBaseUri)
+        {
+            Scheme = _endpointBaseUri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ? "wss" : "ws",
+            Path = CombinePath(basePathPrefix, $"/api/websocket/{target}"),
+            Query = $"endpointId={Uri.EscapeDataString(endpointId)}&id={Uri.EscapeDataString(resourceId)}",
+        };
+
+        var webSocket = new ClientWebSocket();
+        foreach (var header in Configuration.DefaultHttpRequestHeaders)
+        {
+            webSocket.Options.SetRequestHeader(header.Key, header.Value);
+        }
+        await webSocket.ConnectAsync(uriBuilder.Uri, cancellationToken).ConfigureAwait(false);
+
+        return new PortainerWebSocketStream(webSocket);
+    }
+
+    private bool ShouldDisableChunkedResponse(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        if (!TryGetPortainerEndpointInfo(out _, out _))
+        {
+            return false;
+        }
+
+        var normalizedPath = path.Trim('/');
+        return normalizedPath.EndsWith("/logs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string CombinePath(string prefix, string suffix)
+    {
+        if (string.IsNullOrEmpty(prefix))
+        {
+            return suffix.StartsWith("/", StringComparison.Ordinal) ? suffix : "/" + suffix;
+        }
+
+        var trimmedPrefix = prefix.EndsWith("/", StringComparison.Ordinal)
+            ? prefix.Substring(0, prefix.Length - 1)
+            : prefix;
+        var trimmedSuffix = suffix.StartsWith("/", StringComparison.Ordinal)
+            ? suffix
+            : "/" + suffix;
+        return trimmedPrefix + trimmedSuffix;
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
@@ -443,6 +591,11 @@ public sealed class DockerClient : IDockerClient
         }
 
         var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_endpointBaseUri, _requestedApiVersion, path, queryString));
+        if (ShouldDisableChunkedResponse(path))
+        {
+            request.Options.Set(HttpConnection.DisableChunkedResponseKey, true);
+        }
+
         request.Version = new Version(1, 1);
         request.Headers.Add("User-Agent", UserAgent);
 

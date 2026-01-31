@@ -125,7 +125,13 @@ internal class ContainerOperations : IContainerOperations
         var stream = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
+        var multiplexed = !containerInspectResponse.Config.Tty;
+        if (stream is PortainerWebSocketStream)
+        {
+            multiplexed = false;
+        }
+
+        return new MultiplexedStream(stream, multiplexed);
     }
 
     public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default)
@@ -308,7 +314,13 @@ internal class ContainerOperations : IContainerOperations
         var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
+        var multiplexed = !containerInspectResponse.Config.Tty;
+        if (stream is PortainerWebSocketStream)
+        {
+            multiplexed = false;
+        }
+
+        return new MultiplexedStream(stream, multiplexed);
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default)

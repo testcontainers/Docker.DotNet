@@ -3,6 +3,7 @@ namespace Microsoft.Net.Http.Client;
 internal sealed class HttpConnection : IDisposable
 {
     private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+    internal static readonly HttpRequestOptionsKey<bool> DisableChunkedResponseKey = new HttpRequestOptionsKey<bool>("DockerDotNetDisableChunkedResponse");
 
     public HttpConnection(BufferedReadStream transport)
     {
@@ -41,7 +42,7 @@ internal sealed class HttpConnection : IDisposable
             List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
-            return CreateResponseMessage(responseLines);
+            return CreateResponseMessage(request, responseLines);
         }
         catch (Exception ex)
         {
@@ -104,7 +105,7 @@ internal sealed class HttpConnection : IDisposable
         return lines;
     }
 
-    private HttpResponseMessage CreateResponseMessage(List<string> responseLines)
+    private HttpResponseMessage CreateResponseMessage(HttpRequestMessage request, List<string> responseLines)
     {
         string responseLine = responseLines.First();
         // HTTP/1.1 200 OK
@@ -171,8 +172,10 @@ internal sealed class HttpConnection : IDisposable
 
         // Treat the response as chunked for standard HTTP chunked or Docker raw-streams,
         // but not for upgraded connections.
-        var isChunkedTransferEncoding = (response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isConnectionUpgrade)
-            || (!isConnectionUpgrade && isStream);
+        var disableChunkedResponse = request.Options.TryGetValue(DisableChunkedResponseKey, out var disableChunked) && disableChunked;
+        var isChunkedTransferEncoding = !disableChunkedResponse &&
+                                        ((response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isConnectionUpgrade)
+                                         || (!isConnectionUpgrade && isStream));
 
         if (isSwitchingProtocols && isConnectionUpgrade)
         {
