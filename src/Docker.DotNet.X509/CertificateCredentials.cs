@@ -27,11 +27,10 @@ public class CertificateCredentials : Credentials
 #if NET6_0_OR_GREATER
         if (handler is SocketsHttpHandler nativeHandler)
         {
-            nativeHandler.UseProxy = true;
             nativeHandler.AllowAutoRedirect = true;
             nativeHandler.MaxAutomaticRedirections = 20;
-            nativeHandler.Proxy = WebRequest.DefaultWebProxy;
-            nativeHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+
+            nativeHandler.SslOptions = new SslClientAuthenticationOptions
             {
                 ClientCertificates = new X509CertificateCollection { _certificate },
                 CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
@@ -48,10 +47,9 @@ public class CertificateCredentials : Credentials
                 nativeHandler.ClientCertificates.Add(_certificate);
             }
 
-            nativeHandler.UseProxy = true;
             nativeHandler.AllowAutoRedirect = true;
             nativeHandler.MaxAutomaticRedirections = 20;
-            nativeHandler.Proxy = WebRequest.DefaultWebProxy;
+
             nativeHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
             nativeHandler.CheckCertificateRevocationList = false;
             nativeHandler.SslProtocols = SslProtocols.Tls12;
@@ -59,23 +57,19 @@ public class CertificateCredentials : Credentials
             return nativeHandler;
         }
 #endif
+        else if (handler is ManagedHandler managedHandler)
+        {
+            if (!managedHandler.ClientCertificates.Contains(_certificate))
+            {
+                managedHandler.ClientCertificates.Add(_certificate);
+            }
+
+            managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
+
+            return handler;
+        }
         else
         {
-            // Use reflection to support different handler without direct reference
-            var handlerType = handler.GetType();
-            var clientCertificatesProp = handlerType.GetProperty("ClientCertificates");
-            var serverCertValidationProp = handlerType.GetProperty("ServerCertificateValidationCallback");
-
-            if (clientCertificatesProp != null && serverCertValidationProp != null)
-            {
-                var clientCertificates = clientCertificatesProp.GetValue(handler) as System.Collections.IList;
-                if (clientCertificates != null && !clientCertificates.Contains(_certificate))
-                {
-                    clientCertificates.Add(_certificate);
-                }
-
-                serverCertValidationProp.SetValue(handler, ServerCertificateValidationCallback);
-            }
             return handler;
         }
     }

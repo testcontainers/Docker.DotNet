@@ -22,6 +22,10 @@
     <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
+    <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
+  <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
 </Project>

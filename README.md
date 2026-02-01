@@ -50,26 +50,6 @@ DockerClient client = new DockerClientConfiguration(
     .CreateClient();
 ```
 
-### Connection types and optional sub-packages
-
-Depending on the connection scheme and platform, additional sub-packages may be required:
-
-- **Docker.DotNet.Enhanced.NPipe**: Support for named pipes on Windows (`npipe://`).
-- **Docker.DotNet.Enhanced.Unix**: Support for Unix domain sockets on Linux/macOS (`unix://`).
-- **Docker.DotNet.Enhanced.NativeHttp**: Native HTTP handler for specific platforms/scenarios.
-- **Docker.DotNet.Enhanced.LegacyHttp**: Legacy HTTP handler for compatibility with older .NET versions.
-
-These packages are optional and only needed if you want to use the respective protocol or handler. You can install them via NuGet, for example:
-
-```console
-PM> Install-Package Docker.DotNet.Enhanced.NPipe
-PM> Install-Package Docker.DotNet.Enhanced.Unix
-PM> Install-Package Docker.DotNet.Enhanced.NativeHttp
-PM> Install-Package Docker.DotNet.Enhanced.LegacyHttp
-```
-
-**Examples:**
-
 **Named Pipe (Windows):**
 
 ```csharp
