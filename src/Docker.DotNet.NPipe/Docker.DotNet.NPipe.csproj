@@ -5,7 +5,7 @@
     <Description>A Docker.DotNet transport implementation for Windows named pipe (npipe) Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
+    <ProjectReference Include="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
@@ -22,5 +22,4 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Net.Http.Client" />
   </ItemGroup>
-  <Import Project="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.projitems" Label="Shared" />
 </Project>

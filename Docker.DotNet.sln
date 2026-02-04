@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -22,9 +22,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.X509", "src\D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet", "src\Docker.DotNet\Docker.DotNet.csproj", "{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Net.Http.Client", "src\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.shproj", "{DAE2DE68-9B3E-4D5D-8802-EC97B94160ED}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docker.DotNet.Tests", "test\Docker.DotNet.Tests\Docker.DotNet.Tests.csproj", "{248C5D51-2B33-4A06-A0EA-AA709F752E52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Net.Http.Client", "src\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj", "{C27B0888-D7B2-4E93-B736-5BEE68F94532}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +144,18 @@ Global
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Release|x64.Build.0 = Release|Any CPU
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Release|x86.ActiveCfg = Release|Any CPU
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52}.Release|x86.Build.0 = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|x64.Build.0 = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Debug|x86.Build.0 = Debug|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|x64.ActiveCfg = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|x64.Build.0 = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|x86.ActiveCfg = Release|Any CPU
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,8 +169,8 @@ Global
 		{B2C3D4E5-F6A7-48B9-0C1D-2345678901BC} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{89BD76AD-78C9-4E4A-96A2-E5DA6D4AFA44} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{C2EA98A7-FC7A-4EA6-A316-562A832D3D9A} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
-		{DAE2DE68-9B3E-4D5D-8802-EC97B94160ED} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 		{248C5D51-2B33-4A06-A0EA-AA709F752E52} = {AA4B8CC2-1431-4FC7-9DF3-533EC6C86D3A}
+		{C27B0888-D7B2-4E93-B736-5BEE68F94532} = {85990620-78A6-4381-8BD6-84E6D0CF0649}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F2F229F-C66D-43E4-B804-E5F37DC157CB}

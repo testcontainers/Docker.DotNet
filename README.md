@@ -79,7 +79,16 @@ DockerClient client = new DockerClientConfiguration()
     .CreateClient();
 ```
 
-For a custom endpoint, you can also explicitly pass a named pipe or Unix socket to the `DockerClientConfiguration` constructor (see examples above).
+### Enabling .NET Native HTTP Handler
+
+**Experimental**: To enhance the communication between your application and the Docker Engine, you can enable the .NET native (socket) HTTP handler.
+This is achieved by setting the environment variable `DOCKER_DOTNET_NATIVE_HTTP_ENABLED` to `1`.
+By doing so, the handler used to communicate with the Docker Engine will switch to the .NET built-in one, potentially improving performance and reliability.
+
+### Custom HTTP handler
+
+The `DockerClientConfiguration.CreateClient(Version, IDockerHandlerFactory, ILogger)` method provides an overload that accepts an implementation of `IDockerHandlerFactory`.
+This allows you to define custom handlers for communicating with the Docker Engine API.
 
 #### Example: List containers
 

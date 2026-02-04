@@ -25,56 +25,37 @@ public class CertificateCredentials : Credentials
     public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
 #if NET6_0_OR_GREATER
-        if (handler is SocketsHttpHandler nativeHandler)
+        if (handler is SocketsHttpHandler socketsHandler)
         {
-            nativeHandler.AllowAutoRedirect = true;
-            nativeHandler.MaxAutomaticRedirections = 20;
-
-            nativeHandler.SslOptions = new SslClientAuthenticationOptions
-            {
-                ClientCertificates = new X509CertificateCollection { _certificate },
-                CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
-                EnabledSslProtocols = SslProtocols.Tls12,
-                RemoteCertificateValidationCallback = (message, certificate, chain, errors) => ServerCertificateValidationCallback?.Invoke(message, certificate, chain, errors) ?? false
-            };
-            return nativeHandler;
+            socketsHandler.SslOptions.ClientCertificates = new X509Certificate2Collection();
+            socketsHandler.SslOptions.ClientCertificates.Add(_certificate);
+            socketsHandler.SslOptions.RemoteCertificateValidationCallback = ServerCertificateValidationCallback;
+            return socketsHandler;
         }
 #else
-        if (handler is HttpClientHandler nativeHandler)
+        if (handler is HttpClientHandler httpHandler)
         {
-            if (!nativeHandler.ClientCertificates.Contains(_certificate))
-            {
-                nativeHandler.ClientCertificates.Add(_certificate);
-            }
-
-            nativeHandler.AllowAutoRedirect = true;
-            nativeHandler.MaxAutomaticRedirections = 20;
-
-            nativeHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            nativeHandler.CheckCertificateRevocationList = false;
-            nativeHandler.SslProtocols = SslProtocols.Tls12;
-            nativeHandler.ServerCertificateCustomValidationCallback += (message, certificate, chain, errors) => ServerCertificateValidationCallback?.Invoke(message, certificate, chain, errors) ?? false;
-            return nativeHandler;
+            httpHandler.ClientCertificates.Add(_certificate);
+            httpHandler.ServerCertificateCustomValidationCallback = (message, certificate, chain, sslPolicyErrors) => ServerCertificateValidationCallback(message, certificate, chain, sslPolicyErrors);
+            return httpHandler;
         }
 #endif
-        else if (handler is ManagedHandler managedHandler)
-        {
-            if (!managedHandler.ClientCertificates.Contains(_certificate))
-            {
-                managedHandler.ClientCertificates.Add(_certificate);
-            }
-
-            managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
-
-            return handler;
-        }
-        else
+        if (handler is not ManagedHandler managedHandler)
         {
             return handler;
         }
+
+        if (!managedHandler.ClientCertificates.Contains(_certificate))
+        {
+            managedHandler.ClientCertificates.Add(_certificate);
+        }
+
+        managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
+
+        return handler;
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(bool _)
     {
     }
 }
