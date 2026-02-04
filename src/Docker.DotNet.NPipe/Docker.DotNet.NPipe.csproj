@@ -4,9 +4,9 @@
     <PackageId>Docker.DotNet.Enhanced.NPipe</PackageId>
     <Description>A Docker.DotNet transport implementation for Windows named pipe (npipe) Docker Engine connections.</Description>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj" />
-  </ItemGroup>
+  <PropertyGroup>
+    <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
+  </PropertyGroup>
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.IO" />

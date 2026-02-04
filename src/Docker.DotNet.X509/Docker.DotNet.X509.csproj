@@ -4,11 +4,11 @@
     <PackageId>Docker.DotNet.Enhanced.X509</PackageId>
     <Description>A Docker.DotNet extension that adds X.509 client certificate authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
+  <PropertyGroup>
+    <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
     <PackageReference Include="BouncyCastle.Cryptography" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />

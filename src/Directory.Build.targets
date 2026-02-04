@@ -1,0 +1,26 @@
+<Project>
+  <!--
+    Opt-in behavior: Projects set <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
+    to build against the internal Microsoft.Net.Http.Client project while:
+
+    - not producing a separate Microsoft.Net.Http.Client NuGet package
+    - bundling Microsoft.Net.Http.Client.dll into the consuming package
+    - not listing Microsoft.Net.Http.Client as a NuGet dependency
+  -->
+
+  <ItemGroup Condition="'$(BundleMicrosoftNetHttpClient)' == 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(BundleMicrosoftNetHttpClient)' == 'true'">
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_AddBundledMicrosoftNetHttpClient</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="_AddBundledMicrosoftNetHttpClient" Condition="'$(BundleMicrosoftNetHttpClient)' == 'true'">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\bin\$(Configuration)\$(TargetFramework)\Microsoft.Net.Http.Client.dll" />
+      <BuildOutputInPackage Include="$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\bin\$(Configuration)\$(TargetFramework)\Microsoft.Net.Http.Client.pdb" Condition="Exists('$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\bin\$(Configuration)\$(TargetFramework)\Microsoft.Net.Http.Client.pdb')" />
+    </ItemGroup>
+  </Target>
+</Project>

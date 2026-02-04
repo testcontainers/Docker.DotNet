@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- TODO: <AssemblyName>Docker.DotNet.X509</AssemblyName>
-    <PackageId>Docker.DotNet.Enhanced.X509</PackageId>
-    <Description>A Docker.DotNet extension that adds X.509 client certificate authentication for remote Docker Engine connections.</Description> -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
