@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj" />
     <ProjectReference Include="..\..\src\Docker.DotNet.X509\Docker.DotNet.X509.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Net.Http.Client\Microsoft.Net.Http.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
@@ -29,6 +30,9 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
+    <Using Include="Microsoft.Net.Http.Client" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
     <Using Include="Docker.DotNet.LegacyHttp" />
     <Using Include="Docker.DotNet.Models" />

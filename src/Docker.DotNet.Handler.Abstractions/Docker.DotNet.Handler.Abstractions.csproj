@@ -12,6 +12,7 @@
     <Using Include="System.Collections.Generic" />
     <Using Include="System.IO" />
     <Using Include="System.Net.Http" />
+    <Using Include="System.Net.Sockets" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>

@@ -14,19 +14,41 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
         var socketPath = uri.LocalPath;
         uri = new UriBuilder(Uri.UriSchemeHttp, socketName).Uri;
 
-        var socketOpener = new ManagedHandler.SocketOpener(async (_, _, _) =>
+        var socketConfiguration = configuration.SocketConfiguration ?? SocketConnectionConfiguration.Default;
+
+        var socketOpener = new ManagedHandler.SocketOpener(async (_, _, cancellationToken) =>
         {
             var endpoint = new UnixDomainSocketEndPoint(socketPath);
 
             var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
-            await socket.ConnectAsync(endpoint)
-                .ConfigureAwait(false);
+            try
+            {
+                socketConfiguration.Apply(socket);
 
-            return socket;
+#if NET5_0_OR_GREATER
+                await socket.ConnectAsync(endpoint, cancellationToken)
+                    .ConfigureAwait(false);
+#else
+                await socket.ConnectAsync(endpoint)
+                    .ConfigureAwait(false);
+#endif
+
+                return socket;
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
+            }
         });
 
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(socketOpener, logger), uri);
+        var handler = new ManagedHandler(socketOpener, logger);
+
+        // Unix domain sockets are local connections; proxy resolution is not applicable.
+        handler.UseProxy = false;
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
