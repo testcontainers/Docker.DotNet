@@ -12,7 +12,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
     {
         var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         uri = new UriBuilder(uri) { Scheme = scheme }.Uri;
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(logger), uri);
+        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(configuration.SocketConfiguration, logger), uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

@@ -43,6 +43,8 @@ public sealed class DockerClient : IDockerClient
 
         var (handler, endpoint) = _handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
 
+        Configuration.ConfigureHandler?.Invoke(handler);
+
         _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
         _client.Timeout = Timeout.InfiniteTimeSpan;
         _endpointBaseUri = endpoint;

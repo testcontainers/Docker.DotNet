@@ -45,7 +45,12 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
             return dockerStream;
         });
 
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(streamOpener, logger), uri);
+        var handler = new ManagedHandler(streamOpener, logger);
+
+        // Named pipes are local connections; proxy resolution is not applicable.
+        handler.UseProxy = false;
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

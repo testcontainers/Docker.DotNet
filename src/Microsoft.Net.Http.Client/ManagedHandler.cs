@@ -8,6 +8,8 @@ public class ManagedHandler : HttpMessageHandler
 
     private readonly SocketOpener _socketOpener;
 
+    private readonly SocketConnectionConfiguration _socketConfiguration;
+
     private IWebProxy _proxy;
 
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
@@ -15,8 +17,14 @@ public class ManagedHandler : HttpMessageHandler
     public delegate Task<Socket> SocketOpener(string host, int port, CancellationToken cancellationToken);
 
     public ManagedHandler(ILogger logger)
+        : this((SocketConnectionConfiguration)null, logger)
+    {
+    }
+
+    public ManagedHandler(SocketConnectionConfiguration socketConfiguration, ILogger logger)
     {
         _logger = logger;
+        _socketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
         _socketOpener = TcpSocketOpenerAsync;
     }
 
@@ -38,7 +46,11 @@ public class ManagedHandler : HttpMessageHandler
         {
             if (_proxy == null)
             {
+#if NET5_0_OR_GREATER
+                _proxy = HttpClient.DefaultProxy;
+#else
                 _proxy = WebRequest.DefaultWebProxy;
+#endif
             }
 
             return _proxy;
@@ -313,7 +325,7 @@ public class ManagedHandler : HttpMessageHandler
         return ProxyMode.Tunnel;
     }
 
-    private static async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
+    private async Task<Socket> TcpSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
     {
         var addresses = await Dns.GetHostAddressesAsync(host)
             .ConfigureAwait(false);
@@ -331,6 +343,8 @@ public class ManagedHandler : HttpMessageHandler
 
             try
             {
+                _socketConfiguration?.Apply(socket);
+
                 await socket.ConnectAsync(address, port)
                     .ConfigureAwait(false);
 

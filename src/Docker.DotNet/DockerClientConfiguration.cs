@@ -10,8 +10,10 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
-        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        SocketConnectionConfiguration socketConfiguration = null,
+        Action<HttpMessageHandler> configureHandler = null)
+        : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders, socketConfiguration, configureHandler)
     {
     }
 
@@ -20,7 +22,9 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
         Credentials credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null,
+        SocketConnectionConfiguration socketConfiguration = null,
+        Action<HttpMessageHandler> configureHandler = null)
     {
         if (endpoint == null)
         {
@@ -37,6 +41,8 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
         DefaultTimeout = TimeSpan.Equals(TimeSpan.Zero, defaultTimeout) ? TimeSpan.FromSeconds(100) : defaultTimeout;
         NamedPipeConnectTimeout = TimeSpan.Equals(TimeSpan.Zero, namedPipeConnectTimeout) ? TimeSpan.FromMilliseconds(100) : namedPipeConnectTimeout;
         DefaultHttpRequestHeaders = defaultHttpRequestHeaders ?? new Dictionary<string, string>();
+        SocketConfiguration = socketConfiguration ?? SocketConnectionConfiguration.Default;
+        ConfigureHandler = configureHandler;
     }
 
     /// <summary>
@@ -51,6 +57,17 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
     public TimeSpan DefaultTimeout { get; }
 
     public TimeSpan NamedPipeConnectTimeout { get; }
+
+    /// <summary>
+    /// Gets the socket connection configuration applied to Unix domain socket and TCP connections.
+    /// </summary>
+    public SocketConnectionConfiguration SocketConfiguration { get; }
+
+    /// <summary>
+    /// Gets an optional callback that is invoked with the <see cref="HttpMessageHandler"/> after
+    /// it is created by the handler factory. Use this to apply custom configurations to the handler.
+    /// </summary>
+    public Action<HttpMessageHandler> ConfigureHandler { get; }
 
     public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
     {
