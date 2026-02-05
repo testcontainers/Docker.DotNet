@@ -1,4 +1,4 @@
-namespace Microsoft.Net.Http.Client;
+namespace Docker.DotNet.Unix;
 
 internal sealed class UnixDomainSocketEndPoint : EndPoint
 {

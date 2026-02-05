@@ -1,5 +1,6 @@
 namespace Docker.DotNet.X509;
 
+[Obsolete("RSAUtil is obsolete. Use DockerTlsCertificates instead.")]
 public static class RSAUtil
 {
     public static X509Certificate2 GetCertFromPFX(string pfxFilePath, string password)

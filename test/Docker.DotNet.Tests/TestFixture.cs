@@ -21,7 +21,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public TestFixture(IMessageSink messageSink)
     {
         _messageSink = messageSink;
-        DockerClientConfiguration = new DockerClientConfiguration();
+        DockerClientConfiguration = CreateDockerClientConfigurationFromEnvironment();
         DockerClient = DockerClientConfiguration.CreateClient(logger: this);
         Cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet tests timed out."));
@@ -192,6 +192,62 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     {
         var message = JsonSerializer.Instance.Serialize(value);
         this.LogInformation("Progress: '{Progress}'.", message);
+    }
+
+    private static DockerClientConfiguration CreateDockerClientConfigurationFromEnvironment()
+    {
+        var dockerHost = Environment.GetEnvironmentVariable("DOCKER_HOST");
+
+        // Fall back to OS-specific default (npipe on Windows, unix socket on Linux/macOS).
+        if (string.IsNullOrWhiteSpace(dockerHost))
+        {
+            return new DockerClientConfiguration();
+        }
+
+        var endpoint = new Uri(dockerHost);
+        var credentials = CreateCredentialsFromEnvironment();
+
+        return new DockerClientConfiguration(endpoint, credentials);
+    }
+
+    private static Credentials CreateCredentialsFromEnvironment()
+    {
+        var tlsVerify = Environment.GetEnvironmentVariable("DOCKER_TLS_VERIFY");
+        if (!string.Equals(tlsVerify, "1", StringComparison.Ordinal))
+        {
+            return new AnonymousCredentials();
+        }
+
+        var certPath = Environment.GetEnvironmentVariable("DOCKER_CERT_PATH");
+        if (string.IsNullOrWhiteSpace(certPath))
+        {
+            throw new InvalidOperationException("DOCKER_TLS_VERIFY=1 requires DOCKER_CERT_PATH to be set.");
+        }
+
+        var caPemPath = Path.Combine(certPath, "ca.pem");
+        var certPemPath = Path.Combine(certPath, "cert.pem");
+        var keyPemPath = Path.Combine(certPath, "key.pem");
+        var pfxPath = Path.Combine(certPath, "client.pfx");
+
+        DockerTlsCertificates tlsCertificates;
+
+        if (File.Exists(certPemPath) && File.Exists(keyPemPath))
+        {
+            tlsCertificates = DockerTlsCertificates.LoadFromDirectory(certPath, loadCertificateAuthority: true);
+        }
+        else if (File.Exists(pfxPath))
+        {
+            var clientCertificate = DockerTlsCertificates.LoadCertificateFromPfxFile(pfxPath, string.Empty);
+            var caCertificate = File.Exists(caPemPath) ? DockerTlsCertificates.LoadCertificateAuthorityFromPemFile(caPemPath) : null;
+
+            tlsCertificates = new DockerTlsCertificates(clientCertificate, caCertificate);
+        }
+        else
+        {
+            throw new FileNotFoundException($"Could not locate Docker TLS client credentials. Looked for '{certPemPath}', '{keyPemPath}', and '{pfxPath}'.");
+        }
+
+        return tlsCertificates.CreateCredentials();
     }
 
     private sealed class Disposable : IDisposable

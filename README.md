@@ -19,7 +19,9 @@ You can add this library to your project using [NuGet][nuget].
 
 Run the following command in the "Package Manager Console":
 
-> PM> Install-Package Docker.DotNet.Enhanced
+```console
+PM> Install-Package Docker.DotNet.Enhanced
+```
 
 **Visual Studio**
 
@@ -29,7 +31,9 @@ Right click to your project in Visual Studio, choose "Manage NuGet Packages" and
 
 Run the following command from your favorite shell or terminal:
 
-> dotnet add package Docker.DotNet.Enhanced
+```console
+dotnet add package Docker.DotNet.Enhanced
+```
 
 **Development Builds**
 
@@ -37,16 +41,37 @@ Run the following command from your favorite shell or terminal:
 
 ## Usage
 
-You can initialize the client like the following:
+You can initialize the client as follows:
 
 ```csharp
 using Docker.DotNet;
 DockerClient client = new DockerClientConfiguration(
     new Uri("http://ubuntu-docker.cloudapp.net:4243"))
-        .CreateClient();
+    .CreateClient();
 ```
 
-or to connect to your local [Docker Desktop on Windows](https://docs.docker.com/desktop/setup/install/windows-install/) daemon using named pipes or your local [Docker Desktop on Mac](https://docs.docker.com/desktop/setup/install/mac-install/) daemon using Unix sockets:
+**Named Pipe (Windows):**
+
+```csharp
+using Docker.DotNet;
+DockerClient client = new DockerClientConfiguration(
+    new Uri("npipe://./pipe/docker_engine"))
+    .CreateClient();
+```
+
+**Unix Domain Socket (Linux/macOS):**
+
+```csharp
+using Docker.DotNet;
+DockerClient client = new DockerClientConfiguration(
+    new Uri("unix:///var/run/docker.sock"))
+    .CreateClient();
+```
+
+**Note:**
+For HTTP(S) connections or special authentication types (e.g. X509, BasicAuth), see the corresponding sections below.
+
+To connect to your local [Docker Desktop on Windows](https://docs.docker.com/desktop/setup/install/windows-install/) instance via named pipe or your local [Docker Desktop on Mac](https://docs.docker.com/desktop/setup/install/mac-install/) instance via Unix socket:
 
 ```csharp
 using Docker.DotNet;
@@ -54,21 +79,16 @@ DockerClient client = new DockerClientConfiguration()
     .CreateClient();
 ```
 
-For a custom endpoint, you can also pass a named pipe or a Unix socket to the `DockerClientConfiguration` constructor. For example:
+### Enabling .NET Native HTTP Handler
 
-```csharp
-// Default Docker Engine on Windows
-using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration(
-    new Uri("npipe://./pipe/docker_engine"))
-        .CreateClient();
+**Experimental**: To enhance the communication between your application and the Docker Engine, you can enable the .NET native (socket) HTTP handler.
+This is achieved by setting the environment variable `DOCKER_DOTNET_NATIVE_HTTP_ENABLED` to `1`.
+By doing so, the handler used to communicate with the Docker Engine will switch to the .NET built-in one, potentially improving performance and reliability.
 
-// Default Docker Engine on Linux
-using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration(
-    new Uri("unix:///var/run/docker.sock"))
-        .CreateClient();
-```
+### Custom HTTP handler
+
+The `DockerClientConfiguration.CreateClient(Version, IDockerHandlerFactory, ILogger)` method provides an overload that accepts an implementation of `IDockerHandlerFactory`.
+This allows you to define custom handlers for communicating with the Docker Engine API.
 
 #### Example: List containers
 
@@ -173,7 +193,9 @@ You can cancel streaming using the cancellation token. Or, if you wish to contin
 
 If you are [running Docker with TLS (HTTPS)][docker-tls], you can authenticate to the Docker instance using the [**`Docker.DotNet.Enhanced.X509`**][Docker.DotNet.X509] package. You can get this package from NuGet or by running the following command in the "Package Manager Console":
 
-    PM> Install-Package Docker.DotNet.Enhanced.X509
+```console
+PM> Install-Package Docker.DotNet.Enhanced.X509
+```
 
 Once you add `Docker.DotNet.Enhanced.X509` to your project, use the `CertificateCredentials` type:
 
@@ -187,7 +209,9 @@ If you don't want to authenticate you can omit the `credentials` parameter, whic
 
 The `CertFile` in the example above should be a PFX file (PKCS12 format), if you have PEM formatted certificates which Docker normally uses you can either convert it programmatically or use `openssl` tool to generate a PFX:
 
-    openssl pkcs12 -export -inkey key.pem -in cert.pem -out key.pfx
+```console
+openssl pkcs12 -export -inkey key.pem -in cert.pem -out key.pfx
+```
 
 (Here, your private key is `key.pem`, public key is `cert.pem` and output file is named `key.pfx`.) This will prompt a password for PFX file and then you can use this PFX file on Windows. If the certificate is self-signed, your application may reject the server certificate, in this case you might want to disable server certificate validation:
 
@@ -200,7 +224,9 @@ credentials.ServerCertificateValidationCallback = (o, c, ch, er) => true;
 
 If the Docker instance is secured with "Basic" HTTP authentication, you can use the [**`Docker.DotNet.Enhanced.BasicAuth`**][Docker.DotNet.BasicAuth] package. Get this package from NuGet or by running the following command in the "Package Manager Console":
 
-    PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
+```console
+PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
+```
 
 Once you added `Docker.DotNet.Enhanced.BasicAuth` to your project, use `BasicAuthCredentials` type:
 
@@ -226,13 +252,13 @@ DockerClient client = config.CreateClient(new Version(1, 49));
 
 Here are typical exceptions thrown from the client library:
 
-* **`DockerApiException`** is thrown when Docker Engine API responds with a non-success result. Subclasses:
-    * **``DockerContainerNotFoundException``**
-    * **``DockerImageNotFoundException``**
-* **`TaskCanceledException`** is thrown from `System.Net.Http.HttpClient` library by design. It is not a friendly exception, but it indicates your request has timed out. (default request timeout is 100 seconds.)
-    * Long-running methods (e.g. `WaitContainerAsync`, `StopContainerAsync`) and methods that return Stream (e.g. `CreateImageAsync`, `GetContainerLogsAsync`) have timeout value overridden with infinite timespan by this library.
-* **`ArgumentNullException`** is thrown when one of the required parameters are missing/empty.
-    * Consider reading the [Docker Remote API reference][docker-remote-api] and source code of the corresponding method you are going to use in from this library. This way you can easily find out which parameters are required and their format.
+- **`DockerApiException`** is thrown when Docker Engine API responds with a non-success result. Subclasses:
+    - **`DockerContainerNotFoundException`**
+    - **`DockerImageNotFoundException`**
+- **`TaskCanceledException`** is thrown from `System.Net.Http.HttpClient` library by design. It is not a friendly exception, but it indicates your request has timed out. (default request timeout is 100 seconds.)
+    - Long-running methods (e.g. `WaitContainerAsync`, `StopContainerAsync`) and methods that return Stream (e.g. `CreateImageAsync`, `GetContainerLogsAsync`) have timeout value overridden with infinite timespan by this library.
+- **`ArgumentNullException`** is thrown when one of the required parameters are missing/empty.
+    - Consider reading the [Docker Remote API reference][docker-remote-api] and source code of the corresponding method you are going to use in from this library. This way you can easily find out which parameters are required and their format.
 
 ## License
 

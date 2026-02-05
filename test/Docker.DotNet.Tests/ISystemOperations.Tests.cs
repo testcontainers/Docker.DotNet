@@ -225,6 +225,10 @@ public class ISystemOperationsTests
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
         var task = Task.Run(() => _testFixture.DockerClient.System.MonitorEventsAsync(eventsParams, progress, cts.Token));
 
+        // Wait briefly to ensure the monitoring task is fully established before triggering Docker events.
+        // Ideally, the API would return (or signal) once monitoring is active.
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
         await _testFixture.DockerClient.Images.TagImageAsync($"{_testFixture.Repository}:{_testFixture.Tag}", new ImageTagParameters { RepositoryName = _testFixture.Repository, Tag = newTag });
         await _testFixture.DockerClient.Images.DeleteImageAsync($"{_testFixture.Repository}:{newTag}", new ImageDeleteParameters());
 

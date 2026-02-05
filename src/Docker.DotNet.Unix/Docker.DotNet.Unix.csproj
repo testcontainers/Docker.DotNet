@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Docker.DotNet.Unix</AssemblyName>
+    <PackageId>Docker.DotNet.Enhanced.Unix</PackageId>
+    <Description>A Docker.DotNet transport implementation for Unix domain socket Docker Engine connections.</Description>
+  </PropertyGroup>
+  <PropertyGroup>
+    <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Net.Sockets" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Security" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Docker.DotNet.Handler.Abstractions" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Net.Http.Client" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-namespace Docker.DotNet;
+namespace Docker.DotNet.Handler.Abstractions;
 
 public interface IPeekableStream
 {
