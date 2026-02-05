@@ -371,7 +371,7 @@ public class ManagedHandler : HttpMessageHandler
         throw new AggregateException(exceptions);
     }
 
-    private AuthenticationHeaderValue GetProxyAuthorizationHeader(Uri proxyUri)
+    internal AuthenticationHeaderValue GetProxyAuthorizationHeader(Uri proxyUri)
     {
         if (Proxy?.Credentials == null)
         {
@@ -389,7 +389,7 @@ public class ManagedHandler : HttpMessageHandler
         return new AuthenticationHeaderValue("Basic", encoded);
     }
 
-    private async Task<(Stream transport, Socket socket)> TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, Socket socket, CancellationToken cancellationToken)
+    internal async Task<(Stream transport, Socket socket)> TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, Socket socket, CancellationToken cancellationToken)
     {
         // Send a Connect request:
         // CONNECT server.example.com:80 HTTP / 1.1
