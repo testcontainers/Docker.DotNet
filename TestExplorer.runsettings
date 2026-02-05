@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+    <RunConfiguration>
+        <EnvironmentVariables>
+            <DOCKER_HOST>tcp://localhost:2375</DOCKER_HOST>
+            <DOCKER_TLS_VERIFY>""</DOCKER_TLS_VERIFY>
+            <DOCKER_CERT_PATH>""</DOCKER_CERT_PATH>
+            <DOCKER_DOTNET_NATIVE_HTTP_ENABLED>1</DOCKER_DOTNET_NATIVE_HTTP_ENABLED>
+        </EnvironmentVariables>
+    </RunConfiguration>
+</RunSettings>

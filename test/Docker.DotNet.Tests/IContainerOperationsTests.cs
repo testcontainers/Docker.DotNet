@@ -168,6 +168,194 @@ public class IContainerOperationsTests
     }
 
     [Fact]
+    public async Task GetContainerLogs_Parallel_Tty_False_Follow_False_ReadsLogs()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var parallelContainerCount = 3;
+        var parallelThreadCount = 100;
+        var runtimeInSeconds = 9;
+
+        var containerIds = new string[parallelContainerCount];
+
+        long memoryUsageBefore = GC.GetTotalAllocatedBytes(true);
+
+        long socketsBefore = IPGlobalProperties.GetIPGlobalProperties()
+                                .GetTcpIPv4Statistics()
+                                .CurrentConnections;
+
+        Process process = Process.GetCurrentProcess();
+        TimeSpan cpuTimeBefore = process.TotalProcessorTime;
+
+        ParallelOptions parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = parallelContainerCount,
+            CancellationToken = _testFixture.Cts.Token
+        };
+
+        await Parallel.ForEachAsync(Enumerable.Range(0, parallelContainerCount), parallelOptions, async (parallel, ct) =>
+        {
+            var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(
+                new CreateContainerParameters
+                {
+                    Image = _testFixture.Image.ID,
+                    Entrypoint = CommonCommands.EchoToStdoutAndStderr,
+                    Tty = false
+                },
+                _testFixture.Cts.Token
+            );
+
+            await _testFixture.DockerClient.Containers.StartContainerAsync(
+                createContainerResponse.ID,
+                new ContainerStartParameters(),
+                _testFixture.Cts.Token
+            );
+            containerIds[parallel] = createContainerResponse.ID;
+        });
+
+        await Task.Delay(TimeSpan.FromSeconds(runtimeInSeconds));
+
+        await Parallel.ForEachAsync(Enumerable.Range(0, parallelContainerCount), parallelOptions, async (parallel, ct) =>
+        {
+            await _testFixture.DockerClient.Containers.StopContainerAsync(
+                containerIds[parallel],
+                new ContainerStopParameters(),
+                _testFixture.Cts.Token
+            );
+        });
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(1));
+
+        var logLists = new ConcurrentDictionary<int, string>();
+        var threads = new List<Thread>();
+
+        for (int parallel = 0; parallel < parallelContainerCount * parallelThreadCount; parallel++)
+        {
+            int index = parallel;
+            string containerId = containerIds[parallel % parallelContainerCount];
+            CancellationToken ct = containerLogsCts.Token;
+
+            var thread = new Thread(() =>
+            {
+                var logList = new StringBuilder(2000);
+                try
+                {
+                    var task = _testFixture.DockerClient.Containers.GetContainerLogsAsync(
+                        containerId,
+                        new ContainerLogsParameters
+                        {
+                            ShowStderr = true,
+                            ShowStdout = true,
+                            Timestamps = true,
+                            Follow = false
+                        },
+                        new Progress<string>(m => logList.AppendLine(m)),
+                        ct
+                    );
+
+                    task.GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+
+                Thread.Sleep(100);
+
+                logLists.TryAdd(index, logList.ToString());
+                logList.Clear();
+            });
+
+            threads.Add(thread);
+            thread.Start();
+        }
+
+        foreach (var thread in threads)
+        {
+            thread.Join();
+        }
+
+        TimeSpan cpuTimeAfter = process.TotalProcessorTime;
+
+        long socketsAfter = IPGlobalProperties.GetIPGlobalProperties()
+                                .GetTcpIPv4Statistics()
+                                .CurrentConnections;
+
+        long memoryUsageAfter = GC.GetTotalAllocatedBytes(true);
+
+        var averageLineCount = logLists.Values.Average(logs => logs.Split('\n').Count());
+
+        _testOutputHelper.WriteLine($"avg. Line count: {averageLineCount:N1}, cpu ticks: {cpuTimeAfter.Ticks - cpuTimeBefore.Ticks:N0}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}, sockets: {socketsAfter - socketsBefore:N0}");
+        _testOutputHelper.WriteLine($"FirstLine: {logLists.Values.FirstOrDefault()}");
+
+        // one container should produce 2 lines per second (stdout + stderr) plus 1 for last empty line of split
+        Assert.True(averageLineCount > (runtimeInSeconds + 1) * 2, $"Average line count {averageLineCount:N1} is less than expected {(runtimeInSeconds + 1) * 2}");
+        GC.Collect();
+    }
+
+    [Fact]
+    public async Task GetContainerLogs_SpeedTest_Tty_False_Follow_True_Requires_Task_To_Be_Cancelled()
+    {
+        using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+        var runtimeInSeconds = 15;
+
+        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(
+            new CreateContainerParameters
+            {
+                Image = _testFixture.Image.ID,
+                Entrypoint = CommonCommands.EchoToStdoutAndStderrFast,
+                Tty = false
+            },
+            _testFixture.Cts.Token
+        );
+
+        await _testFixture.DockerClient.Containers.StartContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStartParameters(),
+            _testFixture.Cts.Token
+        );
+
+        containerLogsCts.CancelAfter(TimeSpan.FromSeconds(runtimeInSeconds));
+
+        long memoryUsageBefore = GC.GetTotalAllocatedBytes(true);
+
+        var counter = 0;
+        try
+        {
+            await _testFixture.DockerClient.Containers.GetContainerLogsAsync(
+                createContainerResponse.ID,
+                new ContainerLogsParameters
+                {
+                    ShowStderr = true,
+                    ShowStdout = true,
+                    Timestamps = true,
+                    Follow = true
+                },
+                new Progress<string>(m => counter++),
+                containerLogsCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+
+
+        long memoryUsageAfter = GC.GetTotalAllocatedBytes(true);
+
+        await _testFixture.DockerClient.Containers.StopContainerAsync(
+            createContainerResponse.ID,
+            new ContainerStopParameters(),
+            _testFixture.Cts.Token
+        );
+
+        _testOutputHelper.WriteLine($"Line count: {counter}, mem usage: {memoryUsageAfter - memoryUsageBefore:N0}");
+
+        Assert.True(counter > runtimeInSeconds * 25000, $"Line count {counter} is less than expected {runtimeInSeconds * 25000}");
+
+        GC.Collect();
+    }
+
+    [Fact]
     public async Task GetContainerLogs_Tty_False_Follow_True_Requires_Task_To_Be_Cancelled()
     {
         using var containerLogsCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
