@@ -154,6 +154,17 @@ public class ManagedHandler : HttpMessageHandler
         request.Headers.ConnectionClose = !request.Headers.Contains("Connection"); // TODO: Connection reuse is not supported.
 
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
+
+        if (proxyMode == ProxyMode.Http && request.Headers.ProxyAuthorization == null)
+        {
+            var proxyUri = Proxy.GetProxy(request.RequestUri);
+            var proxyAuth = GetProxyAuthorizationHeader(proxyUri);
+            if (proxyAuth != null)
+            {
+                request.Headers.ProxyAuthorization = proxyAuth;
+            }
+        }
+
         Socket socket;
         Stream transport;
 
@@ -177,13 +188,13 @@ public class ManagedHandler : HttpMessageHandler
 
         if (proxyMode == ProxyMode.Tunnel)
         {
-            await TunnelThroughProxyAsync(request, transport, cancellationToken);
+            (transport, socket) = await TunnelThroughProxyAsync(request, transport, socket, cancellationToken);
         }
 
         if (request.IsHttps())
         {
             SslStream sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
-            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12, false);
+            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.None, false);
             transport = sslStream;
         }
 
@@ -360,7 +371,25 @@ public class ManagedHandler : HttpMessageHandler
         throw new AggregateException(exceptions);
     }
 
-    private async Task TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, CancellationToken cancellationToken)
+    private AuthenticationHeaderValue GetProxyAuthorizationHeader(Uri proxyUri)
+    {
+        if (Proxy?.Credentials == null)
+        {
+            return null;
+        }
+
+        var credential = Proxy.Credentials.GetCredential(proxyUri, "Basic");
+        if (credential == null)
+        {
+            return null;
+        }
+
+        var encoded = Convert.ToBase64String(
+            Encoding.ASCII.GetBytes($"{credential.UserName}:{credential.Password}"));
+        return new AuthenticationHeaderValue("Basic", encoded);
+    }
+
+    private async Task<(Stream transport, Socket socket)> TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, Socket socket, CancellationToken cancellationToken)
     {
         // Send a Connect request:
         // CONNECT server.example.com:80 HTTP / 1.1
@@ -375,18 +404,83 @@ public class ManagedHandler : HttpMessageHandler
         connectRequest.SetAddressLineProperty(authority);
         connectRequest.Headers.Host = authority;
 
+        // Apply proxy credentials if not already set on the original request
+        if (connectRequest.Headers.ProxyAuthorization == null)
+        {
+            var proxyUri = Proxy.GetProxy(request.RequestUri);
+            connectRequest.Headers.ProxyAuthorization = GetProxyAuthorizationHeader(proxyUri);
+        }
+
         HttpConnection connection = new HttpConnection(new BufferedReadStream(transport, null, _logger));
         HttpResponseMessage connectResponse;
         try
         {
             connectResponse = await connection.SendAsync(connectRequest, cancellationToken);
-            // TODO:? await connectResponse.Content.LoadIntoBufferAsync(); // Drain any body
-            // There's no danger of accidentally consuming real response data because the real request hasn't been sent yet.
         }
         catch (Exception ex)
         {
             transport.Dispose();
             throw new HttpRequestException("SSL Tunnel failed to initialize", ex);
+        }
+
+        // Handle 407 Proxy Authentication Required by retrying with credentials
+        if (connectResponse.StatusCode == HttpStatusCode.ProxyAuthenticationRequired)
+        {
+            transport.Dispose();
+
+            var proxyUri = Proxy.GetProxy(request.RequestUri);
+            var proxyAuth = GetProxyAuthorizationHeader(proxyUri);
+            if (proxyAuth == null)
+            {
+                throw new HttpRequestException("Proxy requires authentication but no credentials were provided.");
+            }
+
+            // Reconnect to the proxy
+            if (_socketOpener != null)
+            {
+                socket = await _socketOpener(
+                    request.GetConnectionHostProperty(),
+                    request.GetConnectionPortProperty().Value,
+                    cancellationToken).ConfigureAwait(false);
+                transport = new NetworkStream(socket, true);
+            }
+            else
+            {
+                socket = null;
+                transport = await _streamOpener(
+                    request.GetConnectionHostProperty(),
+                    request.GetConnectionPortProperty().Value,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            // Retry CONNECT with credentials
+            var retryRequest = new HttpRequestMessage();
+            retryRequest.Version = new Version(1, 1);
+            retryRequest.Method = new HttpMethod("CONNECT");
+            retryRequest.SetAddressLineProperty(authority);
+            retryRequest.Headers.Host = authority;
+            retryRequest.Headers.ProxyAuthorization = proxyAuth;
+
+            var retryConnection = new HttpConnection(
+                new BufferedReadStream(transport, socket, _logger));
+
+            try
+            {
+                connectResponse = await retryConnection.SendAsync(retryRequest, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                transport.Dispose();
+                throw new HttpRequestException("SSL Tunnel failed to initialize after authentication", ex);
+            }
+
+            if ((int)connectResponse.StatusCode < 200 || 300 <= (int)connectResponse.StatusCode)
+            {
+                transport.Dispose();
+                throw new HttpRequestException("Failed to negotiate the proxy tunnel after authentication: " + connectResponse);
+            }
+
+            return (transport, socket);
         }
 
         // Listen for a response. Any 2XX is considered success, anything else is considered a failure.
@@ -395,5 +489,7 @@ public class ManagedHandler : HttpMessageHandler
             transport.Dispose();
             throw new HttpRequestException("Failed to negotiate the proxy tunnel: " + connectResponse);
         }
+
+        return (transport, socket);
     }
 }
