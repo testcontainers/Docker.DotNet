@@ -119,6 +119,7 @@ public class ManagedHandler : HttpMessageHandler
         {
             request.RequestUri = location;
             request.Headers.Authorization = null;
+            request.Headers.ProxyAuthorization = null;
             request.SetAddressLineProperty(null);
             request.SetPathAndQueryProperty(null);
             return true;
@@ -134,6 +135,7 @@ public class ManagedHandler : HttpMessageHandler
         // Reset fields calculated from the URI.
         request.RequestUri = location;
         request.Headers.Authorization = null;
+        request.Headers.ProxyAuthorization = null;
         request.Headers.Host = null;
         request.SetConnectionHostProperty(null);
         request.SetConnectionPortProperty(null);
@@ -394,13 +396,14 @@ public class ManagedHandler : HttpMessageHandler
         // Send a Connect request:
         // CONNECT server.example.com:80 HTTP / 1.1
         // Host: server.example.com:80
-        var connectRequest = new HttpRequestMessage();
+        // TODO: IPv6 hosts
+        string authority = request.GetHostProperty() + ":" + request.GetPortProperty().Value;
+
+        using var connectRequest = new HttpRequestMessage();
         connectRequest.Version = new Version(1, 1);
 
         connectRequest.Headers.ProxyAuthorization = request.Headers.ProxyAuthorization;
         connectRequest.Method = new HttpMethod("CONNECT");
-        // TODO: IPv6 hosts
-        string authority = request.GetHostProperty() + ":" + request.GetPortProperty().Value;
         connectRequest.SetAddressLineProperty(authority);
         connectRequest.Headers.Host = authority;
 
@@ -454,7 +457,7 @@ public class ManagedHandler : HttpMessageHandler
             }
 
             // Retry CONNECT with credentials
-            var retryRequest = new HttpRequestMessage();
+            using var retryRequest = new HttpRequestMessage();
             retryRequest.Version = new Version(1, 1);
             retryRequest.Method = new HttpMethod("CONNECT");
             retryRequest.SetAddressLineProperty(authority);

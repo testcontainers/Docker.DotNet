@@ -100,12 +100,6 @@ public class ManagedHandlerProxyTests
         return request;
     }
 
-    private static HttpRequestMessage CreateHttpsRequest(string url)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        return request;
-    }
-
     // ────────────────────────────────────────────────
     // A. GetProxyAuthorizationHeader (4 tests)
     // ────────────────────────────────────────────────

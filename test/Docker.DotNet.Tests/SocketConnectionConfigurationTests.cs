@@ -61,4 +61,34 @@ public class SocketConnectionConfigurationTests
 
         Assert.Throws<ArgumentNullException>(() => config.Apply(null));
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void KeepAliveTime_RejectsInvalidValues(int value)
+    {
+        var config = new SocketConnectionConfiguration();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => config.KeepAliveTime = value);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void KeepAliveInterval_RejectsInvalidValues(int value)
+    {
+        var config = new SocketConnectionConfiguration();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => config.KeepAliveInterval = value);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void KeepAliveRetryCount_RejectsInvalidValues(int value)
+    {
+        var config = new SocketConnectionConfiguration();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => config.KeepAliveRetryCount = value);
+    }
 }

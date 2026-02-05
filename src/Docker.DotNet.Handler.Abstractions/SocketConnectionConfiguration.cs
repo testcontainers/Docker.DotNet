@@ -18,25 +18,58 @@ public class SocketConnectionConfiguration
     public bool KeepAlive { get; set; } = true;
 
 #if NET5_0_OR_GREATER
+    private int _keepAliveTime = 30;
+
     /// <summary>
     /// Gets or sets the duration of time a connection can remain idle before the first
     /// keep-alive probe is sent (in seconds). Default is 30 seconds.
     /// </summary>
-    public int KeepAliveTime { get; set; } = 30;
+    /// <exception cref="ArgumentOutOfRangeException">Value must be greater than zero.</exception>
+    public int KeepAliveTime
+    {
+        get => _keepAliveTime;
+        set
+        {
+            if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Value must be greater than zero.");
+            _keepAliveTime = value;
+        }
+    }
+
+    private int _keepAliveInterval = 10;
 
     /// <summary>
     /// Gets or sets the duration of time between keep-alive probes (in seconds).
     /// Default is 10 seconds.
     /// </summary>
-    public int KeepAliveInterval { get; set; } = 10;
+    /// <exception cref="ArgumentOutOfRangeException">Value must be greater than zero.</exception>
+    public int KeepAliveInterval
+    {
+        get => _keepAliveInterval;
+        set
+        {
+            if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Value must be greater than zero.");
+            _keepAliveInterval = value;
+        }
+    }
 #endif
 
 #if NET7_0_OR_GREATER
+    private int _keepAliveRetryCount = 3;
+
     /// <summary>
     /// Gets or sets the number of keep-alive probes to send before the connection is
     /// considered dead. Default is 3.
     /// </summary>
-    public int KeepAliveRetryCount { get; set; } = 3;
+    /// <exception cref="ArgumentOutOfRangeException">Value must be greater than zero.</exception>
+    public int KeepAliveRetryCount
+    {
+        get => _keepAliveRetryCount;
+        set
+        {
+            if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Value must be greater than zero.");
+            _keepAliveRetryCount = value;
+        }
+    }
 #endif
 
     /// <summary>
