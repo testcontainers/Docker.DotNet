@@ -64,7 +64,10 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
             return dockerStream;
         });
 
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(streamOpener, logger), uri);
+        var handler = new ManagedHandler(streamOpener, logger);
+        transportOptions.ConfigureHandler(handler);
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

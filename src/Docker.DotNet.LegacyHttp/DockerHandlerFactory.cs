@@ -28,7 +28,10 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTrans
 
         var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(logger), uri);
+        var handler = new ManagedHandler(logger);
+        transportOptions.ConfigureHandler(handler);
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

@@ -42,8 +42,11 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
             PooledConnectionLifetime = PooledConnectionLifetime,
             PooledConnectionIdleTimeout = PooledConnectionIdleTimeout,
         };
+
+        transportOptions.ConfigureHandler(handler);
 #else
         var handler = new HttpClientHandler();
+        transportOptions.ConfigureHandler(handler);
 #endif
 
         return new Tuple<HttpMessageHandler, Uri>(handler, uri);

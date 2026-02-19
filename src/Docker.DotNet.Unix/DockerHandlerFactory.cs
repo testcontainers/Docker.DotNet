@@ -44,7 +44,10 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
             return socket;
         });
 
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(socketOpener, logger), uri);
+        var handler = new ManagedHandler(socketOpener, logger);
+        transportOptions.ConfigureHandler(handler);
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
