@@ -194,13 +194,13 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         // Fall back to OS-specific default (npipe on Windows, unix socket on Linux/macOS).
         if (string.IsNullOrWhiteSpace(dockerHost))
         {
-            return new DockerClientBuilder().Build();
+            return new DockerClientBuilder().WithLogger(logger).Build();
         }
 
         var endpoint = new Uri(dockerHost);
         var authProvider = CreateAuthProviderFromEnvironment();
 
-        return new DockerClientBuilder().WithEndpoint(endpoint).WithAuthProvider(authProvider).Build();
+        return new DockerClientBuilder().WithEndpoint(endpoint).WithAuthProvider(authProvider).WithLogger(logger).Build();
     }
 
     private static IAuthProvider CreateAuthProviderFromEnvironment()
