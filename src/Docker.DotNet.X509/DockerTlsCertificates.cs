@@ -110,7 +110,7 @@ public sealed class DockerTlsCertificates
 #endif
     }
 
-    public CertificateCredentials CreateCredentials()
+    public IAuthProvider CreateCredentials()
     {
         var credentials = new CertificateCredentials(Certificate);
 

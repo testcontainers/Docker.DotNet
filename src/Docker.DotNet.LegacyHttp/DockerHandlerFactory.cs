@@ -1,17 +1,29 @@
 namespace Docker.DotNet.LegacyHttp;
 
-public sealed class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTransportOptions>
 {
     private DockerHandlerFactory()
     {
     }
 
-    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+    public static IDockerHandlerFactory<LegacyHttpTransportOptions> Instance { get; }
+        = new DockerHandlerFactory();
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
-        var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-        uri = new UriBuilder(uri) { Scheme = scheme }.Uri;
+        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
+        return CreateHandler(clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    {
+        return CreateHandler(new LegacyHttpTransportOptions(), clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(LegacyHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    {
+        var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
         return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(logger), uri);
     }
 

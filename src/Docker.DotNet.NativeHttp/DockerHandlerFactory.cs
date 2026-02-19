@@ -1,6 +1,6 @@
 namespace Docker.DotNet.NativeHttp;
 
-public sealed class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTransportOptions>
 {
     private const int MaxConnectionsPerServer = 10;
 
@@ -12,12 +12,24 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
     {
     }
 
-    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+    public static IDockerHandlerFactory<NativeHttpTransportOptions> Instance { get; }
+        = new DockerHandlerFactory();
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
-        var scheme = configuration.Credentials.IsTlsCredentials() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-        uri = new UriBuilder(uri) { Scheme = scheme }.Uri;
+        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
+        return CreateHandler(clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    {
+        return CreateHandler(new NativeHttpTransportOptions(), clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(NativeHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    {
+        var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
 
 #if NET6_0_OR_GREATER
         var handler = new SocketsHttpHandler
@@ -37,7 +49,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
     {
         var stream = await content.ReadAsStreamAsync()
             .ConfigureAwait(false);
-        
+
         return new WriteClosableStreamWrapper(stream);
     }
 }

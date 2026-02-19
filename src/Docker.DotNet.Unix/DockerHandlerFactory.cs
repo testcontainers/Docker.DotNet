@@ -1,15 +1,29 @@
 namespace Docker.DotNet.Unix;
 
-public sealed class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTransportOptions>
 {
     private DockerHandlerFactory()
     {
     }
 
-    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+    public static IDockerHandlerFactory<UnixSocketTransportOptions> Instance { get; }
+        = new DockerHandlerFactory();
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
+        var clientOptions = new ClientOptions { Endpoint = uri };
+        return CreateHandler(clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    {
+        return CreateHandler(new UnixSocketTransportOptions(), clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(UnixSocketTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    {
+        var uri = clientOptions.Endpoint;
+
         var socketName = uri.Segments.Last();
         var socketPath = uri.LocalPath;
         uri = new UriBuilder(Uri.UriSchemeHttp, socketName).Uri;

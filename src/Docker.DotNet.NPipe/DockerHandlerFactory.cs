@@ -1,19 +1,34 @@
 namespace Docker.DotNet.NPipe;
 
-public sealed class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportOptions>
 {
     private DockerHandlerFactory()
     {
     }
 
-    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+    public static IDockerHandlerFactory<NPipeTransportOptions> Instance { get; }
+        = new DockerHandlerFactory();
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
-        if (configuration.Credentials.IsTlsCredentials())
+        var transportOptions = new NPipeTransportOptions { ConnectTimeout = configuration.NamedPipeConnectTimeout };
+        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
+        return CreateHandler(transportOptions, clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    {
+        return CreateHandler(new NPipeTransportOptions(), clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    {
+        if (clientOptions.AuthProvider.TlsEnabled)
         {
             throw new NotSupportedException("TLS is not supported over npipe.");
         }
+
+        var uri = clientOptions.Endpoint;
 
         var segments = uri.Segments;
 
@@ -34,9 +49,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
             var dockerStream = new DockerPipeStream(clientStream);
 
 #if NETSTANDARD
-            var namedPipeConnectTimeout = (int)configuration.NamedPipeConnectTimeout.TotalMilliseconds;
+            var namedPipeConnectTimeout = (int)transportOptions.ConnectTimeout.TotalMilliseconds;
 #else
-            var namedPipeConnectTimeout = configuration.NamedPipeConnectTimeout;
+            var namedPipeConnectTimeout = transportOptions.ConnectTimeout;
 #endif
 
             await clientStream.ConnectAsync(namedPipeConnectTimeout, cancellationToken)
