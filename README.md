@@ -45,27 +45,27 @@ You can initialize the client as follows:
 
 ```csharp
 using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration(
-    new Uri("http://ubuntu-docker.cloudapp.net:4243"))
-    .CreateClient();
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("http://ubuntu-docker.cloudapp.net:4243"))
+    .Build();
 ```
 
 **Named Pipe (Windows):**
 
 ```csharp
 using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration(
-    new Uri("npipe://./pipe/docker_engine"))
-    .CreateClient();
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("npipe://./pipe/docker_engine"))
+    .Build();
 ```
 
 **Unix Domain Socket (Linux/macOS):**
 
 ```csharp
 using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration(
-    new Uri("unix:///var/run/docker.sock"))
-    .CreateClient();
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("unix:/var/run/docker.sock"))
+    .Build();
 ```
 
 **Note:**
@@ -75,8 +75,8 @@ To connect to your local [Docker Desktop on Windows](https://docs.docker.com/des
 
 ```csharp
 using Docker.DotNet;
-DockerClient client = new DockerClientConfiguration()
-    .CreateClient();
+var client = new DockerClientBuilder()
+    .Build();
 ```
 
 ### Enabling .NET Native HTTP Handler
@@ -85,9 +85,29 @@ DockerClient client = new DockerClientConfiguration()
 This is achieved by setting the environment variable `DOCKER_DOTNET_NATIVE_HTTP_ENABLED` to `1`.
 By doing so, the handler used to communicate with the Docker Engine will switch to the .NET built-in one, potentially improving performance and reliability.
 
+### Transport-specific options
+
+Use `WithTransportOptions` to select a transport explicitly and configure transport-specific options.
+
+For example, on Windows named pipes you can configure the pipe connect timeout:
+
+```csharp
+using Docker.DotNet;
+using Docker.DotNet.NPipe;
+
+var client = new DockerClientBuilder()
+    .WithTransportOptions(new NPipeTransportOptions
+    {
+        ConnectTimeout = TimeSpan.FromSeconds(30),
+    })
+    .Build();
+```
+
+This API is also available for other transports (`LegacyHttpTransportOptions`, `NativeHttpTransportOptions`, and `UnixSocketTransportOptions`).
+
 ### Custom HTTP handler
 
-The `DockerClientConfiguration.CreateClient(Version, IDockerHandlerFactory, ILogger)` method provides an overload that accepts an implementation of `IDockerHandlerFactory`.
+Use `DockerClientBuilder.WithTransportOptions(...)` to choose among built-in transports, or instantiate `DockerClientBuilder<TTransportOptions>` with a custom `IDockerHandlerFactory<TTransportOptions>` implementation.
 This allows you to define custom handlers for communicating with the Docker Engine API.
 
 #### Example: List containers
@@ -200,12 +220,14 @@ PM> Install-Package Docker.DotNet.Enhanced.X509
 Once you add `Docker.DotNet.Enhanced.X509` to your project, use the `CertificateCredentials` type:
 
 ```csharp
-var credentials = new CertificateCredentials(new X509Certificate2("CertFile", "Password"));
-var config = new DockerClientConfiguration("http://ubuntu-docker.cloudapp.net:4243", credentials);
-DockerClient client = config.CreateClient();
+var authProvider = new CertificateCredentials(new X509Certificate2("CertFile", "Password"));
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("https://ubuntu-docker.cloudapp.net:4243"))
+    .WithAuthProvider(authProvider)
+    .Build();
 ```
 
-If you don't want to authenticate you can omit the `credentials` parameter, which defaults to an `AnonymousCredentials` instance.
+If you don't want to authenticate with a client certificate, omit `.WithAuthProvider(credentials)`.
 
 The `CertFile` in the example above should be a PFX file (PKCS12 format), if you have PEM formatted certificates which Docker normally uses you can either convert it programmatically or use `openssl` tool to generate a PFX:
 
@@ -231,9 +253,11 @@ PM> Install-Package Docker.DotNet.Enhanced.BasicAuth
 Once you added `Docker.DotNet.Enhanced.BasicAuth` to your project, use `BasicAuthCredentials` type:
 
 ```csharp
-var credentials = new BasicAuthCredentials ("YOUR_USERNAME", "YOUR_PASSWORD");
-var config = new DockerClientConfiguration("tcp://ubuntu-docker.cloudapp.net:4243", credentials);
-DockerClient client = config.CreateClient();
+var authProvider = new BasicAuthCredentials("YOUR_USERNAME", "YOUR_PASSWORD");
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("tcp://ubuntu-docker.cloudapp.net:4243"))
+    .WithAuthProvider(authProvider)
+    .Build();
 ```
 
 `BasicAuthCredentials` also accepts `SecureString` for username and password arguments.
@@ -244,8 +268,10 @@ By default this client does not specify version number to the API for the reques
 However, if you would like to make use of versioning feature of Docker Remote API You can initialize the client like the following.
 
 ```csharp
-var config = new DockerClientConfiguration(...);
-DockerClient client = config.CreateClient(new Version(1, 49));
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("http://ubuntu-docker.cloudapp.net:4243"))
+    .WithApiVersion(new Version(1, 52))
+    .Build();
 ```
 
 ### Error Handling
