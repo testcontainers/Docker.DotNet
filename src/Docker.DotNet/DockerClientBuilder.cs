@@ -172,6 +172,18 @@ public class DockerClientBuilder
     }
 
     /// <summary>
+    /// Selects a custom transport by providing a handler factory and transport-specific options.
+    /// </summary>
+    /// <typeparam name="TTransportOptions">The type of transport options consumed by the custom handler factory.</typeparam>
+    /// <param name="transportFactory">The custom transport handler factory.</param>
+    /// <param name="transportOptions">The transport-specific options passed to the custom handler factory.</param>
+    /// <returns>A typed builder that uses the provided custom transport.</returns>
+    public DockerClientBuilder<TTransportOptions> WithTransportOptions<TTransportOptions>(IDockerHandlerFactory<TTransportOptions> transportFactory, TTransportOptions transportOptions)
+    {
+        return new DockerClientBuilder<TTransportOptions>(transportFactory, transportOptions);
+    }
+
+    /// <summary>
     /// Builds a <see cref="DockerClient"/> using the configured options.
     /// </summary>
     /// <remarks>

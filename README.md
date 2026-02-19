@@ -110,6 +110,25 @@ This API is also available for other transports (`LegacyHttpTransportOptions`, `
 Use `DockerClientBuilder.WithTransportOptions(...)` to choose among built-in transports, or instantiate `DockerClientBuilder<TTransportOptions>` with a custom `IDockerHandlerFactory<TTransportOptions>` implementation.
 This allows you to define custom handlers for communicating with the Docker Engine API.
 
+You can use the generic overload to provide your own transport (handler) implementation:
+
+```csharp
+public DockerClientBuilder<TTransportOptions> WithTransportOptions<TTransportOptions>(
+    IDockerHandlerFactory<TTransportOptions> transportFactory,
+    TTransportOptions transportOptions);
+```
+
+Example usage:
+
+```csharp
+var customFactory = new MyTransportHandlerFactory();
+var customOptions = new MyTransportOptions();
+
+var client = new DockerClientBuilder()
+    .WithTransportOptions(customFactory, customOptions)
+    .Build();
+```
+
 #### Example: List containers
 
 ```csharp
@@ -227,7 +246,7 @@ var client = new DockerClientBuilder()
     .Build();
 ```
 
-If you don't want to authenticate with a client certificate, omit `.WithAuthProvider(credentials)`.
+If you don't want to authenticate (with a client certificate), omit `.WithAuthProvider(credentials)`.
 
 The `CertFile` in the example above should be a PFX file (PKCS12 format), if you have PEM formatted certificates which Docker normally uses you can either convert it programmatically or use `openssl` tool to generate a PFX:
 
