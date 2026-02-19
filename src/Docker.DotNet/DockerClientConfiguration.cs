@@ -2,6 +2,7 @@ namespace Docker.DotNet;
 
 using System;
 
+[Obsolete("Use the DockerClientBuilder class instead: https://github.com/testcontainers/Docker.DotNet/blob/main/README.md#usage.")]
 public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 {
     private static readonly bool NativeHttpEnabled = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1";

@@ -1,5 +1,6 @@
 namespace Docker.DotNet.Handler.Abstractions;
 
+[Obsolete("Use the DockerClientBuilder class instead: https://github.com/testcontainers/Docker.DotNet/blob/main/README.md#usage.")]
 public interface IDockerClientConfiguration
 {
     /// <summary>
