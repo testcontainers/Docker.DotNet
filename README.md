@@ -121,7 +121,7 @@ public DockerClientBuilder<TTransportOptions> WithTransportOptions<TTransportOpt
 Example usage:
 
 ```csharp
-var customFactory = new MyTransportHandlerFactory();
+var customFactory = new MyTransportFactory();
 var customOptions = new MyTransportOptions();
 
 var client = new DockerClientBuilder()
