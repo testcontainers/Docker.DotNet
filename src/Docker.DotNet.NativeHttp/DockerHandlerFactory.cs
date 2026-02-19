@@ -23,11 +23,15 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
-        return CreateHandler(new NativeHttpTransportOptions(), clientOptions, logger);
+        var transportOptions = new NativeHttpTransportOptions();
+        Validate(transportOptions, clientOptions);
+        return CreateHandler(transportOptions, clientOptions, logger);
     }
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(NativeHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
+        Validate(transportOptions, clientOptions);
+
         var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
 
@@ -51,5 +55,22 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
             .ConfigureAwait(false);
 
         return new WriteClosableStreamWrapper(stream);
+    }
+
+    private static void Validate(NativeHttpTransportOptions _, ClientOptions clientOptions)
+    {
+        if (clientOptions.Endpoint is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
+        }
+
+        var scheme = clientOptions.Endpoint.Scheme;
+
+        if (!string.Equals(scheme, "tcp", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"The selected '{nameof(NativeHttpTransportOptions)}' can only be used with endpoint schemes 'tcp', 'http', or 'https', but '{scheme}' was provided.");
+        }
     }
 }

@@ -17,11 +17,15 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
-        return CreateHandler(new UnixSocketTransportOptions(), clientOptions, logger);
+        var transportOptions = new UnixSocketTransportOptions();
+        Validate(transportOptions, clientOptions);
+        return CreateHandler(transportOptions, clientOptions, logger);
     }
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(UnixSocketTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
+        Validate(transportOptions, clientOptions);
+
         var uri = clientOptions.Endpoint;
 
         var socketName = uri.Segments.Last();
@@ -51,5 +55,20 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
         }
 
         return Task.FromResult(hijackable.HijackStream());
+    }
+
+    private static void Validate(UnixSocketTransportOptions _, ClientOptions clientOptions)
+    {
+        if (clientOptions.Endpoint is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
+        }
+
+        var scheme = clientOptions.Endpoint.Scheme;
+
+        if (!string.Equals(scheme, "unix", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"The selected '{nameof(UnixSocketTransportOptions)}' can only be used with endpoint scheme 'unix', but '{scheme}' was provided.");
+        }
     }
 }

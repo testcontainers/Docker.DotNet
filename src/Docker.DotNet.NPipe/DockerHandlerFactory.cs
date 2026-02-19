@@ -18,11 +18,15 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
-        return CreateHandler(new NPipeTransportOptions(), clientOptions, logger);
+        var transportOptions = new NPipeTransportOptions();
+        Validate(transportOptions, clientOptions);
+        return CreateHandler(transportOptions, clientOptions, logger);
     }
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
+        Validate(transportOptions, clientOptions);
+
         if (clientOptions.AuthProvider.TlsEnabled)
         {
             throw new NotSupportedException("TLS is not supported over npipe.");
@@ -71,5 +75,20 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
         }
 
         return Task.FromResult(hijackable.HijackStream());
+    }
+
+    private static void Validate(NPipeTransportOptions _, ClientOptions clientOptions)
+    {
+        if (clientOptions.Endpoint is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
+        }
+
+        var scheme = clientOptions.Endpoint.Scheme;
+
+        if (!string.Equals(scheme, "npipe", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"The selected '{nameof(NPipeTransportOptions)}' can only be used with endpoint scheme 'npipe', but '{scheme}' was provided.");
+        }
     }
 }
