@@ -21,8 +21,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public TestFixture(IMessageSink messageSink)
     {
         _messageSink = messageSink;
-        DockerClientConfiguration = CreateDockerClientConfigurationFromEnvironment();
-        DockerClient = DockerClientConfiguration.CreateClient(logger: this);
+        DockerClient = CreateDockerClientFromEnvironment(this);
         Cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         Cts.Token.Register(() => throw new TimeoutException("Docker.DotNet tests timed out."));
     }
@@ -38,11 +37,6 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     /// </summary>
     public string Tag { get; }
         = Guid.NewGuid().ToString("N");
-
-    /// <summary>
-    /// Gets the Docker client configuration.
-    /// </summary>
-    public DockerClientConfiguration DockerClientConfiguration { get; }
 
     /// <summary>
     /// Gets the Docker client.
@@ -162,7 +156,6 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     {
         Cts.Dispose();
         DockerClient.Dispose();
-        DockerClientConfiguration.Dispose();
     }
 
     /// <inheritdoc />
@@ -194,28 +187,28 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
         this.LogInformation("Progress: '{Progress}'.", message);
     }
 
-    private static DockerClientConfiguration CreateDockerClientConfigurationFromEnvironment()
+    private static DockerClient CreateDockerClientFromEnvironment(ILogger logger)
     {
         var dockerHost = Environment.GetEnvironmentVariable("DOCKER_HOST");
 
         // Fall back to OS-specific default (npipe on Windows, unix socket on Linux/macOS).
         if (string.IsNullOrWhiteSpace(dockerHost))
         {
-            return new DockerClientConfiguration();
+            return new DockerClientBuilder().WithLogger(logger).Build();
         }
 
         var endpoint = new Uri(dockerHost);
-        var credentials = CreateCredentialsFromEnvironment();
+        var authProvider = CreateAuthProviderFromEnvironment();
 
-        return new DockerClientConfiguration(endpoint, credentials);
+        return new DockerClientBuilder().WithEndpoint(endpoint).WithAuthProvider(authProvider).WithLogger(logger).Build();
     }
 
-    private static Credentials CreateCredentialsFromEnvironment()
+    private static IAuthProvider CreateAuthProviderFromEnvironment()
     {
         var tlsVerify = Environment.GetEnvironmentVariable("DOCKER_TLS_VERIFY");
         if (!string.Equals(tlsVerify, "1", StringComparison.Ordinal))
         {
-            return new AnonymousCredentials();
+            return NoopAuthProvider.Instance;
         }
 
         var certPath = Environment.GetEnvironmentVariable("DOCKER_CERT_PATH");

@@ -10,13 +10,48 @@ public sealed class DockerClient : IDockerClient
 
     private readonly HttpClient _client;
 
+    private readonly Version? _requestedApiVersion;
+
     private readonly Uri _endpointBaseUri;
 
-    private readonly Version _requestedApiVersion;
+    private readonly IReadOnlyDictionary<string, string> _headers;
 
     private readonly IDockerHandlerFactory _handlerFactory;
 
-    internal DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
+    internal DockerClient(
+        IDockerHandlerFactory handlerFactory,
+        HttpMessageHandler handler,
+        ClientOptions clientOptions,
+        Uri endpoint,
+        ILogger logger)
+    {
+        _ = logger;
+
+        _requestedApiVersion = clientOptions.ApiVersion;
+        _endpointBaseUri = endpoint;
+        _headers = clientOptions.Headers;
+        _handlerFactory = handlerFactory;
+
+        Configuration = null!;
+        DefaultTimeout = clientOptions.Timeout;
+
+        Images = new ImageOperations(this);
+        Containers = new ContainerOperations(this);
+        System = new SystemOperations(this);
+        Networks = new NetworkOperations(this);
+        Secrets = new SecretsOperations(this);
+        Configs = new ConfigOperations(this);
+        Swarm = new SwarmOperations(this);
+        Tasks = new TasksOperations(this);
+        Volumes = new VolumeOperations(this);
+        Plugin = new PluginOperations(this);
+        Exec = new ExecOperations(this);
+
+        _client = new HttpClient(clientOptions.AuthProvider.ConfigureHandler(handler), true);
+        _client.Timeout = Timeout.InfiniteTimeSpan;
+    }
+
+    internal DockerClient(DockerClientConfiguration configuration, Version? requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger? logger = null)
     {
         if (handlerFactory == null)
         {
@@ -24,6 +59,7 @@ public sealed class DockerClient : IDockerClient
         }
 
         _requestedApiVersion = requestedApiVersion;
+        _headers = configuration.DefaultHttpRequestHeaders;
         _handlerFactory = handlerFactory;
 
         Configuration = configuration;
@@ -78,7 +114,7 @@ public sealed class DockerClient : IDockerClient
 
     public void Dispose()
     {
-        Configuration.Dispose();
+        Configuration?.Dispose();
         _client.Dispose();
     }
 
@@ -104,7 +140,7 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
+        IQueryString? queryString,
         CancellationToken token)
     {
         return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, null, token);
@@ -114,7 +150,7 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
+        IQueryString? queryString,
         CancellationToken token)
     {
         return MakeRequestAsync<T>(errorHandlers, method, path, queryString, null, token);
@@ -124,8 +160,8 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
+        IQueryString? queryString,
+        IRequestContent? body,
         CancellationToken token)
     {
         return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, null, token);
@@ -135,8 +171,8 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
+        IQueryString? queryString,
+        IRequestContent? body,
         CancellationToken token)
     {
         return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, null, token);
@@ -146,9 +182,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         CancellationToken token)
     {
         return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, DefaultTimeout, token);
@@ -158,9 +194,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         TimeSpan timeout,
         CancellationToken token)
     {
@@ -171,9 +207,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         TimeSpan timeout,
         CancellationToken token)
     {
@@ -205,7 +241,7 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
+        IQueryString? queryString,
         CancellationToken token)
     {
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, null, token);
@@ -215,8 +251,8 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
+        IQueryString? queryString,
+        IRequestContent? body,
         CancellationToken token)
     {
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, null, token);
@@ -226,9 +262,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         CancellationToken token)
     {
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, token);
@@ -238,9 +274,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         TimeSpan timeout,
         CancellationToken token)
     {
@@ -257,9 +293,9 @@ public sealed class DockerClient : IDockerClient
     internal async Task<HttpResponseMessage> MakeRequestForRawResponseAsync(
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         CancellationToken token)
     {
         var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
@@ -275,7 +311,7 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
+        IQueryString? queryString,
         CancellationToken cancellationToken)
     {
         var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, null, null, cancellationToken)
@@ -294,9 +330,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         CancellationToken cancellationToken)
     {
         return MakeRequestForHijackedStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, cancellationToken);
@@ -306,9 +342,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IRequestContent body,
-        IDictionary<string, string> headers,
+        IQueryString? queryString,
+        IRequestContent? body,
+        IDictionary<string, string>? headers,
         TimeSpan timeout,
         CancellationToken cancellationToken)
     {
@@ -341,9 +377,9 @@ public sealed class DockerClient : IDockerClient
         HttpCompletionOption completionOption,
         HttpMethod method,
         string path,
-        IQueryString queryString,
-        IDictionary<string, string> headers,
-        IRequestContent data,
+        IQueryString? queryString,
+        IDictionary<string, string>? headers,
+        IRequestContent? data,
         CancellationToken cancellationToken)
     {
         using var request = PrepareRequest(method, path, queryString, headers, data);
@@ -368,7 +404,7 @@ public sealed class DockerClient : IDockerClient
         }
     }
 
-    private HttpRequestMessage PrepareRequest(HttpMethod method, string path, IQueryString queryString, IDictionary<string, string> headers, IRequestContent data)
+    private HttpRequestMessage PrepareRequest(HttpMethod method, string path, IQueryString? queryString, IDictionary<string, string>? headers, IRequestContent? data)
     {
         if (string.IsNullOrEmpty(path))
         {
@@ -380,8 +416,8 @@ public sealed class DockerClient : IDockerClient
         request.Headers.Add("User-Agent", UserAgent);
 
         var customHeaders = headers == null
-            ? Configuration.DefaultHttpRequestHeaders
-            : Configuration.DefaultHttpRequestHeaders.Concat(headers);
+            ? _headers
+            : _headers.Concat(headers);
 
         foreach (var header in customHeaders)
         {
@@ -397,11 +433,11 @@ public sealed class DockerClient : IDockerClient
         return request;
     }
 
-    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate> handlers)
+    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate>? handlers)
     {
         var isErrorResponse = (statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest) && statusCode != HttpStatusCode.SwitchingProtocols;
 
-        string responseBody = null;
+        string? responseBody = null;
 
         if (isErrorResponse)
         {
@@ -432,7 +468,7 @@ public sealed class DockerClient : IDockerClient
     {
         var isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
 
-        string responseBody = null;
+        string? responseBody = null;
 
         if (isErrorResponse)
         {

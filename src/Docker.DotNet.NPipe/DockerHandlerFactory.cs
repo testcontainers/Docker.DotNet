@@ -1,19 +1,38 @@
 namespace Docker.DotNet.NPipe;
 
-public sealed class DockerHandlerFactory : IDockerHandlerFactory
+public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportOptions>
 {
     private DockerHandlerFactory()
     {
     }
 
-    public static IDockerHandlerFactory Instance { get; } = new DockerHandlerFactory();
+    public static IDockerHandlerFactory<NPipeTransportOptions> Instance { get; }
+        = new DockerHandlerFactory();
 
     public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
     {
-        if (configuration.Credentials.IsTlsCredentials())
+        var transportOptions = new NPipeTransportOptions { ConnectTimeout = configuration.NamedPipeConnectTimeout };
+        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
+        return CreateHandler(transportOptions, clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    {
+        var transportOptions = new NPipeTransportOptions();
+        Validate(transportOptions, clientOptions);
+        return CreateHandler(transportOptions, clientOptions, logger);
+    }
+
+    public Tuple<HttpMessageHandler, Uri> CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    {
+        Validate(transportOptions, clientOptions);
+
+        if (clientOptions.AuthProvider.TlsEnabled)
         {
             throw new NotSupportedException("TLS is not supported over npipe.");
         }
+
+        var uri = clientOptions.Endpoint;
 
         var segments = uri.Segments;
 
@@ -34,9 +53,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
             var dockerStream = new DockerPipeStream(clientStream);
 
 #if NETSTANDARD
-            var namedPipeConnectTimeout = (int)configuration.NamedPipeConnectTimeout.TotalMilliseconds;
+            var namedPipeConnectTimeout = (int)transportOptions.ConnectTimeout.TotalMilliseconds;
 #else
-            var namedPipeConnectTimeout = configuration.NamedPipeConnectTimeout;
+            var namedPipeConnectTimeout = transportOptions.ConnectTimeout;
 #endif
 
             await clientStream.ConnectAsync(namedPipeConnectTimeout, cancellationToken)
@@ -45,7 +64,10 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
             return dockerStream;
         });
 
-        return new Tuple<HttpMessageHandler, Uri>(new ManagedHandler(streamOpener, logger), uri);
+        var handler = new ManagedHandler(streamOpener, logger);
+        transportOptions.ConfigureHandler(handler);
+
+        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
@@ -56,5 +78,20 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory
         }
 
         return Task.FromResult(hijackable.HijackStream());
+    }
+
+    private static void Validate(NPipeTransportOptions _, ClientOptions clientOptions)
+    {
+        if (clientOptions.Endpoint is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
+        }
+
+        var scheme = clientOptions.Endpoint.Scheme;
+
+        if (!string.Equals(scheme, "npipe", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"The selected '{nameof(NPipeTransportOptions)}' can only be used with endpoint scheme 'npipe', but '{scheme}' was provided.");
+        }
     }
 }

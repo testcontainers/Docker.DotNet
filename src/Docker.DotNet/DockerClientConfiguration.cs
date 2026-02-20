@@ -2,25 +2,26 @@ namespace Docker.DotNet;
 
 using System;
 
+[Obsolete("Use the DockerClientBuilder class instead: https://github.com/testcontainers/Docker.DotNet/blob/main/README.md#usage.")]
 public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 {
     private static readonly bool NativeHttpEnabled = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1";
 
     public DockerClientConfiguration(
-        Credentials credentials = null,
+        Credentials? credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        IReadOnlyDictionary<string, string>? defaultHttpRequestHeaders = null)
         : this(GetLocalDockerEndpoint(), credentials, defaultTimeout, namedPipeConnectTimeout, defaultHttpRequestHeaders)
     {
     }
 
     public DockerClientConfiguration(
         Uri endpoint,
-        Credentials credentials = null,
+        Credentials? credentials = null,
         TimeSpan defaultTimeout = default,
         TimeSpan namedPipeConnectTimeout = default,
-        IReadOnlyDictionary<string, string> defaultHttpRequestHeaders = null)
+        IReadOnlyDictionary<string, string>? defaultHttpRequestHeaders = null)
     {
         if (endpoint == null)
         {
@@ -52,9 +53,9 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
 
     public TimeSpan NamedPipeConnectTimeout { get; }
 
-    public DockerClient CreateClient(Version requestedApiVersion = null, ILogger logger = null)
+    public DockerClient CreateClient(Version? requestedApiVersion = null, ILogger? logger = null)
     {
-        var handlerFactory = EndpointBaseUri.Scheme.ToLowerInvariant() switch
+        IDockerHandlerFactory handlerFactory = EndpointBaseUri.Scheme.ToLowerInvariant() switch
         {
             "npipe" => NPipe.DockerHandlerFactory.Instance,
             "unix" => Unix.DockerHandlerFactory.Instance,
@@ -67,7 +68,7 @@ public class DockerClientConfiguration : IDockerClientConfiguration, IDisposable
         return CreateClient(requestedApiVersion, handlerFactory, logger);
     }
 
-    public DockerClient CreateClient(Version requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger logger = null)
+    public DockerClient CreateClient(Version? requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger? logger = null)
     {
         if (handlerFactory == null)
         {

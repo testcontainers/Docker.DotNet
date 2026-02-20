@@ -1,6 +1,6 @@
 namespace Docker.DotNet.BasicAuth;
 
-public class BasicAuthCredentials : Credentials
+public class BasicAuthCredentials : Credentials, IAuthProvider
 {
     private readonly bool _isTls;
 
@@ -27,6 +27,8 @@ public class BasicAuthCredentials : Credentials
         _password = password;
     }
 
+    public bool TlsEnabled => _isTls;
+
     public override void Dispose()
     {
         Dispose(true);
@@ -41,6 +43,11 @@ public class BasicAuthCredentials : Credentials
     public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
     {
         return new BasicAuthHandler(_username, _password, handler);
+    }
+
+    public HttpMessageHandler ConfigureHandler(HttpMessageHandler handler)
+    {
+        return GetHandler(handler);
     }
 
     protected virtual void Dispose(bool disposing)

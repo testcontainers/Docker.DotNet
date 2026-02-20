@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Docker.DotNet\Docker.DotNet.csproj" />
+    <ProjectReference Include="..\..\src\Docker.DotNet.BasicAuth\Docker.DotNet.BasicAuth.csproj" />
+    <ProjectReference Include="..\..\src\Docker.DotNet.X509\Docker.DotNet.X509.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Docker.DotNet.Handler.Abstractions" />
+    <Using Include="Docker.DotNet.LegacyHttp" />
+    <Using Include="Docker.DotNet.NativeHttp" />
+    <Using Include="Docker.DotNet.NPipe" />
+    <Using Include="Docker.DotNet.Unix" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
+    <Using Include="Xunit.Sdk" />
+  </ItemGroup>
+</Project>
