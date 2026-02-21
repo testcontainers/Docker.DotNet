@@ -19,13 +19,18 @@ specgen_bin="$script_dir/specgen"
 
 pushd "$script_dir" > /dev/null
 
-trap 'popd > /dev/null || true' EXIT
+cleanup() {
+    rm -f "$specgen_bin"
+    popd > /dev/null || true
+}
+
+trap cleanup EXIT
 
 echo "Updating moby api package to tag '$release_tag'"
-go get -u "github.com/moby/moby/api@$release_tag"
+go get "github.com/moby/moby/api@$release_tag"
 
 echo "Updating moby client package to tag '$release_tag'"
-go get -u "github.com/moby/moby/client@$release_tag"
+go get "github.com/moby/moby/client@$release_tag"
 
 echo "Building specgen"
 go build

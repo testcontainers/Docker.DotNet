@@ -15,10 +15,10 @@ Push-Location $scriptDir
 
 try {
     Write-Host "Updating moby api package to tag '$ReleaseTag'"
-    go get -u "github.com/moby/moby/api@$ReleaseTag"
+    go get "github.com/moby/moby/api@$ReleaseTag"
 
     Write-Host "Updating moby client package to tag '$ReleaseTag'"
-    go get -u "github.com/moby/moby/client@$ReleaseTag"
+    go get "github.com/moby/moby/client@$ReleaseTag"
 
     Write-Host 'Building specgen'
     go build
@@ -30,5 +30,9 @@ try {
     & $specgenExe $modelsDir
 }
 finally {
+    if (Test-Path -Path $specgenExe) {
+        Remove-Item -Path $specgenExe -Force
+    }
+
     Pop-Location
 }
