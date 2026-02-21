@@ -93,7 +93,7 @@ public interface INetworkOperations
     /// 404 - Network or container not found.
     /// 500 - Server error.
     /// </remarks>
-    [System.Obsolete("Use INetworkOperations.PruneNetworksAsync")]
+    [Obsolete("Use INetworkOperations.PruneNetworksAsync")]
     Task DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters parameters = null, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>

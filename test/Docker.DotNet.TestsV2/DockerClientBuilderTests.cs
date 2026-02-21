@@ -234,8 +234,6 @@ public sealed class DockerClientBuilderTests
             return new Tuple<HttpMessageHandler, Uri>(new HttpClientHandler(), new Uri("http://localhost:2375"));
         }
 
-        public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
-            => throw new NotSupportedException();
 
         public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
             => throw new NotSupportedException();

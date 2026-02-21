@@ -10,83 +10,36 @@ public sealed class DockerClient : IDockerClient
 
     private readonly HttpClient _client;
 
-    private readonly Version? _requestedApiVersion;
+    private readonly ClientOptions _clientOptions;
 
-    private readonly Uri _endpointBaseUri;
-
-    private readonly IReadOnlyDictionary<string, string> _headers;
-
-    private readonly IDockerHandlerFactory _handlerFactory;
+    private readonly IStreamHijacker _hijack;
 
     internal DockerClient(
-        IDockerHandlerFactory handlerFactory,
         HttpMessageHandler handler,
         ClientOptions clientOptions,
-        Uri endpoint,
+        IStreamHijacker hijack,
         ILogger logger)
     {
-        _ = logger;
+        _client = new HttpClient(handler, true);
+        _client.Timeout = Timeout.InfiniteTimeSpan;
 
-        _requestedApiVersion = clientOptions.ApiVersion;
-        _endpointBaseUri = endpoint;
-        _headers = clientOptions.Headers;
-        _handlerFactory = handlerFactory;
+        _clientOptions = clientOptions;
+        _hijack = hijack;
 
-        Configuration = null!;
-        DefaultTimeout = clientOptions.Timeout;
-
-        Images = new ImageOperations(this);
-        Containers = new ContainerOperations(this);
         System = new SystemOperations(this);
+        Containers = new ContainerOperations(this);
+        Images = new ImageOperations(this);
         Networks = new NetworkOperations(this);
+        Volumes = new VolumeOperations(this);
         Secrets = new SecretsOperations(this);
         Configs = new ConfigOperations(this);
         Swarm = new SwarmOperations(this);
         Tasks = new TasksOperations(this);
-        Volumes = new VolumeOperations(this);
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
-
-        _client = new HttpClient(clientOptions.AuthProvider.ConfigureHandler(handler), true);
-        _client.Timeout = Timeout.InfiniteTimeSpan;
     }
 
-    internal DockerClient(DockerClientConfiguration configuration, Version? requestedApiVersion, IDockerHandlerFactory handlerFactory, ILogger? logger = null)
-    {
-        if (handlerFactory == null)
-        {
-            throw new ArgumentNullException(nameof(handlerFactory));
-        }
-
-        _requestedApiVersion = requestedApiVersion;
-        _headers = configuration.DefaultHttpRequestHeaders;
-        _handlerFactory = handlerFactory;
-
-        Configuration = configuration;
-        DefaultTimeout = configuration.DefaultTimeout;
-
-        Images = new ImageOperations(this);
-        Containers = new ContainerOperations(this);
-        System = new SystemOperations(this);
-        Networks = new NetworkOperations(this);
-        Secrets = new SecretsOperations(this);
-        Configs = new ConfigOperations(this);
-        Swarm = new SwarmOperations(this);
-        Tasks = new TasksOperations(this);
-        Volumes = new VolumeOperations(this);
-        Plugin = new PluginOperations(this);
-        Exec = new ExecOperations(this);
-
-        var (handler, endpoint) = _handlerFactory.CreateHandler(Configuration.EndpointBaseUri, Configuration, logger);
-
-        _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
-        _client.Timeout = Timeout.InfiniteTimeSpan;
-        _endpointBaseUri = endpoint;
-    }
-
-    public DockerClientConfiguration Configuration { get; }
-
-    public TimeSpan DefaultTimeout { get; set; }
+    public ISystemOperations System { get; }
 
     public IContainerOperations Containers { get; }
 
@@ -104,8 +57,6 @@ public sealed class DockerClient : IDockerClient
 
     public ITasksOperations Tasks { get; }
 
-    public ISystemOperations System { get; }
-
     public IPluginOperations Plugin { get; }
 
     public IExecOperations Exec { get; }
@@ -114,7 +65,6 @@ public sealed class DockerClient : IDockerClient
 
     public void Dispose()
     {
-        Configuration?.Dispose();
         _client.Dispose();
     }
 
@@ -187,7 +137,7 @@ public sealed class DockerClient : IDockerClient
         IDictionary<string, string>? headers,
         CancellationToken token)
     {
-        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, DefaultTimeout, token);
+        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, _clientOptions.Timeout, token);
     }
 
     internal Task MakeRequestAsync(
@@ -221,7 +171,7 @@ public sealed class DockerClient : IDockerClient
 
         if (typeof(T) == typeof(NoContent))
         {
-            return default;
+            return default!;
         }
 
         return await JsonSerializer.DeserializeAsync<T>(response.Content, token)
@@ -368,7 +318,7 @@ public sealed class DockerClient : IDockerClient
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
             .ConfigureAwait(false);
 
-        return await _handlerFactory.HijackStreamAsync(response.Content)
+        return await _hijack.HijackStreamAsync(response.Content)
             .ConfigureAwait(false);
     }
 
@@ -411,13 +361,13 @@ public sealed class DockerClient : IDockerClient
             throw new ArgumentNullException(nameof(path));
         }
 
-        var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_endpointBaseUri, _requestedApiVersion, path, queryString));
+        var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_clientOptions.Endpoint, _clientOptions.ApiVersion, path, queryString));
         request.Version = new Version(1, 1);
         request.Headers.Add("User-Agent", UserAgent);
 
         var customHeaders = headers == null
-            ? _headers
-            : _headers.Concat(headers);
+            ? _clientOptions.Headers
+            : _clientOptions.Headers.Concat(headers);
 
         foreach (var header in customHeaders)
         {
@@ -489,4 +439,4 @@ public sealed class DockerClient : IDockerClient
     private struct NoContent;
 }
 
-internal delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
+internal delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string? responseBody);

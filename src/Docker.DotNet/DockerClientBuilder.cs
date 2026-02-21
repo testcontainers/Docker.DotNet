@@ -205,6 +205,11 @@ public class DockerClientBuilder
         };
 
         var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
-        return new DockerClient(transportFactory, handler, ClientOptions, endpoint, Logger);
+
+        var clientOptions = ClientOptions with { Endpoint = endpoint };
+
+        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
+
+        return new DockerClient(authenticatedHandler, clientOptions, transportFactory, Logger);
     }
 }

@@ -2,11 +2,7 @@ namespace Docker.DotNet;
 
 public interface IDockerClient : IDisposable
 {
-    DockerClientConfiguration Configuration { get; }
-
-    TimeSpan DefaultTimeout { get; set; }
-
-    #region Endpoints
+    ISystemOperations System { get; }
 
     IContainerOperations Containers { get; }
 
@@ -24,11 +20,7 @@ public interface IDockerClient : IDisposable
 
     ITasksOperations Tasks { get; }
 
-    ISystemOperations System { get; }
-
     IPluginOperations Plugin { get; }
 
     IExecOperations Exec { get; }
-
-    #endregion Endpoints
 }

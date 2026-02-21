@@ -9,12 +9,6 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
     public static IDockerHandlerFactory<UnixSocketTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
-    {
-        var clientOptions = new ClientOptions { Endpoint = uri };
-        return CreateHandler(clientOptions, logger);
-    }
-
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new UnixSocketTransportOptions();

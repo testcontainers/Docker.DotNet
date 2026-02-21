@@ -38,7 +38,7 @@ internal class ContainerOperations : IContainerOperations
 
     public async Task<CreateContainerResponse> CreateContainerAsync(CreateContainerParameters parameters, CancellationToken cancellationToken = default)
     {
-        IQueryString qs = null;
+        IQueryString? qs = null;
 
         if (parameters == null)
         {
@@ -189,7 +189,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/resize", queryParameters, cancellationToken);
     }
 
-    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default)
+    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters? parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -349,6 +349,8 @@ internal class ContainerOperations : IContainerOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
+        Stream? stream;
+
         IQueryString queryParameters = new QueryString<ContainerPathStatParameters>(parameters);
 
         var response = await _client.MakeRequestForStreamedResponseAsync(new[] { NoSuchContainerHandler }, statOnly ? HttpMethod.Head : HttpMethod.Get, $"containers/{id}/archive", queryParameters, cancellationToken);
@@ -357,12 +359,22 @@ internal class ContainerOperations : IContainerOperations
 
         var bytes = Convert.FromBase64String(statHeader);
 
-        var pathStat = DockerClient.JsonSerializer.Deserialize<ContainerPathStatResponse>(bytes);
+        var stat = DockerClient.JsonSerializer.Deserialize<ContainerPathStatResponse>(bytes);
+
+        if (statOnly)
+        {
+            response.Body.Dispose();
+            stream = null;
+        }
+        else
+        {
+            stream = response.Body;
+        }
 
         return new ContainerArchiveResponse
         {
-            Stat = pathStat,
-            Stream = statOnly ? null : response.Body
+            Stat = stat,
+            Stream = stream
         };
     }
 
@@ -384,7 +396,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Put, $"containers/{id}/archive", queryParameters, data, cancellationToken);
     }
 
-    public async Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters parameters, CancellationToken cancellationToken)
+    public async Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters? parameters, CancellationToken cancellationToken)
     {
         var queryParameters = parameters == null ? null : new QueryString<ContainersPruneParameters>(parameters);
         return await _client.MakeRequestAsync<ContainersPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "containers/prune", queryParameters, cancellationToken).ConfigureAwait(false);
