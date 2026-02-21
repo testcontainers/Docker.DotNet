@@ -6,16 +6,22 @@ A tool that reflects the Docker client [engine-api](https://github.com/docker/en
 
 ## How to use:
 
-To update the source repositories please use the following from your `$GOPATH`:
+Use the update scripts from the repository root to fetch Docker API/client definitions for a specific [release tag](https://github.com/moby/moby/releases/) and regenerate [Docker.DotNet Models](../../src/Docker.DotNet/Models):
 
+```powershell
+.\tools\specgen\update-generated-code.ps1 -ReleaseTag docker-v29.1.5
 ```
-> go get -u github.com/moby/moby/api@<release-tag>
-> go get -u github.com/moby/moby/client@<release-tag>
+
+```bash
+./tools/specgen/update-generated-code.sh docker-v29.1.5
 ```
 
-Note: Since the docker library is not a go module the version go generates will look something like this  v17.12.0-ce-rc1.0.20200916142827-bd33bbf0497b+incompatible even though this is for v19.03.13. The commit hash bd33bbf0497b matches the commit hash of docker v 19.03.13
+The scripts will:
 
-Once you have the latest engine-api, call `update-generated-code.cmd` or `./update-generated-code.sh` (depending on your Operating System) to update the models in the [Docker.DotNet/Models](../../src/Docker.DotNet/Models) directory.
+- update `github.com/moby/moby/api` and `github.com/moby/moby/client` to the given release tag,
+- build `specgen`,
+- remove existing `*.Generated.cs` model files,
+- regenerate model files into [Docker.DotNet/Models](../../src/Docker.DotNet/Models).
 
 ----
 
@@ -63,7 +69,7 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Domainname")]
         public string Domainname { get; set; }
-        
+
         // etc...
     }
 }
@@ -71,7 +77,7 @@ namespace Docker.DotNet.Models
 
 Here you are actually seeing that the field values are marshalled in the request body based on the `JsonPropertyName` attribute. The resulting `JSON` will not contain the field if its value is equal to its default value in C#.
 
-A few customizations are taken in order to simplify the API even more. Take for example [RestartPolicyKind.cs](../../src/Docker.DotNet/Models/RestartPolicyKind.cs). You will see the generated model contains: 
+A few customizations are taken in order to simplify the API even more. Take for example [RestartPolicyKind.cs](../../src/Docker.DotNet/Models/RestartPolicyKind.cs). You will see the generated model contains:
 
 ```C#
 namespace Docker.DotNet.Models
