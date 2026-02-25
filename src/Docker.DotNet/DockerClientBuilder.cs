@@ -192,17 +192,7 @@ public class DockerClientBuilder
     /// <returns>A configured <see cref="DockerClient"/> instance.</returns>
     public virtual DockerClient Build()
     {
-        var scheme = ClientOptions.Endpoint.Scheme;
-
-        IDockerHandlerFactory transportFactory = scheme.ToLowerInvariant() switch
-        {
-            "npipe" => NPipe.DockerHandlerFactory.Instance,
-            "unix" => Unix.DockerHandlerFactory.Instance,
-            "tcp" or "http" or "https" => NativeHttpEnabled
-                ? NativeHttp.DockerHandlerFactory.Instance
-                : LegacyHttp.DockerHandlerFactory.Instance,
-            _ => throw new NotSupportedException($"The URI scheme '{scheme}' is not supported.")
-        };
+        var transportFactory = ResolveTransportFactory(ClientOptions.Endpoint.Scheme);
 
         var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
 
@@ -211,5 +201,23 @@ public class DockerClientBuilder
         var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
 
         return new DockerClient(authenticatedHandler, clientOptions, transportFactory, Logger);
+    }
+
+    /// <summary>
+    /// Resolves the transport handler factory for the provided endpoint URI scheme.
+    /// </summary>
+    /// <param name="scheme">The endpoint URI scheme.</param>
+    /// <returns>The selected transport handler factory.</returns>
+    protected virtual IDockerHandlerFactory ResolveTransportFactory(string scheme)
+    {
+        return scheme.ToLowerInvariant() switch
+        {
+            "npipe" => NPipe.DockerHandlerFactory.Instance,
+            "unix" => Unix.DockerHandlerFactory.Instance,
+            "tcp" or "http" or "https" => NativeHttpEnabled
+                ? NativeHttp.DockerHandlerFactory.Instance
+                : LegacyHttp.DockerHandlerFactory.Instance,
+            _ => throw new NotSupportedException($"The URI scheme '{scheme}' is not supported.")
+        };
     }
 }
