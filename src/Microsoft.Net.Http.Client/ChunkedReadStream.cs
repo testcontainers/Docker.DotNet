@@ -3,7 +3,9 @@ namespace Microsoft.Net.Http.Client;
 internal sealed class ChunkedReadStream : Stream
 {
     private readonly BufferedReadStream _inner;
+
     private int _chunkBytesRemaining;
+
     private bool _done;
 
     public ChunkedReadStream(BufferedReadStream stream)
@@ -12,64 +14,43 @@ internal sealed class ChunkedReadStream : Stream
     }
 
     public override bool CanRead
-    {
-        get { return _inner.CanRead; }
-    }
+        => _inner.CanRead;
 
     public override bool CanSeek
-    {
-        get { return false; }
-    }
-
-    public override bool CanTimeout
-    {
-        get { return _inner.CanTimeout; }
-    }
+        => false;
 
     public override bool CanWrite
-    {
-        get { return false; }
-    }
+        => false;
+
+    public override bool CanTimeout
+        => _inner.CanTimeout;
 
     public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+        => throw new NotSupportedException();
 
     public override long Position
     {
-        get { throw new NotSupportedException(); }
-        set { throw new NotSupportedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     public override int ReadTimeout
     {
-        get
-        {
-            return _inner.ReadTimeout;
-        }
-        set
-        {
-            _inner.ReadTimeout = value;
-        }
+        get => _inner.ReadTimeout;
+        set => _inner.ReadTimeout = value;
     }
 
     public override int WriteTimeout
     {
-        get
-        {
-            return _inner.WriteTimeout;
-        }
-        set
-        {
-            _inner.WriteTimeout = value;
-        }
+        get => _inner.WriteTimeout;
+        set => _inner.WriteTimeout = value;
     }
 
+    public override void Flush()
+        => _inner.Flush();
+
     public override int Read(byte[] buffer, int offset, int count)
-    {
-        throw new NotSupportedException();
-    }
+        => throw new NotSupportedException();
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -122,28 +103,15 @@ internal sealed class ChunkedReadStream : Stream
         return readBytesCount;
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        _inner.Write(buffer, offset, count);
-    }
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        return _inner.WriteAsync(buffer, offset, count, cancellationToken);
-    }
-
     public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotSupportedException();
-    }
+        => throw new NotSupportedException();
 
     public override void SetLength(long value)
-    {
-        throw new NotSupportedException();
-    }
+        => throw new NotSupportedException();
 
-    public override void Flush()
-    {
-        _inner.Flush();
-    }
+    public override void Write(byte[] buffer, int offset, int count)
+        => _inner.Write(buffer, offset, count);
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => _inner.WriteAsync(buffer, offset, count, cancellationToken);
 }

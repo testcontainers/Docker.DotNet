@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.Unix;
+namespace Docker.DotNet.Unix;
 
 /// <summary>
 /// Represents transport options for the Unix domain socket transport.

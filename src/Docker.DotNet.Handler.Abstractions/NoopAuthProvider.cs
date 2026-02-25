@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.Handler.Abstractions;
+namespace Docker.DotNet.Handler.Abstractions;
 
 /// <summary>
 /// An authentication provider that does not use TLS and performs no authentication.

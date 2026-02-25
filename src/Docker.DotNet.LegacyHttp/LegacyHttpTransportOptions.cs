@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.LegacyHttp;
+namespace Docker.DotNet.LegacyHttp;
 
 /// <summary>
 /// Represents transport options for the legacy HTTP transport.

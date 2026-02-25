@@ -1,6 +1,6 @@
 namespace Microsoft.Net.Http.Client;
 
-internal class ContentLengthReadStream : Stream
+internal sealed class ContentLengthReadStream : Stream
 {
     private readonly Stream _inner;
     private long _bytesRemaining;
@@ -13,34 +13,24 @@ internal class ContentLengthReadStream : Stream
     }
 
     public override bool CanRead
-    {
-        get { return !_disposed; }
-    }
+        => !_disposed;
 
     public override bool CanSeek
-    {
-        get { return false; }
-    }
-
-    public override bool CanTimeout
-    {
-        get { return _inner.CanTimeout; }
-    }
+        => false;
 
     public override bool CanWrite
-    {
-        get { return false; }
-    }
+        => false;
+
+    public override bool CanTimeout
+        => _inner.CanTimeout;
 
     public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+        => throw new NotSupportedException();
 
     public override long Position
     {
-        get { throw new NotSupportedException(); }
-        set { throw new NotSupportedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     public override int ReadTimeout
@@ -70,6 +60,9 @@ internal class ContentLengthReadStream : Stream
             _inner.WriteTimeout = value;
         }
     }
+
+    public override void Flush()
+        => throw new NotSupportedException();
 
     private void UpdateBytesRemaining(int read)
     {
@@ -120,6 +113,18 @@ internal class ContentLengthReadStream : Stream
         return read;
     }
 
+    public override long Seek(long offset, SeekOrigin origin)
+        => throw new NotSupportedException();
+
+    public override void SetLength(long value)
+        => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count)
+        => throw new NotSupportedException();
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => throw new NotSupportedException();
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -135,30 +140,5 @@ internal class ContentLengthReadStream : Stream
         {
             throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
         }
-    }
-
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        throw new NotSupportedException();
-    }
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        throw new NotSupportedException();
-    }
-
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotSupportedException();
-    }
-
-    public override void SetLength(long value)
-    {
-        throw new NotSupportedException();
-    }
-
-    public override void Flush()
-    {
-        throw new NotSupportedException();
     }
 }

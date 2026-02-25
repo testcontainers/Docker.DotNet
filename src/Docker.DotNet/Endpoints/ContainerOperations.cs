@@ -122,10 +122,10 @@ internal class ContainerOperations : IContainerOperations
         var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
             .ConfigureAwait(false);
 
-        var stream = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
+        var response = await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(response, !containerInspectResponse.Config.Tty);
     }
 
     public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default)
@@ -138,17 +138,18 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerFileSystemChangeResponse[]>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/changes", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken)
+    public async Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        return _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/export", cancellationToken);
+        return await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/export", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken)
+    public async Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -161,16 +162,34 @@ internal class ContainerOperations : IContainerOperations
         }
 
         IQueryString queryParameters = new QueryString<ContainerStatsParameters>(parameters);
-        return _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/stats", queryParameters, null, null, cancellationToken);
+
+        return await _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/stats", queryParameters, null, null, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        if (progress == null)
+        {
+            throw new ArgumentNullException(nameof(progress));
+        }
+
+        IQueryString queryParameters = new QueryString<ContainerStatsParameters>(parameters);
+
         return StreamUtil.MonitorStreamForMessagesAsync(
-            GetContainerStatsAsync(id, parameters, cancellationToken),
-            _client,
-            cancellationToken,
-            progress);
+            _client.MakeRequestForStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/stats", queryParameters, null, null, cancellationToken),
+            progress,
+            cancellationToken);
     }
 
     public Task ResizeContainerTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default)
@@ -305,10 +324,10 @@ internal class ContainerOperations : IContainerOperations
         var containerInspectResponse = await InspectContainerAsync(id, cancellationToken)
             .ConfigureAwait(false);
 
-        var stream = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
+        var response = await _client.MakeRequestForHijackedStreamAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(stream, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(response, !containerInspectResponse.Config.Tty);
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default)
@@ -363,12 +382,12 @@ internal class ContainerOperations : IContainerOperations
 
         if (statOnly)
         {
-            response.Body.Dispose();
+            response.Dispose();
             stream = null;
         }
         else
         {
-            stream = response.Body;
+            stream = response;
         }
 
         return new ContainerArchiveResponse

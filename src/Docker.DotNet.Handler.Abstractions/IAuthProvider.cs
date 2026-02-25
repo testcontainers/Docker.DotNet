@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.Handler.Abstractions;
+namespace Docker.DotNet.Handler.Abstractions;
 
 /// <summary>
 /// Provides authentication and transport security configuration for a Docker client connection.

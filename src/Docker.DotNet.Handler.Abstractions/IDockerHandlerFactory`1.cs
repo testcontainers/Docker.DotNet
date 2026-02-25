@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.Handler.Abstractions;
+namespace Docker.DotNet.Handler.Abstractions;
 
 /// <summary>
 /// Creates HTTP handlers using transport-specific options.

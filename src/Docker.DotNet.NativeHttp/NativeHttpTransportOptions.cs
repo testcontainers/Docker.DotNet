@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.NativeHttp;
+namespace Docker.DotNet.NativeHttp;
 
 /// <summary>
 /// Represents transport options for the native HTTP transport.

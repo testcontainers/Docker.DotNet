@@ -2,7 +2,9 @@ namespace Docker.DotNet;
 
 internal class PluginOperations : IPluginOperations
 {
-    internal static readonly ApiResponseErrorHandlingDelegate NoSuchPluginHandler = (statusCode, responseBody) =>
+    private const string TarContentType = "application/x-tar";
+
+    private static readonly ApiResponseErrorHandlingDelegate NoSuchPluginHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.NotFound)
         {
@@ -11,7 +13,6 @@ internal class PluginOperations : IPluginOperations
     };
 
     private readonly DockerClient _client;
-    private const string TarContentType = "application/x-tar";
 
     internal PluginOperations(DockerClient client)
     {
@@ -50,11 +51,11 @@ internal class PluginOperations : IPluginOperations
         var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
 
         IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
+
         return StreamUtil.MonitorStreamForMessagesAsync(
-            _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/pull", queryParameters, data, null, CancellationToken.None),
-            _client,
-            cancellationToken,
-            progress);
+            _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/pull", queryParameters, data, null, cancellationToken),
+            progress,
+            cancellationToken);
     }
 
     public async Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken)
