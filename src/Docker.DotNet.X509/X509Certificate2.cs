@@ -8,7 +8,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 
-public static class X509Certificate2
+internal static class X509Certificate2
 {
     private static readonly X509CertificateParser CertificateParser = new X509CertificateParser();
 

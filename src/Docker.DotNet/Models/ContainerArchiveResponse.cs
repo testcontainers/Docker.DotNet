@@ -1,8 +1,8 @@
 namespace Docker.DotNet.Models;
 
-public class ContainerArchiveResponse
+public sealed record ContainerArchiveResponse
 {
-    public ContainerPathStatResponse Stat { get; set; }
+    public ContainerPathStatResponse Stat { get; set; } = null!;
 
-    public Stream Stream { get; set; }
+    public Stream? Stream { get; set; }
 }

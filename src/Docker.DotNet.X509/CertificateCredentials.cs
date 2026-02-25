@@ -1,6 +1,6 @@
 namespace Docker.DotNet.X509;
 
-public class CertificateCredentials : Credentials, IAuthProvider
+public class CertificateCredentials : IAuthProvider
 {
     private readonly X509Certificate2 _certificate;
 
@@ -13,18 +13,7 @@ public class CertificateCredentials : Credentials, IAuthProvider
 
     public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
 
-    public override void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    public override bool IsTlsCredentials()
-    {
-        return true;
-    }
-
-    public override HttpMessageHandler GetHandler(HttpMessageHandler handler)
+    public HttpMessageHandler ConfigureHandler(HttpMessageHandler handler)
     {
 #if NET6_0_OR_GREATER
         if (handler is SocketsHttpHandler socketsHandler)
@@ -55,14 +44,5 @@ public class CertificateCredentials : Credentials, IAuthProvider
         managedHandler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
 
         return handler;
-    }
-
-    public HttpMessageHandler ConfigureHandler(HttpMessageHandler handler)
-    {
-        return GetHandler(handler);
-    }
-
-    protected virtual void Dispose(bool _)
-    {
     }
 }

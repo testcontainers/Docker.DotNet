@@ -124,7 +124,7 @@ internal class ContentLengthReadStream : Stream
     {
         if (disposing)
         {
-            // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
+            // TODO: Sync drain with timeout if small number of bytes remaining? This will let us re-use the connection.
             _inner.Dispose();
         }
     }

@@ -192,9 +192,25 @@ public class DockerClientBuilder
     /// <returns>A configured <see cref="DockerClient"/> instance.</returns>
     public virtual DockerClient Build()
     {
-        var scheme = ClientOptions.Endpoint.Scheme;
+        var transportFactory = ResolveTransportFactory(ClientOptions.Endpoint.Scheme);
 
-        IDockerHandlerFactory transportFactory = scheme.ToLowerInvariant() switch
+        var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
+
+        var clientOptions = ClientOptions with { Endpoint = endpoint };
+
+        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
+
+        return new DockerClient(authenticatedHandler, clientOptions, transportFactory, Logger);
+    }
+
+    /// <summary>
+    /// Resolves the transport handler factory for the provided endpoint URI scheme.
+    /// </summary>
+    /// <param name="scheme">The endpoint URI scheme.</param>
+    /// <returns>The selected transport handler factory.</returns>
+    protected virtual IDockerHandlerFactory ResolveTransportFactory(string scheme)
+    {
+        return scheme.ToLowerInvariant() switch
         {
             "npipe" => NPipe.DockerHandlerFactory.Instance,
             "unix" => Unix.DockerHandlerFactory.Instance,
@@ -203,8 +219,5 @@ public class DockerClientBuilder
                 : LegacyHttp.DockerHandlerFactory.Instance,
             _ => throw new NotSupportedException($"The URI scheme '{scheme}' is not supported.")
         };
-
-        var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
-        return new DockerClient(transportFactory, handler, ClientOptions, endpoint, Logger);
     }
 }

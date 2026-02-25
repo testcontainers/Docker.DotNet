@@ -9,13 +9,6 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
     public static IDockerHandlerFactory<NPipeTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
-    {
-        var transportOptions = new NPipeTransportOptions { ConnectTimeout = configuration.NamedPipeConnectTimeout };
-        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
-        return CreateHandler(transportOptions, clientOptions, logger);
-    }
-
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new NPipeTransportOptions();

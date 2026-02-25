@@ -15,12 +15,6 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
     public static IDockerHandlerFactory<NativeHttpTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
-    {
-        var clientOptions = new ClientOptions { Endpoint = uri, AuthProvider = new DelegateAuthProvider(configuration) };
-        return CreateHandler(clientOptions, logger);
-    }
-
     public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new NativeHttpTransportOptions();

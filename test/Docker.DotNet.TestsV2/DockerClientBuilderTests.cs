@@ -119,25 +119,21 @@ public sealed class DockerClientBuilderTests
     [Theory]
     [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
     [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
-    public void Build_UsesExpectedFactory_ForSocketSchemes(string endpoint, Type expectedFactoryType)
+    public void ResolveTransportFactory_UsesExpectedFactory_ForSocketSchemes(string endpoint, Type expectedFactoryType)
     {
-        var client = new DockerClientBuilder()
-            .WithEndpoint(new Uri(endpoint))
-            .Build();
+        var builder = new TestDockerClientBuilder();
 
-        var actualFactory = GetPrivateField<IDockerHandlerFactory>(client, "_handlerFactory");
+        var actualFactory = builder.ResolveTransportFactory(new Uri(endpoint));
 
         Assert.IsType(expectedFactoryType, actualFactory);
     }
 
     [Fact]
-    public void Build_WithHttpEndpoint_UsesConfiguredDefaultHttpFactory()
+    public void ResolveTransportFactory_WithHttpScheme_UsesConfiguredDefaultHttpFactory()
     {
-        var client = new DockerClientBuilder()
-            .WithEndpoint(new Uri("http://localhost:2375"))
-            .Build();
+        var builder = new TestDockerClientBuilder();
 
-        var actualFactory = GetPrivateField<IDockerHandlerFactory>(client, "_handlerFactory");
+        var actualFactory = builder.ResolveTransportFactory(new Uri("http://localhost:2375"));
 
         var expectedFactoryType = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1"
             ? typeof(NativeHttp.DockerHandlerFactory)
@@ -153,7 +149,7 @@ public sealed class DockerClientBuilderTests
 
         var transportOptions = new FakeTransportOptions();
 
-        var client = new DockerClientBuilder()
+        _ = new DockerClientBuilder()
             .WithTransportOptions(transportFactory, transportOptions)
             .WithEndpoint(new Uri("http://localhost:2375"))
             .WithApiVersion(new Version(1, 52))
@@ -167,9 +163,6 @@ public sealed class DockerClientBuilderTests
         Assert.Equal("value", transportFactory.LastClientOptions.Headers["x-test"]);
         Assert.Equal(new Version(1, 52), transportFactory.LastClientOptions.ApiVersion);
         Assert.Equal(TimeSpan.FromSeconds(1), transportFactory.LastClientOptions.Timeout);
-
-        var actualFactory = GetPrivateField<IDockerHandlerFactory>(client, "_handlerFactory");
-        Assert.Same(transportFactory, actualFactory);
     }
 
     [Fact]
@@ -190,22 +183,16 @@ public sealed class DockerClientBuilderTests
             builder.WithTransportOptions(new UnixSocketTransportOptions()));
     }
 
-    private static T GetPrivateField<T>(object instance, string fieldName)
-    {
-        var field = instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.NotNull(field);
-
-        var value = field!.GetValue(instance);
-        Assert.NotNull(value);
-
-        return Assert.IsAssignableFrom<T>(value);
-    }
-
     private sealed class TestDockerClientBuilder : DockerClientBuilder
     {
-        public new ClientOptions ClientOptions => base.ClientOptions;
+        public new ClientOptions ClientOptions
+            => base.ClientOptions;
 
-        public new ILogger Logger => base.Logger;
+        public new ILogger Logger
+            => base.Logger;
+
+        public IDockerHandlerFactory ResolveTransportFactory(Uri endpoint)
+            => base.ResolveTransportFactory(endpoint.Scheme);
     }
 
     private sealed class PassThroughAuthProvider(bool tlsEnabled) : IAuthProvider
@@ -234,8 +221,6 @@ public sealed class DockerClientBuilderTests
             return new Tuple<HttpMessageHandler, Uri>(new HttpClientHandler(), new Uri("http://localhost:2375"));
         }
 
-        public Tuple<HttpMessageHandler, Uri> CreateHandler(Uri uri, IDockerClientConfiguration configuration, ILogger logger)
-            => throw new NotSupportedException();
 
         public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
             => throw new NotSupportedException();
