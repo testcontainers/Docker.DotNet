@@ -35,7 +35,7 @@ internal class SystemOperations : ISystemOperations
         return await _client.MakeRequestAsync<SystemInfoResponse>(_client.NoErrorHandlers, HttpMethod.Get, "info", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken)
+    public async Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken)
     {
         if (parameters == null)
         {
@@ -43,20 +43,28 @@ internal class SystemOperations : ISystemOperations
         }
 
         IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
-        return _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken);
+
+        return await _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task MonitorEventsAsync(ContainerEventsParameters parameters, IProgress<Message> progress, CancellationToken cancellationToken = default(CancellationToken))
     {
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
         if (progress == null)
         {
             throw new ArgumentNullException(nameof(progress));
         }
 
+        IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
+
         return StreamUtil.MonitorStreamForMessagesAsync(
-            MonitorEventsAsync(parameters, cancellationToken),
-            _client,
-            cancellationToken,
-            progress);
+            _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken),
+            progress,
+            cancellationToken);
     }
 }

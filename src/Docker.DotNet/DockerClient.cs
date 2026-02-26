@@ -178,7 +178,7 @@ public sealed class DockerClient : IDockerClient
             .ConfigureAwait(false);
     }
 
-    internal Task<Stream> MakeRequestForStreamAsync(
+    internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -187,7 +187,7 @@ public sealed class DockerClient : IDockerClient
         return MakeRequestForStreamAsync(errorHandlers, method, path, null, token);
     }
 
-    internal Task<Stream> MakeRequestForStreamAsync(
+    internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -197,7 +197,7 @@ public sealed class DockerClient : IDockerClient
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, null, token);
     }
 
-    internal Task<Stream> MakeRequestForStreamAsync(
+    internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -208,7 +208,7 @@ public sealed class DockerClient : IDockerClient
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, null, token);
     }
 
-    internal Task<Stream> MakeRequestForStreamAsync(
+    internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -220,7 +220,7 @@ public sealed class DockerClient : IDockerClient
         return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, token);
     }
 
-    internal async Task<Stream> MakeRequestForStreamAsync(
+    internal async Task<StandardStreamResponse> MakeRequestForStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -233,11 +233,21 @@ public sealed class DockerClient : IDockerClient
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
             .ConfigureAwait(false);
 
-        await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
-            .ConfigureAwait(false);
+        try
+        {
+            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
+                .ConfigureAwait(false);
 
-        return await response.Content.ReadAsStreamAsync()
-            .ConfigureAwait(false);
+            var stream = await response.Content.ReadAsStreamAsync()
+                .ConfigureAwait(false);
+
+            return new StandardStreamResponse(response, stream);
+        }
+        catch
+        {
+            response.Dispose();
+            throw;
+        }
     }
 
     internal async Task<HttpResponseMessage> MakeRequestForRawResponseAsync(
@@ -257,7 +267,7 @@ public sealed class DockerClient : IDockerClient
         return response;
     }
 
-    internal async Task<DockerApiStreamedResponse> MakeRequestForStreamedResponseAsync(
+    internal async Task<StandardStreamResponse> MakeRequestForStreamedResponseAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -267,16 +277,24 @@ public sealed class DockerClient : IDockerClient
         var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
-            .ConfigureAwait(false);
+        try
+        {
+            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
+                .ConfigureAwait(false);
 
-        var body = await response.Content.ReadAsStreamAsync()
-            .ConfigureAwait(false);
+            var stream = await response.Content.ReadAsStreamAsync()
+                .ConfigureAwait(false);
 
-        return new DockerApiStreamedResponse(response.StatusCode, body, response.Headers);
+            return new StandardStreamResponse(response, stream);
+        }
+        catch
+        {
+            response.Dispose();
+            throw;
+        }
     }
 
-    internal Task<WriteClosableStream> MakeRequestForHijackedStreamAsync(
+    internal Task<HijackedStreamResponse> MakeRequestForHijackedStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -288,7 +306,7 @@ public sealed class DockerClient : IDockerClient
         return MakeRequestForHijackedStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, cancellationToken);
     }
 
-    internal async Task<WriteClosableStream> MakeRequestForHijackedStreamAsync(
+    internal async Task<HijackedStreamResponse> MakeRequestForHijackedStreamAsync(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
@@ -315,11 +333,21 @@ public sealed class DockerClient : IDockerClient
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 
-        await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
-            .ConfigureAwait(false);
+        try
+        {
+            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
+                .ConfigureAwait(false);
 
-        return await _hijack.HijackStreamAsync(response.Content)
-            .ConfigureAwait(false);
+            var stream = await _hijack.HijackStreamAsync(response.Content)
+                .ConfigureAwait(false);
+
+            return new HijackedStreamResponse(response, stream);
+        }
+        catch
+        {
+            response.Dispose();
+            throw;
+        }
     }
 
     private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
@@ -336,9 +364,11 @@ public sealed class DockerClient : IDockerClient
 
         if (Timeout.InfiniteTimeSpan == timeout)
         {
-            var tcs = new TaskCompletionSource<HttpResponseMessage>();
+            var tcs = new TaskCompletionSource<HttpResponseMessage>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
 
-            using var disposable = cancellationToken.Register(() => tcs.SetCanceled());
+            using var registration = cancellationToken.Register(
+                () => tcs.TrySetCanceled(cancellationToken));
 
             return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
                 .ConfigureAwait(false);

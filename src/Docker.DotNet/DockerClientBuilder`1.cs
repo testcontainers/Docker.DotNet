@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet;
+namespace Docker.DotNet;
 
 /// <summary>
 /// Builds a <see cref="DockerClient"/> using an explicitly selected transport handler.

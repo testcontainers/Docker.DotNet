@@ -97,19 +97,25 @@ public sealed class MultiplexedStream : IDisposable, IPeekableStream
                 i += readBytesCount;
             }
 
-            if (Enum.IsDefined(typeof(TargetStream), _header[0]))
+            _target = _header[0] switch
             {
-                _target = (TargetStream)_header[0];
-            }
-            else
+                (byte)TargetStream.StandardIn => TargetStream.StandardIn,
+                (byte)TargetStream.StandardOut => TargetStream.StandardOut,
+                (byte)TargetStream.StandardError => TargetStream.StandardError,
+                _ => throw new IOException($"Unknown stream type: '{_header[0]}'.")
+            };
+
+            var remaining = ((uint)_header[4] << 24) |
+                            ((uint)_header[5] << 16) |
+                            ((uint)_header[6] << 8) |
+                            _header[7];
+
+            if (remaining > int.MaxValue)
             {
-                throw new IOException($"Unknown stream type: '{_header[0]}'.");
+                throw new IOException($"Invalid frame length: '{remaining}'.");
             }
 
-            _remaining = (_header[4] << 24) |
-                         (_header[5] << 16) |
-                         (_header[6] << 8) |
-                         _header[7];
+            _remaining = (int)remaining;
         }
 
         var remainingBytesCount = Math.Min(count, _remaining);
@@ -130,20 +136,13 @@ public sealed class MultiplexedStream : IDisposable, IPeekableStream
     {
         using MemoryStream stdoutMemoryStream = new MemoryStream(), stderrMemoryStream = new MemoryStream();
 
-        using StreamReader stdoutStreamReader = new StreamReader(stdoutMemoryStream), stderrStreamReader = new StreamReader(stderrMemoryStream);
-
         await CopyOutputToAsync(Stream.Null, stdoutMemoryStream, stderrMemoryStream, cancellationToken)
             .ConfigureAwait(false);
 
-        stdoutMemoryStream.Seek(0, SeekOrigin.Begin);
-        stderrMemoryStream.Seek(0, SeekOrigin.Begin);
+        var stdout = Encoding.UTF8.GetString(stdoutMemoryStream.GetBuffer(), 0, (int)stdoutMemoryStream.Length);
+        var stderr = Encoding.UTF8.GetString(stderrMemoryStream.GetBuffer(), 0, (int)stderrMemoryStream.Length);
 
-        var stdoutReadTask = stdoutStreamReader.ReadToEndAsync();
-        var stderrReadTask = stderrStreamReader.ReadToEndAsync();
-        await Task.WhenAll(stdoutReadTask, stderrReadTask)
-            .ConfigureAwait(false);
-
-        return (stdoutReadTask.Result, stderrReadTask.Result);
+        return (stdout, stderr);
     }
 
     public async Task CopyFromAsync(Stream input, CancellationToken cancellationToken)

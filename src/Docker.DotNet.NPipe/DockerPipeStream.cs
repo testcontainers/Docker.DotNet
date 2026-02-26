@@ -3,6 +3,7 @@ namespace Docker.DotNet.NPipe;
 internal sealed class DockerPipeStream : WriteClosableStream, IPeekableStream
 {
     private readonly EventWaitHandle _event = new EventWaitHandle(false, EventResetMode.AutoReset);
+
     private readonly PipeStream _stream;
 
     public DockerPipeStream(PipeStream stream)
@@ -15,23 +16,25 @@ internal sealed class DockerPipeStream : WriteClosableStream, IPeekableStream
         _stream = stream;
     }
 
-    public override bool CanCloseWrite => true;
+    public override bool CanRead
+        => true;
 
-    public override bool CanRead => true;
+    public override bool CanSeek
+        => false;
 
-    public override bool CanSeek => false;
+    public override bool CanWrite
+        => true;
 
-    public override bool CanWrite => true;
+    public override bool CanCloseWrite
+        => true;
 
     public override long Length
-    {
-        get { throw new NotImplementedException(); }
-    }
+        => throw new NotSupportedException();
 
     public override long Position
     {
-        get { throw new NotImplementedException(); }
-        set { throw new NotImplementedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true)]
@@ -42,6 +45,48 @@ internal sealed class DockerPipeStream : WriteClosableStream, IPeekableStream
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool PeekNamedPipe(SafeHandle handle, byte[] buffer, uint nBufferSize, ref uint bytesRead, ref uint bytesAvail, ref uint bytesLeftThisMessage);
+
+    public override void Flush()
+        => throw new NotSupportedException();
+
+    public override int Read(byte[] buffer, int offset, int count)
+        => _stream.Read(buffer, offset, count);
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => _stream.ReadAsync(buffer, offset, count, cancellationToken);
+
+    public bool Peek(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
+    {
+        peeked = 0;
+        available = 0;
+        remaining = 0;
+
+        bool aPeekedSuccess = PeekNamedPipe(
+            _stream.SafePipeHandle,
+            buffer, toPeek,
+            ref peeked, ref available, ref remaining);
+
+        var error = Marshal.GetLastWin32Error();
+
+        if (error == 0 && aPeekedSuccess)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+        => throw new NotSupportedException();
+
+    public override void SetLength(long value)
+        => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count)
+        => _stream.Write(buffer, offset, count);
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => _stream.WriteAsync(buffer, offset, count, cancellationToken);
 
     public override void CloseWrite()
     {
@@ -73,62 +118,6 @@ internal sealed class DockerPipeStream : WriteClosableStream, IPeekableStream
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
             }
         }
-    }
-
-    public override void Flush()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override int Read(byte[] buffer, int offset, int count)
-    {
-        return _stream.Read(buffer, offset, count);
-    }
-
-    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        return _stream.ReadAsync(buffer, offset, count, cancellationToken);
-    }
-
-    public bool Peek(byte[] buffer, uint toPeek, out uint peeked, out uint available, out uint remaining)
-    {
-        peeked = 0;
-        available = 0;
-        remaining = 0;
-
-        bool aPeekedSuccess = PeekNamedPipe(
-            _stream.SafePipeHandle,
-            buffer, toPeek,
-            ref peeked, ref available, ref remaining);
-
-        var error = Marshal.GetLastWin32Error();
-
-        if (error == 0 && aPeekedSuccess)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void SetLength(long value)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        _stream.Write(buffer, offset, count);
-    }
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        return _stream.WriteAsync(buffer, offset, count, cancellationToken);
     }
 
     protected override void Dispose(bool disposing)

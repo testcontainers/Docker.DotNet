@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 internal class SwarmOperations : ISwarmOperations
 {
-    internal static readonly ApiResponseErrorHandlingDelegate SwarmResponseHandler = (statusCode, responseBody) =>
+    private static readonly ApiResponseErrorHandlingDelegate SwarmResponseHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.ServiceUnavailable)
         {
@@ -139,7 +139,7 @@ internal class SwarmOperations : ISwarmOperations
         return await _client.MakeRequestAsync<ServiceUpdateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, $"services/{id}/update", query, body, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -152,7 +152,9 @@ internal class SwarmOperations : ISwarmOperations
         }
 
         IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
-        return _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken);
+
+        return await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<MultiplexedStream> GetServiceLogsAsync(string id, bool tty, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
@@ -169,9 +171,9 @@ internal class SwarmOperations : ISwarmOperations
 
         IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
 
-        Stream result = await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken).ConfigureAwait(false);
+        var response = await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken).ConfigureAwait(false);
 
-        return new MultiplexedStream(result, !tty);
+        return new MultiplexedStream(response, !tty);
     }
 
     async Task ISwarmOperations.UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken)

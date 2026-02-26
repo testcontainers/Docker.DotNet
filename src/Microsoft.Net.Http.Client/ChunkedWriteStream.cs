@@ -11,52 +11,41 @@ internal sealed class ChunkedWriteStream : Stream
         _inner = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
-    public override bool CanRead => false;
+    public override bool CanRead
+        => false;
 
-    public override bool CanSeek => false;
+    public override bool CanSeek
+        => false;
 
-    public override bool CanWrite => true;
+    public override bool CanWrite
+        => true;
 
     public override long Length
-    {
-        get { throw new NotImplementedException(); }
-    }
+        => throw new NotSupportedException();
 
     public override long Position
     {
-        get { throw new NotImplementedException(); }
-        set { throw new NotImplementedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     public override void Flush()
-    {
-        _inner.Flush();
-    }
+        => _inner.Flush();
 
     public override Task FlushAsync(CancellationToken cancellationToken)
-    {
-        return _inner.FlushAsync(cancellationToken);
-    }
+        => _inner.FlushAsync(cancellationToken);
 
     public override int Read(byte[] buffer, int offset, int count)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotSupportedException();
 
     public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotSupportedException();
 
     public override void SetLength(long value)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotSupportedException();
 
     public override void Write(byte[] buffer, int offset, int count)
-    {
-        throw new NotSupportedException();
-    }
+        => throw new NotSupportedException();
 
     public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -84,7 +73,5 @@ internal sealed class ChunkedWriteStream : Stream
     }
 
     public Task EndContentAsync(CancellationToken cancellationToken)
-    {
-        return _inner.WriteAsync(EndOfContentBytes, 0, EndOfContentBytes.Length, cancellationToken);
-    }
+        => _inner.WriteAsync(EndOfContentBytes, 0, EndOfContentBytes.Length, cancellationToken);
 }

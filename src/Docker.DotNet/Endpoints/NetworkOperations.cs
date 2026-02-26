@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 internal class NetworkOperations : INetworkOperations
 {
-    internal static readonly ApiResponseErrorHandlingDelegate NoSuchNetworkHandler = (statusCode, responseBody) =>
+    private static readonly ApiResponseErrorHandlingDelegate NoSuchNetworkHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.NotFound)
         {

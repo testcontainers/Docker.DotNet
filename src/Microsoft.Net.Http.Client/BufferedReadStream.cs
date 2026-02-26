@@ -3,11 +3,17 @@ namespace Microsoft.Net.Http.Client;
 internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 {
     private readonly Stream _inner;
+
     private readonly Socket _socket;
+
     private readonly byte[] _buffer;
+
     private readonly ILogger _logger;
+
     private int _bufferRefCount;
+
     private int _bufferOffset;
+
     private int _bufferCount;
 
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
@@ -25,37 +31,28 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
     }
 
     public override bool CanRead
-    {
-        get { return _inner.CanRead || _bufferCount > 0; }
-    }
+        => _inner.CanRead || _bufferCount > 0;
 
     public override bool CanSeek
-    {
-        get { return false; }
-    }
-
-    public override bool CanTimeout
-    {
-        get { return _inner.CanTimeout; }
-    }
+        => false;
 
     public override bool CanWrite
-    {
-        get { return _inner.CanWrite; }
-    }
+        => _inner.CanWrite;
+
+    public override bool CanTimeout
+        => _inner.CanTimeout;
+
+    public override bool CanCloseWrite
+        => _socket != null || _inner is WriteClosableStream;
 
     public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+        => throw new NotSupportedException();
 
     public override long Position
     {
-        get { throw new NotSupportedException(); }
-        set { throw new NotSupportedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
-
-    public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
 
     protected override void Dispose(bool disposing)
     {
@@ -72,35 +69,11 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         base.Dispose(disposing);
     }
 
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotSupportedException();
-    }
-
-    public override void SetLength(long value)
-    {
-        throw new NotSupportedException();
-    }
-
     public override void Flush()
-    {
-        _inner.Flush();
-    }
+        => _inner.Flush();
 
     public override Task FlushAsync(CancellationToken cancellationToken)
-    {
-        return _inner.FlushAsync(cancellationToken);
-    }
-
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        _inner.Write(buffer, offset, count);
-    }
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        return _inner.WriteAsync(buffer, offset, count, cancellationToken);
-    }
+        => _inner.FlushAsync(cancellationToken);
 
     public override int Read(byte[] buffer, int offset, int count)
     {
@@ -123,6 +96,18 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
         return _inner.ReadAsync(buffer, offset, count, cancellationToken);
     }
+
+    public override long Seek(long offset, SeekOrigin origin)
+        => throw new NotSupportedException();
+
+    public override void SetLength(long value)
+        => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count)
+        => _inner.Write(buffer, offset, count);
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => _inner.WriteAsync(buffer, offset, count, cancellationToken);
 
     public override void CloseWrite()
     {

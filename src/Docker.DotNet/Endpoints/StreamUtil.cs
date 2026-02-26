@@ -64,22 +64,29 @@ internal static class StreamUtil
         }
     }
 
-    internal static async Task MonitorStreamForMessagesAsync<T>(Task<Stream> streamTask, DockerClient client, CancellationToken cancellationToken, IProgress<T> progress)
+    internal static async Task MonitorStreamForMessagesAsync<T>(Task<StandardStreamResponse> responseTask, IProgress<T> progress, CancellationToken cancellationToken)
     {
-        using (var stream = await streamTask)
+        using var response = await responseTask
+            .ConfigureAwait(false);
+
+        var asyncEnumerable = DockerClient.JsonSerializer.DeserializeAsync<T>(response, cancellationToken)
+            .ConfigureAwait(false);
+
+        await foreach (var value in asyncEnumerable)
         {
-            await foreach (var ev in DockerClient.JsonSerializer.DeserializeAsync<T>(stream, cancellationToken))
-            {
-                progress.Report(ev);
-            }
+            progress.Report(value);
         }
     }
 
-    internal static async Task MonitorResponseForMessagesAsync<T>(Task<HttpResponseMessage> responseTask, DockerClient client, CancellationToken cancel, IProgress<T> progress)
+    internal static async Task MonitorResponseForMessagesAsync<T>(Task<HttpResponseMessage> responseTask, IProgress<T> progress, CancellationToken cancellationToken)
     {
-        using (var response = await responseTask)
-        {
-            await MonitorStreamForMessagesAsync(response.Content.ReadAsStreamAsync(), client, cancel, progress);
-        }
+        using var response = await responseTask
+            .ConfigureAwait(false);
+
+        var stream = await response.Content.ReadAsStreamAsync()
+            .ConfigureAwait(false);
+
+        await MonitorStreamForMessagesAsync(Task.FromResult(new StandardStreamResponse(response, stream)), progress, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

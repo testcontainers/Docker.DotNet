@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.NPipe;
+namespace Docker.DotNet.NPipe;
 
 /// <summary>
 /// Represents transport options for the Windows named pipe transport.
