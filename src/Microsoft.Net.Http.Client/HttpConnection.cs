@@ -60,7 +60,7 @@ internal sealed class HttpConnection : IDisposable
         builder.Append(request.Version.ToString(2));
         builder.Append("\r\n");
 
-        builder.Append(request.Headers);
+        AppendHeaders(builder, request.Headers);
 
         if (request.Content != null)
         {
@@ -71,7 +71,7 @@ internal sealed class HttpConnection : IDisposable
                 request.Content.Headers.ContentLength = contentLength.Value;
             }
 
-            builder.Append(request.Content.Headers);
+            AppendHeaders(builder, request.Content.Headers);
             if (!contentLength.HasValue)
             {
                 // Add header for chunked mode.
@@ -81,6 +81,19 @@ internal sealed class HttpConnection : IDisposable
         // Headers end with an empty line
         builder.Append("\r\n");
         return builder.ToString();
+    }
+
+    // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
+    // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
+    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
+    {
+        foreach (var header in headers)
+        {
+            builder.Append(header.Key);
+            builder.Append(": ");
+            builder.Append(string.Join(", ", header.Value));
+            builder.Append("\r\n");
+        }
     }
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
