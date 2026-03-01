@@ -23,4 +23,5 @@
       <BuildOutputInPackage Include="$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\bin\$(Configuration)\$(TargetFramework)\Microsoft.Net.Http.Client.pdb" Condition="Exists('$(MSBuildThisFileDirectory)Microsoft.Net.Http.Client\bin\$(Configuration)\$(TargetFramework)\Microsoft.Net.Http.Client.pdb')" />
     </ItemGroup>
   </Target>
+
 </Project>
