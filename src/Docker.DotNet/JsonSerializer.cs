@@ -2,7 +2,10 @@ namespace Docker.DotNet;
 
 internal sealed class JsonSerializer
 {
-    private static readonly MediaTypeHeaderValue ContentTypeApplicationJsonHeader = new("application/json") { CharSet = Encoding.UTF8.WebName };
+    private static readonly MediaTypeHeaderValue ApplicationJsonUtf8ContentType = new MediaTypeHeaderValue("application/json")
+    {
+        CharSet = Encoding.UTF8.WebName
+    };
 
     private readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 
@@ -24,9 +27,13 @@ internal sealed class JsonSerializer
 
     public HttpContent GetHttpContent<T>(T value)
     {
-        var content = new ByteArrayContent(SerializeToUtf8Bytes(value));
-        content.Headers.ContentType = ContentTypeApplicationJsonHeader;
-        return content;
+        return new ByteArrayContent(SerializeToUtf8Bytes(value))
+        {
+            Headers =
+            {
+                ContentType = ApplicationJsonUtf8ContentType
+            }
+        };
     }
 
     public string Serialize<T>(T value)
