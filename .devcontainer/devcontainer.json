@@ -25,10 +25,10 @@
         "ms-dotnettools.csdevkit"
       ],
       "settings": {
-        "dotnet.defaultSolution": "${containerWorkspaceFolder}/Docker.DotNet.sln"
+        "dotnet.defaultSolution": "${containerWorkspaceFolder}/Docker.DotNet.slnx"
       }
     }
   },
   "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && git lfs checkout",
-  "postStartCommand": ["dotnet", "build", "${containerWorkspaceFolder}/Docker.DotNet.sln", "/consoleLoggerParameters:NoSummary", "/property:GenerateFullPaths=true", "/property:Configuration=Debug", "/property:Platform=Any CPU"]
+  "postStartCommand": ["dotnet", "build", "${containerWorkspaceFolder}/Docker.DotNet.slnx", "/consoleLoggerParameters:NoSummary", "/property:GenerateFullPaths=true", "/property:Configuration=Debug"]
 }
