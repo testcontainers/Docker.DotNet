@@ -392,7 +392,7 @@ public sealed class DockerClient : IDockerClient
         }
 
         var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_clientOptions.Endpoint, _clientOptions.ApiVersion, path, queryString));
-        request.Version = new Version(1, 1);
+        request.Version = HttpVersion.Version11;
         request.Headers.Add("User-Agent", UserAgent);
 
         var customHeaders = headers == null

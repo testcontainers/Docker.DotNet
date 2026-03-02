@@ -352,7 +352,7 @@ public class ManagedHandler : HttpMessageHandler
         // CONNECT server.example.com:80 HTTP / 1.1
         // Host: server.example.com:80
         var connectRequest = new HttpRequestMessage();
-        connectRequest.Version = new Version(1, 1);
+        connectRequest.Version = HttpVersion.Version11;
 
         connectRequest.Headers.ProxyAuthorization = request.Headers.ProxyAuthorization;
         connectRequest.Method = new HttpMethod("CONNECT");
