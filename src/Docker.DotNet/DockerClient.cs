@@ -261,7 +261,7 @@ public sealed class DockerClient : IDockerClient
         var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
             .ConfigureAwait(false);
 
-        await HandleIfErrorResponseAsync(response.StatusCode, response)
+        await HandleIfErrorResponseAsync(response.StatusCode, response, null)
             .ConfigureAwait(false);
 
         return response;
@@ -413,7 +413,7 @@ public sealed class DockerClient : IDockerClient
         return request;
     }
 
-    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate>? handlers)
+    private static async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate>? handlers)
     {
         var isErrorResponse = (statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest) && statusCode != HttpStatusCode.SwitchingProtocols;
 
@@ -435,28 +435,6 @@ public sealed class DockerClient : IDockerClient
             {
                 handler(statusCode, responseBody);
             }
-        }
-
-        // No custom handler was fired. Default the response for generic success/failures.
-        if (isErrorResponse)
-        {
-            throw new DockerApiException(statusCode, responseBody);
-        }
-    }
-
-    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response)
-    {
-        var isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
-
-        string? responseBody = null;
-
-        if (isErrorResponse)
-        {
-            // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
-            // we want to report the response body in the error message as it contains potentially useful info.
-            responseBody = await response.Content.ReadAsStringAsync()
-                .ConfigureAwait(false);
         }
 
         // No custom handler was fired. Default the response for generic success/failures.
