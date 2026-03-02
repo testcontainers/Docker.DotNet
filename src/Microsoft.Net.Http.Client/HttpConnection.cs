@@ -18,16 +18,20 @@ internal sealed class HttpConnection : IDisposable
             // Serialize headers & send
             string rawRequest = SerializeRequest(request);
             byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
-            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken);
+
+            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken)
+                .ConfigureAwait(false);
 
             if (request.Content != null)
             {
                 if (request.Content.Headers.ContentLength.HasValue)
                 {
 #if NET6_0_OR_GREATER
-                    await request.Content.CopyToAsync(Transport, cancellationToken);
+                    await request.Content.CopyToAsync(Transport, cancellationToken)
+                        .ConfigureAwait(false);
 #else
-                    await request.Content.CopyToAsync(Transport);
+                    await request.Content.CopyToAsync(Transport)
+                        .ConfigureAwait(false);
 #endif
                 }
                 else
@@ -36,17 +40,21 @@ internal sealed class HttpConnection : IDisposable
                     using (var chunkedStream = new ChunkedWriteStream(Transport))
                     {
 #if NET6_0_OR_GREATER
-                        await request.Content.CopyToAsync(chunkedStream, cancellationToken);
+                        await request.Content.CopyToAsync(chunkedStream, cancellationToken)
+                            .ConfigureAwait(false);
 #else
-                        await request.Content.CopyToAsync(chunkedStream);
+                        await request.Content.CopyToAsync(chunkedStream)
+                            .ConfigureAwait(false);
 #endif
-                        await chunkedStream.EndContentAsync(cancellationToken);
+                        await chunkedStream.EndContentAsync(cancellationToken)
+                            .ConfigureAwait(false);
                     }
                 }
             }
 
             // Receive headers
-            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
+            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
             return CreateResponseMessage(responseLines);
