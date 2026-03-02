@@ -16,8 +16,9 @@ internal class TasksOperations : ITasksOperations
 
     async Task<IList<TaskResponse>> ITasksOperations.ListAsync(TasksListParameters parameters, CancellationToken cancellationToken)
     {
-        IQueryString query = null;
-        if (parameters != null) {
+        IQueryString? query = null;
+        if (parameters != null)
+        {
             query = new QueryString<TasksListParameters>(parameters);
         }
 

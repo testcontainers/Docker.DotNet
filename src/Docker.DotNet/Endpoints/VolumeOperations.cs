@@ -51,7 +51,7 @@ internal class VolumeOperations : IVolumeOperations
         return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken);
     }
 
-    async Task<VolumesPruneResponse> IVolumeOperations.PruneAsync(VolumesPruneParameters parameters, CancellationToken cancellationToken)
+    async Task<VolumesPruneResponse> IVolumeOperations.PruneAsync(VolumesPruneParameters? parameters, CancellationToken cancellationToken)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesPruneParameters>(parameters);
         return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken);

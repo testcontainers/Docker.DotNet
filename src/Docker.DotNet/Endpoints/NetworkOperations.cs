@@ -17,7 +17,7 @@ internal class NetworkOperations : INetworkOperations
         _client = client;
     }
 
-    async Task<IList<NetworkResponse>> INetworkOperations.ListNetworksAsync(NetworksListParameters parameters, CancellationToken cancellationToken)
+    async Task<IList<NetworkResponse>> INetworkOperations.ListNetworksAsync(NetworksListParameters? parameters, CancellationToken cancellationToken)
     {
         var queryParameters = parameters == null ? null : new QueryString<NetworksListParameters>(parameters);
         return await _client.MakeRequestAsync<NetworkResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "networks", queryParameters, cancellationToken).ConfigureAwait(false);
@@ -86,14 +86,14 @@ internal class NetworkOperations : INetworkOperations
         return _client.MakeRequestAsync(new[] { NoSuchNetworkHandler }, HttpMethod.Post, $"networks/{id}/disconnect", null, data, cancellationToken);
     }
 
-    Task INetworkOperations.DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters parameters, CancellationToken cancellationToken)
+    Task INetworkOperations.DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters? parameters, CancellationToken cancellationToken)
     {
         return ((INetworkOperations)this).PruneNetworksAsync(parameters, cancellationToken);
     }
 
-    async Task<NetworksPruneResponse> INetworkOperations.PruneNetworksAsync(NetworksDeleteUnusedParameters parameters, CancellationToken cancellationToken)
+    async Task<NetworksPruneResponse> INetworkOperations.PruneNetworksAsync(NetworksDeleteUnusedParameters? parameters, CancellationToken cancellationToken)
     {
         var queryParameters = parameters == null ? null : new QueryString<NetworksDeleteUnusedParameters>(parameters);
-        return await _client.MakeRequestAsync<NetworksPruneResponse>(null, HttpMethod.Post, "networks/prune", queryParameters, cancellationToken);
+        return await _client.MakeRequestAsync<NetworksPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "networks/prune", queryParameters, cancellationToken);
     }
 }

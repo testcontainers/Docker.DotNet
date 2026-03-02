@@ -9,7 +9,7 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
+    Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// List volumes
@@ -18,7 +18,7 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<VolumesListResponse> ListAsync(VolumesListParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<VolumesListResponse> ListAsync(VolumesListParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create a volume.
@@ -28,7 +28,7 @@ public interface IVolumeOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="parameters">Volume parameters to create.</param>
-    Task<VolumeResponse> CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken = default(CancellationToken));
+    Task<VolumeResponse> CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inspect a volume.
@@ -39,7 +39,7 @@ public interface IVolumeOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">Volume name or ID.</param>
-    Task<VolumeResponse> InspectAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+    Task<VolumeResponse> InspectAsync(string name, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Remove a volume.
@@ -54,7 +54,7 @@ public interface IVolumeOperations
     /// </remarks>
     /// <param name="name">Volume name or ID.</param>
     /// <param name="force">Force the removal of the volume.</param>
-    Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default(CancellationToken));
+    Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete unused volumes.
@@ -65,5 +65,5 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters parameters = null, CancellationToken cancellationToken = default(CancellationToken));
+    Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters? parameters = null, CancellationToken cancellationToken = default);
 }

@@ -19,13 +19,13 @@ internal class PluginOperations : IPluginOperations
         _client = client;
     }
 
-    public async Task<IList<Plugin>> ListPluginsAsync(PluginListParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<Plugin>> ListPluginsAsync(PluginListParameters parameters, CancellationToken cancellationToken = default)
     {
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginListParameters>(parameters);
+        var queryParameters = parameters == null ? null : new QueryString<PluginListParameters>(parameters);
         return await _client.MakeRequestAsync<Plugin[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -36,7 +36,7 @@ internal class PluginOperations : IPluginOperations
         return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
     }
 
-    public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -68,40 +68,40 @@ internal class PluginOperations : IPluginOperations
         return await _client.MakeRequestAsync<Plugin>(new[] { NoSuchPluginHandler }, HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
     }
 
-    public Task RemovePluginAsync(string name, PluginRemoveParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task RemovePluginAsync(string name, PluginRemoveParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginRemoveParameters>(parameters);
+        var queryParameters = parameters == null ? null : new QueryString<PluginRemoveParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Delete, $"plugins/{name}", queryParameters, cancellationToken);
     }
 
-    public Task EnablePluginAsync(string name, PluginEnableParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task EnablePluginAsync(string name, PluginEnableParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginEnableParameters>(parameters);
+        var queryParameters = parameters == null ? null : new QueryString<PluginEnableParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/enable", queryParameters, cancellationToken);
     }
 
-    public Task DisablePluginAsync(string name, PluginDisableParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task DisablePluginAsync(string name, PluginDisableParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginDisableParameters>(parameters);
+        var queryParameters = parameters == null ? null : new QueryString<PluginDisableParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/disable", queryParameters, cancellationToken);
     }
 
-    public Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -123,7 +123,7 @@ internal class PluginOperations : IPluginOperations
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", query, data, cancellationToken);
     }
 
-    public Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default(CancellationToken))
+    public Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -140,7 +140,7 @@ internal class PluginOperations : IPluginOperations
         return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", query, data, cancellationToken);
     }
 
-    public Task PushPluginAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+    public Task PushPluginAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -150,7 +150,7 @@ internal class PluginOperations : IPluginOperations
         return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/push", cancellationToken);
     }
 
-    public Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {

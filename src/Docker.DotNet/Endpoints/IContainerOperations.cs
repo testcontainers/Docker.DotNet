@@ -381,7 +381,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters parameters = null, CancellationToken cancellationToken = default);
+    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes configuration options of a container without recreating it.

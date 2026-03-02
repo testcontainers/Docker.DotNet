@@ -87,7 +87,7 @@ internal class SwarmOperations : ISwarmOperations
             cancellationToken).ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.LeaveSwarmAsync(SwarmLeaveParameters parameters, CancellationToken cancellationToken)
+    async Task ISwarmOperations.LeaveSwarmAsync(SwarmLeaveParameters? parameters, CancellationToken cancellationToken)
     {
         var query = parameters == null ? null : new QueryString<SwarmLeaveParameters>(parameters);
         await _client.MakeRequestAsync(
@@ -108,7 +108,7 @@ internal class SwarmOperations : ISwarmOperations
             cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<IEnumerable<SwarmService>> ISwarmOperations.ListServicesAsync(ServiceListParameters parameters, CancellationToken cancellationToken)
+    async Task<IEnumerable<SwarmService>> ISwarmOperations.ListServicesAsync(ServiceListParameters? parameters, CancellationToken cancellationToken)
     {
         var queryParameters = parameters != null ? new QueryString<ServiceListParameters>(parameters) : null;
         return await _client
@@ -139,7 +139,7 @@ internal class SwarmOperations : ISwarmOperations
         return await _client.MakeRequestAsync<ServiceUpdateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, $"services/{id}/update", query, body, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -157,7 +157,7 @@ internal class SwarmOperations : ISwarmOperations
             .ConfigureAwait(false);
     }
 
-    public async Task<MultiplexedStream> GetServiceLogsAsync(string id, bool tty, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<MultiplexedStream> GetServiceLogsAsync(string id, bool tty, ServiceLogsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {

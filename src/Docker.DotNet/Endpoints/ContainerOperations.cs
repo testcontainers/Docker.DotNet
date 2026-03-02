@@ -415,7 +415,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Put, $"containers/{id}/archive", queryParameters, data, cancellationToken);
     }
 
-    public async Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters? parameters, CancellationToken cancellationToken)
+    public async Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<ContainersPruneParameters>(parameters);
         return await _client.MakeRequestAsync<ContainersPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "containers/prune", queryParameters, cancellationToken).ConfigureAwait(false);
