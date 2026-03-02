@@ -2,7 +2,7 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
-    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string> { "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
     public HttpConnection(BufferedReadStream transport)
     {
@@ -41,7 +41,7 @@ internal sealed class HttpConnection : IDisposable
             List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
-            return CreateResponseMessage(responseLines);
+            return CreateResponseMessage(responseLines, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -117,7 +117,7 @@ internal sealed class HttpConnection : IDisposable
         return lines;
     }
 
-    private HttpResponseMessage CreateResponseMessage(List<string> responseLines)
+    private HttpResponseMessage CreateResponseMessage(List<string> responseLines, CancellationToken cancellationToken)
     {
         string responseLine = responseLines.First();
         // HTTP/1.1 200 OK
@@ -141,7 +141,7 @@ internal sealed class HttpConnection : IDisposable
         {
             response.ReasonPhrase = responseLineParts[2];
         }
-        var content = new HttpConnectionResponseContent(this);
+        var content = new HttpConnectionResponseContent(this, cancellationToken);
         response.Content = content;
 
         foreach (var rawHeader in responseLines.Skip(1))

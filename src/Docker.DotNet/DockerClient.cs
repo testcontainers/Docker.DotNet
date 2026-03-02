@@ -364,20 +364,13 @@ public sealed class DockerClient : IDockerClient
 
         if (Timeout.InfiniteTimeSpan == timeout)
         {
-            var tcs = new TaskCompletionSource<HttpResponseMessage>(
-                TaskCreationOptions.RunContinuationsAsynchronously);
-
-            using var registration = cancellationToken.Register(
-                () => tcs.TrySetCanceled(cancellationToken));
-
-            return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
+            return await _client.SendAsync(request, completionOption, cancellationToken)
                 .ConfigureAwait(false);
         }
         else
         {
-            using var timeoutCts = new CancellationTokenSource(timeout);
-
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            linkedCts.CancelAfter(timeout);
 
             return await _client.SendAsync(request, completionOption, linkedCts.Token)
                 .ConfigureAwait(false);
