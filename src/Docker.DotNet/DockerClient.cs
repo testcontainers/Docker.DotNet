@@ -72,18 +72,18 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<NoContent>(errorHandlers, method, path, null, null, token);
+        return MakeRequestAsync<NoContent>(errorHandlers, method, path, null, null, cancellationToken);
     }
 
     internal Task<T> MakeRequestAsync<T>(
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<T>(errorHandlers, method, path, null, null, token);
+        return MakeRequestAsync<T>(errorHandlers, method, path, null, null, cancellationToken);
     }
 
     internal Task MakeRequestAsync(
@@ -91,9 +91,9 @@ public sealed class DockerClient : IDockerClient
         HttpMethod method,
         string path,
         IQueryString? queryString,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, null, token);
+        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, null, cancellationToken);
     }
 
     internal Task<T> MakeRequestAsync<T>(
@@ -101,9 +101,9 @@ public sealed class DockerClient : IDockerClient
         HttpMethod method,
         string path,
         IQueryString? queryString,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, null, token);
+        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, null, cancellationToken);
     }
 
     internal Task MakeRequestAsync(
@@ -112,9 +112,9 @@ public sealed class DockerClient : IDockerClient
         string path,
         IQueryString? queryString,
         IRequestContent? body,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, null, token);
+        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, null, cancellationToken);
     }
 
     internal Task<T> MakeRequestAsync<T>(
@@ -123,9 +123,9 @@ public sealed class DockerClient : IDockerClient
         string path,
         IQueryString? queryString,
         IRequestContent? body,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, null, token);
+        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, null, cancellationToken);
     }
 
     internal Task<T> MakeRequestAsync<T>(
@@ -135,9 +135,9 @@ public sealed class DockerClient : IDockerClient
         IQueryString? queryString,
         IRequestContent? body,
         IDictionary<string, string>? headers,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, _clientOptions.Timeout, token);
+        return MakeRequestAsync<T>(errorHandlers, method, path, queryString, body, headers, _clientOptions.Timeout, cancellationToken);
     }
 
     internal Task MakeRequestAsync(
@@ -148,9 +148,9 @@ public sealed class DockerClient : IDockerClient
         IRequestContent? body,
         IDictionary<string, string>? headers,
         TimeSpan timeout,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, headers, timeout, token);
+        return MakeRequestAsync<NoContent>(errorHandlers, method, path, queryString, body, headers, timeout, cancellationToken);
     }
 
     internal async Task<T> MakeRequestAsync<T>(
@@ -161,9 +161,9 @@ public sealed class DockerClient : IDockerClient
         IRequestContent? body,
         IDictionary<string, string>? headers,
         TimeSpan timeout,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        using var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseContentRead, method, path, queryString, headers, body, token)
+        using var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseContentRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 
         await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers)
@@ -174,7 +174,7 @@ public sealed class DockerClient : IDockerClient
             return default!;
         }
 
-        return await JsonSerializer.DeserializeAsync<T>(response.Content, token)
+        return await JsonSerializer.DeserializeAsync<T>(response.Content, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -182,9 +182,9 @@ public sealed class DockerClient : IDockerClient
         IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
         HttpMethod method,
         string path,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestForStreamAsync(errorHandlers, method, path, null, token);
+        return MakeRequestForStreamAsync(errorHandlers, method, path, null, cancellationToken);
     }
 
     internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
@@ -192,9 +192,9 @@ public sealed class DockerClient : IDockerClient
         HttpMethod method,
         string path,
         IQueryString? queryString,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, null, token);
+        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, null, cancellationToken);
     }
 
     internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
@@ -203,9 +203,9 @@ public sealed class DockerClient : IDockerClient
         string path,
         IQueryString? queryString,
         IRequestContent? body,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, null, token);
+        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, null, cancellationToken);
     }
 
     internal Task<StandardStreamResponse> MakeRequestForStreamAsync(
@@ -215,9 +215,9 @@ public sealed class DockerClient : IDockerClient
         IQueryString? queryString,
         IRequestContent? body,
         IDictionary<string, string>? headers,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, token);
+        return MakeRequestForStreamAsync(errorHandlers, method, path, queryString, body, headers, Timeout.InfiniteTimeSpan, cancellationToken);
     }
 
     internal async Task<StandardStreamResponse> MakeRequestForStreamAsync(
@@ -228,9 +228,9 @@ public sealed class DockerClient : IDockerClient
         IRequestContent? body,
         IDictionary<string, string>? headers,
         TimeSpan timeout,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
+        var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 
         try
@@ -256,12 +256,12 @@ public sealed class DockerClient : IDockerClient
         IQueryString? queryString,
         IRequestContent? body,
         IDictionary<string, string>? headers,
-        CancellationToken token)
+        CancellationToken cancellationToken)
     {
-        var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, token)
+        var response = await PrivateMakeRequestAsync(Timeout.InfiniteTimeSpan, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 
-        await HandleIfErrorResponseAsync(response.StatusCode, response)
+        await HandleIfErrorResponseAsync(response.StatusCode, response, null)
             .ConfigureAwait(false);
 
         return response;
@@ -413,7 +413,7 @@ public sealed class DockerClient : IDockerClient
         return request;
     }
 
-    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate>? handlers)
+    private static async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate>? handlers)
     {
         var isErrorResponse = (statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest) && statusCode != HttpStatusCode.SwitchingProtocols;
 
@@ -435,28 +435,6 @@ public sealed class DockerClient : IDockerClient
             {
                 handler(statusCode, responseBody);
             }
-        }
-
-        // No custom handler was fired. Default the response for generic success/failures.
-        if (isErrorResponse)
-        {
-            throw new DockerApiException(statusCode, responseBody);
-        }
-    }
-
-    private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response)
-    {
-        var isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
-
-        string? responseBody = null;
-
-        if (isErrorResponse)
-        {
-            // If it is not an error response, we do not read the response body because the caller may wish to consume it.
-            // If it is an error response, we do because there is nothing else going to be done with it anyway, and
-            // we want to report the response body in the error message as it contains potentially useful info.
-            responseBody = await response.Content.ReadAsStringAsync()
-                .ConfigureAwait(false);
         }
 
         // No custom handler was fired. Default the response for generic success/failures.
