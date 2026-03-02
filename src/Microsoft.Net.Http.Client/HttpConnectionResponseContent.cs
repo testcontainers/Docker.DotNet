@@ -40,10 +40,17 @@ public class HttpConnectionResponseContent : HttpContent
         return _connection.Transport;
     }
 
-    protected override Task SerializeToStreamAsync(Stream stream, System.Net.TransportContext context)
+    protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
     {
         return _responseStream.CopyToAsync(stream);
     }
+
+#if NET6_0_OR_GREATER
+    protected override Task SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken cancellationToken)
+    {
+        return _responseStream.CopyToAsync(stream, cancellationToken);
+    }
+#endif
 
     protected override Task<Stream> CreateContentReadStreamAsync()
     {
