@@ -3,13 +3,11 @@ namespace Microsoft.Net.Http.Client;
 public class HttpConnectionResponseContent : HttpContent
 {
     private readonly HttpConnection _connection;
-    private readonly CancellationToken _cancellationToken;
     private Stream _responseStream;
 
-    internal HttpConnectionResponseContent(HttpConnection connection, CancellationToken cancellationToken)
+    internal HttpConnectionResponseContent(HttpConnection connection)
     {
         _connection = connection;
-        _cancellationToken = cancellationToken;
     }
 
     internal void ResolveResponseStream(bool chunked, bool isConnectionUpgrade)
@@ -44,7 +42,7 @@ public class HttpConnectionResponseContent : HttpContent
 
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
     {
-        return _responseStream.CopyToAsync(stream, 81920, _cancellationToken);
+        return _responseStream.CopyToAsync(stream);
     }
 
 #if NET6_0_OR_GREATER

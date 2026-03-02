@@ -24,14 +24,22 @@ internal sealed class HttpConnection : IDisposable
             {
                 if (request.Content.Headers.ContentLength.HasValue)
                 {
+#if NET6_0_OR_GREATER
+                    await request.Content.CopyToAsync(Transport, cancellationToken);
+#else
                     await request.Content.CopyToAsync(Transport);
+#endif
                 }
                 else
                 {
                     // The length of the data is unknown. Send it in chunked mode.
                     using (var chunkedStream = new ChunkedWriteStream(Transport))
                     {
+#if NET6_0_OR_GREATER
+                        await request.Content.CopyToAsync(chunkedStream, cancellationToken);
+#else
                         await request.Content.CopyToAsync(chunkedStream);
+#endif
                         await chunkedStream.EndContentAsync(cancellationToken);
                     }
                 }
@@ -41,7 +49,7 @@ internal sealed class HttpConnection : IDisposable
             List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
-            return CreateResponseMessage(responseLines, cancellationToken);
+            return CreateResponseMessage(responseLines);
         }
         catch (Exception ex)
         {
@@ -117,7 +125,7 @@ internal sealed class HttpConnection : IDisposable
         return lines;
     }
 
-    private HttpResponseMessage CreateResponseMessage(List<string> responseLines, CancellationToken cancellationToken)
+    private HttpResponseMessage CreateResponseMessage(List<string> responseLines)
     {
         string responseLine = responseLines.First();
         // HTTP/1.1 200 OK
@@ -141,7 +149,7 @@ internal sealed class HttpConnection : IDisposable
         {
             response.ReasonPhrase = responseLineParts[2];
         }
-        var content = new HttpConnectionResponseContent(this, cancellationToken);
+        var content = new HttpConnectionResponseContent(this);
         response.Content = content;
 
         foreach (var rawHeader in responseLines.Skip(1))

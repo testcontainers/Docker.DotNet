@@ -364,8 +364,19 @@ public sealed class DockerClient : IDockerClient
 
         if (Timeout.InfiniteTimeSpan == timeout)
         {
+#if NET6_0_OR_GREATER
             return await _client.SendAsync(request, completionOption, cancellationToken)
                 .ConfigureAwait(false);
+#else
+            var tcs = new TaskCompletionSource<HttpResponseMessage>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var registration = cancellationToken.Register(
+                () => tcs.TrySetCanceled(cancellationToken));
+
+            return await await Task.WhenAny(tcs.Task, _client.SendAsync(request, completionOption, cancellationToken))
+                .ConfigureAwait(false);
+#endif
         }
         else
         {
