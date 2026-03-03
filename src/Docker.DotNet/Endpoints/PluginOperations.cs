@@ -32,8 +32,8 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        var query = new QueryString<PluginGetPrivilegeParameters>(parameters);
-        return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<PluginGetPrivilegeParameters>(parameters);
+        return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
     public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
@@ -50,7 +50,7 @@ internal class PluginOperations : IPluginOperations
 
         var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
 
-        IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
+        var queryParameters = new QueryString<PluginInstallParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/pull", queryParameters, data, null, cancellationToken),
@@ -118,9 +118,9 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters.Privileges));
         }
 
-        var query = new QueryString<PluginUpgradeParameters>(parameters);
+        var queryParameters = new QueryString<PluginUpgradeParameters>(parameters);
         var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", query, data, cancellationToken);
+        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", queryParameters, data, cancellationToken);
     }
 
     public Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default)
@@ -135,9 +135,9 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(plugin));
         }
 
-        var query = new QueryString<PluginCreateParameters>(parameters);
+        var queryParameters = new QueryString<PluginCreateParameters>(parameters);
         var data = new BinaryRequestContent(plugin, TarContentType);
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", query, data, cancellationToken);
+        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", queryParameters, data, cancellationToken);
     }
 
     public Task PushPluginAsync(string name, CancellationToken cancellationToken = default)

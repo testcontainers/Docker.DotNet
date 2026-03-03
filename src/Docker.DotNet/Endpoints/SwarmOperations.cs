@@ -89,7 +89,7 @@ internal class SwarmOperations : ISwarmOperations
 
     public async Task LeaveSwarmAsync(SwarmLeaveParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        var query = parameters == null ? null : new QueryString<SwarmLeaveParameters>(parameters);
+        var queryParameters = parameters == null ? null : new QueryString<SwarmLeaveParameters>(parameters);
         await _client.MakeRequestAsync(
             new ApiResponseErrorHandlingDelegate[]
             {
@@ -104,13 +104,13 @@ internal class SwarmOperations : ISwarmOperations
             },
             HttpMethod.Post,
             "swarm/leave",
-            query,
+            queryParameters,
             cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        var queryParameters = parameters != null ? new QueryString<ServiceListParameters>(parameters) : null;
+        var queryParameters = parameters == null ? null : new QueryString<ServiceListParameters>(parameters);
         return await _client
             .MakeRequestAsync<SwarmService[]>(new[] { SwarmResponseHandler }, HttpMethod.Get, "services", queryParameters, cancellationToken)
             .ConfigureAwait(false);
@@ -134,9 +134,9 @@ internal class SwarmOperations : ISwarmOperations
         if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
         if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
-        var query = new QueryString<ServiceUpdateParameters>(parameters);
+        var queryParameters = new QueryString<ServiceUpdateParameters>(parameters);
         var body = new JsonRequestContent<ServiceSpec>(parameters.Service, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<ServiceUpdateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, $"services/{id}/update", query, body, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ServiceUpdateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, $"services/{id}/update", queryParameters, body, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default)
@@ -151,7 +151,7 @@ internal class SwarmOperations : ISwarmOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
+        var queryParameters = new QueryString<ServiceLogsParameters>(parameters);
 
         return await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken)
             .ConfigureAwait(false);
@@ -169,7 +169,7 @@ internal class SwarmOperations : ISwarmOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
+        var queryParameters = new QueryString<ServiceLogsParameters>(parameters);
 
         var response = await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken).ConfigureAwait(false);
 
@@ -178,7 +178,7 @@ internal class SwarmOperations : ISwarmOperations
 
     public async Task UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
-        var query = new QueryString<SwarmUpdateParameters>(parameters);
+        var queryParameters = new QueryString<SwarmUpdateParameters>(parameters);
         var body = new JsonRequestContent<Spec>(parameters.Spec, DockerClient.JsonSerializer);
         await _client.MakeRequestAsync(
             new ApiResponseErrorHandlingDelegate[]
@@ -194,7 +194,7 @@ internal class SwarmOperations : ISwarmOperations
             },
             HttpMethod.Post,
             "swarm/update",
-            query,
+            queryParameters,
             body,
             cancellationToken).ConfigureAwait(false);
     }
@@ -230,15 +230,15 @@ internal class SwarmOperations : ISwarmOperations
     {
         if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
         var parameters = new NodeRemoveParameters { Force = force };
-        var query = new QueryString<NodeRemoveParameters>(parameters);
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Delete, $"nodes/{id}", query, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<NodeRemoveParameters>(parameters);
+        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Delete, $"nodes/{id}", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpdateNodeAsync(string id, ulong version, NodeUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-        var query = new EnumerableQueryString("version", new[] { version.ToString() });
+        var queryParameters = new EnumerableQueryString("version", new[] { version.ToString() });
         var body = new JsonRequestContent<NodeUpdateParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Post, $"nodes/{id}/update", query, body, cancellationToken);
+        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Post, $"nodes/{id}/update", queryParameters, body, cancellationToken);
     }
 }

@@ -9,9 +9,9 @@ internal class VolumeOperations : IVolumeOperations
         _client = client;
     }
 
-    public async Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default)
+    public Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", cancellationToken).ConfigureAwait(false);
+        return ListAsync(null, cancellationToken);
     }
 
     public async Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default)

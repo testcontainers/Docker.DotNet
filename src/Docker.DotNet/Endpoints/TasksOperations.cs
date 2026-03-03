@@ -16,13 +16,8 @@ internal class TasksOperations : ITasksOperations
 
     public async Task<IList<TaskResponse>> ListAsync(TasksListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        IQueryString? query = null;
-        if (parameters != null)
-        {
-            query = new QueryString<TasksListParameters>(parameters);
-        }
-
-        return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", query, cancellationToken).ConfigureAwait(false);
+        var queryParameters = parameters == null ? null : new QueryString<TasksListParameters>(parameters);
+        return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<TaskResponse> InspectAsync(string id, CancellationToken cancellationToken = default)

@@ -43,7 +43,7 @@ internal class SystemOperations : ISystemOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
+        var queryParameters = new QueryString<ContainerEventsParameters>(parameters);
 
         return await _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken)
             .ConfigureAwait(false);
@@ -61,7 +61,7 @@ internal class SystemOperations : ISystemOperations
             throw new ArgumentNullException(nameof(progress));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
+        var queryParameters = new QueryString<ContainerEventsParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken),

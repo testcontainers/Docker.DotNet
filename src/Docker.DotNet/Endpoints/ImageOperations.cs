@@ -32,7 +32,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagesListParameters>(parameters);
+        var queryParameters = new QueryString<ImagesListParameters>(parameters);
         return await _client.MakeRequestAsync<ImagesListResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/json", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
@@ -48,7 +48,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageBuildParameters>(parameters);
+        var queryParameters = new QueryString<ImageBuildParameters>(parameters);
 
         var data = new BinaryRequestContent(contents, TarContentType);
 
@@ -72,7 +72,7 @@ internal class ImageOperations : IImageOperations
 
         var data = new BinaryRequestContent(contents, TarContentType);
 
-        IQueryString queryParameters = new QueryString<ImageBuildParameters>(parameters);
+        var queryParameters = new QueryString<ImageBuildParameters>(parameters);
 
         Dictionary<string, string> customHeaders = RegistryConfigHeaders(authConfigs);
 
@@ -120,7 +120,7 @@ internal class ImageOperations : IImageOperations
             parameters.FromSrc = ImportFromBodySource;
         }
 
-        IQueryString queryParameters = new QueryString<ImagesCreateParameters>(parameters);
+        var queryParameters = new QueryString<ImagesCreateParameters>(parameters);
 
         Dictionary<string, string> customHeaders = RegistryAuthHeaders(authConfig);
 
@@ -170,7 +170,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagePushParameters>(parameters);
+        var queryParameters = new QueryString<ImagePushParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"images/{name}/push", queryParameters, null, RegistryAuthHeaders(authConfig), cancellationToken),
@@ -190,7 +190,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageTagParameters>(parameters);
+        var queryParameters = new QueryString<ImageTagParameters>(parameters);
         return _client.MakeRequestAsync(new[] { NoSuchImageHandler }, HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken);
     }
 
@@ -206,7 +206,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageDeleteParameters>(parameters);
+        var queryParameters = new QueryString<ImageDeleteParameters>(parameters);
         return await _client.MakeRequestAsync<Dictionary<string, string>[]>(new[] { NoSuchImageHandler }, HttpMethod.Delete, $"images/{name}", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
@@ -217,7 +217,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagesSearchParameters>(parameters);
+        var queryParameters = new QueryString<ImagesSearchParameters>(parameters);
         return await _client.MakeRequestAsync<ImageSearchResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/search", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
@@ -236,7 +236,7 @@ internal class ImageOperations : IImageOperations
 
         var data = new JsonRequestContent<CommitContainerChangesParameters>(parameters, DockerClient.JsonSerializer);
 
-        IQueryString queryParameters = new QueryString<CommitContainerChangesParameters>(parameters);
+        var queryParameters = new QueryString<CommitContainerChangesParameters>(parameters);
         return await _client.MakeRequestAsync<CommitContainerChangesResponse>(_client.NoErrorHandlers, HttpMethod.Post, "commit", queryParameters, data, cancellationToken).ConfigureAwait(false);
     }
 
@@ -272,7 +272,7 @@ internal class ImageOperations : IImageOperations
 
         BinaryRequestContent content = new BinaryRequestContent(imageStream, TarContentType);
 
-        IQueryString queryParameters = new QueryString<ImageLoadParameters>(parameters);
+        var queryParameters = new QueryString<ImageLoadParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, "images/load", queryParameters, content, cancellationToken),
