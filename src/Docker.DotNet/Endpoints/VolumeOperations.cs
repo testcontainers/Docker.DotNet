@@ -41,19 +41,19 @@ internal class VolumeOperations : IVolumeOperations
         return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"volumes/{name}", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesPruneParameters>(parameters);
-        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken);
+        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 }

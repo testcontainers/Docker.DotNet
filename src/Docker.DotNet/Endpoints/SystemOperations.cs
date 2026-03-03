@@ -9,7 +9,7 @@ internal class SystemOperations : ISystemOperations
         _client = client;
     }
 
-    public Task AuthenticateAsync(AuthConfig authConfig, CancellationToken cancellationToken = default)
+    public async Task AuthenticateAsync(AuthConfig authConfig, CancellationToken cancellationToken = default)
     {
         if (authConfig == null)
         {
@@ -18,7 +18,7 @@ internal class SystemOperations : ISystemOperations
 
         var data = new JsonRequestContent<AuthConfig>(authConfig, DockerClient.JsonSerializer);
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "auth", null, data, cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "auth", null, data, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<VersionResponse> GetVersionAsync(CancellationToken cancellationToken = default)
@@ -26,9 +26,9 @@ internal class SystemOperations : ISystemOperations
         return await _client.MakeRequestAsync<VersionResponse>(_client.NoErrorHandlers, HttpMethod.Get, "version", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task PingAsync(CancellationToken cancellationToken = default)
+    public async Task PingAsync(CancellationToken cancellationToken = default)
     {
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "_ping", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "_ping", cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<SystemInfoResponse> GetSystemInfoAsync(CancellationToken cancellationToken = default)

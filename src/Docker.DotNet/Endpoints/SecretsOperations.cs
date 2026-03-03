@@ -35,13 +35,13 @@ internal class SecretsOperations : ISecretsOperations
         return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
     }
 }

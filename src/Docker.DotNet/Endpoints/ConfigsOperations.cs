@@ -35,13 +35,13 @@ internal class ConfigOperations : IConfigOperations
         return await _client.MakeRequestAsync<SwarmConfig>(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken).ConfigureAwait(false);
     }
 
-    public Task RemoveConfigAsync(string id, CancellationToken cancellationToken = default)
+    public async Task RemoveConfigAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"configs/{id}", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"configs/{id}", cancellationToken).ConfigureAwait(false);
     }
 }

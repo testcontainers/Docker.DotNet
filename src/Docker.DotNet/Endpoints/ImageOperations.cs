@@ -178,7 +178,7 @@ internal class ImageOperations : IImageOperations
             cancellationToken);
     }
 
-    public Task TagImageAsync(string name, ImageTagParameters parameters, CancellationToken cancellationToken = default)
+    public async Task TagImageAsync(string name, ImageTagParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -191,7 +191,7 @@ internal class ImageOperations : IImageOperations
         }
 
         var queryParameters = new QueryString<ImageTagParameters>(parameters);
-        return _client.MakeRequestAsync([NoSuchImageHandler], HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken);
+        await _client.MakeRequestAsync([NoSuchImageHandler], HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IList<IDictionary<string, string>>> DeleteImageAsync(string name, ImageDeleteParameters parameters, CancellationToken cancellationToken = default)
