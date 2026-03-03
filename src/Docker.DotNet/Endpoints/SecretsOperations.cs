@@ -9,12 +9,12 @@ internal class SecretsOperations : ISecretsOperations
         _client = client;
     }
 
-    async Task<IList<Secret>> ISecretsOperations.ListAsync(CancellationToken cancellationToken)
+    public async Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default)
     {
         return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken)
+    public async Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken)
     {
         if (body == null)
         {
@@ -25,7 +25,7 @@ internal class SecretsOperations : ISecretsOperations
         return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<Secret> ISecretsOperations.InspectAsync(string id, CancellationToken cancellationToken)
+    public async Task<Secret> InspectAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -35,7 +35,7 @@ internal class SecretsOperations : ISecretsOperations
         return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
     }
 
-    Task ISecretsOperations.DeleteAsync(string id, CancellationToken cancellationToken)
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {

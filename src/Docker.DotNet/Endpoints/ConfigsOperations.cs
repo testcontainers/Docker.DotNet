@@ -9,12 +9,12 @@ internal class ConfigOperations : IConfigOperations
         _client = client;
     }
 
-    async Task<IList<SwarmConfig>> IConfigOperations.ListConfigsAsync(CancellationToken cancellationToken)
+    public async Task<IList<SwarmConfig>> ListConfigsAsync(CancellationToken cancellationToken = default)
     {
         return await _client.MakeRequestAsync<IList<SwarmConfig>>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<SwarmCreateConfigResponse> IConfigOperations.CreateConfigAsync(SwarmCreateConfigParameters body, CancellationToken cancellationToken)
+    public async Task<SwarmCreateConfigResponse> CreateConfigAsync(SwarmCreateConfigParameters body, CancellationToken cancellationToken = default)
     {
         if (body == null)
         {
@@ -25,7 +25,7 @@ internal class ConfigOperations : IConfigOperations
         return await _client.MakeRequestAsync<SwarmCreateConfigResponse>(_client.NoErrorHandlers, HttpMethod.Post, "configs/create", null, data, cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<SwarmConfig> IConfigOperations.InspectConfigAsync(string id, CancellationToken cancellationToken)
+    public async Task<SwarmConfig> InspectConfigAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -35,7 +35,7 @@ internal class ConfigOperations : IConfigOperations
         return await _client.MakeRequestAsync<SwarmConfig>(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken).ConfigureAwait(false);
     }
 
-    Task IConfigOperations.RemoveConfigAsync(string id, CancellationToken cancellationToken)
+    public Task RemoveConfigAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {

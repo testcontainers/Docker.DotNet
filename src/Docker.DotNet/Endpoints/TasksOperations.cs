@@ -9,12 +9,12 @@ internal class TasksOperations : ITasksOperations
         _client = client;
     }
 
-    Task<IList<TaskResponse>> ITasksOperations.ListAsync(CancellationToken cancellationToken)
+    public Task<IList<TaskResponse>> ListAsync(CancellationToken cancellationToken = default)
     {
-        return ((ITasksOperations)this).ListAsync(null, cancellationToken);
+        return ListAsync(null, cancellationToken);
     }
 
-    async Task<IList<TaskResponse>> ITasksOperations.ListAsync(TasksListParameters parameters, CancellationToken cancellationToken)
+    public async Task<IList<TaskResponse>> ListAsync(TasksListParameters parameters, CancellationToken cancellationToken = default)
     {
         IQueryString? query = null;
         if (parameters != null)
@@ -25,7 +25,7 @@ internal class TasksOperations : ITasksOperations
         return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", query, cancellationToken).ConfigureAwait(false);
     }
 
-    async Task<TaskResponse> ITasksOperations.InspectAsync(string id, CancellationToken cancellationToken)
+    public async Task<TaskResponse> InspectAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
