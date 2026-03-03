@@ -10,10 +10,11 @@
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/go:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "moby": true
     },
-    "ghcr.io/devcontainers/features/dotnet:2.4.1": {
+    "ghcr.io/devcontainers/features/dotnet:2.4.2": {
       "version": "10.0",
       "installUsingApt": false
     }
