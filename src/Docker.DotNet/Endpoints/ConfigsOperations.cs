@@ -11,7 +11,8 @@ internal class ConfigOperations : IConfigOperations
 
     public async Task<IList<SwarmConfig>> ListConfigsAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<IList<SwarmConfig>>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<IList<SwarmConfig>>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<SwarmCreateConfigResponse> CreateConfigAsync(SwarmCreateConfigParameters body, CancellationToken cancellationToken = default)
@@ -22,7 +23,9 @@ internal class ConfigOperations : IConfigOperations
         }
 
         var data = new JsonRequestContent<SwarmConfigSpec>(body.Config, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<SwarmCreateConfigResponse>(_client.NoErrorHandlers, HttpMethod.Post, "configs/create", null, data, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<SwarmCreateConfigResponse>(_client.NoErrorHandlers, HttpMethod.Post, "configs/create", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<SwarmConfig> InspectConfigAsync(string id, CancellationToken cancellationToken = default)
@@ -32,7 +35,8 @@ internal class ConfigOperations : IConfigOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<SwarmConfig>(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<SwarmConfig>(_client.NoErrorHandlers, HttpMethod.Get, $"configs/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task RemoveConfigAsync(string id, CancellationToken cancellationToken = default)
@@ -42,6 +46,7 @@ internal class ConfigOperations : IConfigOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"configs/{id}", cancellationToken).ConfigureAwait(false);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"configs/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 }

@@ -17,7 +17,9 @@ internal class VolumeOperations : IVolumeOperations
     public async Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesListParameters>(parameters);
-        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", queryParameters, null, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<VolumeResponse> CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken = default)
@@ -28,6 +30,7 @@ internal class VolumeOperations : IVolumeOperations
         }
 
         var data = new JsonRequestContent<VolumesCreateParameters>(parameters, DockerClient.JsonSerializer);
+
         return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/create", null, data, cancellationToken);
     }
 
@@ -38,7 +41,8 @@ internal class VolumeOperations : IVolumeOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"volumes/{name}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"volumes/{name}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default)
@@ -48,12 +52,15 @@ internal class VolumeOperations : IVolumeOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken).ConfigureAwait(false);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesPruneParameters>(parameters);
-        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

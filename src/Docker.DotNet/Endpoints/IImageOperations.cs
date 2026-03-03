@@ -116,7 +116,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, Stream imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an image by importing it from a stream.
@@ -296,7 +296,7 @@ public interface IImageOperations
     /// <exception cref="DockerApiException">There was a conflict, or the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="DockerImageNotFoundException">No such image was found.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<Stream> SaveImagesAsync(string[] names, CancellationToken cancellationToken = default);
+    Task<Stream> SaveImagesAsync(string[]? names, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Loads a set of images and tags into a Docker repository.

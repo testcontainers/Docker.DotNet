@@ -17,7 +17,9 @@ internal class TasksOperations : ITasksOperations
     public async Task<IList<TaskResponse>> ListAsync(TasksListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<TasksListParameters>(parameters);
-        return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", queryParameters, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<TaskResponse> InspectAsync(string id, CancellationToken cancellationToken = default)
@@ -27,6 +29,7 @@ internal class TasksOperations : ITasksOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<TaskResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"tasks/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<TaskResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"tasks/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 }

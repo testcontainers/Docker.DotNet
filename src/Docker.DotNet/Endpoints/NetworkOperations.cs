@@ -20,7 +20,9 @@ internal class NetworkOperations : INetworkOperations
     public async Task<IList<NetworkResponse>> ListNetworksAsync(NetworksListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<NetworksListParameters>(parameters);
-        return await _client.MakeRequestAsync<NetworkResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "networks", queryParameters, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<NetworkResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "networks", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<NetworkResponse> InspectNetworkAsync(string id, CancellationToken cancellationToken = default)
@@ -30,7 +32,8 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<NetworkResponse>([NoSuchNetworkHandler], HttpMethod.Get, $"networks/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<NetworkResponse>([NoSuchNetworkHandler], HttpMethod.Get, $"networks/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task DeleteNetworkAsync(string id, CancellationToken cancellationToken = default)
@@ -40,7 +43,8 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Delete, $"networks/{id}", cancellationToken).ConfigureAwait(false);
+        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Delete, $"networks/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<NetworksCreateResponse> CreateNetworkAsync(NetworksCreateParameters parameters, CancellationToken cancellationToken = default)
@@ -51,7 +55,9 @@ internal class NetworkOperations : INetworkOperations
         }
 
         var data = new JsonRequestContent<NetworksCreateParameters>(parameters, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<NetworksCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "networks/create", null, data, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<NetworksCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "networks/create", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task ConnectNetworkAsync(string id, NetworkConnectParameters parameters, CancellationToken cancellationToken = default)
@@ -61,13 +67,20 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        if (string.IsNullOrEmpty(parameters?.Container))
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        if (string.IsNullOrEmpty(parameters.Container))
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
         var data = new JsonRequestContent<NetworkConnectParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/connect", null, data, cancellationToken).ConfigureAwait(false);
+
+        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/connect", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task DisconnectNetworkAsync(string id, NetworkDisconnectParameters parameters, CancellationToken cancellationToken = default)
@@ -77,13 +90,20 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        if (string.IsNullOrEmpty(parameters?.Container))
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        if (string.IsNullOrEmpty(parameters.Container))
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
         var data = new JsonRequestContent<NetworkDisconnectParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/disconnect", null, data, cancellationToken).ConfigureAwait(false);
+
+        await _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/disconnect", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters? parameters = null, CancellationToken cancellationToken = default)
@@ -94,6 +114,8 @@ internal class NetworkOperations : INetworkOperations
     public async Task<NetworksPruneResponse> PruneNetworksAsync(NetworksDeleteUnusedParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<NetworksDeleteUnusedParameters>(parameters);
-        return await _client.MakeRequestAsync<NetworksPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "networks/prune", queryParameters, cancellationToken);
+
+        return await _client.MakeRequestAsync<NetworksPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "networks/prune", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 }
