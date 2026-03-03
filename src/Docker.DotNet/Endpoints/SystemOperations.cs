@@ -15,6 +15,7 @@ internal class SystemOperations : ISystemOperations
         {
             throw new ArgumentNullException(nameof(authConfig));
         }
+
         var data = new JsonRequestContent<AuthConfig>(authConfig, DockerClient.JsonSerializer);
 
         return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "auth", null, data, cancellationToken);

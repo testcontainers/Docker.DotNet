@@ -208,7 +208,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/resize", queryParameters, cancellationToken);
     }
 
-    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters? parameters, CancellationToken cancellationToken = default)
+    public async Task<bool> StartContainerAsync(string id, ContainerStartParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -252,7 +252,6 @@ internal class ContainerOperations : IContainerOperations
         {
             throw new ArgumentNullException(nameof(parameters));
         }
-
 
         IQueryString queryParameters = new QueryString<ContainerRestartParameters>(parameters);
         // since specified wait timespan can be greater than HttpClient's default, we set the

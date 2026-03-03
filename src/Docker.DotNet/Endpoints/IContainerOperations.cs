@@ -196,7 +196,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default);
+    Task<bool> StartContainerAsync(string id, ContainerStartParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stops a container.

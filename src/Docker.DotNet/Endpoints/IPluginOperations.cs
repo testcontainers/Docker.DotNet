@@ -15,7 +15,7 @@ public interface IPluginOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<IList<Plugin>> ListPluginsAsync(PluginListParameters parameters, CancellationToken cancellationToken = default);
+    Task<IList<Plugin>> ListPluginsAsync(PluginListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get plugin privileges.
@@ -73,7 +73,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
-    Task RemovePluginAsync(string name, PluginRemoveParameters parameters, CancellationToken cancellationToken = default);
+    Task RemovePluginAsync(string name, PluginRemoveParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Enable a plugin.
@@ -88,7 +88,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
-    Task EnablePluginAsync(string name, PluginEnableParameters parameters, CancellationToken cancellationToken = default);
+    Task EnablePluginAsync(string name, PluginEnableParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Disable a plugin.
@@ -103,7 +103,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
-    Task DisablePluginAsync(string name, PluginDisableParameters parameters, CancellationToken cancellationToken = default);
+    Task DisablePluginAsync(string name, PluginDisableParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Upgrade a plugin.

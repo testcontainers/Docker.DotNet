@@ -42,7 +42,7 @@ public interface IImageOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig> authConfigs, IDictionary<string, string> headers, IProgress<JSONMessage> progress,  CancellationToken cancellationToken = default);
+    Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig>? authConfigs, IDictionary<string, string>? headers, IProgress<JSONMessage> progress,  CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Builds an image from a tar archive that contains a Dockerfile.
@@ -99,7 +99,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an image by importing it from a stream.
@@ -134,7 +134,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, Stream imageStream, AuthConfig authConfig, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves low-level information about an image.

@@ -220,7 +220,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
-    Task RemoveNodeAsync(string id, bool force, CancellationToken cancellationToken = default);
+    Task RemoveNodeAsync(string id, bool? force = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update node.

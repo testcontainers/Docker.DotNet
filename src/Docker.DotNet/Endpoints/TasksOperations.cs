@@ -14,7 +14,7 @@ internal class TasksOperations : ITasksOperations
         return ListAsync(null, cancellationToken);
     }
 
-    public async Task<IList<TaskResponse>> ListAsync(TasksListParameters parameters, CancellationToken cancellationToken = default)
+    public async Task<IList<TaskResponse>> ListAsync(TasksListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         IQueryString? query = null;
         if (parameters != null)

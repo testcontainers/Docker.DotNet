@@ -56,7 +56,7 @@ internal class ImageOperations : IImageOperations
             .ConfigureAwait(false);
     }
 
-    public Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig> authConfigs, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig>? authConfigs, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (contents == null)
         {
@@ -92,15 +92,15 @@ internal class ImageOperations : IImageOperations
 
     public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
-        return CreateImageAsync(parameters, null, authConfig, progress, cancellationToken);
+        return CreateImageAsync(parameters, null, authConfig, null, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, null, authConfig, headers, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, imageStream, authConfig, null, progress, cancellationToken);
     }
@@ -280,7 +280,7 @@ internal class ImageOperations : IImageOperations
             cancellationToken);
     }
 
-    private Dictionary<string, string> RegistryAuthHeaders(AuthConfig authConfig)
+    private static Dictionary<string, string> RegistryAuthHeaders(AuthConfig authConfig)
     {
         return new Dictionary<string, string>
         {
@@ -295,7 +295,7 @@ internal class ImageOperations : IImageOperations
         };
     }
 
-    private Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
+    private static Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
     {
         var configDictionary = (authConfig ?? Array.Empty<AuthConfig>()).ToDictionary(e => e.ServerAddress, e => e);
         return new Dictionary<string, string>

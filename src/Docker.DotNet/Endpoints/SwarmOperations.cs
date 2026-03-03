@@ -199,7 +199,7 @@ internal class SwarmOperations : ISwarmOperations
             cancellationToken).ConfigureAwait(false);
     }
 
-    private IDictionary<string, string> RegistryAuthHeaders(AuthConfig authConfig)
+    private static Dictionary<string, string> RegistryAuthHeaders(AuthConfig? authConfig)
     {
         if (authConfig == null)
         {
@@ -226,7 +226,7 @@ internal class SwarmOperations : ISwarmOperations
         return await _client.MakeRequestAsync<NodeListResponse>(new[] { SwarmResponseHandler }, HttpMethod.Get, $"nodes/{id}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveNodeAsync(string id, bool force, CancellationToken cancellationToken = default)
+    public async Task RemoveNodeAsync(string id, bool? force = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
         var parameters = new NodeRemoveParameters { Force = force };

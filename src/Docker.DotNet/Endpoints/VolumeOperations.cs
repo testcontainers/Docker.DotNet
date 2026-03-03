@@ -14,7 +14,7 @@ internal class VolumeOperations : IVolumeOperations
         return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<VolumesListResponse> ListAsync(VolumesListParameters parameters, CancellationToken cancellationToken = default)
+    public async Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesListParameters>(parameters);
         return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", queryParameters, null, cancellationToken).ConfigureAwait(false);

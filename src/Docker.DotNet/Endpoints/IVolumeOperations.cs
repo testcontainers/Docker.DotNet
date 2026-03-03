@@ -18,7 +18,7 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<VolumesListResponse> ListAsync(VolumesListParameters parameters, CancellationToken cancellationToken = default);
+    Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create a volume.

@@ -25,7 +25,7 @@ public interface ITasksOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<IList<TaskResponse>> ListAsync(TasksListParameters parameters, CancellationToken cancellationToken = default);
+    Task<IList<TaskResponse>> ListAsync(TasksListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inspect a task
