@@ -138,7 +138,7 @@ internal class ContainerOperations : IContainerOperations
         return await _client.MakeRequestAsync<ContainerFileSystemChangeResponse[]>(new[] { NoSuchContainerHandler }, HttpMethod.Get, $"containers/{id}/changes", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken)
+    public async Task<Stream> ExportContainerAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -149,7 +149,7 @@ internal class ContainerOperations : IContainerOperations
             .ConfigureAwait(false);
     }
 
-    public async Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken)
+    public async Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -276,7 +276,7 @@ internal class ContainerOperations : IContainerOperations
         return _client.MakeRequestAsync(new[] { NoSuchContainerHandler }, HttpMethod.Post, $"containers/{id}/kill", queryParameters, cancellationToken);
     }
 
-    public Task RenameContainerAsync(string id, ContainerRenameParameters parameters, CancellationToken cancellationToken)
+    public Task RenameContainerAsync(string id, ContainerRenameParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {

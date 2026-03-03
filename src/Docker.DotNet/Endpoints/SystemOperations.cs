@@ -35,7 +35,7 @@ internal class SystemOperations : ISystemOperations
         return await _client.MakeRequestAsync<SystemInfoResponse>(_client.NoErrorHandlers, HttpMethod.Get, "info", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken)
+    public async Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {

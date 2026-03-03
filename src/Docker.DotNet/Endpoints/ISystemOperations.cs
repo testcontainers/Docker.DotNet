@@ -49,8 +49,8 @@ public interface ISystemOperations
     /// </remarks>
     Task<SystemInfoResponse> GetSystemInfoAsync(CancellationToken cancellationToken = default);
 
-    [Obsolete("Use 'Task MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken, IProgress<JSONMessage> progress)'")]
-    Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken);
+    [Obsolete("Use 'Task MonitorEventsAsync(ContainerEventsParameters parameters, IProgress<Message> progress, CancellationToken cancellationToken)'")]
+    Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Monitor events.

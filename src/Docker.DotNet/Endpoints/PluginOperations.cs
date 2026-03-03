@@ -58,7 +58,7 @@ internal class PluginOperations : IPluginOperations
             cancellationToken);
     }
 
-    public async Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken)
+    public async Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
