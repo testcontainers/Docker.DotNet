@@ -30,7 +30,7 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<NetworkResponse>(new[] { NoSuchNetworkHandler }, HttpMethod.Get, $"networks/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<NetworkResponse>([NoSuchNetworkHandler], HttpMethod.Get, $"networks/{id}", cancellationToken).ConfigureAwait(false);
     }
 
     public Task DeleteNetworkAsync(string id, CancellationToken cancellationToken = default)
@@ -40,7 +40,7 @@ internal class NetworkOperations : INetworkOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return _client.MakeRequestAsync(new[] { NoSuchNetworkHandler }, HttpMethod.Delete, $"networks/{id}", cancellationToken);
+        return _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Delete, $"networks/{id}", cancellationToken);
     }
 
     public async Task<NetworksCreateResponse> CreateNetworkAsync(NetworksCreateParameters parameters, CancellationToken cancellationToken = default)
@@ -67,7 +67,7 @@ internal class NetworkOperations : INetworkOperations
         }
 
         var data = new JsonRequestContent<NetworkConnectParameters>(parameters, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchNetworkHandler }, HttpMethod.Post, $"networks/{id}/connect", null, data, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/connect", null, data, cancellationToken);
     }
 
     public Task DisconnectNetworkAsync(string id, NetworkDisconnectParameters parameters, CancellationToken cancellationToken = default)
@@ -83,7 +83,7 @@ internal class NetworkOperations : INetworkOperations
         }
 
         var data = new JsonRequestContent<NetworkDisconnectParameters>(parameters, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchNetworkHandler }, HttpMethod.Post, $"networks/{id}/disconnect", null, data, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchNetworkHandler], HttpMethod.Post, $"networks/{id}/disconnect", null, data, cancellationToken);
     }
 
     public Task DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters? parameters = null, CancellationToken cancellationToken = default)

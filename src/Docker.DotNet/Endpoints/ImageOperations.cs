@@ -145,7 +145,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<ImageInspectResponse>(new[] { NoSuchImageHandler }, HttpMethod.Get, $"images/{name}/json", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ImageInspectResponse>([NoSuchImageHandler], HttpMethod.Get, $"images/{name}/json", cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IList<ImageHistoryResponse>> GetImageHistoryAsync(string name, CancellationToken cancellationToken = default)
@@ -155,7 +155,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<ImageHistoryResponse[]>(new[] { NoSuchImageHandler }, HttpMethod.Get, $"images/{name}/history", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ImageHistoryResponse[]>([NoSuchImageHandler], HttpMethod.Get, $"images/{name}/history", cancellationToken).ConfigureAwait(false);
     }
 
     public Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
@@ -191,7 +191,7 @@ internal class ImageOperations : IImageOperations
         }
 
         var queryParameters = new QueryString<ImageTagParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchImageHandler }, HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchImageHandler], HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken);
     }
 
     public async Task<IList<IDictionary<string, string>>> DeleteImageAsync(string name, ImageDeleteParameters parameters, CancellationToken cancellationToken = default)
@@ -207,7 +207,7 @@ internal class ImageOperations : IImageOperations
         }
 
         var queryParameters = new QueryString<ImageDeleteParameters>(parameters);
-        return await _client.MakeRequestAsync<Dictionary<string, string>[]>(new[] { NoSuchImageHandler }, HttpMethod.Delete, $"images/{name}", queryParameters, cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<Dictionary<string, string>[]>([NoSuchImageHandler], HttpMethod.Delete, $"images/{name}", queryParameters, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IList<ImageSearchResponse>> SearchImagesAsync(ImagesSearchParameters parameters, CancellationToken cancellationToken = default)
@@ -242,7 +242,7 @@ internal class ImageOperations : IImageOperations
 
     public Task<Stream> SaveImageAsync(string name, CancellationToken cancellationToken = default)
     {
-        return SaveImagesAsync(new[] { name }, cancellationToken);
+        return SaveImagesAsync([name], cancellationToken);
     }
 
     public async Task<Stream> SaveImagesAsync(string[] names, CancellationToken cancellationToken = default)
@@ -254,7 +254,7 @@ internal class ImageOperations : IImageOperations
             queryString = new EnumerableQueryString("names", names);
         }
 
-        return await _client.MakeRequestForStreamAsync(new[] { NoSuchImageHandler }, HttpMethod.Get, "images/get", queryString, cancellationToken)
+        return await _client.MakeRequestForStreamAsync([NoSuchImageHandler], HttpMethod.Get, "images/get", queryString, cancellationToken)
             .ConfigureAwait(false);
     }
 

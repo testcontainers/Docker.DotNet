@@ -65,7 +65,7 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<Plugin>(new[] { NoSuchPluginHandler }, HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
+        return await _client.MakeRequestAsync<Plugin>([NoSuchPluginHandler], HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
     }
 
     public Task RemovePluginAsync(string name, PluginRemoveParameters? parameters = null, CancellationToken cancellationToken = default)
@@ -76,7 +76,7 @@ internal class PluginOperations : IPluginOperations
         }
 
         var queryParameters = parameters == null ? null : new QueryString<PluginRemoveParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Delete, $"plugins/{name}", queryParameters, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Delete, $"plugins/{name}", queryParameters, cancellationToken);
     }
 
     public Task EnablePluginAsync(string name, PluginEnableParameters? parameters = null, CancellationToken cancellationToken = default)
@@ -87,7 +87,7 @@ internal class PluginOperations : IPluginOperations
         }
 
         var queryParameters = parameters == null ? null : new QueryString<PluginEnableParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/enable", queryParameters, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/enable", queryParameters, cancellationToken);
     }
 
     public Task DisablePluginAsync(string name, PluginDisableParameters? parameters = null, CancellationToken cancellationToken = default)
@@ -98,7 +98,7 @@ internal class PluginOperations : IPluginOperations
         }
 
         var queryParameters = parameters == null ? null : new QueryString<PluginDisableParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/disable", queryParameters, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/disable", queryParameters, cancellationToken);
     }
 
     public Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default)
@@ -120,7 +120,7 @@ internal class PluginOperations : IPluginOperations
 
         var queryParameters = new QueryString<PluginUpgradeParameters>(parameters);
         var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", queryParameters, data, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/upgrade", queryParameters, data, cancellationToken);
     }
 
     public Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default)
@@ -147,7 +147,7 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(name));
         }
 
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/push", cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/push", cancellationToken);
     }
 
     public Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default)
@@ -168,6 +168,6 @@ internal class PluginOperations : IPluginOperations
         }
 
         var body = new JsonRequestContent<IList<string>>(parameters.Args, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/set", null, body, cancellationToken);
+        return _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/set", null, body, cancellationToken);
     }
 }
