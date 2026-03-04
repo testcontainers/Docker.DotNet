@@ -144,15 +144,14 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-        var line = new StringBuilder(32);
+        using var memoryStream = new MemoryStream();
 
-        var crIndex = -1;
+        const byte cr = (byte)'\r';
+        const byte lf = (byte)'\n';
 
-        var lfIndex = -1;
+        bool crFound = false;
 
-        bool crlfFound;
-
-        do
+        while (true)
         {
             if (_bufferCount == 0)
             {
@@ -160,29 +159,55 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
                 _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
                     .ConfigureAwait(false);
+
+                if (_bufferCount == 0)
+                {
+                    return null;
+                }
             }
 
-            var c = (char)_buffer[_bufferOffset];
-            line.Append(c);
-
-            _bufferOffset++;
-            _bufferCount--;
-
-            switch (c)
+            if (crFound)
             {
-                case '\r':
-                    crIndex = line.Length;
+                if (_buffer[_bufferOffset] == lf)
+                {
+                    _bufferOffset += 1;
+                    _bufferCount -= 1;
                     break;
-                case '\n':
-                    lfIndex = line.Length;
-                    break;
+                }
+                crFound = false;
+                memoryStream.WriteByte(cr);
             }
 
-            crlfFound = crIndex + 1 == lfIndex;
-        }
-        while (!crlfFound);
+            var crIndex = _buffer.AsSpan(_bufferOffset, _bufferCount).IndexOf(cr);
+            if (crIndex != -1)
+            {
+                memoryStream.Write(_buffer, _bufferOffset, crIndex);
+                _bufferOffset += crIndex + 1;
+                _bufferCount -= crIndex + 1;
 
-        return line.ToString(0, line.Length - 2);
+                if (_bufferCount > 0)
+                {
+                    if (_buffer[_bufferOffset] == lf)
+                    {
+                        _bufferOffset++;
+                        _bufferCount--;
+                        break;
+                    }
+                    memoryStream.WriteByte(cr);
+                }
+                else
+                {
+                    crFound = true;
+                }
+            }
+            else
+            {
+                memoryStream.Write(_buffer, _bufferOffset, _bufferCount);
+                _bufferCount = 0;
+            }
+        }
+
+        return Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
     }
 
     private int ReadBuffer(byte[] buffer, int offset, int count)
@@ -205,7 +230,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         {
             int toCopy = Math.Min(_bufferCount, (int)toPeek);
             Buffer.BlockCopy(_buffer, _bufferOffset, buffer, 0, toCopy);
-            peeked = (uint) toCopy;
+            peeked = (uint)toCopy;
             available = (uint)_bufferCount;
             remaining = available - peeked;
             return toCopy;
