@@ -6,8 +6,7 @@ internal class SwarmOperations : ISwarmOperations
     {
         if (statusCode == HttpStatusCode.ServiceUnavailable)
         {
-            // TODO: Make typed error.
-            throw new Exception("Node is not part of a swarm.");
+            throw new DockerSwarmNodeNotParticipatingException(statusCode, responseBody);
         }
     };
 
@@ -15,8 +14,7 @@ internal class SwarmOperations : ISwarmOperations
     {
         if (statusCode == HttpStatusCode.ServiceUnavailable)
         {
-            // TODO: Make typed error.
-            throw new Exception("Node is already part of a swarm.");
+            throw new DockerSwarmNodeAlreadyParticipatingException(statusCode, responseBody);
         }
     };
 
