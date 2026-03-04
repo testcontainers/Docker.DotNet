@@ -6,7 +6,7 @@ public class BasicAuthCredentials : IAuthProvider
 
     private readonly string _password;
 
-    private BasicAuthCredentials(string username, string password, bool tlsEnabled = false)
+    public BasicAuthCredentials(string username, string password, bool tlsEnabled = false)
     {
         _username = username;
         _password = password;
