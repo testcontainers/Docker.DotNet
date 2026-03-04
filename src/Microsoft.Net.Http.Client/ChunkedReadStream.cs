@@ -64,7 +64,7 @@ internal sealed class ChunkedReadStream : Stream
         {
             if (_chunkBytesRemaining == 0)
             {
-                var headerLine = await _inner.ReadLineAsync(memoryStream ??= new MemoryStream(), cancellationToken)
+                var headerLine = await _inner.ReadLineAsync(memoryStream = new MemoryStream(), cancellationToken)
                     .ConfigureAwait(false);
 
                 if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
@@ -95,7 +95,12 @@ internal sealed class ChunkedReadStream : Stream
                 var emptyLine = await _inner.ReadLineAsync(memoryStream ??= new MemoryStream(), cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(emptyLine))
+                if (emptyLine == null)
+                {
+                    throw new EndOfStreamException();
+                }
+
+                if (emptyLine.Length > 0)
                 {
                     throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
                 }
