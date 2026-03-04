@@ -9,7 +9,7 @@ public interface ISecretsOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
-    Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
+    Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create a secret
@@ -20,7 +20,7 @@ public interface ISecretsOperations
     /// 409 - Name conflicts with an existing object.
     /// 500 - Server error.
     /// </remarks>
-    Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken = default(CancellationToken));
+    Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inspect a secret
@@ -32,7 +32,7 @@ public interface ISecretsOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the secret.</param>
-    Task<Secret> InspectAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task<Secret> InspectAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete a secret
@@ -43,5 +43,5 @@ public interface ISecretsOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the secret.</param>
-    Task DeleteAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

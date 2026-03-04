@@ -9,46 +9,51 @@ internal class SystemOperations : ISystemOperations
         _client = client;
     }
 
-    public Task AuthenticateAsync(AuthConfig authConfig, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task AuthenticateAsync(AuthConfig authConfig, CancellationToken cancellationToken = default)
     {
         if (authConfig == null)
         {
             throw new ArgumentNullException(nameof(authConfig));
         }
+
         var data = new JsonRequestContent<AuthConfig>(authConfig, DockerClient.JsonSerializer);
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "auth", null, data, cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, "auth", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<VersionResponse> GetVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<VersionResponse> GetVersionAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<VersionResponse>(_client.NoErrorHandlers, HttpMethod.Get, "version", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<VersionResponse>(_client.NoErrorHandlers, HttpMethod.Get, "version", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task PingAsync(CancellationToken cancellationToken = default(CancellationToken))
+    public async Task PingAsync(CancellationToken cancellationToken = default)
     {
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "_ping", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Get, "_ping", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<SystemInfoResponse> GetSystemInfoAsync(CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<SystemInfoResponse> GetSystemInfoAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<SystemInfoResponse>(_client.NoErrorHandlers, HttpMethod.Get, "info", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<SystemInfoResponse>(_client.NoErrorHandlers, HttpMethod.Get, "info", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken)
+    public async Task<Stream> MonitorEventsAsync(ContainerEventsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
+        var queryParameters = new QueryString<ContainerEventsParameters>(parameters);
 
         return await _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public Task MonitorEventsAsync(ContainerEventsParameters parameters, IProgress<Message> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task MonitorEventsAsync(ContainerEventsParameters parameters, IProgress<Message> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -60,7 +65,7 @@ internal class SystemOperations : ISystemOperations
             throw new ArgumentNullException(nameof(progress));
         }
 
-        IQueryString queryParameters = new QueryString<ContainerEventsParameters>(parameters);
+        var queryParameters = new QueryString<ContainerEventsParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Get, "events", queryParameters, cancellationToken),
