@@ -4,7 +4,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 {
     private readonly Stream _inner;
 
-    private readonly Socket _socket;
+    private readonly Socket? _socket;
 
     private readonly byte[] _buffer;
 
@@ -16,14 +16,14 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     private int _bufferCount;
 
-    private MemoryStream _readLineBuffer;
+    private MemoryStream? _readLineBuffer;
 
-    public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
+    public BufferedReadStream(Stream inner, Socket? socket, ILogger logger)
         : this(inner, socket, 8192, logger)
     {
     }
 
-    public BufferedReadStream(Stream inner, Socket socket, int bufferLength, ILogger logger)
+    public BufferedReadStream(Stream inner, Socket? socket, int bufferLength, ILogger logger)
     {
         _inner = inner ?? throw new ArgumentNullException(nameof(inner));
         _socket = socket;
@@ -146,7 +146,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         throw new NotSupportedException("_inner stream isn't a peekable stream");
     }
 
-    public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
+    public async Task<string?> ReadLineAsync(CancellationToken cancellationToken)
     {
         if (_readLineBuffer == null)
         {

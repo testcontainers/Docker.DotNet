@@ -5,6 +5,9 @@
     <Description>A Docker.DotNet extension that adds X.509 client certificate authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
   <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
     <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">

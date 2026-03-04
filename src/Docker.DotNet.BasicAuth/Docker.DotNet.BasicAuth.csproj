@@ -4,6 +4,9 @@
     <PackageId>Docker.DotNet.Enhanced.BasicAuth</PackageId>
     <Description>A Docker.DotNet extension that adds Basic Authentication for remote Docker Engine connections.</Description>
   </PropertyGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>
