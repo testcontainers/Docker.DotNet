@@ -11,18 +11,9 @@ internal class SwarmOperations : ISwarmOperations
         }
     };
 
-    private static readonly ApiResponseErrorHandlingDelegate AlreadyInSwarmJoinResponseHandler = (statusCode, responseBody) =>
+    private static readonly ApiResponseErrorHandlingDelegate AlreadyInSwarmResponseHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.ServiceUnavailable)
-        {
-            // TODO: Make typed error.
-            throw new Exception("Node is already part of a swarm.");
-        }
-    };
-
-    private static readonly ApiResponseErrorHandlingDelegate AlreadyInSwarmInitResponseHandler = (statusCode, responseBody) =>
-    {
-        if (statusCode == HttpStatusCode.NotAcceptable)
         {
             // TODO: Make typed error.
             throw new Exception("Node is already part of a swarm.");
@@ -56,7 +47,7 @@ internal class SwarmOperations : ISwarmOperations
     {
         var data = new JsonRequestContent<SwarmInitParameters>(parameters, DockerClient.JsonSerializer);
 
-        return await _client.MakeRequestAsync<string>([AlreadyInSwarmInitResponseHandler], HttpMethod.Post, "swarm/init", null, data, cancellationToken)
+        return await _client.MakeRequestAsync<string>([AlreadyInSwarmResponseHandler], HttpMethod.Post, "swarm/init", null, data, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -81,7 +72,7 @@ internal class SwarmOperations : ISwarmOperations
     {
         var data = new JsonRequestContent<SwarmJoinParameters>(parameters, DockerClient.JsonSerializer);
 
-        await _client.MakeRequestAsync([AlreadyInSwarmJoinResponseHandler], HttpMethod.Post, "swarm/join", null, data, cancellationToken)
+        await _client.MakeRequestAsync([AlreadyInSwarmResponseHandler], HttpMethod.Post, "swarm/join", null, data, cancellationToken)
             .ConfigureAwait(false);
     }
 
