@@ -114,11 +114,12 @@ internal sealed class HttpConnection : IDisposable
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
     {
+        using var memoryStream = new MemoryStream();
         var lines = new List<string>(12);
 
         do
         {
-            var line = await Transport.ReadLineAsync(cancellationToken)
+            var line = await Transport.ReadLineAsync(memoryStream, cancellationToken)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(line))

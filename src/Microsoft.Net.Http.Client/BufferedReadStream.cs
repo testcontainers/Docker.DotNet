@@ -142,9 +142,9 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         throw new NotSupportedException("_inner stream isn't a peekable stream");
     }
 
-    public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
+    public async Task<string> ReadLineAsync(MemoryStream memoryStream, CancellationToken cancellationToken)
     {
-        using var memoryStream = new MemoryStream();
+        memoryStream.SetLength(0);
 
         const byte cr = (byte)'\r';
         const byte lf = (byte)'\n';
