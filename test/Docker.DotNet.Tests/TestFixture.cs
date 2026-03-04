@@ -93,7 +93,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
 
             _hasInitializedSwarm = true;
         }
-        catch
+        catch (DockerSwarmNodeAlreadyParticipatingException)
         {
             this.LogInformation("Couldn't init a new swarm, the node should take part of an existing one.");
 
