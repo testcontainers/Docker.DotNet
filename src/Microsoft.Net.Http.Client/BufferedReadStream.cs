@@ -170,8 +170,8 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             {
                 if (_buffer[_bufferOffset] == lf)
                 {
-                    _bufferOffset += 1;
-                    _bufferCount -= 1;
+                    _bufferOffset++;
+                    _bufferCount--;
                     break;
                 }
                 crFound = false;
