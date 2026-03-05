@@ -26,7 +26,7 @@ public sealed class DockerClient : IDockerClient
         _clientOptions = clientOptions;
         _hijack = hijack;
 
-        Options  = clientOptions;
+        Options = clientOptions;
         System = new SystemOperations(this);
         Containers = new ContainerOperations(this);
         Images = new ImageOperations(this);
