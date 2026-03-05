@@ -26,6 +26,7 @@ public sealed class DockerClient : IDockerClient
         _clientOptions = clientOptions;
         _hijack = hijack;
 
+        Options = clientOptions;
         System = new SystemOperations(this);
         Containers = new ContainerOperations(this);
         Images = new ImageOperations(this);
@@ -38,6 +39,8 @@ public sealed class DockerClient : IDockerClient
         Plugin = new PluginOperations(this);
         Exec = new ExecOperations(this);
     }
+
+    public ClientOptions Options { get; }
 
     public ISystemOperations System { get; }
 

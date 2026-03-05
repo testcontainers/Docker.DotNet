@@ -37,7 +37,7 @@ public class DockerClientBuilder
     /// </summary>
     /// <param name="version">The requested API version.</param>
     /// <returns>The builder instance.</returns>
-    public DockerClientBuilder WithApiVersion(Version version)
+    public DockerClientBuilder WithApiVersion(Version? version)
     {
         ClientOptions = ClientOptions with { ApiVersion = version };
         return this;
@@ -59,9 +59,11 @@ public class DockerClientBuilder
     /// </summary>
     /// <param name="authProvider">The authentication provider.</param>
     /// <returns>The builder instance.</returns>
-    public DockerClientBuilder WithAuthProvider(IAuthProvider authProvider)
+    public DockerClientBuilder WithAuthProvider(IAuthProvider? authProvider)
     {
-        ClientOptions = ClientOptions with { AuthProvider = authProvider };
+        var nonNullableAuthProvider = authProvider ?? NoopAuthProvider.Instance;
+
+        ClientOptions = ClientOptions with { AuthProvider = nonNullableAuthProvider };
         return this;
     }
 
