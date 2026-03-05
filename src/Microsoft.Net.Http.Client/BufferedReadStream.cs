@@ -16,6 +16,8 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     private int _bufferCount;
 
+    private MemoryStream _readLineBuffer;
+
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
     {
@@ -62,6 +64,8 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
+
+            _readLineBuffer?.Dispose();
 
             _inner.Dispose();
         }
@@ -142,9 +146,16 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         throw new NotSupportedException("_inner stream isn't a peekable stream");
     }
 
-    public async Task<string> ReadLineAsync(MemoryStream memoryStream, CancellationToken cancellationToken)
+    public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-        memoryStream.SetLength(0);
+        if (_readLineBuffer == null)
+        {
+            _readLineBuffer = new MemoryStream();
+        }
+        else
+        {
+            _readLineBuffer.SetLength(0);
+        }
 
         const byte cr = (byte)'\r';
         const byte lf = (byte)'\n';
@@ -175,13 +186,13 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
                     break;
                 }
                 crFound = false;
-                memoryStream.WriteByte(cr);
+                _readLineBuffer.WriteByte(cr);
             }
 
             var crIndex = _buffer.AsSpan(_bufferOffset, _bufferCount).IndexOf(cr);
             if (crIndex != -1)
             {
-                memoryStream.Write(_buffer, _bufferOffset, crIndex);
+                _readLineBuffer.Write(_buffer, _bufferOffset, crIndex);
                 _bufferOffset += crIndex + 1;
                 _bufferCount -= crIndex + 1;
 
@@ -193,7 +204,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
                         _bufferCount--;
                         break;
                     }
-                    memoryStream.WriteByte(cr);
+                    _readLineBuffer.WriteByte(cr);
                 }
                 else
                 {
@@ -202,12 +213,12 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             }
             else
             {
-                memoryStream.Write(_buffer, _bufferOffset, _bufferCount);
+                _readLineBuffer.Write(_buffer, _bufferOffset, _bufferCount);
                 _bufferCount = 0;
             }
         }
 
-        return Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
+        return Encoding.ASCII.GetString(_readLineBuffer.GetBuffer(), 0, (int)_readLineBuffer.Length);
     }
 
     private int ReadBuffer(byte[] buffer, int offset, int count)

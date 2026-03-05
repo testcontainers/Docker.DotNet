@@ -59,61 +59,53 @@ internal sealed class ChunkedReadStream : Stream
             return 0;
         }
 
-        MemoryStream memoryStream = null;
-        try
+        if (_chunkBytesRemaining == 0)
         {
-            if (_chunkBytesRemaining == 0)
+            var headerLine = await _inner.ReadLineAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
             {
-                var headerLine = await _inner.ReadLineAsync(memoryStream = new MemoryStream(), cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
-                {
-                    throw new IOException($"Invalid chunk header encountered: '{headerLine}'.");
-                }
+                throw new IOException($"Invalid chunk header encountered: '{headerLine}'.");
             }
-
-            var readBytesCount = 0;
-
-            if (_chunkBytesRemaining > 0)
-            {
-                var remainingBytesCount = Math.Min(_chunkBytesRemaining, count);
-
-                readBytesCount = await _inner.ReadAsync(buffer, offset, remainingBytesCount, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (readBytesCount == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-
-                _chunkBytesRemaining -= readBytesCount;
-            }
-
-            if (_chunkBytesRemaining == 0)
-            {
-                var emptyLine = await _inner.ReadLineAsync(memoryStream ??= new MemoryStream(), cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (emptyLine == null)
-                {
-                    throw new EndOfStreamException();
-                }
-
-                if (emptyLine.Length > 0)
-                {
-                    throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
-                }
-
-                _done = readBytesCount == 0;
-            }
-
-            return readBytesCount;
         }
-        finally
+
+        var readBytesCount = 0;
+
+        if (_chunkBytesRemaining > 0)
         {
-            memoryStream?.Dispose();
+            var remainingBytesCount = Math.Min(_chunkBytesRemaining, count);
+
+            readBytesCount = await _inner.ReadAsync(buffer, offset, remainingBytesCount, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (readBytesCount == 0)
+            {
+                throw new EndOfStreamException();
+            }
+
+            _chunkBytesRemaining -= readBytesCount;
         }
+
+        if (_chunkBytesRemaining == 0)
+        {
+            var emptyLine = await _inner.ReadLineAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (emptyLine == null)
+            {
+                throw new EndOfStreamException();
+            }
+
+            if (emptyLine.Length > 0)
+            {
+                throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
+            }
+
+            _done = readBytesCount == 0;
+        }
+
+        return readBytesCount;
     }
 
     public override long Seek(long offset, SeekOrigin origin)
