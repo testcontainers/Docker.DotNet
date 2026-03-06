@@ -16,6 +16,8 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     private int _bufferCount;
 
+    private MemoryStream _readLineBuffer;
+
     public BufferedReadStream(Stream inner, Socket socket, ILogger logger)
         : this(inner, socket, 8192, logger)
     {
@@ -62,6 +64,8 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
             }
+
+            _readLineBuffer?.Dispose();
 
             _inner.Dispose();
         }
@@ -144,15 +148,21 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
     public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-        var line = new StringBuilder(32);
+        if (_readLineBuffer == null)
+        {
+            _readLineBuffer = new MemoryStream();
+        }
+        else
+        {
+            _readLineBuffer.SetLength(0);
+        }
 
-        var crIndex = -1;
+        const byte cr = (byte)'\r';
+        const byte lf = (byte)'\n';
 
-        var lfIndex = -1;
+        bool crFound = false;
 
-        bool crlfFound;
-
-        do
+        while (true)
         {
             if (_bufferCount == 0)
             {
@@ -160,29 +170,65 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
                 _bufferCount = await _inner.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken)
                     .ConfigureAwait(false);
+
+                if (_bufferCount == 0)
+                {
+                    if (crFound)
+                    {
+                        _readLineBuffer.WriteByte(cr);
+                    }
+
+                    if (_readLineBuffer.Length == 0)
+                    {
+                        return null;
+                    }
+
+                    break; // return what is left in _readLineBuffer
+                }
             }
 
-            var c = (char)_buffer[_bufferOffset];
-            line.Append(c);
-
-            _bufferOffset++;
-            _bufferCount--;
-
-            switch (c)
+            if (crFound)
             {
-                case '\r':
-                    crIndex = line.Length;
+                if (_buffer[_bufferOffset] == lf)
+                {
+                    _bufferOffset++;
+                    _bufferCount--;
                     break;
-                case '\n':
-                    lfIndex = line.Length;
-                    break;
+                }
+                crFound = false;
+                _readLineBuffer.WriteByte(cr);
             }
 
-            crlfFound = crIndex + 1 == lfIndex;
-        }
-        while (!crlfFound);
+            var crIndex = _buffer.AsSpan(_bufferOffset, _bufferCount).IndexOf(cr);
+            if (crIndex != -1)
+            {
+                _readLineBuffer.Write(_buffer, _bufferOffset, crIndex);
+                _bufferOffset += crIndex + 1;
+                _bufferCount -= crIndex + 1;
 
-        return line.ToString(0, line.Length - 2);
+                if (_bufferCount > 0)
+                {
+                    if (_buffer[_bufferOffset] == lf)
+                    {
+                        _bufferOffset++;
+                        _bufferCount--;
+                        break;
+                    }
+                    _readLineBuffer.WriteByte(cr);
+                }
+                else
+                {
+                    crFound = true;
+                }
+            }
+            else
+            {
+                _readLineBuffer.Write(_buffer, _bufferOffset, _bufferCount);
+                _bufferCount = 0;
+            }
+        }
+
+        return Encoding.ASCII.GetString(_readLineBuffer.GetBuffer(), 0, (int)_readLineBuffer.Length);
     }
 
     private int ReadBuffer(byte[] buffer, int offset, int count)
@@ -205,7 +251,7 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
         {
             int toCopy = Math.Min(_bufferCount, (int)toPeek);
             Buffer.BlockCopy(_buffer, _bufferOffset, buffer, 0, toCopy);
-            peeked = (uint) toCopy;
+            peeked = (uint)toCopy;
             available = (uint)_bufferCount;
             remaining = available - peeked;
             return toCopy;

@@ -92,7 +92,12 @@ internal sealed class ChunkedReadStream : Stream
             var emptyLine = await _inner.ReadLineAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(emptyLine))
+            if (emptyLine == null)
+            {
+                throw new EndOfStreamException();
+            }
+
+            if (emptyLine.Length > 0)
             {
                 throw new IOException($"Expected an empty line, but received: '{emptyLine}'.");
             }
