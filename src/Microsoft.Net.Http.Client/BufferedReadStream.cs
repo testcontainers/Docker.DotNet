@@ -173,7 +173,17 @@ internal sealed class BufferedReadStream : WriteClosableStream, IPeekableStream
 
                 if (_bufferCount == 0)
                 {
-                    return null;
+                    if (crFound)
+                    {
+                        _readLineBuffer.WriteByte(cr);
+                    }
+
+                    if (_readLineBuffer.Length == 0)
+                    {
+                        return null;
+                    }
+
+                    break; // return what is left in _readLineBuffer
                 }
             }
 
