@@ -20,10 +20,12 @@
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Concurrent" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.IO" />
     <Using Include="System.Linq" />
     <Using Include="System.Net.Security" />
+    <Using Include="System.Net.NetworkInformation" />
     <Using Include="System.Reflection" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
