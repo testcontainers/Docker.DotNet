@@ -60,4 +60,20 @@ internal class ExecOperations : IExecOperations
 
         return new MultiplexedStream(response, !parameters.TTY);
     }
+
+    public Task ResizeExecTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        var queryParameters = new QueryString<ContainerResizeParameters>(parameters);
+        return _client.MakeRequestAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken);
+    }
 }
