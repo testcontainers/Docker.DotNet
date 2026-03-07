@@ -2,9 +2,6 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
   </ItemGroup>

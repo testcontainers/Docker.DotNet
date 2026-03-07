@@ -5,9 +5,6 @@
     <Description>A Docker.DotNet transport implementation for HTTP(S) Docker Engine connections.</Description>
   </PropertyGroup>
   <PropertyGroup>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <PropertyGroup>
     <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
   </PropertyGroup>
   <ItemGroup>

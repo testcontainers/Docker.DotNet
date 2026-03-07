@@ -18,6 +18,10 @@
         <PackageIconUrl>https://github.com/testcontainers/Docker.DotNet/raw/main/icon.png</PackageIconUrl>
     </PropertyGroup>
 
+    <PropertyGroup>
+      <Nullable>enable</Nullable>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>

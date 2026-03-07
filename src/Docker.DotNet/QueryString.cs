@@ -4,7 +4,7 @@ internal class QueryString<T> : IQueryString where T : class
 {
     private T Object { get; }
 
-    private Tuple<PropertyInfo, QueryStringParameterAttribute>[] AttributedPublicProperties { get; }
+    private Dictionary<PropertyInfo, QueryStringParameterAttribute> AttributedPublicProperties { get; }
 
     private IQueryStringConverterInstanceFactory QueryStringConverterInstanceFactory { get; }
 
@@ -25,8 +25,8 @@ internal class QueryString<T> : IQueryString where T : class
         var queryParameters = new Dictionary<string, string[]>();
         foreach (var pair in AttributedPublicProperties)
         {
-            var property = pair.Item1;
-            var attribute = pair.Item2;
+            var property = pair.Key;
+            var attribute = pair.Value;
             var value = property.GetValue(Object, null);
 
             // 'Required' check
@@ -43,12 +43,12 @@ internal class QueryString<T> : IQueryString where T : class
                 string[] valueStr;
                 if (attribute.ConverterType == null)
                 {
-                    valueStr = new[] { value.ToString() };
+                    valueStr = [value!.ToString()!];
                 }
                 else
                 {
                     var converter = QueryStringConverterInstanceFactory.GetConverterInstance(attribute.ConverterType);
-                    valueStr = ConvertValue(converter, value);
+                    valueStr = ConvertValue(converter, value!);
 
                     if (valueStr == null)
                     {
@@ -76,7 +76,7 @@ internal class QueryString<T> : IQueryString where T : class
                         v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
     }
 
-    private string[] ConvertValue(IQueryStringConverter converter, object value)
+    private static string[] ConvertValue(IQueryStringConverter converter, object value)
     {
         if (!converter.CanConvert(value.GetType()))
         {
@@ -86,27 +86,30 @@ internal class QueryString<T> : IQueryString where T : class
         return converter.Convert(value);
     }
 
-    private Tuple<PropertyInfo, TAttribType>[] FindAttributedPublicProperties<TValue, TAttribType>() where TAttribType : Attribute
+    private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<TValue, TAttribType>() where TAttribType : Attribute
     {
         var t = typeof(TValue);
-        var ofAttributeType = typeof(TAttribType);
+        Dictionary<PropertyInfo, TAttribType>? attributedPublicProperties = null;
 
-        var properties = t.GetProperties();
-        var publicProperties = properties.Where(p => p.GetGetMethod(false).IsPublic);
-        if (!publicProperties.Any())
+        foreach (var prop in t.GetProperties())
         {
-            throw new InvalidOperationException($"No public property getters found on type {t.FullName}.");
+            if (prop.GetGetMethod(false)?.IsPublic == true)
+            {
+                var attribute = prop.GetCustomAttribute<TAttribType>();
+                if (attribute != null)
+                {
+                    attributedPublicProperties ??= new Dictionary<PropertyInfo, TAttribType>();
+                    attributedPublicProperties.Add(prop, attribute);
+                }
+            }
         }
 
-        var attributedPublicProperties = properties.Where(p => p.GetCustomAttribute<TAttribType>() != null).ToArray();
-        if (!attributedPublicProperties.Any())
+        if (attributedPublicProperties == null)
         {
-            throw new InvalidOperationException(
-                $"No public properties attributed with [{ofAttributeType.FullName}] found on type {t.FullName}.");
+            throw new InvalidOperationException($"No public properties attributed with [{typeof(TAttribType).FullName}] found on type {t.FullName}.");
         }
 
-        return attributedPublicProperties.Select(pi =>
-            new Tuple<PropertyInfo, TAttribType>(pi, pi.GetCustomAttribute<TAttribType>())).ToArray();
+        return attributedPublicProperties;
     }
 
     private static bool IsDefaultOfType(object? o)

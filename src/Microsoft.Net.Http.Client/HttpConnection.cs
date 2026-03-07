@@ -126,7 +126,7 @@ internal sealed class HttpConnection : IDisposable
                 break;
             }
 
-            lines.Add(line);
+            lines.Add(line!);
         }
         while (true);
 
