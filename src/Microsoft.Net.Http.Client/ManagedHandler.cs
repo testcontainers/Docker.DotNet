@@ -4,11 +4,11 @@ public class ManagedHandler : HttpMessageHandler
 {
     private readonly ILogger _logger;
 
-    private readonly StreamOpener _streamOpener;
+    private readonly StreamOpener? _streamOpener;
 
-    private readonly SocketOpener _socketOpener;
+    private readonly SocketOpener? _socketOpener;
 
-    private IWebProxy _proxy;
+    private IWebProxy? _proxy;
 
     public delegate Task<Stream> StreamOpener(string host, int port, CancellationToken cancellationToken);
 
@@ -32,7 +32,7 @@ public class ManagedHandler : HttpMessageHandler
         _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
     }
 
-    public IWebProxy Proxy
+    public IWebProxy? Proxy
     {
         get
         {
@@ -55,7 +55,7 @@ public class ManagedHandler : HttpMessageHandler
 
     public RedirectMode RedirectMode { get; set; } = RedirectMode.NoDowngrade;
 
-    public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
+    public RemoteCertificateValidationCallback? ServerCertificateValidationCallback { get; set; }
 
     public X509CertificateCollection ClientCertificates { get; set; } = new X509Certificate2Collection();
 
@@ -66,7 +66,7 @@ public class ManagedHandler : HttpMessageHandler
             throw new ArgumentNullException(nameof(httpRequestMessage));
         }
 
-        HttpResponseMessage httpResponseMessage = null;
+        HttpResponseMessage? httpResponseMessage = null;
 
         for (var i = 0; i < MaxAutomaticRedirects; i++)
         {
@@ -81,7 +81,7 @@ public class ManagedHandler : HttpMessageHandler
             }
         }
 
-        return httpResponseMessage;
+        return httpResponseMessage!;
     }
 
     private bool IsRedirectResponse(HttpRequestMessage request, HttpResponseMessage response)
@@ -142,20 +142,24 @@ public class ManagedHandler : HttpMessageHandler
         request.Headers.ConnectionClose = !request.Headers.Contains("Connection"); // TODO: Connection reuse is not supported.
 
         ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
-        Socket socket;
+        Socket? socket;
         Stream transport;
 
         try
         {
             if (_socketOpener != null)
             {
-                socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
+                socket = await _socketOpener(request.GetConnectionHostProperty()!, request.GetConnectionPortProperty()!.Value, cancellationToken).ConfigureAwait(false);
                 transport = new NetworkStream(socket, true);
+            }
+            else if (_streamOpener != null)
+            {
+                socket = null;
+                transport = await _streamOpener(request.GetConnectionHostProperty()!, request.GetConnectionPortProperty()!.Value, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                socket = null;
-                transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
+                throw new Exception("Missing socketOpener or streamOpener");
             }
         }
         catch (SocketException e)
@@ -171,7 +175,7 @@ public class ManagedHandler : HttpMessageHandler
         if (request.IsHttps())
         {
             SslStream sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
-            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty(), ClientCertificates, SslProtocols.Tls12, false);
+            await sslStream.AuthenticateAsClientAsync(request.GetHostProperty()!, ClientCertificates, SslProtocols.Tls12, false);
             transport = sslStream;
         }
 
@@ -183,10 +187,10 @@ public class ManagedHandler : HttpMessageHandler
     // Data comes from either the request.RequestUri or from the request.Properties
     private static void ProcessUrl(HttpRequestMessage request)
     {
-        string scheme = request.GetSchemeProperty();
+        string? scheme = request.GetSchemeProperty();
         if (string.IsNullOrWhiteSpace(scheme))
         {
-            if (!request.RequestUri.IsAbsoluteUri)
+            if (!request.RequestUri!.IsAbsoluteUri)
             {
                 throw new InvalidOperationException("Missing URL Scheme");
             }
@@ -196,13 +200,13 @@ public class ManagedHandler : HttpMessageHandler
 
         if (!request.IsHttp() && !request.IsHttps())
         {
-            throw new InvalidOperationException("Only HTTP or HTTPS are supported, not: " + request.RequestUri.Scheme);
+            throw new InvalidOperationException("Only HTTP or HTTPS are supported, not: " + request.RequestUri?.Scheme);
         }
 
-        string host = request.GetHostProperty();
+        string? host = request.GetHostProperty();
         if (string.IsNullOrWhiteSpace(host))
         {
-            if (!request.RequestUri.IsAbsoluteUri)
+            if (!request.RequestUri!.IsAbsoluteUri)
             {
                 throw new InvalidOperationException("Missing URL Scheme");
             }
@@ -210,7 +214,7 @@ public class ManagedHandler : HttpMessageHandler
             request.SetHostProperty(host);
         }
 
-        string connectionHost = request.GetConnectionHostProperty();
+        string? connectionHost = request.GetConnectionHostProperty();
         if (string.IsNullOrWhiteSpace(connectionHost))
         {
             request.SetConnectionHostProperty(host);
@@ -219,7 +223,7 @@ public class ManagedHandler : HttpMessageHandler
         int? port = request.GetPortProperty();
         if (!port.HasValue)
         {
-            if (!request.RequestUri.IsAbsoluteUri)
+            if (!request.RequestUri!.IsAbsoluteUri)
             {
                 throw new InvalidOperationException("Missing URL Scheme");
             }
@@ -233,10 +237,10 @@ public class ManagedHandler : HttpMessageHandler
             request.SetConnectionPortProperty(port);
         }
 
-        string pathAndQuery = request.GetPathAndQueryProperty();
+        string? pathAndQuery = request.GetPathAndQueryProperty();
         if (string.IsNullOrWhiteSpace(pathAndQuery))
         {
-            if (request.RequestUri.IsAbsoluteUri)
+            if (request.RequestUri!.IsAbsoluteUri)
             {
                 pathAndQuery = request.RequestUri.PathAndQuery;
             }
@@ -252,9 +256,9 @@ public class ManagedHandler : HttpMessageHandler
     {
         if (string.IsNullOrWhiteSpace(request.Headers.Host))
         {
-            string host = request.GetHostProperty();
-            int port = request.GetPortProperty().Value;
-            if (host.Contains(':'))
+            string? host = request.GetHostProperty();
+            int port = request.GetPortProperty()!.Value;
+            if (host?.Contains(':') == true)
             {
                 // IPv6
                 host = '[' + host + ']';
@@ -266,11 +270,8 @@ public class ManagedHandler : HttpMessageHandler
 
     private ProxyMode DetermineProxyModeAndAddressLine(HttpRequestMessage request)
     {
-        string scheme = request.GetSchemeProperty();
-        string host = request.GetHostProperty();
-        int? port = request.GetPortProperty();
-        string pathAndQuery = request.GetPathAndQueryProperty();
-        string addressLine = request.GetAddressLineProperty();
+        string? pathAndQuery = request.GetPathAndQueryProperty();
+        string? addressLine = request.GetAddressLineProperty();
 
         if (string.IsNullOrEmpty(addressLine))
         {
@@ -279,7 +280,7 @@ public class ManagedHandler : HttpMessageHandler
 
         try
         {
-            if (!UseProxy || Proxy == null || Proxy.IsBypassed(request.RequestUri))
+            if (!UseProxy || Proxy == null || Proxy.IsBypassed(request.RequestUri!))
             {
                 return ProxyMode.None;
             }
@@ -289,7 +290,7 @@ public class ManagedHandler : HttpMessageHandler
             return ProxyMode.None;
         }
 
-        var proxyUri = Proxy.GetProxy(request.RequestUri);
+        var proxyUri = Proxy.GetProxy(request.RequestUri!);
         if (proxyUri == null)
         {
             return ProxyMode.None;
@@ -299,7 +300,11 @@ public class ManagedHandler : HttpMessageHandler
         {
             if (string.IsNullOrEmpty(addressLine))
             {
-                addressLine = scheme + "://" + host + ":" + port.Value + pathAndQuery;
+                string? scheme = request.GetSchemeProperty();
+                string? host = request.GetHostProperty();
+                int port = request.GetPortProperty()!.Value;
+
+                addressLine = scheme + "://" + host + ":" + port.ToString(CultureInfo.InvariantCulture) + pathAndQuery;
                 request.SetAddressLineProperty(addressLine);
             }
             request.SetConnectionHostProperty(proxyUri.DnsSafeHost);
@@ -357,7 +362,7 @@ public class ManagedHandler : HttpMessageHandler
         connectRequest.Headers.ProxyAuthorization = request.Headers.ProxyAuthorization;
         connectRequest.Method = new HttpMethod("CONNECT");
         // TODO: IPv6 hosts
-        string authority = request.GetHostProperty() + ":" + request.GetPortProperty().Value;
+        string authority = request.GetHostProperty() + ":" + request.GetPortProperty()!.Value;
         connectRequest.SetAddressLineProperty(authority);
         connectRequest.Headers.Host = authority;
 
