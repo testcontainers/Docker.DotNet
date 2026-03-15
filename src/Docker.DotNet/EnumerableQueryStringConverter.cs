@@ -15,11 +15,13 @@ internal class EnumerableQueryStringConverter : IQueryStringConverter
         Debug.Assert(o != null);
         Debug.Assert(o is IEnumerable);
 
+        var enumerable = (IEnumerable)o!;
+
         var items = new List<string>();
-        foreach (var e in (IEnumerable)o!)
+
+        foreach (var e in enumerable)
         {
-            if (e is ValueType ||
-                e is string)
+            if (e is string or ValueType)
             {
                 items.Add(e.ToString()!);
             }

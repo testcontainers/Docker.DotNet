@@ -2,9 +2,9 @@ namespace Docker.DotNet.X509;
 
 public class CertificateCredentials : IAuthProvider
 {
-    private readonly X509Certificate2 _certificate;
+    private readonly X509Certificate2? _certificate;
 
-    public CertificateCredentials(X509Certificate2 certificate)
+    public CertificateCredentials(X509Certificate2? certificate)
     {
         _certificate = certificate;
     }
@@ -39,6 +39,7 @@ public class CertificateCredentials : IAuthProvider
             {
                 httpHandler.ServerCertificateCustomValidationCallback = (message, certificate, chain, sslPolicyErrors) => serverCertificateValidationCallback(message, certificate, chain, sslPolicyErrors);
             }
+
             return httpHandler;
         }
 #endif

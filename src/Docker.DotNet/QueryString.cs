@@ -88,8 +88,9 @@ internal class QueryString<T> : IQueryString where T : class
 
     private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<TValue, TAttribType>() where TAttribType : Attribute
     {
-        var t = typeof(TValue);
         Dictionary<PropertyInfo, TAttribType>? attributedPublicProperties = null;
+
+        var t = typeof(TValue);
 
         foreach (var prop in t.GetProperties())
         {
