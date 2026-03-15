@@ -2,16 +2,16 @@ namespace Docker.DotNet.X509;
 
 public class CertificateCredentials : IAuthProvider
 {
-    private readonly X509Certificate2 _certificate;
+    private readonly X509Certificate2? _certificate;
 
-    public CertificateCredentials(X509Certificate2 certificate)
+    public CertificateCredentials(X509Certificate2? certificate)
     {
         _certificate = certificate;
     }
 
     public bool TlsEnabled => true;
 
-    public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
+    public RemoteCertificateValidationCallback? ServerCertificateValidationCallback { get; set; }
 
     public HttpMessageHandler ConfigureHandler(HttpMessageHandler handler)
     {
@@ -35,7 +35,11 @@ public class CertificateCredentials : IAuthProvider
                 httpHandler.ClientCertificates.Add(_certificate);
             }
 
-            httpHandler.ServerCertificateCustomValidationCallback = (message, certificate, chain, sslPolicyErrors) => ServerCertificateValidationCallback(message, certificate, chain, sslPolicyErrors);
+            if (ServerCertificateValidationCallback is { } serverCertificateValidationCallback)
+            {
+                httpHandler.ServerCertificateCustomValidationCallback = (message, certificate, chain, sslPolicyErrors) => serverCertificateValidationCallback(message, certificate, chain, sslPolicyErrors);
+            }
+
             return httpHandler;
         }
 #endif

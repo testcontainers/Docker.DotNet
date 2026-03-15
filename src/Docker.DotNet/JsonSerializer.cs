@@ -48,12 +48,12 @@ internal sealed class JsonSerializer
 
     public T Deserialize<T>(byte[] json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize<T>(json, _options);
+        return System.Text.Json.JsonSerializer.Deserialize<T>(json, _options)!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
     {
-        return content.ReadFromJsonAsync<T>(_options, cancellationToken);
+        return content.ReadFromJsonAsync<T>(_options, cancellationToken)!;
     }
 
     public async IAsyncEnumerable<T> DeserializeAsync<T>(Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -69,7 +69,7 @@ internal sealed class JsonSerializer
 
             while (!buffer.IsEmpty && TryParseJson(ref buffer, out var jsonDocument))
             {
-                yield return jsonDocument.Deserialize<T>(_options);
+                yield return jsonDocument!.Deserialize<T>(_options)!;
             }
 
             if (result.IsCompleted)
@@ -83,7 +83,7 @@ internal sealed class JsonSerializer
         await reader.CompleteAsync();
     }
 
-    private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument jsonDocument)
+    private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument? jsonDocument)
     {
         var reader = new Utf8JsonReader(buffer, isFinalBlock: false, default);
 

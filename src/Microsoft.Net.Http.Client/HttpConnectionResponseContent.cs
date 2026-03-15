@@ -3,7 +3,7 @@ namespace Microsoft.Net.Http.Client;
 public class HttpConnectionResponseContent : HttpContent
 {
     private readonly HttpConnection _connection;
-    private Stream _responseStream;
+    private Stream? _responseStream;
 
     internal HttpConnectionResponseContent(HttpConnection connection)
     {
@@ -40,21 +40,21 @@ public class HttpConnectionResponseContent : HttpContent
         return _connection.Transport;
     }
 
-    protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+    protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
     {
-        return _responseStream.CopyToAsync(stream);
+        return _responseStream!.CopyToAsync(stream);
     }
 
 #if NET6_0_OR_GREATER
-    protected override Task SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken cancellationToken)
+    protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
-        return _responseStream.CopyToAsync(stream, cancellationToken);
+        return _responseStream!.CopyToAsync(stream, cancellationToken);
     }
 #endif
 
     protected override Task<Stream> CreateContentReadStreamAsync()
     {
-        return Task.FromResult(_responseStream);
+        return Task.FromResult(_responseStream!);
     }
 
     protected override bool TryComputeLength(out long length)
@@ -69,7 +69,7 @@ public class HttpConnectionResponseContent : HttpContent
         {
             if (disposing)
             {
-                _responseStream.Dispose();
+                _responseStream?.Dispose();
                 _connection.Dispose();
             }
         }

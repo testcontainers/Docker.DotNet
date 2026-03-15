@@ -7,7 +7,7 @@ internal class EnumerableQueryStringConverter : IQueryStringConverter
 {
     public bool CanConvert(Type t)
     {
-        return typeof (IEnumerable).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo());
+        return typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo());
     }
 
     public string[] Convert(object o)
@@ -15,13 +15,15 @@ internal class EnumerableQueryStringConverter : IQueryStringConverter
         Debug.Assert(o != null);
         Debug.Assert(o is IEnumerable);
 
+        var enumerable = (IEnumerable)o!;
+
         var items = new List<string>();
-        foreach (var e in ((IEnumerable) o))
+
+        foreach (var e in enumerable)
         {
-            if (e is ValueType ||
-                e is string)
+            if (e is string or ValueType)
             {
-                items.Add(e.ToString());
+                items.Add(e.ToString()!);
             }
             else
             {
