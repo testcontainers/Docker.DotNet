@@ -119,7 +119,7 @@ public sealed class DockerClientBuilderTests
     [Theory]
     [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
     [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
-    public void ResolveTransportFactory_UsesExpectedFactory_ForSocketSchemes(string endpoint, Type expectedFactoryType)
+    public void ResolveTransportFactory_UsesExpectedFactory_WhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
     {
         var builder = new TestDockerClientBuilder();
 
@@ -129,7 +129,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void ResolveTransportFactory_WithHttpScheme_UsesConfiguredDefaultHttpFactory()
+    public void ResolveTransportFactory_UsesExpectedFactory_WhenHttpSchemeIsProvided()
     {
         var builder = new TestDockerClientBuilder();
 
@@ -143,30 +143,79 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_WithExplicitTransport_UsesProvidedFactoryAndOptions()
+    public void Build_PreservesClientOptionsAndLogger_WhenSetBeforeTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
 
         var transportOptions = new FakeTransportOptions();
 
+        const string headerName = "x-test";
+        const string headerValue = "value";
+
+        var apiVersion = new Version(1, 52);
+        var endpoint = new Uri("http://localhost:2375");
+        var authProvider = new PassThroughAuthProvider(true);
+        var timeout = TimeSpan.FromSeconds(1);
+        var logger = NullLogger.Instance;
+
         _ = new DockerClientBuilder()
+            .WithApiVersion(apiVersion)
+            .WithEndpoint(endpoint)
+            .WithAuthProvider(authProvider)
+            .WithHeader(headerName, headerValue)
+            .WithTimeout(timeout)
+            .WithLogger(logger)
             .WithTransportOptions(transportFactory, transportOptions)
-            .WithEndpoint(new Uri("http://localhost:2375"))
-            .WithApiVersion(new Version(1, 52))
-            .WithHeader("x-test", "value")
-            .WithTimeout(TimeSpan.FromSeconds(1))
             .Build();
 
+        Assert.Equal(apiVersion, transportFactory.LastClientOptions.ApiVersion);
+        Assert.Equal(endpoint, transportFactory.LastClientOptions.Endpoint);
+        Assert.Same(authProvider, transportFactory.LastClientOptions.AuthProvider);
+        Assert.Equal(headerValue, transportFactory.LastClientOptions.Headers[headerName]);
+        Assert.Equal(timeout, transportFactory.LastClientOptions.Timeout);
+        Assert.Same(logger, transportFactory.LastLogger);
         Assert.Equal(1, transportFactory.TypedCreateHandlerCallCount);
         Assert.Same(transportOptions, transportFactory.LastTransportOptions);
-        Assert.Equal("http", transportFactory.LastClientOptions.Endpoint.Scheme);
-        Assert.Equal("value", transportFactory.LastClientOptions.Headers["x-test"]);
-        Assert.Equal(new Version(1, 52), transportFactory.LastClientOptions.ApiVersion);
-        Assert.Equal(TimeSpan.FromSeconds(1), transportFactory.LastClientOptions.Timeout);
     }
 
     [Fact]
-    public void Build_PreservesOriginalEndpointInClientOptions_WhenTransportNormalizesEndpoint()
+    public void Build_PreservesClientOptionsAndLogger_WhenSetAfterTransportSelection()
+    {
+        var transportFactory = new FakeTransportFactory();
+
+        var transportOptions = new FakeTransportOptions();
+
+        const string headerName = "x-test";
+        const string headerValue = "value";
+
+        var apiVersion = new Version(1, 52);
+        var endpoint = new Uri("http://localhost:2375");
+        var authProvider = new PassThroughAuthProvider(true);
+        var timeout = TimeSpan.FromSeconds(5);
+        var logger = NullLogger.Instance;
+
+        _ = new DockerClientBuilder()
+            .WithTransportOptions(transportFactory, transportOptions)
+            .WithApiVersion(apiVersion)
+            .WithEndpoint(endpoint)
+            .WithAuthProvider(authProvider)
+            .WithHeader(headerName, headerValue)
+            .WithTimeout(timeout)
+            .WithLogger(logger)
+            .Build();
+
+        Assert.Equal(apiVersion, transportFactory.LastClientOptions.ApiVersion);
+        Assert.Equal(endpoint, transportFactory.LastClientOptions.Endpoint);
+        Assert.Same(authProvider, transportFactory.LastClientOptions.AuthProvider);
+        Assert.Equal(headerValue, transportFactory.LastClientOptions.Headers[headerName]);
+        Assert.Equal(timeout, transportFactory.LastClientOptions.Timeout);
+        Assert.Same(logger, transportFactory.LastLogger);
+        Assert.Equal(1, transportFactory.TypedCreateHandlerCallCount);
+        Assert.Same(transportOptions, transportFactory.LastTransportOptions);
+    }
+
+    [Fact]
+    public void Build_PreservesEndpointInClientOptions_WhenTransportNormalizesEndpoint()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -183,7 +232,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithTransportOptions_ReturnsTypedBuilder_ForBuiltInTransports()
+    public void WithTransportOptions_ReturnsTypedBuilder_WhenBuiltInTransportIsSelected()
     {
         var builder = new DockerClientBuilder();
 
@@ -229,11 +278,14 @@ public sealed class DockerClientBuilderTests
 
         public ClientOptions LastClientOptions { get; private set; } = null!;
 
+        public ILogger LastLogger { get; private set; } = null!;
+
         public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
         {
             TypedCreateHandlerCallCount++;
             LastTransportOptions = transportOptions;
             LastClientOptions = clientOptions;
+            LastLogger = logger;
 
             return new ResolvedTransport(new HttpClientHandler(), clientOptions.Endpoint);
         }
