@@ -29,12 +29,10 @@ public sealed class DockerClientBuilder<TTransportOptions> : DockerClientBuilder
     /// <returns>A configured <see cref="DockerClient"/> instance.</returns>
     public override DockerClient Build()
     {
-        var (handler, endpoint) = _transportFactory.CreateHandler(_transportOptions, ClientOptions, Logger);
+        var resolvedTransport = _transportFactory.CreateHandler(_transportOptions, ClientOptions, Logger);
 
-        var clientOptions = ClientOptions with { Endpoint = endpoint };
+        var authenticatedHandler = ClientOptions.AuthProvider.ConfigureHandler(resolvedTransport.Handler);
 
-        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
-
-        return new DockerClient(authenticatedHandler, clientOptions, _transportFactory, Logger);
+        return new DockerClient(authenticatedHandler, ClientOptions, resolvedTransport.EffectiveEndpoint, _transportFactory, Logger);
     }
 }

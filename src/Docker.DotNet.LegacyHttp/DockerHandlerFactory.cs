@@ -9,14 +9,14 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTrans
     public static IDockerHandlerFactory<LegacyHttpTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new LegacyHttpTransportOptions();
         Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(LegacyHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(LegacyHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
         Validate(transportOptions, clientOptions);
 
@@ -25,7 +25,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTrans
         var handler = new ManagedHandler(logger);
         transportOptions.ConfigureHandler(handler);
 
-        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
+        return new ResolvedTransport(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

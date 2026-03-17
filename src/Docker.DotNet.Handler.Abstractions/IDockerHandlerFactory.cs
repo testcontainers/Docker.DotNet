@@ -10,6 +10,6 @@ public interface IDockerHandlerFactory : IStreamHijacker
     /// </summary>
     /// <param name="clientOptions">The client options.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <returns>A tuple containing the configured handler and normalized endpoint URI.</returns>
-    Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger);
+    /// <returns>The resolved transport.</returns>
+    ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger);
 }

@@ -12,6 +12,6 @@ public interface IDockerHandlerFactory<in TTransportOptions> : IDockerHandlerFac
     /// <param name="transportOptions">The transport-specific options.</param>
     /// <param name="clientOptions">The client options.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <returns>A tuple containing the configured handler and normalized endpoint URI.</returns>
-    Tuple<HttpMessageHandler, Uri> CreateHandler(TTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger);
+    /// <returns>The resolved transport.</returns>
+    ResolvedTransport CreateHandler(TTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger);
 }

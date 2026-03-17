@@ -196,13 +196,11 @@ public class DockerClientBuilder
     {
         var transportFactory = ResolveTransportFactory(ClientOptions.Endpoint.Scheme);
 
-        var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
+        var resolvedTransport = transportFactory.CreateHandler(ClientOptions, Logger);
 
-        var clientOptions = ClientOptions with { Endpoint = endpoint };
+        var authenticatedHandler = ClientOptions.AuthProvider.ConfigureHandler(resolvedTransport.Handler);
 
-        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
-
-        return new DockerClient(authenticatedHandler, clientOptions, transportFactory, Logger);
+        return new DockerClient(authenticatedHandler, ClientOptions, resolvedTransport.EffectiveEndpoint, transportFactory, Logger);
     }
 
     /// <summary>

@@ -12,11 +12,14 @@ public sealed class DockerClient : IDockerClient
 
     private readonly ClientOptions _clientOptions;
 
+    private readonly Uri _effectiveEndpoint;
+
     private readonly IStreamHijacker _hijack;
 
     internal DockerClient(
         HttpMessageHandler handler,
         ClientOptions clientOptions,
+        Uri effectiveEndpoint,
         IStreamHijacker hijack,
         ILogger logger)
     {
@@ -24,6 +27,7 @@ public sealed class DockerClient : IDockerClient
         _client.Timeout = Timeout.InfiniteTimeSpan;
 
         _clientOptions = clientOptions;
+        _effectiveEndpoint = effectiveEndpoint;
         _hijack = hijack;
 
         Options = clientOptions;
@@ -398,7 +402,7 @@ public sealed class DockerClient : IDockerClient
             throw new ArgumentNullException(nameof(path));
         }
 
-        var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_clientOptions.Endpoint, _clientOptions.ApiVersion, path, queryString));
+        var request = new HttpRequestMessage(method, HttpUtility.BuildUri(_effectiveEndpoint, _clientOptions.ApiVersion, path, queryString));
         request.Version = HttpVersion.Version11;
         request.Headers.Add("User-Agent", UserAgent);
 
