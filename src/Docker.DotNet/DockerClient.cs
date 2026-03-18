@@ -20,8 +20,7 @@ public sealed class DockerClient : IDockerClient
         HttpMessageHandler handler,
         ClientOptions clientOptions,
         Uri effectiveEndpoint,
-        IStreamHijacker hijack,
-        ILogger logger)
+        IStreamHijacker hijack)
     {
         _client = new HttpClient(handler, true);
         _client.Timeout = Timeout.InfiniteTimeSpan;
