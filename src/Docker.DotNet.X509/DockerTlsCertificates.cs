@@ -10,7 +10,7 @@ public sealed class DockerTlsCertificates
 
     public DockerTlsCertificates(
         X509Certificate2 certificate,
-        X509Certificate2 certificateAuthorityCertificate = null)
+        X509Certificate2? certificateAuthorityCertificate = null)
     {
         Certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
         CertificateAuthorityCertificate = certificateAuthorityCertificate;
@@ -18,7 +18,7 @@ public sealed class DockerTlsCertificates
 
     private X509Certificate2 Certificate { get; }
 
-    private X509Certificate2 CertificateAuthorityCertificate { get; }
+    private X509Certificate2? CertificateAuthorityCertificate { get; }
 
     public static DockerTlsCertificates LoadFromDirectory(
         string directoryPath,
@@ -32,7 +32,7 @@ public sealed class DockerTlsCertificates
             throw new DirectoryNotFoundException(directoryPath);
         }
 
-        X509Certificate2 caCertificate = null;
+        X509Certificate2? caCertificate = null;
 
         var certPemPath = Path.Combine(directoryPath, certPemFileName);
         var keyPemPath = Path.Combine(directoryPath, keyPemFileName);
