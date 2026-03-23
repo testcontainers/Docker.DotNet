@@ -1,6 +1,14 @@
+#if NET
+using System.Diagnostics.CodeAnalysis;
+#endif
+
 namespace Docker.DotNet;
 
 internal interface IQueryStringConverterInstanceFactory
 {
-    IQueryStringConverter GetConverterInstance(Type t);
+    IQueryStringConverter GetConverterInstance(
+#if NET
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+#endif
+        Type t);
 }

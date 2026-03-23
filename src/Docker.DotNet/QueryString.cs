@@ -1,6 +1,14 @@
+#if NET
+using System.Diagnostics.CodeAnalysis;
+#endif
+
 namespace Docker.DotNet;
 
-internal class QueryString<T> : IQueryString where T : class
+internal class QueryString<
+#if NET
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+T> : IQueryString where T : class
 {
     private T Object { get; }
 
@@ -86,7 +94,11 @@ internal class QueryString<T> : IQueryString where T : class
         return converter.Convert(value);
     }
 
-    private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<TValue, TAttribType>() where TAttribType : Attribute
+    private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<
+#if NET
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+    TValue, TAttribType>() where TAttribType : Attribute
     {
         Dictionary<PropertyInfo, TAttribType>? attributedPublicProperties = null;
 
@@ -113,6 +125,9 @@ internal class QueryString<T> : IQueryString where T : class
         return attributedPublicProperties;
     }
 
+#if NET
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Activator.CreateInstance is only used for value types here; safe for runtime usage.")]
+#endif
     private static bool IsDefaultOfType(object? o)
     {
         if (o is ValueType)

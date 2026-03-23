@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization.Metadata;
+
 namespace Docker.DotNet;
 
 internal sealed class JsonSerializer
@@ -15,11 +17,13 @@ internal sealed class JsonSerializer
 
     private JsonSerializer()
     {
+        _options.TypeInfoResolver = DockerJsonSerializerContext.Default;
         _options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         _options.Converters.Add(new JsonEnumMemberConverter<RestartPolicyKind>());
         _options.Converters.Add(new JsonEnumMemberConverter<TaskState>());
         _options.Converters.Add(new JsonDateTimeConverter());
         _options.Converters.Add(new JsonNullableDateTimeConverter());
+        _options.MakeReadOnly();
     }
 
     public static JsonSerializer Instance { get; }
@@ -38,22 +42,22 @@ internal sealed class JsonSerializer
 
     public string Serialize<T>(T value)
     {
-        return System.Text.Json.JsonSerializer.Serialize(value, _options);
+        return System.Text.Json.JsonSerializer.Serialize(value, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)));
     }
 
     public byte[] SerializeToUtf8Bytes<T>(T value)
     {
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, _options);
+        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)));
     }
 
     public T Deserialize<T>(byte[] json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize<T>(json, _options)!;
+        return System.Text.Json.JsonSerializer.Deserialize(json, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)))!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
     {
-        return content.ReadFromJsonAsync<T>(_options, cancellationToken)!;
+        return content.ReadFromJsonAsync((JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)), cancellationToken)!;
     }
 
     public async IAsyncEnumerable<T> DeserializeAsync<T>(Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -69,7 +73,7 @@ internal sealed class JsonSerializer
 
             while (!buffer.IsEmpty && TryParseJson(ref buffer, out var jsonDocument))
             {
-                yield return jsonDocument!.Deserialize<T>(_options)!;
+                yield return jsonDocument!.Deserialize((JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T))!)!;
             }
 
             if (result.IsCompleted)
