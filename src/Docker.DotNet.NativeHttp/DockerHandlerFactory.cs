@@ -29,7 +29,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
         var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
         var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
 
-#if NET6_0_OR_GREATER
+#if NET
         var handler = new SocketsHttpHandler
         {
             MaxConnectionsPerServer = MaxConnectionsPerServer,

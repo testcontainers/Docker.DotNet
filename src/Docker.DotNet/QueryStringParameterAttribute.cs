@@ -7,16 +7,23 @@ internal sealed class QueryStringParameterAttribute : Attribute
 
     public bool IsRequired { get; private set; }
 
+#if NET
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+#endif
     public Type? ConverterType { get; private set; }
 
-    public QueryStringParameterAttribute(string name, bool required, Type? converterType = null)
+    public QueryStringParameterAttribute(string name, bool required,
+#if NET
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+#endif
+        Type? converterType = null)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        if (converterType != null && !converterType.GetInterfaces().Contains(typeof (IQueryStringConverter)))
+        if (converterType != null && !converterType.GetInterfaces().Contains(typeof(IQueryStringConverter)))
         {
             throw new ArgumentException($"Provided query string converter type is not '{typeof(IQueryStringConverter).FullName}'.", nameof(converterType));
         }

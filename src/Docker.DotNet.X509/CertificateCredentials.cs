@@ -15,7 +15,7 @@ public class CertificateCredentials : IAuthProvider
 
     public HttpMessageHandler ConfigureHandler(HttpMessageHandler handler)
     {
-#if NET6_0_OR_GREATER
+#if NET
         if (handler is SocketsHttpHandler socketsHandler)
         {
             if (_certificate != null)

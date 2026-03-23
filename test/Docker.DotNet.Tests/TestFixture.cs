@@ -54,7 +54,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     public ImagesListResponse Image { get; private set; }
 
     /// <inheritdoc />
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         const string repository = "alpine";
 
@@ -102,7 +102,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
     }
 
     /// <inheritdoc />
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (_hasInitializedSwarm)
         {

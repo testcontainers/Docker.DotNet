@@ -26,7 +26,7 @@ internal sealed class HttpConnection : IDisposable
             {
                 if (request.Content.Headers.ContentLength.HasValue)
                 {
-#if NET6_0_OR_GREATER
+#if NET
                     await request.Content.CopyToAsync(Transport, cancellationToken)
                         .ConfigureAwait(false);
 #else
@@ -39,7 +39,7 @@ internal sealed class HttpConnection : IDisposable
                     // The length of the data is unknown. Send it in chunked mode.
                     using (var chunkedStream = new ChunkedWriteStream(Transport))
                     {
-#if NET6_0_OR_GREATER
+#if NET
                         await request.Content.CopyToAsync(chunkedStream, cancellationToken)
                             .ConfigureAwait(false);
 #else

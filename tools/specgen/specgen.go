@@ -855,6 +855,8 @@ func main() {
 		reflectType(t)
 	}
 
+	names := make([]string, 0, len(reflectedTypes))
+
 	for k, v := range reflectedTypes {
 		if _, e := os.Stat(path.Join(sourcePath, v.Name+".Generated.cs")); e == nil {
 			panic(fmt.Sprintf("File: (%s.Generated.cs) already exists. Failed to write key same name for key: (%s) type: (%s).", v.Name, k, v.SourceName))
@@ -877,5 +879,34 @@ func main() {
 
 		f.Close()
 		os.Rename(f.Name(), path.Join(sourcePath, v.Name+".Generated.cs"))
+
+		names = append(names, v.Name)
 	}
+
+	slices.Sort(names)
+
+	jscf, err := os.Create(path.Join(sourcePath, "DockerModelsJsonSerializerContext.Generated.cs"))
+	if err != nil {
+		panic(err)
+	}
+
+	defer jscf.Close()
+
+	jscb := bufio.NewWriter(jscf)
+
+	fmt.Fprintln(jscb, "namespace Docker.DotNet.Models")
+	fmt.Fprintln(jscb, "{")
+	for _, name := range names {
+		fmt.Fprintf(jscb, "    [JsonSerializable(typeof(%s))]\n", name)
+	}
+	fmt.Fprintln(jscb, "    internal sealed partial class DockerModelsJsonSerializerContext : JsonSerializerContext { }")
+	fmt.Fprintln(jscb, "}")
+
+	err = jscb.Flush()
+	if err != nil {
+		os.Remove(jscf.Name())
+		panic(err)
+	}
+
+	jscf.Close()
 }

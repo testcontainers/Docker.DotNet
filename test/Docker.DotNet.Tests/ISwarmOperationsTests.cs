@@ -24,7 +24,7 @@ public class ISwarmOperationsTests
                 Name = serviceName,
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -33,7 +33,7 @@ public class ISwarmOperationsTests
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -42,7 +42,7 @@ public class ISwarmOperationsTests
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(new ServiceListParameters
         {
@@ -57,9 +57,9 @@ public class ISwarmOperationsTests
 
         Assert.Single(services);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class ISwarmOperationsTests
                 Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -81,7 +81,7 @@ public class ISwarmOperationsTests
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -90,7 +90,7 @@ public class ISwarmOperationsTests
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(new ServiceListParameters
         {
@@ -105,9 +105,9 @@ public class ISwarmOperationsTests
 
         Assert.Single(services);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class ISwarmOperationsTests
                 Name = $"service1-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var secondServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -131,7 +131,7 @@ public class ISwarmOperationsTests
                 Name = $"service2-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var thirdServiceId = (await _testFixture.DockerClient.Swarm.CreateServiceAsync(new ServiceCreateParameters
         {
@@ -140,15 +140,15 @@ public class ISwarmOperationsTests
                 Name = $"service3-{Guid.NewGuid().ToString().Substring(1, 10)}",
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         var services = await _testFixture.DockerClient.Swarm.ListServicesAsync(cancellationToken: CancellationToken.None);
 
         Assert.True(services.Count() > initialServiceCount);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId);
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(firstServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(secondServiceId, TestContext.Current.CancellationToken);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(thirdServiceId, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -165,14 +165,14 @@ public class ISwarmOperationsTests
                 Name = serviceName,
                 TaskTemplate = new TaskSpec { ContainerSpec = new ContainerSpec { Image = _testFixture.Image.ID, Command = CommonCommands.EchoToStdoutAndStderr } }
             }
-        })).ID;
+        }, TestContext.Current.CancellationToken)).ID;
 
         using var stream = await _testFixture.DockerClient.Swarm.GetServiceLogsAsync(serviceName, false, new ServiceLogsParameters
         {
             Follow = true,
             ShowStdout = true,
             ShowStderr = true
-        });
+        }, TestContext.Current.CancellationToken);
 
         var maxRetries = 3;
         var currentRetry = 0;
@@ -238,7 +238,7 @@ public class ISwarmOperationsTests
                 currentRetry++;
                 if (currentRetry < maxRetries)
                 {
-                    await Task.Delay(delayBetweenRetries);
+                    await Task.Delay(delayBetweenRetries, TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -246,6 +246,6 @@ public class ISwarmOperationsTests
         Assert.NotNull(logLines);
         Assert.NotEmpty(logLines);
 
-        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(serviceId);
+        await _testFixture.DockerClient.Swarm.RemoveServiceAsync(serviceId, TestContext.Current.CancellationToken);
     }
 }
