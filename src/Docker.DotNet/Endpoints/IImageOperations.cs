@@ -82,7 +82,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an image by either pulling it from a registry or importing it.
@@ -99,7 +99,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an image by importing it from a stream.
@@ -116,7 +116,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an image by importing it from a stream.
@@ -134,7 +134,7 @@ public interface IImageOperations
     /// current auth status, the input is invalid, or the daemon experienced an error.</exception>
     /// </remarks>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves low-level information about an image.
@@ -184,7 +184,7 @@ public interface IImageOperations
     /// <exception cref="DockerImageNotFoundException">No such image was found.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
+    Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tags an image so that it becomes part of a registry.

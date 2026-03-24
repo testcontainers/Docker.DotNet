@@ -90,22 +90,22 @@ internal class ImageOperations : IImageOperations
             cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, null, authConfig, null, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, null, authConfig, headers, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, imageStream, authConfig, null, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -159,7 +159,7 @@ internal class ImageOperations : IImageOperations
             .ConfigureAwait(false);
     }
 
-    public Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
