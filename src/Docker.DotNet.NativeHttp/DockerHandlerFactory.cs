@@ -15,14 +15,14 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
     public static IDockerHandlerFactory<NativeHttpTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new NativeHttpTransportOptions();
         Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(NativeHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(NativeHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
         Validate(transportOptions, clientOptions);
 
@@ -43,7 +43,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
         transportOptions.ConfigureHandler(handler);
 #endif
 
-        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
+        return new ResolvedTransport(handler, uri);
     }
 
     public async Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

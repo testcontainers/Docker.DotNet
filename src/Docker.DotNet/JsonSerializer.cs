@@ -2,6 +2,11 @@ namespace Docker.DotNet;
 
 internal sealed class JsonSerializer
 {
+    private static readonly MediaTypeHeaderValue ApplicationJsonUtf8ContentType = new MediaTypeHeaderValue("application/json")
+    {
+        CharSet = Encoding.UTF8.WebName
+    };
+
     private readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 
     static JsonSerializer()
@@ -22,7 +27,13 @@ internal sealed class JsonSerializer
 
     public HttpContent GetHttpContent<T>(T value)
     {
-        return new StringContent(Serialize(value), Encoding.UTF8, "application/json");
+        return new ByteArrayContent(SerializeToUtf8Bytes(value))
+        {
+            Headers =
+            {
+                ContentType = ApplicationJsonUtf8ContentType
+            }
+        };
     }
 
     public string Serialize<T>(T value)
@@ -37,12 +48,12 @@ internal sealed class JsonSerializer
 
     public T Deserialize<T>(byte[] json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize<T>(json, _options);
+        return System.Text.Json.JsonSerializer.Deserialize<T>(json, _options)!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
     {
-        return content.ReadFromJsonAsync<T>(_options, cancellationToken);
+        return content.ReadFromJsonAsync<T>(_options, cancellationToken)!;
     }
 
     public async IAsyncEnumerable<T> DeserializeAsync<T>(Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -58,7 +69,7 @@ internal sealed class JsonSerializer
 
             while (!buffer.IsEmpty && TryParseJson(ref buffer, out var jsonDocument))
             {
-                yield return jsonDocument.Deserialize<T>(_options);
+                yield return jsonDocument!.Deserialize<T>(_options)!;
             }
 
             if (result.IsCompleted)
@@ -72,7 +83,7 @@ internal sealed class JsonSerializer
         await reader.CompleteAsync();
     }
 
-    private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument jsonDocument)
+    private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument? jsonDocument)
     {
         var reader = new Utf8JsonReader(buffer, isFinalBlock: false, default);
 

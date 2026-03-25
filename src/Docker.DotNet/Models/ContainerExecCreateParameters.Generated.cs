@@ -12,6 +12,7 @@ namespace Docker.DotNet.Models
         public bool TTY { get; set; }
 
         [JsonPropertyName("ConsoleSize")]
+        [JsonConverter(typeof(ConsoleSizeConverter))]
         public ConsoleSize ConsoleSize { get; set; }
 
         [JsonPropertyName("AttachStdin")]

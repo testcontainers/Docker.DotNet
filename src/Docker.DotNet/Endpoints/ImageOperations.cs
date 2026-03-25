@@ -25,18 +25,20 @@ internal class ImageOperations : IImageOperations
         _client = client;
     }
 
-    public async Task<IList<ImagesListResponse>> ListImagesAsync(ImagesListParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<ImagesListResponse>> ListImagesAsync(ImagesListParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagesListParameters>(parameters);
-        return await _client.MakeRequestAsync<ImagesListResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/json", queryParameters, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<ImagesListParameters>(parameters);
+
+        return await _client.MakeRequestAsync<ImagesListResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/json", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<Stream> BuildImageFromDockerfileAsync(Stream contents, ImageBuildParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<Stream> BuildImageFromDockerfileAsync(Stream contents, ImageBuildParameters parameters, CancellationToken cancellationToken = default)
     {
         if (contents == null)
         {
@@ -48,7 +50,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageBuildParameters>(parameters);
+        var queryParameters = new QueryString<ImageBuildParameters>(parameters);
 
         var data = new BinaryRequestContent(contents, TarContentType);
 
@@ -56,7 +58,7 @@ internal class ImageOperations : IImageOperations
             .ConfigureAwait(false);
     }
 
-    public Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig> authConfigs, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
+    public Task BuildImageFromDockerfileAsync(ImageBuildParameters parameters, Stream contents, IEnumerable<AuthConfig>? authConfigs, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (contents == null)
         {
@@ -68,97 +70,96 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        HttpMethod httpMethod = HttpMethod.Post;
+        var queryParameters = new QueryString<ImageBuildParameters>(parameters);
 
         var data = new BinaryRequestContent(contents, TarContentType);
 
-        IQueryString queryParameters = new QueryString<ImageBuildParameters>(parameters);
-
-        Dictionary<string, string> customHeaders = RegistryConfigHeaders(authConfigs);
+        var customHeaders = RegistryConfigHeaders(authConfigs);
 
         if (headers != null)
         {
-            foreach (string key in headers.Keys)
+            foreach (var key in headers.Keys)
             {
                 customHeaders[key] = headers[key];
             }
         }
 
         return StreamUtil.MonitorResponseForMessagesAsync(
-            _client.MakeRequestForRawResponseAsync(httpMethod, "build", queryParameters, data, customHeaders, cancellationToken),
+            _client.MakeRequestForRawResponseAsync(HttpMethod.Post, "build", queryParameters, data, customHeaders, cancellationToken),
             progress,
             cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
-        return CreateImageAsync(parameters, null, authConfig, progress, cancellationToken);
+        return CreateImageAsync(parameters, null, authConfig, null, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig authConfig, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task CreateImageAsync(ImagesCreateParameters parameters, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, null, authConfig, headers, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream imageStream, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         return CreateImageAsync(parameters, imageStream, authConfig, null, progress, cancellationToken);
     }
 
-    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream imageStream, AuthConfig authConfig, IDictionary<string, string> headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task CreateImageAsync(ImagesCreateParameters parameters, Stream? imageStream, AuthConfig? authConfig, IDictionary<string, string>? headers, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        HttpMethod httpMethod = HttpMethod.Post;
-        BinaryRequestContent content = null;
+        BinaryRequestContent? content = null;
         if (imageStream != null)
         {
             content = new BinaryRequestContent(imageStream, TarContentType);
             parameters.FromSrc = ImportFromBodySource;
         }
 
-        IQueryString queryParameters = new QueryString<ImagesCreateParameters>(parameters);
+        var queryParameters = new QueryString<ImagesCreateParameters>(parameters);
 
-        Dictionary<string, string> customHeaders = RegistryAuthHeaders(authConfig);
+        var customHeaders = RegistryAuthHeaders(authConfig);
 
-        if(headers != null)
+        if (headers != null)
         {
-            foreach(var key in headers.Keys)
+            foreach (var key in headers.Keys)
             {
                 customHeaders[key] = headers[key];
             }
         }
 
         return StreamUtil.MonitorResponseForMessagesAsync(
-            _client.MakeRequestForRawResponseAsync(httpMethod, "images/create", queryParameters, content, customHeaders, cancellationToken),
+            _client.MakeRequestForRawResponseAsync(HttpMethod.Post, "images/create", queryParameters, content, customHeaders, cancellationToken),
             progress,
             cancellationToken);
     }
 
-    public async Task<ImageInspectResponse> InspectImageAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<ImageInspectResponse> InspectImageAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<ImageInspectResponse>(new[] { NoSuchImageHandler }, HttpMethod.Get, $"images/{name}/json", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ImageInspectResponse>([NoSuchImageHandler], HttpMethod.Get, $"images/{name}/json", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<IList<ImageHistoryResponse>> GetImageHistoryAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<ImageHistoryResponse>> GetImageHistoryAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<ImageHistoryResponse[]>(new[] { NoSuchImageHandler }, HttpMethod.Get, $"images/{name}/history", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<ImageHistoryResponse[]>([NoSuchImageHandler], HttpMethod.Get, $"images/{name}/history", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task PushImageAsync(string name, ImagePushParameters parameters, AuthConfig? authConfig, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -170,7 +171,7 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagePushParameters>(parameters);
+        var queryParameters = new QueryString<ImagePushParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"images/{name}/push", queryParameters, null, RegistryAuthHeaders(authConfig), cancellationToken),
@@ -178,7 +179,7 @@ internal class ImageOperations : IImageOperations
             cancellationToken);
     }
 
-    public Task TagImageAsync(string name, ImageTagParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task TagImageAsync(string name, ImageTagParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -190,11 +191,13 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageTagParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchImageHandler }, HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken);
+        var queryParameters = new QueryString<ImageTagParameters>(parameters);
+
+        await _client.MakeRequestAsync([NoSuchImageHandler], HttpMethod.Post, $"images/{name}/tag", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<IList<IDictionary<string, string>>> DeleteImageAsync(string name, ImageDeleteParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<IDictionary<string, string>>> DeleteImageAsync(string name, ImageDeleteParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -206,59 +209,67 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImageDeleteParameters>(parameters);
-        return await _client.MakeRequestAsync<Dictionary<string, string>[]>(new[] { NoSuchImageHandler }, HttpMethod.Delete, $"images/{name}", queryParameters, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<ImageDeleteParameters>(parameters);
+
+        return await _client.MakeRequestAsync<Dictionary<string, string>[]>([NoSuchImageHandler], HttpMethod.Delete, $"images/{name}", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<IList<ImageSearchResponse>> SearchImagesAsync(ImagesSearchParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<ImageSearchResponse>> SearchImagesAsync(ImagesSearchParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ImagesSearchParameters>(parameters);
-        return await _client.MakeRequestAsync<ImageSearchResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/search", queryParameters, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<ImagesSearchParameters>(parameters);
+
+        return await _client.MakeRequestAsync<ImageSearchResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "images/search", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<ImagesPruneResponse> PruneImagesAsync(ImagesPruneParameters parameters, CancellationToken cancellationToken)
+    public async Task<ImagesPruneResponse> PruneImagesAsync(ImagesPruneParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<ImagesPruneParameters>(parameters);
-        return await _client.MakeRequestAsync<ImagesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "images/prune", queryParameters, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<ImagesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "images/prune", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<CommitContainerChangesResponse> CommitContainerChangesAsync(CommitContainerChangesParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<CommitContainerChangesResponse> CommitContainerChangesAsync(CommitContainerChangesParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
+
+        var queryParameters = new QueryString<CommitContainerChangesParameters>(parameters);
 
         var data = new JsonRequestContent<CommitContainerChangesParameters>(parameters, DockerClient.JsonSerializer);
 
-        IQueryString queryParameters = new QueryString<CommitContainerChangesParameters>(parameters);
-        return await _client.MakeRequestAsync<CommitContainerChangesResponse>(_client.NoErrorHandlers, HttpMethod.Post, "commit", queryParameters, data, cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<CommitContainerChangesResponse>(_client.NoErrorHandlers, HttpMethod.Post, "commit", queryParameters, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task<Stream> SaveImageAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+    public Task<Stream> SaveImageAsync(string name, CancellationToken cancellationToken = default)
     {
-        return SaveImagesAsync(new[] { name }, cancellationToken);
+        return SaveImagesAsync([name], cancellationToken);
     }
 
-    public async Task<Stream> SaveImagesAsync(string[] names, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<Stream> SaveImagesAsync(string[]? names, CancellationToken cancellationToken = default)
     {
-        EnumerableQueryString queryString = null;
+        EnumerableQueryString? queryString = null;
 
         if (names?.Length > 0)
         {
             queryString = new EnumerableQueryString("names", names);
         }
 
-        return await _client.MakeRequestForStreamAsync(new[] { NoSuchImageHandler }, HttpMethod.Get, "images/get", queryString, cancellationToken)
+        return await _client.MakeRequestForStreamAsync([NoSuchImageHandler], HttpMethod.Get, "images/get", queryString, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public Task LoadImageAsync(ImageLoadParameters parameters, Stream imageStream, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task LoadImageAsync(ImageLoadParameters parameters, Stream imageStream, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -270,9 +281,9 @@ internal class ImageOperations : IImageOperations
             throw new ArgumentNullException(nameof(imageStream));
         }
 
-        BinaryRequestContent content = new BinaryRequestContent(imageStream, TarContentType);
+        var content = new BinaryRequestContent(imageStream, TarContentType);
 
-        IQueryString queryParameters = new QueryString<ImageLoadParameters>(parameters);
+        var queryParameters = new QueryString<ImageLoadParameters>(parameters);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, "images/load", queryParameters, content, cancellationToken),
@@ -280,14 +291,13 @@ internal class ImageOperations : IImageOperations
             cancellationToken);
     }
 
-    private Dictionary<string, string> RegistryAuthHeaders(AuthConfig authConfig)
+    private static Dictionary<string, string> RegistryAuthHeaders(AuthConfig? authConfig)
     {
         return new Dictionary<string, string>
         {
             {
                 RegistryAuthHeaderKey,
-                Convert.ToBase64String(DockerClient.JsonSerializer.SerializeToUtf8Bytes(authConfig ?? new AuthConfig()))
-                    .Replace("/", "_").Replace("+", "-")
+                Convert.ToBase64String(DockerClient.JsonSerializer.SerializeToUtf8Bytes(authConfig ?? new AuthConfig())).Replace("/", "_").Replace("+", "-")
                 // This is not documented in Docker API but from source code (https://github.com/docker/docker-ce/blob/10e40bd1548f69354a803a15fde1b672cc024b91/components/cli/cli/command/registry.go#L47)
                 // and from multiple internet sources it has to be base64-url-safe.
                 // See RFC 4648 Section 5. Padding (=) needs to be kept.
@@ -295,7 +305,7 @@ internal class ImageOperations : IImageOperations
         };
     }
 
-    private Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
+    private static Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
     {
         var configDictionary = (authConfig ?? Array.Empty<AuthConfig>()).ToDictionary(e => e.ServerAddress, e => e);
         return new Dictionary<string, string>

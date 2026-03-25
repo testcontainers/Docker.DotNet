@@ -24,7 +24,7 @@ internal class ExecOperations : IExecOperations
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<ContainerExecInspectResponse>([NoSuchContainerHandler], HttpMethod.Get, $"exec/{id}/json", null, cancellationToken)
+        return await _client.MakeRequestAsync<ContainerExecInspectResponse>([NoSuchContainerHandler], HttpMethod.Get, $"exec/{id}/json", cancellationToken)
             .ConfigureAwait(false);
     }
 

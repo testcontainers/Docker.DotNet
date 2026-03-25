@@ -2,12 +2,19 @@ namespace Docker.DotNet;
 
 internal class SwarmOperations : ISwarmOperations
 {
-    private static readonly ApiResponseErrorHandlingDelegate SwarmResponseHandler = (statusCode, responseBody) =>
+    private static readonly ApiResponseErrorHandlingDelegate NotInSwarmResponseHandler = (statusCode, responseBody) =>
     {
         if (statusCode == HttpStatusCode.ServiceUnavailable)
         {
-            // TODO: Make typed error.
-            throw new Exception("Node is not part of a swarm.");
+            throw new DockerSwarmNodeNotParticipatingException(statusCode, responseBody);
+        }
+    };
+
+    private static readonly ApiResponseErrorHandlingDelegate AlreadyInSwarmResponseHandler = (statusCode, responseBody) =>
+    {
+        if (statusCode == HttpStatusCode.ServiceUnavailable)
+        {
+            throw new DockerSwarmNodeAlreadyParticipatingException(statusCode, responseBody);
         }
     };
 
@@ -18,128 +25,91 @@ internal class SwarmOperations : ISwarmOperations
         _client = client;
     }
 
-    async Task<ServiceCreateResponse> ISwarmOperations.CreateServiceAsync(ServiceCreateParameters parameters, CancellationToken cancellationToken)
+    public async Task<ServiceCreateResponse> CreateServiceAsync(ServiceCreateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
         var data = new JsonRequestContent<ServiceSpec>(parameters.Service, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<ServiceCreateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, "services/create", null, data, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<ServiceCreateResponse>([NotInSwarmResponseHandler], HttpMethod.Post, "services/create", null, data, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<SwarmUnlockResponse> ISwarmOperations.GetSwarmUnlockKeyAsync(CancellationToken cancellationToken)
+    public async Task<SwarmUnlockResponse> GetSwarmUnlockKeyAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<SwarmUnlockResponse>(new[] { SwarmResponseHandler }, HttpMethod.Get, "swarm/unlockkey", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<SwarmUnlockResponse>([NotInSwarmResponseHandler], HttpMethod.Get, "swarm/unlockkey", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<string> ISwarmOperations.InitSwarmAsync(SwarmInitParameters parameters, CancellationToken cancellationToken)
+    public async Task<string> InitSwarmAsync(SwarmInitParameters parameters, CancellationToken cancellationToken = default)
     {
         var data = new JsonRequestContent<SwarmInitParameters>(parameters, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<string>(
-            new ApiResponseErrorHandlingDelegate[]
-            {
-                (statusCode, responseBody) =>
-                {
-                    if (statusCode == HttpStatusCode.NotAcceptable)
-                    {
-                        // TODO: Make typed error.
-                        throw new Exception("Node is already part of a swarm.");
-                    }
-                }
-            },
-            HttpMethod.Post,
-            "swarm/init",
-            null,
-            data,
-            cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<string>([AlreadyInSwarmResponseHandler], HttpMethod.Post, "swarm/init", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<SwarmService> ISwarmOperations.InspectServiceAsync(string id, CancellationToken cancellationToken)
+    public async Task<SwarmService> InspectServiceAsync(string id, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
 
-        return await _client.MakeRequestAsync<SwarmService>(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<SwarmService>([NotInSwarmResponseHandler], HttpMethod.Get, $"services/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<SwarmInspectResponse> ISwarmOperations.InspectSwarmAsync(CancellationToken cancellationToken)
+    public async Task<SwarmInspectResponse> InspectSwarmAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<SwarmInspectResponse>(new[] { SwarmResponseHandler }, HttpMethod.Get, "swarm", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<SwarmInspectResponse>([NotInSwarmResponseHandler], HttpMethod.Get, "swarm", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.JoinSwarmAsync(SwarmJoinParameters parameters, CancellationToken cancellationToken)
+    public async Task JoinSwarmAsync(SwarmJoinParameters parameters, CancellationToken cancellationToken = default)
     {
         var data = new JsonRequestContent<SwarmJoinParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync(
-            new ApiResponseErrorHandlingDelegate[]
-            {
-                (statusCode, responseBody) =>
-                {
-                    if (statusCode == HttpStatusCode.ServiceUnavailable)
-                    {
-                        // TODO: Make typed error.
-                        throw new Exception("Node is already part of a swarm.");
-                    }
-                }
-            },
-            HttpMethod.Post,
-            "swarm/join",
-            null,
-            data,
-            cancellationToken).ConfigureAwait(false);
-    }
 
-    async Task ISwarmOperations.LeaveSwarmAsync(SwarmLeaveParameters parameters, CancellationToken cancellationToken)
-    {
-        var query = parameters == null ? null : new QueryString<SwarmLeaveParameters>(parameters);
-        await _client.MakeRequestAsync(
-            new ApiResponseErrorHandlingDelegate[]
-            {
-                (statusCode, responseBody) =>
-                {
-                    if (statusCode == HttpStatusCode.ServiceUnavailable)
-                    {
-                        // TODO: Make typed error.
-                        throw new Exception("Node is not part of a swarm.");
-                    }
-                }
-            },
-            HttpMethod.Post,
-            "swarm/leave",
-            query,
-            cancellationToken).ConfigureAwait(false);
-    }
-
-    async Task<IEnumerable<SwarmService>> ISwarmOperations.ListServicesAsync(ServiceListParameters parameters, CancellationToken cancellationToken)
-    {
-        var queryParameters = parameters != null ? new QueryString<ServiceListParameters>(parameters) : null;
-        return await _client
-            .MakeRequestAsync<SwarmService[]>(new[] { SwarmResponseHandler }, HttpMethod.Get, "services", queryParameters, cancellationToken)
+        await _client.MakeRequestAsync([AlreadyInSwarmResponseHandler], HttpMethod.Post, "swarm/join", null, data, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.RemoveServiceAsync(string id, CancellationToken cancellationToken)
+    public async Task LeaveSwarmAsync(SwarmLeaveParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+        var queryParameters = parameters == null ? null : new QueryString<SwarmLeaveParameters>(parameters);
 
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Delete, $"services/{id}", cancellationToken).ConfigureAwait(false);
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Post, "swarm/leave", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.UnlockSwarmAsync(SwarmUnlockParameters parameters, CancellationToken cancellationToken)
+    public async Task<IEnumerable<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        var body = new JsonRequestContent<SwarmUnlockParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Post, "swarm/unlock", null, body, cancellationToken).ConfigureAwait(false);
+        var queryParameters = parameters == null ? null : new QueryString<ServiceListParameters>(parameters);
+
+        return await _client.MakeRequestAsync<SwarmService[]>([NotInSwarmResponseHandler], HttpMethod.Get, "services", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<ServiceUpdateResponse> ISwarmOperations.UpdateServiceAsync(string id, ServiceUpdateParameters parameters, CancellationToken cancellationToken)
+    public async Task RemoveServiceAsync(string id, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-        if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
 
-        var query = new QueryString<ServiceUpdateParameters>(parameters);
-        var body = new JsonRequestContent<ServiceSpec>(parameters.Service, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<ServiceUpdateResponse>(new[] { SwarmResponseHandler }, HttpMethod.Post, $"services/{id}/update", query, body, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken).ConfigureAwait(false);
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Delete, $"services/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task UnlockSwarmAsync(SwarmUnlockParameters parameters, CancellationToken cancellationToken = default)
+    {
+        var data = new JsonRequestContent<SwarmUnlockParameters>(parameters, DockerClient.JsonSerializer);
+
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Post, "swarm/unlock", null, data, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<ServiceUpdateResponse> UpdateServiceAsync(string id, ServiceUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -151,13 +121,15 @@ internal class SwarmOperations : ISwarmOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
+        var queryParameters = new QueryString<ServiceUpdateParameters>(parameters);
 
-        return await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken)
+        var data = new JsonRequestContent<ServiceSpec>(parameters.Service, DockerClient.JsonSerializer);
+
+        return await _client.MakeRequestAsync<ServiceUpdateResponse>([NotInSwarmResponseHandler], HttpMethod.Post, $"services/{id}/update", queryParameters, data, RegistryAuthHeaders(parameters.RegistryAuth), cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<MultiplexedStream> GetServiceLogsAsync(string id, bool tty, ServiceLogsParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<Stream> GetServiceLogsAsync(string id, ServiceLogsParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -169,37 +141,43 @@ internal class SwarmOperations : ISwarmOperations
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        IQueryString queryParameters = new QueryString<ServiceLogsParameters>(parameters);
+        var queryParameters = new QueryString<ServiceLogsParameters>(parameters);
 
-        var response = await _client.MakeRequestForStreamAsync(new[] { SwarmResponseHandler }, HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestForStreamAsync([NotInSwarmResponseHandler], HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<MultiplexedStream> GetServiceLogsAsync(string id, bool tty, ServiceLogsParameters parameters, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        if (parameters == null)
+        {
+            throw new ArgumentNullException(nameof(parameters));
+        }
+
+        var queryParameters = new QueryString<ServiceLogsParameters>(parameters);
+
+        var response = await _client.MakeRequestForStreamAsync([NotInSwarmResponseHandler], HttpMethod.Get, $"services/{id}/logs", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
 
         return new MultiplexedStream(response, !tty);
     }
 
-    async Task ISwarmOperations.UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken)
+    public async Task UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
-        var query = new QueryString<SwarmUpdateParameters>(parameters);
-        var body = new JsonRequestContent<Spec>(parameters.Spec, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync(
-            new ApiResponseErrorHandlingDelegate[]
-            {
-                (statusCode, responseBody) =>
-                {
-                    if (statusCode == HttpStatusCode.ServiceUnavailable)
-                    {
-                        // TODO: Make typed error.
-                        throw new Exception("Node is not part of a swarm.");
-                    }
-                }
-            },
-            HttpMethod.Post,
-            "swarm/update",
-            query,
-            body,
-            cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<SwarmUpdateParameters>(parameters);
+
+        var data = new JsonRequestContent<Spec>(parameters.Spec, DockerClient.JsonSerializer);
+
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Post, "swarm/update", queryParameters, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    private IDictionary<string, string> RegistryAuthHeaders(AuthConfig authConfig)
+    private static Dictionary<string, string> RegistryAuthHeaders(AuthConfig? authConfig)
     {
         if (authConfig == null)
         {
@@ -215,30 +193,50 @@ internal class SwarmOperations : ISwarmOperations
         };
     }
 
-    async Task<IEnumerable<NodeListResponse>> ISwarmOperations.ListNodesAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<NodeListResponse[]>(new[] { SwarmResponseHandler }, HttpMethod.Get, "nodes", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<NodeListResponse[]>([NotInSwarmResponseHandler], HttpMethod.Get, "nodes", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<NodeListResponse> ISwarmOperations.InspectNodeAsync(string id, CancellationToken cancellationToken)
+    public async Task<NodeListResponse> InspectNodeAsync(string id, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-        return await _client.MakeRequestAsync<NodeListResponse>(new[] { SwarmResponseHandler }, HttpMethod.Get, $"nodes/{id}", cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        return await _client.MakeRequestAsync<NodeListResponse>([NotInSwarmResponseHandler], HttpMethod.Get, $"nodes/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.RemoveNodeAsync(string id, bool force, CancellationToken cancellationToken)
+    public async Task RemoveNodeAsync(string id, bool? force = null, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
         var parameters = new NodeRemoveParameters { Force = force };
-        var query = new QueryString<NodeRemoveParameters>(parameters);
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Delete, $"nodes/{id}", query, cancellationToken).ConfigureAwait(false);
+
+        var queryParameters = new QueryString<NodeRemoveParameters>(parameters);
+
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Delete, $"nodes/{id}", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task ISwarmOperations.UpdateNodeAsync(string id, ulong version, NodeUpdateParameters parameters, CancellationToken cancellationToken)
+    public async Task UpdateNodeAsync(string id, ulong version, NodeUpdateParameters parameters, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-        var query = new EnumerableQueryString("version", new[] { version.ToString() });
-        var body = new JsonRequestContent<NodeUpdateParameters>(parameters, DockerClient.JsonSerializer);
-        await _client.MakeRequestAsync(new[] { SwarmResponseHandler }, HttpMethod.Post, $"nodes/{id}/update", query, body, cancellationToken);
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        var queryParameters = new EnumerableQueryString("version", [version.ToString()]);
+
+        var data = new JsonRequestContent<NodeUpdateParameters>(parameters, DockerClient.JsonSerializer);
+
+        await _client.MakeRequestAsync([NotInSwarmResponseHandler], HttpMethod.Post, $"nodes/{id}/update", queryParameters, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

@@ -9,14 +9,14 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
     public static IDockerHandlerFactory<UnixSocketTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new UnixSocketTransportOptions();
         Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(UnixSocketTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(UnixSocketTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
         Validate(transportOptions, clientOptions);
 
@@ -41,7 +41,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
         var handler = new ManagedHandler(socketOpener, logger);
         transportOptions.ConfigureHandler(handler);
 
-        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
+        return new ResolvedTransport(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

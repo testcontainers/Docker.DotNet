@@ -9,12 +9,13 @@ internal class SecretsOperations : ISecretsOperations
         _client = client;
     }
 
-    async Task<IList<Secret>> ISecretsOperations.ListAsync(CancellationToken cancellationToken)
+    public async Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<SecretCreateResponse> ISecretsOperations.CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken)
+    public async Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken)
     {
         if (body == null)
         {
@@ -22,26 +23,30 @@ internal class SecretsOperations : ISecretsOperations
         }
 
         var data = new JsonRequestContent<SwarmSecretSpec>(body, DockerClient.JsonSerializer);
-        return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<SecretCreateResponse>(_client.NoErrorHandlers, HttpMethod.Post, "secrets/create", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<Secret> ISecretsOperations.InspectAsync(string id, CancellationToken cancellationToken)
+    public async Task<Secret> InspectAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<Secret>(_client.NoErrorHandlers, HttpMethod.Get, $"secrets/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    Task ISecretsOperations.DeleteAsync(string id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
             throw new ArgumentNullException(nameof(id));
         }
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"secrets/{id}", cancellationToken)
+            .ConfigureAwait(false);
     }
 }

@@ -5,7 +5,7 @@ internal sealed class JsonEnumMemberConverter<TEnum> : JsonConverter<TEnum> wher
     private readonly Dictionary<string, string> _enumFields = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
         .Select(field => (Name: field.Name, Attribute: field.GetCustomAttribute<EnumMemberAttribute>()))
         .Where(item => item.Attribute != null && item.Attribute.Value != null)
-        .ToDictionary(item => item.Name, item => item.Attribute.Value);
+        .ToDictionary(item => item.Name, item => item.Attribute!.Value!);
 
     public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

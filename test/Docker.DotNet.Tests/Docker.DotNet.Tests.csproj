@@ -27,6 +27,7 @@
     <Using Include="System.Reflection" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
+    <Using Include="System.Text.Json" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
