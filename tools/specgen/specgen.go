@@ -55,6 +55,15 @@ var typesToDisambiguate = map[string]*CSModelType{
 			},
 		},
 	},
+	typeToKey(reflect.TypeOf(container.HostConfig{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "ConsoleSize",
+				Type:       CSType{"", "ConsoleSize", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+			},
+		},
+	},
 	typeToKey(reflect.TypeOf(container.CreateResponse{})): {Name: "CreateContainerResponse"},
 	typeToKey(reflect.TypeOf(container.HealthConfig{})): {
 		Properties: []CSProperty{
@@ -98,6 +107,24 @@ var typesToDisambiguate = map[string]*CSModelType{
 				Name:       "StopTimeout",
 				Type:       CSType{"System", "TimeSpan", true},
 				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(ContainerExecCreateParameters{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "ConsoleSize",
+				Type:       CSType{"", "ConsoleSize", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+			},
+		},
+	},
+	typeToKey(reflect.TypeOf(ContainerExecStartParameters{})): {
+		Properties: []CSProperty{
+			{
+				Name:       "ConsoleSize",
+				Type:       CSType{"", "ConsoleSize", true},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
 			},
 		},
 	},
