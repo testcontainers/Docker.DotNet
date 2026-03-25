@@ -6,9 +6,9 @@ namespace Docker.DotNet;
 /// Serializes <see cref="ConsoleSize"/> as a JSON array [height, width] to match
 /// the Docker Engine API's Go type <c>[2]uint</c>.
 /// </summary>
-internal class ConsoleSizeConverter : JsonConverter<ConsoleSize>
+internal class ConsoleSizeConverter : JsonConverter<ConsoleSize?>
 {
-    public override ConsoleSize Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ConsoleSize? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null)
         {
@@ -26,7 +26,7 @@ internal class ConsoleSizeConverter : JsonConverter<ConsoleSize>
         reader.Read();
         var width = reader.GetUInt64();
 
-        reader.Read(); // EndArray
+        reader.Read();
 
         return new ConsoleSize
         {
@@ -35,7 +35,7 @@ internal class ConsoleSizeConverter : JsonConverter<ConsoleSize>
         };
     }
 
-    public override void Write(Utf8JsonWriter writer, ConsoleSize value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ConsoleSize? value, JsonSerializerOptions options)
     {
         if (value == null)
         {

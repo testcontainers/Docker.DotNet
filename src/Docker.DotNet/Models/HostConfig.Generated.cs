@@ -70,7 +70,8 @@ namespace Docker.DotNet.Models
         public IList<string> VolumesFrom { get; set; }
 
         [JsonPropertyName("ConsoleSize")]
-        public ulong[] ConsoleSize { get; set; }
+        [JsonConverter(typeof(ConsoleSizeConverter))]
+        public ConsoleSize ConsoleSize { get; set; }
 
         [JsonPropertyName("Annotations")]
         public IDictionary<string, string> Annotations { get; set; }

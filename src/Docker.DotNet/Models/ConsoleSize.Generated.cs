@@ -1,6 +1,5 @@
 namespace Docker.DotNet.Models
 {
-    [JsonConverter(typeof(ConsoleSizeConverter))]
     public class ConsoleSize // (client.ConsoleSize)
     {
         [JsonPropertyName("Height")]
