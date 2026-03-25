@@ -3,10 +3,15 @@ namespace Docker.DotNet.Tests;
 public sealed class ConsoleSizeConverterTests
 {
     private const ulong Height = 24;
+
     private const ulong Width = 80;
 
+    private const string ConsoleSizeArrayFragment = "\"ConsoleSize\":[24,80]";
+
+    private const string ConsoleSizeJson = "{\"ConsoleSize\":[24,80]}";
+
     [Fact]
-    public void Serialize_ConsoleSize_ProducesJsonObject()
+    public void Serialize_StandaloneConsoleSize_ProducesJsonObject()
     {
         var consoleSize = new ConsoleSize { Height = Height, Width = Width };
 
@@ -16,29 +21,22 @@ public sealed class ConsoleSizeConverterTests
     }
 
     [Fact]
-    public void Serialize_ContainerExecCreateParameters_WithConsoleSize_ProducesArrayFormat()
+    public void Serialize_ContainerExecCreateParameters_WithConsoleSizeProperty_ProducesArrayFormat()
     {
         var parameters = new ContainerExecCreateParameters
         {
             ConsoleSize = new ConsoleSize { Height = Height, Width = Width },
-            AttachStdin = true,
-            AttachStdout = true,
-            TTY = true,
-            Cmd = new List<string> { "/bin/bash" }
         };
 
         var jsonString = JsonSerializer.Instance.Serialize(parameters);
 
-        Assert.Contains("\"ConsoleSize\":[24,80]", jsonString);
+        Assert.Contains(ConsoleSizeArrayFragment, jsonString);
     }
 
     [Fact]
     public void Deserialize_ContainerExecCreateParameters_WithArrayConsoleSize_Succeeds()
     {
-        var json = "{\"ConsoleSize\":[24,80],\"AttachStdin\":true,\"Tty\":true,\"Cmd\":[\"/bin/bash\"]}";
-
-        var parameters = JsonSerializer.Instance.Deserialize<ContainerExecCreateParameters>(Encoding.UTF8.GetBytes(json));
-
+        var parameters = JsonSerializer.Instance.Deserialize<ContainerExecCreateParameters>(Encoding.UTF8.GetBytes(ConsoleSizeJson));
         Assert.NotNull(parameters);
         Assert.NotNull(parameters.ConsoleSize);
         Assert.Equal(Height, parameters.ConsoleSize.Height);
@@ -46,7 +44,7 @@ public sealed class ConsoleSizeConverterTests
     }
 
     [Fact]
-    public void Serialize_ContainerExecStartParameters_WithConsoleSize_ProducesArrayFormat()
+    public void Serialize_ContainerExecStartParameters_WithConsoleSizeProperty_ProducesArrayFormat()
     {
         var parameters = new ContainerExecStartParameters
         {
@@ -55,16 +53,13 @@ public sealed class ConsoleSizeConverterTests
 
         var jsonString = JsonSerializer.Instance.Serialize(parameters);
 
-        Assert.Contains("\"ConsoleSize\":[24,80]", jsonString);
+        Assert.Contains(ConsoleSizeArrayFragment, jsonString);
     }
 
     [Fact]
     public void Deserialize_ContainerExecStartParameters_WithArrayConsoleSize_Succeeds()
     {
-        var json = "{\"ConsoleSize\":[24,80]}";
-
-        var parameters = JsonSerializer.Instance.Deserialize<ContainerExecStartParameters>(Encoding.UTF8.GetBytes(json));
-
+        var parameters = JsonSerializer.Instance.Deserialize<ContainerExecStartParameters>(Encoding.UTF8.GetBytes(ConsoleSizeJson));
         Assert.NotNull(parameters);
         Assert.NotNull(parameters.ConsoleSize);
         Assert.Equal(Height, parameters.ConsoleSize.Height);
@@ -72,7 +67,7 @@ public sealed class ConsoleSizeConverterTests
     }
 
     [Fact]
-    public void Serialize_HostConfig_WithConsoleSize_ProducesArrayFormat()
+    public void Serialize_HostConfig_WithConsoleSizeProperty_ProducesArrayFormat()
     {
         var hostConfig = new HostConfig
         {
@@ -81,19 +76,25 @@ public sealed class ConsoleSizeConverterTests
 
         var jsonString = JsonSerializer.Instance.Serialize(hostConfig);
 
-        Assert.Contains("\"ConsoleSize\":[24,80]", jsonString);
+        Assert.Contains(ConsoleSizeArrayFragment, jsonString);
     }
 
     [Fact]
     public void Deserialize_HostConfig_WithArrayConsoleSize_Succeeds()
     {
-        var json = "{\"ConsoleSize\":[24,80]}";
-
-        var hostConfig = JsonSerializer.Instance.Deserialize<HostConfig>(Encoding.UTF8.GetBytes(json));
-
+        var hostConfig = JsonSerializer.Instance.Deserialize<HostConfig>(Encoding.UTF8.GetBytes(ConsoleSizeJson));
         Assert.NotNull(hostConfig);
         Assert.NotNull(hostConfig.ConsoleSize);
         Assert.Equal(Height, hostConfig.ConsoleSize.Height);
         Assert.Equal(Width, hostConfig.ConsoleSize.Width);
+    }
+
+    [Theory]
+    [InlineData("{\"ConsoleSize\":[24]}")]
+    [InlineData("{\"ConsoleSize\":[24,80,1]}")]
+    [InlineData("{\"ConsoleSize\":[\"24\",80]}")]
+    public void Deserialize_ContainerExecCreateParameters_WithInvalidArrayConsoleSize_ThrowsJsonException(string jsonString)
+    {
+        Assert.Throws<JsonException>(() => JsonSerializer.Instance.Deserialize<ContainerExecCreateParameters>(Encoding.UTF8.GetBytes(jsonString)));
     }
 }

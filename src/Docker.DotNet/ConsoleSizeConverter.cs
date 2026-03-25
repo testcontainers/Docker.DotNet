@@ -1,12 +1,6 @@
-using Docker.DotNet.Models;
-
 namespace Docker.DotNet;
 
-/// <summary>
-/// Serializes <see cref="ConsoleSize"/> as a JSON array [height, width] to match
-/// the Docker Engine API's Go type <c>[2]uint</c>.
-/// </summary>
-internal class ConsoleSizeConverter : JsonConverter<ConsoleSize?>
+internal sealed class ConsoleSizeConverter : JsonConverter<ConsoleSize?>
 {
     public override ConsoleSize? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -20,19 +14,40 @@ internal class ConsoleSizeConverter : JsonConverter<ConsoleSize?>
             throw new JsonException("Expected a JSON array for ConsoleSize.");
         }
 
-        reader.Read();
-        var height = reader.GetUInt64();
+        var height = ReadArrayElement(ref reader, "height");
 
-        reader.Read();
-        var width = reader.GetUInt64();
+        var width = ReadArrayElement(ref reader, "width");
 
-        reader.Read();
+        if (!reader.Read())
+        {
+            throw new JsonException("Expected the ConsoleSize array to end after two numeric elements.");
+        }
+
+        if (reader.TokenType != JsonTokenType.EndArray)
+        {
+            throw new JsonException("Expected the ConsoleSize array to contain exactly two numeric elements.");
+        }
 
         return new ConsoleSize
         {
             Height = height,
             Width = width
         };
+    }
+
+    private static ulong ReadArrayElement(ref Utf8JsonReader reader, string elementName)
+    {
+        if (!reader.Read())
+        {
+            throw new JsonException($"Expected a numeric '{elementName}' element in the ConsoleSize array.");
+        }
+
+        if (reader.TokenType != JsonTokenType.Number)
+        {
+            throw new JsonException($"Expected the ConsoleSize '{elementName}' element to be a number.");
+        }
+
+        return reader.GetUInt64();
     }
 
     public override void Write(Utf8JsonWriter writer, ConsoleSize? value, JsonSerializerOptions options)
