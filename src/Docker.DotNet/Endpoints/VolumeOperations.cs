@@ -9,18 +9,20 @@ internal class VolumeOperations : IVolumeOperations
         _client = client;
     }
 
-    async Task<VolumesListResponse> IVolumeOperations.ListAsync(CancellationToken cancellationToken)
+    public Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", cancellationToken).ConfigureAwait(false);
+        return ListAsync(null, cancellationToken);
     }
 
-    async Task<VolumesListResponse> IVolumeOperations.ListAsync(VolumesListParameters parameters, CancellationToken cancellationToken)
+    public async Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesListParameters>(parameters);
-        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", queryParameters, null, cancellationToken).ConfigureAwait(false);
+
+        return await _client.MakeRequestAsync<VolumesListResponse>(_client.NoErrorHandlers, HttpMethod.Get, "volumes", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<VolumeResponse> IVolumeOperations.CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken)
+    public async Task<VolumeResponse> CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -28,32 +30,37 @@ internal class VolumeOperations : IVolumeOperations
         }
 
         var data = new JsonRequestContent<VolumesCreateParameters>(parameters, DockerClient.JsonSerializer);
+
         return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/create", null, data, cancellationToken);
     }
 
-    async Task<VolumeResponse> IVolumeOperations.InspectAsync(string name, CancellationToken cancellationToken)
+    public async Task<VolumeResponse> InspectAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"volumes/{name}", cancellationToken).ConfigureAwait(false);
+        return await _client.MakeRequestAsync<VolumeResponse>(_client.NoErrorHandlers, HttpMethod.Get, $"volumes/{name}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    Task IVolumeOperations.RemoveAsync(string name, bool? force, CancellationToken cancellationToken)
+    public async Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken);
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Delete, $"volumes/{name}", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    async Task<VolumesPruneResponse> IVolumeOperations.PruneAsync(VolumesPruneParameters parameters, CancellationToken cancellationToken)
+    public async Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<VolumesPruneParameters>(parameters);
-        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken);
+
+        return await _client.MakeRequestAsync<VolumesPruneResponse>(_client.NoErrorHandlers, HttpMethod.Post, "volumes/prune", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

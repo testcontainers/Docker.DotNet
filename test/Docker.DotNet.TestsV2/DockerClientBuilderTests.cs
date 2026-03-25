@@ -166,6 +166,23 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
+    public void Build_PreservesOriginalEndpointInClientOptions_WhenTransportNormalizesEndpoint()
+    {
+        var transportFactory = new FakeTransportFactory();
+
+        var transportOptions = new FakeTransportOptions();
+
+        var expectedEndpoint = new Uri("npipe://./pipe/docker_engine");
+
+        _ = new DockerClientBuilder()
+            .WithTransportOptions(transportFactory, transportOptions)
+            .WithEndpoint(expectedEndpoint)
+            .Build();
+
+        Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
     public void WithTransportOptions_ReturnsTypedBuilder_ForBuiltInTransports()
     {
         var builder = new DockerClientBuilder();
@@ -212,17 +229,16 @@ public sealed class DockerClientBuilderTests
 
         public ClientOptions LastClientOptions { get; private set; } = null!;
 
-        public Tuple<HttpMessageHandler, Uri> CreateHandler(FakeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
         {
             TypedCreateHandlerCallCount++;
             LastTransportOptions = transportOptions;
             LastClientOptions = clientOptions;
 
-            return new Tuple<HttpMessageHandler, Uri>(new HttpClientHandler(), new Uri("http://localhost:2375"));
+            return new ResolvedTransport(new HttpClientHandler(), clientOptions.Endpoint);
         }
 
-
-        public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
             => throw new NotSupportedException();
 
         public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

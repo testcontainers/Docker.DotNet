@@ -148,8 +148,8 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    [Obsolete("Use 'Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken, IProgress<JSONMessage> progress)'")]
-    Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken);
+    [Obsolete("Use 'Task GetContainerStatsAsync(string id, ContainerStatsParameters parameters, IProgress<ContainerStatsResponse> progress, CancellationToken cancellationToken)'")]
+    Task<Stream> GetContainerStatsAsync(string id, ContainerStatsParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a live, raw stream of the container's resource usage statistics.
@@ -196,7 +196,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<bool> StartContainerAsync(string id, ContainerStartParameters parameters, CancellationToken cancellationToken = default);
+    Task<bool> StartContainerAsync(string id, ContainerStartParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stops a container.
@@ -257,7 +257,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The name is already in use, the input is invalid, or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task RenameContainerAsync(string id, ContainerRenameParameters parameters, CancellationToken cancellationToken);
+    Task RenameContainerAsync(string id, ContainerRenameParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Suspends a container.
@@ -381,7 +381,7 @@ public interface IContainerOperations
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">The input is invalid or the daemon experienced an error.</exception>
     /// <exception cref="HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
-    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters parameters = null, CancellationToken cancellationToken = default);
+    Task<ContainersPruneResponse> PruneContainersAsync(ContainersPruneParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes configuration options of a container without recreating it.

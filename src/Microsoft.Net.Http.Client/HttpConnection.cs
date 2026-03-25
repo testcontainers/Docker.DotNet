@@ -2,7 +2,7 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
-    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string>{ "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
+    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string> { "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
     public HttpConnection(BufferedReadStream transport)
     {
@@ -18,27 +18,43 @@ internal sealed class HttpConnection : IDisposable
             // Serialize headers & send
             string rawRequest = SerializeRequest(request);
             byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
-            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken);
+
+            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken)
+                .ConfigureAwait(false);
 
             if (request.Content != null)
             {
                 if (request.Content.Headers.ContentLength.HasValue)
                 {
-                    await request.Content.CopyToAsync(Transport);
+#if NET6_0_OR_GREATER
+                    await request.Content.CopyToAsync(Transport, cancellationToken)
+                        .ConfigureAwait(false);
+#else
+                    await request.Content.CopyToAsync(Transport)
+                        .ConfigureAwait(false);
+#endif
                 }
                 else
                 {
                     // The length of the data is unknown. Send it in chunked mode.
                     using (var chunkedStream = new ChunkedWriteStream(Transport))
                     {
-                        await request.Content.CopyToAsync(chunkedStream);
-                        await chunkedStream.EndContentAsync(cancellationToken);
+#if NET6_0_OR_GREATER
+                        await request.Content.CopyToAsync(chunkedStream, cancellationToken)
+                            .ConfigureAwait(false);
+#else
+                        await request.Content.CopyToAsync(chunkedStream)
+                            .ConfigureAwait(false);
+#endif
+                        await chunkedStream.EndContentAsync(cancellationToken)
+                            .ConfigureAwait(false);
                     }
                 }
             }
 
             // Receive headers
-            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken);
+            List<string> responseLines = await ReadResponseLinesAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             // Receive body and determine the response type (Content-Length, Transfer-Encoding, Opaque)
             return CreateResponseMessage(responseLines);
@@ -60,7 +76,7 @@ internal sealed class HttpConnection : IDisposable
         builder.Append(request.Version.ToString(2));
         builder.Append("\r\n");
 
-        builder.Append(request.Headers);
+        AppendHeaders(builder, request.Headers);
 
         if (request.Content != null)
         {
@@ -71,7 +87,7 @@ internal sealed class HttpConnection : IDisposable
                 request.Content.Headers.ContentLength = contentLength.Value;
             }
 
-            builder.Append(request.Content.Headers);
+            AppendHeaders(builder, request.Content.Headers);
             if (!contentLength.HasValue)
             {
                 // Add header for chunked mode.
@@ -81,6 +97,19 @@ internal sealed class HttpConnection : IDisposable
         // Headers end with an empty line
         builder.Append("\r\n");
         return builder.ToString();
+    }
+
+    // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
+    // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
+    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
+    {
+        foreach (var header in headers)
+        {
+            builder.Append(header.Key);
+            builder.Append(": ");
+            builder.Append(string.Join(", ", header.Value));
+            builder.Append("\r\n");
+        }
     }
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)

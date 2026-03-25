@@ -37,7 +37,7 @@ public class DockerClientBuilder
     /// </summary>
     /// <param name="version">The requested API version.</param>
     /// <returns>The builder instance.</returns>
-    public DockerClientBuilder WithApiVersion(Version version)
+    public DockerClientBuilder WithApiVersion(Version? version)
     {
         ClientOptions = ClientOptions with { ApiVersion = version };
         return this;
@@ -59,9 +59,11 @@ public class DockerClientBuilder
     /// </summary>
     /// <param name="authProvider">The authentication provider.</param>
     /// <returns>The builder instance.</returns>
-    public DockerClientBuilder WithAuthProvider(IAuthProvider authProvider)
+    public DockerClientBuilder WithAuthProvider(IAuthProvider? authProvider)
     {
-        ClientOptions = ClientOptions with { AuthProvider = authProvider };
+        var nonNullableAuthProvider = authProvider ?? NoopAuthProvider.Instance;
+
+        ClientOptions = ClientOptions with { AuthProvider = nonNullableAuthProvider };
         return this;
     }
 
@@ -194,13 +196,11 @@ public class DockerClientBuilder
     {
         var transportFactory = ResolveTransportFactory(ClientOptions.Endpoint.Scheme);
 
-        var (handler, endpoint) = transportFactory.CreateHandler(ClientOptions, Logger);
+        var resolvedTransport = transportFactory.CreateHandler(ClientOptions, Logger);
 
-        var clientOptions = ClientOptions with { Endpoint = endpoint };
+        var authenticatedHandler = ClientOptions.AuthProvider.ConfigureHandler(resolvedTransport.Handler);
 
-        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(handler);
-
-        return new DockerClient(authenticatedHandler, clientOptions, transportFactory, Logger);
+        return new DockerClient(authenticatedHandler, ClientOptions, resolvedTransport.EffectiveEndpoint, transportFactory, Logger);
     }
 
     /// <summary>

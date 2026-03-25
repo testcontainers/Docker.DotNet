@@ -2,7 +2,7 @@ namespace Docker.DotNet.TestsV2;
 
 public sealed class DockerHandlerFactoryValidationTests
 {
-    public static TheoryData<Func<ClientOptions, Tuple<HttpMessageHandler, Uri>>>
+    public static TheoryData<Func<ClientOptions, ResolvedTransport>>
         EndpointRequiredCases =>
         new()
         {
@@ -20,7 +20,7 @@ public sealed class DockerHandlerFactoryValidationTests
             },
         };
 
-    public static TheoryData<Func<ClientOptions, Tuple<HttpMessageHandler, Uri>>, Uri, string, string>
+    public static TheoryData<Func<ClientOptions, ResolvedTransport>, Uri, string, string>
         InvalidSchemeCases =>
         new()
         {
@@ -53,7 +53,7 @@ public sealed class DockerHandlerFactoryValidationTests
     [Theory]
     [MemberData(nameof(EndpointRequiredCases))]
     public void CreateHandler_ThrowsArgumentNullException_WhenEndpointIsNull(
-        Func<ClientOptions, Tuple<HttpMessageHandler, Uri>> createHandler)
+        Func<ClientOptions, ResolvedTransport> createHandler)
     {
         var clientOptions = new ClientOptions();
 
@@ -66,7 +66,7 @@ public sealed class DockerHandlerFactoryValidationTests
     [Theory]
     [MemberData(nameof(InvalidSchemeCases))]
     public void CreateHandler_ThrowsInvalidOperationException_WhenSchemeDoesNotMatchTransport(
-        Func<ClientOptions, Tuple<HttpMessageHandler, Uri>> createHandler,
+        Func<ClientOptions, ResolvedTransport> createHandler,
         Uri endpoint,
         string transportOptionsName,
         string expectedSchemesFragment)

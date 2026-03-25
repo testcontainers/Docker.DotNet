@@ -19,24 +19,28 @@ internal class PluginOperations : IPluginOperations
         _client = client;
     }
 
-    public async Task<IList<Plugin>> ListPluginsAsync(PluginListParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<Plugin>> ListPluginsAsync(PluginListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginListParameters>(parameters);
-        return await _client.MakeRequestAsync<Plugin[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken).ConfigureAwait(false);
+        var queryParameters = parameters == null ? null : new QueryString<PluginListParameters>(parameters);
+
+        return await _client.MakeRequestAsync<Plugin[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        var query = new QueryString<PluginGetPrivilegeParameters>(parameters);
-        return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", query, cancellationToken).ConfigureAwait(false);
+        var queryParameters = new QueryString<PluginGetPrivilegeParameters>(parameters);
+
+        return await _client.MakeRequestAsync<PluginPrivilege[]>(_client.NoErrorHandlers, HttpMethod.Get, "plugins/privileges", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default(CancellationToken))
+    public Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -48,9 +52,9 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters.Privileges));
         }
 
-        var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
+        var queryParameters = new QueryString<PluginInstallParameters>(parameters);
 
-        IQueryString queryParameters = new QueryString<PluginInstallParameters>(parameters);
+        var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
 
         return StreamUtil.MonitorStreamForMessagesAsync(
             _client.MakeRequestForStreamAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/pull", queryParameters, data, null, cancellationToken),
@@ -58,50 +62,57 @@ internal class PluginOperations : IPluginOperations
             cancellationToken);
     }
 
-    public async Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken)
+    public async Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return await _client.MakeRequestAsync<Plugin>(new[] { NoSuchPluginHandler }, HttpMethod.Get, $"plugins/{name}/json", cancellationToken);
+        return await _client.MakeRequestAsync<Plugin>([NoSuchPluginHandler], HttpMethod.Get, $"plugins/{name}/json", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task RemovePluginAsync(string name, PluginRemoveParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task RemovePluginAsync(string name, PluginRemoveParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginRemoveParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Delete, $"plugins/{name}", queryParameters, cancellationToken);
+        var queryParameters = parameters == null ? null : new QueryString<PluginRemoveParameters>(parameters);
+
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Delete, $"plugins/{name}", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task EnablePluginAsync(string name, PluginEnableParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task EnablePluginAsync(string name, PluginEnableParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginEnableParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/enable", queryParameters, cancellationToken);
+        var queryParameters = parameters == null ? null : new QueryString<PluginEnableParameters>(parameters);
+
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/enable", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task DisablePluginAsync(string name, PluginDisableParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task DisablePluginAsync(string name, PluginDisableParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        IQueryString queryParameters = parameters == null ? null : new QueryString<PluginDisableParameters>(parameters);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/disable", queryParameters, cancellationToken);
+        var queryParameters = parameters == null ? null : new QueryString<PluginDisableParameters>(parameters);
+
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/disable", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -118,12 +129,15 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters.Privileges));
         }
 
-        var query = new QueryString<PluginUpgradeParameters>(parameters);
+        var queryParameters = new QueryString<PluginUpgradeParameters>(parameters);
+
         var data = new JsonRequestContent<IList<PluginPrivilege>>(parameters.Privileges, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/upgrade", query, data, cancellationToken);
+
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/upgrade", queryParameters, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default)
     {
         if (parameters == null)
         {
@@ -135,22 +149,26 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(plugin));
         }
 
-        var query = new QueryString<PluginCreateParameters>(parameters);
+        var queryParameters = new QueryString<PluginCreateParameters>(parameters);
+
         var data = new BinaryRequestContent(plugin, TarContentType);
-        return _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", query, data, cancellationToken);
+
+        await _client.MakeRequestAsync(_client.NoErrorHandlers, HttpMethod.Post, $"plugins/create", queryParameters, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task PushPluginAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task PushPluginAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/push", cancellationToken);
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/push", cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -167,7 +185,9 @@ internal class PluginOperations : IPluginOperations
             throw new ArgumentNullException(nameof(parameters.Args));
         }
 
-        var body = new JsonRequestContent<IList<string>>(parameters.Args, DockerClient.JsonSerializer);
-        return _client.MakeRequestAsync(new[] { NoSuchPluginHandler }, HttpMethod.Post, $"plugins/{name}/set", null, body, cancellationToken);
+        var data = new JsonRequestContent<IList<string>>(parameters.Args, DockerClient.JsonSerializer);
+
+        await _client.MakeRequestAsync([NoSuchPluginHandler], HttpMethod.Post, $"plugins/{name}/set", null, data, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

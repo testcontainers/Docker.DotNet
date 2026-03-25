@@ -9,14 +9,14 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
     public static IDockerHandlerFactory<NPipeTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new NPipeTransportOptions();
         Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public Tuple<HttpMessageHandler, Uri> CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
     {
         Validate(transportOptions, clientOptions);
 
@@ -60,7 +60,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
         var handler = new ManagedHandler(streamOpener, logger);
         transportOptions.ConfigureHandler(handler);
 
-        return new Tuple<HttpMessageHandler, Uri>(handler, uri);
+        return new ResolvedTransport(handler, uri);
     }
 
     public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)
