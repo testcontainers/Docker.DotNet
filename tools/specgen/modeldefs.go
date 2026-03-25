@@ -132,8 +132,8 @@ type ContainerRenameParameters struct {
 
 // ContainerResizeParameters for POST /containers/(id)/resize
 type ContainerResizeParameters struct {
-	Height int `rest:"query,h"`
-	Width  int `rest:"query,w"`
+	Height int `rest:"query,h,required"`
+	Width  int `rest:"query,w,required"`
 }
 
 // ContainerRestartParameters for POST /containers/(id)/restart
