@@ -61,7 +61,7 @@ internal class ExecOperations : IExecOperations
         return new MultiplexedStream(response, !parameters.TTY);
     }
 
-    public Task ResizeExecTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default)
+    public async Task ResizeExecTtyAsync(string id, ContainerResizeParameters parameters, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -74,6 +74,8 @@ internal class ExecOperations : IExecOperations
         }
 
         var queryParameters = new QueryString<ContainerResizeParameters>(parameters);
-        return _client.MakeRequestAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken);
+
+        await _client.MakeRequestAsync([NoSuchContainerHandler], HttpMethod.Post, $"exec/{id}/resize", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

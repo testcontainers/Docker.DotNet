@@ -47,7 +47,10 @@ public class IExecOperationsTests
         // Start the exec to make it running (resize only works on a running exec)
         using var stream = await _testFixture.DockerClient.Exec.StartContainerExecAsync(
             execCreateResponse.ID,
-            new ContainerExecStartParameters { TTY = true },
+            new ContainerExecStartParameters
+            {
+                TTY = true
+            },
             _testFixture.Cts.Token
         );
 
@@ -56,8 +59,8 @@ public class IExecOperationsTests
             execCreateResponse.ID,
             new ContainerResizeParameters
             {
-                Height = 40,
-                Width = 120
+                Height = 48,
+                Width = 80
             },
             _testFixture.Cts.Token
         );
@@ -77,7 +80,6 @@ public class IExecOperationsTests
     [Fact]
     public async Task ResizeExecTtyAsync_NonExistentExecId_ThrowsException()
     {
-        // When/Then: resizing a non-existent exec ID should throw
         await Assert.ThrowsAsync<DockerContainerNotFoundException>(
             () => _testFixture.DockerClient.Exec.ResizeExecTtyAsync(
                 Guid.NewGuid().ToString("N"),
