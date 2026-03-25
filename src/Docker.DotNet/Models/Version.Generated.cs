@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class Version // (swarm.Version)
     {
         [JsonPropertyName("Index")]
-        public ulong Index { get; set; }
+        public ulong Index { get; set; } = default!;
     }
 }

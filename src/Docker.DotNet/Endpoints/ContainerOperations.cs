@@ -133,7 +133,7 @@ internal class ContainerOperations : IContainerOperations
         var response = await _client.MakeRequestForStreamAsync([NoSuchContainerHandler], HttpMethod.Get, $"containers/{id}/logs", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(response, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(response, !(containerInspectResponse.Config?.Tty ?? false));
     }
 
     public async Task<IList<ContainerFileSystemChangeResponse>> InspectChangesAsync(string id, CancellationToken cancellationToken = default)
@@ -353,7 +353,7 @@ internal class ContainerOperations : IContainerOperations
         var response = await _client.MakeRequestForHijackedStreamAsync([NoSuchContainerHandler], HttpMethod.Post, $"containers/{id}/attach", queryParameters, null, null, cancellationToken)
             .ConfigureAwait(false);
 
-        return new MultiplexedStream(response, !containerInspectResponse.Config.Tty);
+        return new MultiplexedStream(response, !(containerInspectResponse.Config?.Tty ?? false));
     }
 
     public async Task<ContainerWaitResponse> WaitContainerAsync(string id, CancellationToken cancellationToken = default)

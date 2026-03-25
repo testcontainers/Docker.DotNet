@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class CommitContainerChangesResponse // (main.CommitContainerChangesResponse)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
     }
 }

@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class AttestationProperties // (image.AttestationProperties)
     {
         [JsonPropertyName("For")]
-        public string For { get; set; }
+        public string For { get; set; } = default!;
     }
 }

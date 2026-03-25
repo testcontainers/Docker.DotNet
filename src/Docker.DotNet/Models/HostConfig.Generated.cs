@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class HostConfig // (container.HostConfig)
@@ -43,176 +44,176 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Binds")]
-        public IList<string> Binds { get; set; }
+        public IList<string> Binds { get; set; } = default!;
 
         [JsonPropertyName("ContainerIDFile")]
-        public string ContainerIDFile { get; set; }
+        public string ContainerIDFile { get; set; } = default!;
 
         [JsonPropertyName("LogConfig")]
-        public LogConfig LogConfig { get; set; }
+        public LogConfig LogConfig { get; set; } = default!;
 
         [JsonPropertyName("NetworkMode")]
-        public string NetworkMode { get; set; }
+        public string NetworkMode { get; set; } = default!;
 
         [JsonPropertyName("PortBindings")]
-        public IDictionary<string, IList<PortBinding>> PortBindings { get; set; }
+        public IDictionary<string, IList<PortBinding>> PortBindings { get; set; } = default!;
 
         [JsonPropertyName("RestartPolicy")]
-        public RestartPolicy RestartPolicy { get; set; }
+        public RestartPolicy RestartPolicy { get; set; } = default!;
 
         [JsonPropertyName("AutoRemove")]
-        public bool AutoRemove { get; set; }
+        public bool AutoRemove { get; set; } = default!;
 
         [JsonPropertyName("VolumeDriver")]
-        public string VolumeDriver { get; set; }
+        public string VolumeDriver { get; set; } = default!;
 
         [JsonPropertyName("VolumesFrom")]
-        public IList<string> VolumesFrom { get; set; }
+        public IList<string> VolumesFrom { get; set; } = default!;
 
         [JsonPropertyName("ConsoleSize")]
         [JsonConverter(typeof(ConsoleSizeConverter))]
-        public ConsoleSize ConsoleSize { get; set; }
+        public ConsoleSize ConsoleSize { get; set; } = default!;
 
         [JsonPropertyName("Annotations")]
-        public IDictionary<string, string> Annotations { get; set; }
+        public IDictionary<string, string> Annotations { get; set; } = default!;
 
         [JsonPropertyName("CapAdd")]
-        public IList<string> CapAdd { get; set; }
+        public IList<string> CapAdd { get; set; } = default!;
 
         [JsonPropertyName("CapDrop")]
-        public IList<string> CapDrop { get; set; }
+        public IList<string> CapDrop { get; set; } = default!;
 
         [JsonPropertyName("CgroupnsMode")]
-        public string CgroupnsMode { get; set; }
+        public string CgroupnsMode { get; set; } = default!;
 
         [JsonPropertyName("Dns")]
-        public IList<string> DNS { get; set; }
+        public IList<string> DNS { get; set; } = default!;
 
         [JsonPropertyName("DnsOptions")]
-        public IList<string> DNSOptions { get; set; }
+        public IList<string> DNSOptions { get; set; } = default!;
 
         [JsonPropertyName("DnsSearch")]
-        public IList<string> DNSSearch { get; set; }
+        public IList<string> DNSSearch { get; set; } = default!;
 
         [JsonPropertyName("ExtraHosts")]
-        public IList<string> ExtraHosts { get; set; }
+        public IList<string> ExtraHosts { get; set; } = default!;
 
         [JsonPropertyName("GroupAdd")]
-        public IList<string> GroupAdd { get; set; }
+        public IList<string> GroupAdd { get; set; } = default!;
 
         [JsonPropertyName("IpcMode")]
-        public string IpcMode { get; set; }
+        public string IpcMode { get; set; } = default!;
 
         [JsonPropertyName("Cgroup")]
-        public string Cgroup { get; set; }
+        public string Cgroup { get; set; } = default!;
 
         [JsonPropertyName("Links")]
-        public IList<string> Links { get; set; }
+        public IList<string> Links { get; set; } = default!;
 
         [JsonPropertyName("OomScoreAdj")]
-        public long OomScoreAdj { get; set; }
+        public long OomScoreAdj { get; set; } = default!;
 
         [JsonPropertyName("PidMode")]
-        public string PidMode { get; set; }
+        public string PidMode { get; set; } = default!;
 
         [JsonPropertyName("Privileged")]
-        public bool Privileged { get; set; }
+        public bool Privileged { get; set; } = default!;
 
         [JsonPropertyName("PublishAllPorts")]
-        public bool PublishAllPorts { get; set; }
+        public bool PublishAllPorts { get; set; } = default!;
 
         [JsonPropertyName("ReadonlyRootfs")]
-        public bool ReadonlyRootfs { get; set; }
+        public bool ReadonlyRootfs { get; set; } = default!;
 
         [JsonPropertyName("SecurityOpt")]
-        public IList<string> SecurityOpt { get; set; }
+        public IList<string> SecurityOpt { get; set; } = default!;
 
         [JsonPropertyName("StorageOpt")]
-        public IDictionary<string, string> StorageOpt { get; set; }
+        public IDictionary<string, string> StorageOpt { get; set; } = default!;
 
         [JsonPropertyName("Tmpfs")]
-        public IDictionary<string, string> Tmpfs { get; set; }
+        public IDictionary<string, string> Tmpfs { get; set; } = default!;
 
         [JsonPropertyName("UTSMode")]
-        public string UTSMode { get; set; }
+        public string UTSMode { get; set; } = default!;
 
         [JsonPropertyName("UsernsMode")]
-        public string UsernsMode { get; set; }
+        public string UsernsMode { get; set; } = default!;
 
         [JsonPropertyName("ShmSize")]
-        public long ShmSize { get; set; }
+        public long ShmSize { get; set; } = default!;
 
         [JsonPropertyName("Sysctls")]
-        public IDictionary<string, string> Sysctls { get; set; }
+        public IDictionary<string, string> Sysctls { get; set; } = default!;
 
         [JsonPropertyName("Runtime")]
-        public string Runtime { get; set; }
+        public string Runtime { get; set; } = default!;
 
         [JsonPropertyName("Isolation")]
-        public string Isolation { get; set; }
+        public string Isolation { get; set; } = default!;
 
         [JsonPropertyName("CpuShares")]
-        public long CPUShares { get; set; }
+        public long CPUShares { get; set; } = default!;
 
         [JsonPropertyName("Memory")]
-        public long Memory { get; set; }
+        public long Memory { get; set; } = default!;
 
         [JsonPropertyName("NanoCpus")]
-        public long NanoCPUs { get; set; }
+        public long NanoCPUs { get; set; } = default!;
 
         [JsonPropertyName("CgroupParent")]
-        public string CgroupParent { get; set; }
+        public string CgroupParent { get; set; } = default!;
 
         [JsonPropertyName("BlkioWeight")]
-        public ushort BlkioWeight { get; set; }
+        public ushort BlkioWeight { get; set; } = default!;
 
         [JsonPropertyName("BlkioWeightDevice")]
-        public IList<WeightDevice> BlkioWeightDevice { get; set; }
+        public IList<WeightDevice> BlkioWeightDevice { get; set; } = default!;
 
         [JsonPropertyName("BlkioDeviceReadBps")]
-        public IList<ThrottleDevice> BlkioDeviceReadBps { get; set; }
+        public IList<ThrottleDevice> BlkioDeviceReadBps { get; set; } = default!;
 
         [JsonPropertyName("BlkioDeviceWriteBps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteBps { get; set; }
+        public IList<ThrottleDevice> BlkioDeviceWriteBps { get; set; } = default!;
 
         [JsonPropertyName("BlkioDeviceReadIOps")]
-        public IList<ThrottleDevice> BlkioDeviceReadIOps { get; set; }
+        public IList<ThrottleDevice> BlkioDeviceReadIOps { get; set; } = default!;
 
         [JsonPropertyName("BlkioDeviceWriteIOps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteIOps { get; set; }
+        public IList<ThrottleDevice> BlkioDeviceWriteIOps { get; set; } = default!;
 
         [JsonPropertyName("CpuPeriod")]
-        public long CPUPeriod { get; set; }
+        public long CPUPeriod { get; set; } = default!;
 
         [JsonPropertyName("CpuQuota")]
-        public long CPUQuota { get; set; }
+        public long CPUQuota { get; set; } = default!;
 
         [JsonPropertyName("CpuRealtimePeriod")]
-        public long CPURealtimePeriod { get; set; }
+        public long CPURealtimePeriod { get; set; } = default!;
 
         [JsonPropertyName("CpuRealtimeRuntime")]
-        public long CPURealtimeRuntime { get; set; }
+        public long CPURealtimeRuntime { get; set; } = default!;
 
         [JsonPropertyName("CpusetCpus")]
-        public string CpusetCpus { get; set; }
+        public string CpusetCpus { get; set; } = default!;
 
         [JsonPropertyName("CpusetMems")]
-        public string CpusetMems { get; set; }
+        public string CpusetMems { get; set; } = default!;
 
         [JsonPropertyName("Devices")]
-        public IList<DeviceMapping> Devices { get; set; }
+        public IList<DeviceMapping> Devices { get; set; } = default!;
 
         [JsonPropertyName("DeviceCgroupRules")]
-        public IList<string> DeviceCgroupRules { get; set; }
+        public IList<string> DeviceCgroupRules { get; set; } = default!;
 
         [JsonPropertyName("DeviceRequests")]
-        public IList<DeviceRequest> DeviceRequests { get; set; }
+        public IList<DeviceRequest> DeviceRequests { get; set; } = default!;
 
         [JsonPropertyName("MemoryReservation")]
-        public long MemoryReservation { get; set; }
+        public long MemoryReservation { get; set; } = default!;
 
         [JsonPropertyName("MemorySwap")]
-        public long MemorySwap { get; set; }
+        public long MemorySwap { get; set; } = default!;
 
         [JsonPropertyName("MemorySwappiness")]
         public long? MemorySwappiness { get; set; }
@@ -224,28 +225,28 @@ namespace Docker.DotNet.Models
         public long? PidsLimit { get; set; }
 
         [JsonPropertyName("Ulimits")]
-        public IList<Ulimit> Ulimits { get; set; }
+        public IList<Ulimit> Ulimits { get; set; } = default!;
 
         [JsonPropertyName("CpuCount")]
-        public long CPUCount { get; set; }
+        public long CPUCount { get; set; } = default!;
 
         [JsonPropertyName("CpuPercent")]
-        public long CPUPercent { get; set; }
+        public long CPUPercent { get; set; } = default!;
 
         [JsonPropertyName("IOMaximumIOps")]
-        public ulong IOMaximumIOps { get; set; }
+        public ulong IOMaximumIOps { get; set; } = default!;
 
         [JsonPropertyName("IOMaximumBandwidth")]
-        public ulong IOMaximumBandwidth { get; set; }
+        public ulong IOMaximumBandwidth { get; set; } = default!;
 
         [JsonPropertyName("Mounts")]
-        public IList<Mount> Mounts { get; set; }
+        public IList<Mount> Mounts { get; set; } = default!;
 
         [JsonPropertyName("MaskedPaths")]
-        public IList<string> MaskedPaths { get; set; }
+        public IList<string> MaskedPaths { get; set; } = default!;
 
         [JsonPropertyName("ReadonlyPaths")]
-        public IList<string> ReadonlyPaths { get; set; }
+        public IList<string> ReadonlyPaths { get; set; } = default!;
 
         [JsonPropertyName("Init")]
         public bool? Init { get; set; }

@@ -1,9 +1,10 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class CopyToContainerParameters // (main.CopyToContainerParameters)
     {
         [QueryStringParameter("path", true)]
-        public string Path { get; set; }
+        public string Path { get; set; } = default!;
 
         [QueryStringParameter("noOverwriteDirNonDir", false, typeof(BoolQueryStringConverter))]
         public bool? AllowOverwriteDirWithFile { get; set; }

@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class NetworkSpec // (swarm.NetworkSpec)
@@ -16,33 +17,33 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("DriverConfiguration")]
-        public SwarmDriver DriverConfiguration { get; set; }
+        public SwarmDriver? DriverConfiguration { get; set; }
 
         [JsonPropertyName("IPv6Enabled")]
-        public bool IPv6Enabled { get; set; }
+        public bool IPv6Enabled { get; set; } = default!;
 
         [JsonPropertyName("Internal")]
-        public bool Internal { get; set; }
+        public bool Internal { get; set; } = default!;
 
         [JsonPropertyName("Attachable")]
-        public bool Attachable { get; set; }
+        public bool Attachable { get; set; } = default!;
 
         [JsonPropertyName("Ingress")]
-        public bool Ingress { get; set; }
+        public bool Ingress { get; set; } = default!;
 
         [JsonPropertyName("IPAMOptions")]
-        public IPAMOptions IPAMOptions { get; set; }
+        public IPAMOptions? IPAMOptions { get; set; }
 
         [JsonPropertyName("ConfigFrom")]
-        public ConfigReference ConfigFrom { get; set; }
+        public ConfigReference? ConfigFrom { get; set; }
 
         [JsonPropertyName("Scope")]
-        public string Scope { get; set; }
+        public string Scope { get; set; } = default!;
     }
 }

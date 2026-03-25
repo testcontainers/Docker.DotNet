@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class AppArmorOpts // (swarm.AppArmorOpts)
     {
         [JsonPropertyName("Mode")]
-        public string Mode { get; set; }
+        public string Mode { get; set; } = default!;
     }
 }

@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerAttachParameters // (main.ContainerAttachParameters)
@@ -15,7 +16,7 @@ namespace Docker.DotNet.Models
         public bool? Stderr { get; set; }
 
         [QueryStringParameter("detachKeys", false)]
-        public string DetachKeys { get; set; }
+        public string? DetachKeys { get; set; }
 
         [QueryStringParameter("logs", false, typeof(BoolQueryStringConverter))]
         public bool? Logs { get; set; }

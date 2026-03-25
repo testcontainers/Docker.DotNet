@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class RuntimePrivilege // (swarm.RuntimePrivilege)
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = default!;
 
         [JsonPropertyName("value")]
-        public IList<string> Value { get; set; }
+        public IList<string> Value { get; set; } = default!;
     }
 }

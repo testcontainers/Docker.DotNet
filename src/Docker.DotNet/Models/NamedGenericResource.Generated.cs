@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class NamedGenericResource // (swarm.NamedGenericResource)
     {
         [JsonPropertyName("Kind")]
-        public string Kind { get; set; }
+        public string Kind { get; set; } = default!;
 
         [JsonPropertyName("Value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = default!;
     }
 }

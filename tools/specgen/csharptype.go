@@ -206,6 +206,8 @@ func NewModel(name, sourceName string) *CSModelType {
 
 // Write the specific model type to the io writer given.
 func (t *CSModelType) Write(w io.Writer) {
+	fmt.Fprintln(w, "#nullable enable")
+
 	usings := calcUsings(t)
 	for _, u := range usings {
 		fmt.Fprintf(w, "using %s;\n", u)
@@ -347,7 +349,7 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 			fmt.Fprintf(w, "        %s\n", a)
 		}
 
-		if p.Type.IsNullable && p.IsOpt {
+		if p.IsOpt {
 			fmt.Fprintf(w, "        public %s? %s { get; set; }", p.Type.Name, p.Name)
 		} else {
 			fmt.Fprintf(w, "        public %s %s { get; set; }", p.Type.Name, p.Name)
@@ -355,6 +357,8 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 
 		if p.DefaultValue != "" {
 			fmt.Fprintf(w, " = %s;", p.DefaultValue)
+		} else if !p.IsOpt {
+			fmt.Fprintf(w, " = default!;")
 		}
 
 		fmt.Fprintln(w)

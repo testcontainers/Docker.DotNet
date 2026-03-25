@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ClusterVolume // (volume.ClusterVolume)
@@ -17,24 +18,24 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; }
+        public Version Version { get; set; } = default!;
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = default!;
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = default!;
 
         [JsonPropertyName("Spec")]
-        public ClusterVolumeSpec Spec { get; set; }
+        public ClusterVolumeSpec Spec { get; set; } = default!;
 
         [JsonPropertyName("PublishStatus")]
-        public IList<PublishStatus> PublishStatus { get; set; }
+        public IList<PublishStatus> PublishStatus { get; set; } = default!;
 
         [JsonPropertyName("Info")]
-        public VolumeInfo Info { get; set; }
+        public VolumeInfo? Info { get; set; }
     }
 }

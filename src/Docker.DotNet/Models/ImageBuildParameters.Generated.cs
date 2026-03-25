@@ -1,15 +1,16 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ImageBuildParameters // (main.ImageBuildParameters)
     {
         [QueryStringParameter("t", false, typeof(EnumerableQueryStringConverter))]
-        public IList<string> Tags { get; set; }
+        public IList<string>? Tags { get; set; }
 
         [QueryStringParameter("q", false, typeof(BoolQueryStringConverter))]
         public bool? SuppressOutput { get; set; }
 
         [QueryStringParameter("remote", false)]
-        public string RemoteContext { get; set; }
+        public string? RemoteContext { get; set; }
 
         [QueryStringParameter("nocache", false, typeof(BoolQueryStringConverter))]
         public bool? NoCache { get; set; }
@@ -21,10 +22,10 @@ namespace Docker.DotNet.Models
         public bool? ForceRemove { get; set; }
 
         [QueryStringParameter("pull", false)]
-        public string Pull { get; set; }
+        public string? Pull { get; set; }
 
         [QueryStringParameter("cpusetcpus", false)]
-        public string CPUSetCPUs { get; set; }
+        public string? CPUSetCPUs { get; set; }
 
         [QueryStringParameter("cpushares", false)]
         public long? CPUShares { get; set; }
@@ -42,42 +43,42 @@ namespace Docker.DotNet.Models
         public long? MemorySwap { get; set; }
 
         [QueryStringParameter("networkmode", false)]
-        public string NetworkMode { get; set; }
+        public string? NetworkMode { get; set; }
 
         [QueryStringParameter("shmsize", false)]
         public long? ShmSize { get; set; }
 
         [QueryStringParameter("dockerfile", false)]
-        public string Dockerfile { get; set; }
+        public string? Dockerfile { get; set; }
 
         [QueryStringParameter("buildargs", false, typeof(MapQueryStringConverter))]
-        public IDictionary<string, string> BuildArgs { get; set; }
+        public IDictionary<string, string>? BuildArgs { get; set; }
 
         [QueryStringParameter("labels", false, typeof(MapQueryStringConverter))]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string>? Labels { get; set; }
 
         [QueryStringParameter("squash", false, typeof(BoolQueryStringConverter))]
         public bool? Squash { get; set; }
 
         [QueryStringParameter("cachefrom", false, typeof(EnumerableQueryStringConverter))]
-        public IList<string> CacheFrom { get; set; }
+        public IList<string>? CacheFrom { get; set; }
 
         [QueryStringParameter("extrahosts", false, typeof(EnumerableQueryStringConverter))]
-        public IList<string> ExtraHosts { get; set; }
+        public IList<string>? ExtraHosts { get; set; }
 
         [QueryStringParameter("target", false)]
-        public string Target { get; set; }
+        public string? Target { get; set; }
 
         [QueryStringParameter("platform", false)]
-        public string Platform { get; set; }
+        public string? Platform { get; set; }
 
         [QueryStringParameter("outputs", false)]
-        public string Outputs { get; set; }
+        public string? Outputs { get; set; }
 
         [QueryStringParameter("version", false)]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         [JsonPropertyName("AuthConfigs")]
-        public IDictionary<string, AuthConfig> AuthConfigs { get; set; }
+        public IDictionary<string, AuthConfig> AuthConfigs { get; set; } = default!;
     }
 }

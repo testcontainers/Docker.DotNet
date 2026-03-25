@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class DriverData // (storage.DriverData)
     {
         [JsonPropertyName("Data")]
-        public IDictionary<string, string> Data { get; set; }
+        public IDictionary<string, string> Data { get; set; } = default!;
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     }
 }

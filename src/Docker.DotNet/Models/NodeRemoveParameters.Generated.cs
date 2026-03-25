@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class NodeRemoveParameters // (main.NodeRemoveParameters)

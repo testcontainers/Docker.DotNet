@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ServiceLogsParameters // (main.ServiceLogsParameters)
@@ -9,7 +10,7 @@ namespace Docker.DotNet.Models
         public bool? ShowStderr { get; set; }
 
         [QueryStringParameter("since", false)]
-        public string Since { get; set; }
+        public string? Since { get; set; }
 
         [QueryStringParameter("timestamps", false, typeof(BoolQueryStringConverter))]
         public bool? Timestamps { get; set; }
@@ -18,7 +19,7 @@ namespace Docker.DotNet.Models
         public bool? Follow { get; set; }
 
         [QueryStringParameter("tail", false)]
-        public string Tail { get; set; }
+        public string? Tail { get; set; }
 
         [QueryStringParameter("details", false, typeof(BoolQueryStringConverter))]
         public bool? Details { get; set; }

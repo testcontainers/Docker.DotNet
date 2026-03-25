@@ -1,191 +1,192 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SystemInfoResponse // (system.Info)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Containers")]
-        public long Containers { get; set; }
+        public long Containers { get; set; } = default!;
 
         [JsonPropertyName("ContainersRunning")]
-        public long ContainersRunning { get; set; }
+        public long ContainersRunning { get; set; } = default!;
 
         [JsonPropertyName("ContainersPaused")]
-        public long ContainersPaused { get; set; }
+        public long ContainersPaused { get; set; } = default!;
 
         [JsonPropertyName("ContainersStopped")]
-        public long ContainersStopped { get; set; }
+        public long ContainersStopped { get; set; } = default!;
 
         [JsonPropertyName("Images")]
-        public long Images { get; set; }
+        public long Images { get; set; } = default!;
 
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; }
+        public string Driver { get; set; } = default!;
 
         [JsonPropertyName("DriverStatus")]
-        public IList<string[]> DriverStatus { get; set; }
+        public IList<string[]> DriverStatus { get; set; } = default!;
 
         [JsonPropertyName("SystemStatus")]
-        public IList<string[]> SystemStatus { get; set; }
+        public IList<string[]> SystemStatus { get; set; } = default!;
 
         [JsonPropertyName("Plugins")]
-        public PluginsInfo Plugins { get; set; }
+        public PluginsInfo Plugins { get; set; } = default!;
 
         [JsonPropertyName("MemoryLimit")]
-        public bool MemoryLimit { get; set; }
+        public bool MemoryLimit { get; set; } = default!;
 
         [JsonPropertyName("SwapLimit")]
-        public bool SwapLimit { get; set; }
+        public bool SwapLimit { get; set; } = default!;
 
         [JsonPropertyName("CpuCfsPeriod")]
-        public bool CPUCfsPeriod { get; set; }
+        public bool CPUCfsPeriod { get; set; } = default!;
 
         [JsonPropertyName("CpuCfsQuota")]
-        public bool CPUCfsQuota { get; set; }
+        public bool CPUCfsQuota { get; set; } = default!;
 
         [JsonPropertyName("CPUShares")]
-        public bool CPUShares { get; set; }
+        public bool CPUShares { get; set; } = default!;
 
         [JsonPropertyName("CPUSet")]
-        public bool CPUSet { get; set; }
+        public bool CPUSet { get; set; } = default!;
 
         [JsonPropertyName("PidsLimit")]
-        public bool PidsLimit { get; set; }
+        public bool PidsLimit { get; set; } = default!;
 
         [JsonPropertyName("IPv4Forwarding")]
-        public bool IPv4Forwarding { get; set; }
+        public bool IPv4Forwarding { get; set; } = default!;
 
         [JsonPropertyName("Debug")]
-        public bool Debug { get; set; }
+        public bool Debug { get; set; } = default!;
 
         [JsonPropertyName("NFd")]
-        public long NFd { get; set; }
+        public long NFd { get; set; } = default!;
 
         [JsonPropertyName("OomKillDisable")]
-        public bool OomKillDisable { get; set; }
+        public bool OomKillDisable { get; set; } = default!;
 
         [JsonPropertyName("NGoroutines")]
-        public long NGoroutines { get; set; }
+        public long NGoroutines { get; set; } = default!;
 
         [JsonPropertyName("SystemTime")]
-        public string SystemTime { get; set; }
+        public string SystemTime { get; set; } = default!;
 
         [JsonPropertyName("LoggingDriver")]
-        public string LoggingDriver { get; set; }
+        public string LoggingDriver { get; set; } = default!;
 
         [JsonPropertyName("CgroupDriver")]
-        public string CgroupDriver { get; set; }
+        public string CgroupDriver { get; set; } = default!;
 
         [JsonPropertyName("CgroupVersion")]
-        public string CgroupVersion { get; set; }
+        public string CgroupVersion { get; set; } = default!;
 
         [JsonPropertyName("NEventsListener")]
-        public long NEventsListener { get; set; }
+        public long NEventsListener { get; set; } = default!;
 
         [JsonPropertyName("KernelVersion")]
-        public string KernelVersion { get; set; }
+        public string KernelVersion { get; set; } = default!;
 
         [JsonPropertyName("OperatingSystem")]
-        public string OperatingSystem { get; set; }
+        public string OperatingSystem { get; set; } = default!;
 
         [JsonPropertyName("OSVersion")]
-        public string OSVersion { get; set; }
+        public string OSVersion { get; set; } = default!;
 
         [JsonPropertyName("OSType")]
-        public string OSType { get; set; }
+        public string OSType { get; set; } = default!;
 
         [JsonPropertyName("Architecture")]
-        public string Architecture { get; set; }
+        public string Architecture { get; set; } = default!;
 
         [JsonPropertyName("IndexServerAddress")]
-        public string IndexServerAddress { get; set; }
+        public string IndexServerAddress { get; set; } = default!;
 
         [JsonPropertyName("RegistryConfig")]
-        public ServiceConfig RegistryConfig { get; set; }
+        public ServiceConfig? RegistryConfig { get; set; }
 
         [JsonPropertyName("NCPU")]
-        public long NCPU { get; set; }
+        public long NCPU { get; set; } = default!;
 
         [JsonPropertyName("MemTotal")]
-        public long MemTotal { get; set; }
+        public long MemTotal { get; set; } = default!;
 
         [JsonPropertyName("GenericResources")]
-        public IList<GenericResource> GenericResources { get; set; }
+        public IList<GenericResource> GenericResources { get; set; } = default!;
 
         [JsonPropertyName("DockerRootDir")]
-        public string DockerRootDir { get; set; }
+        public string DockerRootDir { get; set; } = default!;
 
         [JsonPropertyName("HttpProxy")]
-        public string HTTPProxy { get; set; }
+        public string HTTPProxy { get; set; } = default!;
 
         [JsonPropertyName("HttpsProxy")]
-        public string HTTPSProxy { get; set; }
+        public string HTTPSProxy { get; set; } = default!;
 
         [JsonPropertyName("NoProxy")]
-        public string NoProxy { get; set; }
+        public string NoProxy { get; set; } = default!;
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [JsonPropertyName("Labels")]
-        public IList<string> Labels { get; set; }
+        public IList<string> Labels { get; set; } = default!;
 
         [JsonPropertyName("ExperimentalBuild")]
-        public bool ExperimentalBuild { get; set; }
+        public bool ExperimentalBuild { get; set; } = default!;
 
         [JsonPropertyName("ServerVersion")]
-        public string ServerVersion { get; set; }
+        public string ServerVersion { get; set; } = default!;
 
         [JsonPropertyName("Runtimes")]
-        public IDictionary<string, RuntimeWithStatus> Runtimes { get; set; }
+        public IDictionary<string, RuntimeWithStatus> Runtimes { get; set; } = default!;
 
         [JsonPropertyName("DefaultRuntime")]
-        public string DefaultRuntime { get; set; }
+        public string DefaultRuntime { get; set; } = default!;
 
         [JsonPropertyName("Swarm")]
-        public Info Swarm { get; set; }
+        public Info Swarm { get; set; } = default!;
 
         [JsonPropertyName("LiveRestoreEnabled")]
-        public bool LiveRestoreEnabled { get; set; }
+        public bool LiveRestoreEnabled { get; set; } = default!;
 
         [JsonPropertyName("Isolation")]
-        public string Isolation { get; set; }
+        public string Isolation { get; set; } = default!;
 
         [JsonPropertyName("InitBinary")]
-        public string InitBinary { get; set; }
+        public string InitBinary { get; set; } = default!;
 
         [JsonPropertyName("ContainerdCommit")]
-        public Commit ContainerdCommit { get; set; }
+        public Commit ContainerdCommit { get; set; } = default!;
 
         [JsonPropertyName("RuncCommit")]
-        public Commit RuncCommit { get; set; }
+        public Commit RuncCommit { get; set; } = default!;
 
         [JsonPropertyName("InitCommit")]
-        public Commit InitCommit { get; set; }
+        public Commit InitCommit { get; set; } = default!;
 
         [JsonPropertyName("SecurityOptions")]
-        public IList<string> SecurityOptions { get; set; }
+        public IList<string> SecurityOptions { get; set; } = default!;
 
         [JsonPropertyName("ProductLicense")]
-        public string ProductLicense { get; set; }
+        public string ProductLicense { get; set; } = default!;
 
         [JsonPropertyName("DefaultAddressPools")]
-        public IList<NetworkAddressPool> DefaultAddressPools { get; set; }
+        public IList<NetworkAddressPool> DefaultAddressPools { get; set; } = default!;
 
         [JsonPropertyName("FirewallBackend")]
-        public FirewallInfo FirewallBackend { get; set; }
+        public FirewallInfo? FirewallBackend { get; set; }
 
         [JsonPropertyName("CDISpecDirs")]
-        public IList<string> CDISpecDirs { get; set; }
+        public IList<string> CDISpecDirs { get; set; } = default!;
 
         [JsonPropertyName("DiscoveredDevices")]
-        public IList<DeviceInfo> DiscoveredDevices { get; set; }
+        public IList<DeviceInfo> DiscoveredDevices { get; set; } = default!;
 
         [JsonPropertyName("Containerd")]
-        public ContainerdInfo Containerd { get; set; }
+        public ContainerdInfo? Containerd { get; set; }
 
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; }
+        public IList<string> Warnings { get; set; } = default!;
     }
 }

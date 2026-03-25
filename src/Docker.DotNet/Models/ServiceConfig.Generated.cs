@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ServiceConfig // (registry.ServiceConfig)
     {
         [JsonPropertyName("InsecureRegistryCIDRs")]
-        public IList<string> InsecureRegistryCIDRs { get; set; }
+        public IList<string> InsecureRegistryCIDRs { get; set; } = default!;
 
         [JsonPropertyName("IndexConfigs")]
-        public IDictionary<string, IndexInfo> IndexConfigs { get; set; }
+        public IDictionary<string, IndexInfo> IndexConfigs { get; set; } = default!;
 
         [JsonPropertyName("Mirrors")]
-        public IList<string> Mirrors { get; set; }
+        public IList<string> Mirrors { get; set; } = default!;
     }
 }

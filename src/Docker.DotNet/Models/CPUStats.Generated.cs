@@ -1,17 +1,18 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class CPUStats // (container.CPUStats)
     {
         [JsonPropertyName("cpu_usage")]
-        public CPUUsage CPUUsage { get; set; }
+        public CPUUsage CPUUsage { get; set; } = default!;
 
         [JsonPropertyName("system_cpu_usage")]
-        public ulong SystemUsage { get; set; }
+        public ulong SystemUsage { get; set; } = default!;
 
         [JsonPropertyName("online_cpus")]
-        public uint OnlineCPUs { get; set; }
+        public uint OnlineCPUs { get; set; } = default!;
 
         [JsonPropertyName("throttling_data")]
-        public ThrottlingData ThrottlingData { get; set; }
+        public ThrottlingData ThrottlingData { get; set; } = default!;
     }
 }

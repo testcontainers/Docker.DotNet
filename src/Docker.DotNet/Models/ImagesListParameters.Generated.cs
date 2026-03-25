@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ImagesListParameters // (main.ImagesListParameters)
@@ -6,7 +7,7 @@ namespace Docker.DotNet.Models
         public bool? All { get; set; }
 
         [QueryStringParameter("filters", false, typeof(MapQueryStringConverter))]
-        public IDictionary<string, IDictionary<string, bool>> Filters { get; set; }
+        public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
 
         [QueryStringParameter("shared-size", false, typeof(BoolQueryStringConverter))]
         public bool? SharedSize { get; set; }

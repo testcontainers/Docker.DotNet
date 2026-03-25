@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class FirewallInfo // (system.FirewallInfo)
     {
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; }
+        public string Driver { get; set; } = default!;
 
         [JsonPropertyName("Info")]
-        public IList<string[]> Info { get; set; }
+        public IList<string[]> Info { get; set; } = default!;
     }
 }

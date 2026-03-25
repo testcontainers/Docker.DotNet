@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class RootFS // (image.RootFS)
     {
         [JsonPropertyName("Type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = default!;
 
         [JsonPropertyName("Layers")]
-        public IList<string> Layers { get; set; }
+        public IList<string> Layers { get; set; } = default!;
     }
 }

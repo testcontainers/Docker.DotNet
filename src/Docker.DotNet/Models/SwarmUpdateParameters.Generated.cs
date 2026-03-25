@@ -1,12 +1,13 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmUpdateParameters // (main.SwarmUpdateParameters)
     {
         [JsonPropertyName("Spec")]
-        public Spec Spec { get; set; }
+        public Spec Spec { get; set; } = default!;
 
         [QueryStringParameter("version", true)]
-        public long Version { get; set; }
+        public long Version { get; set; } = default!;
 
         [QueryStringParameter("rotateworkertoken", false, typeof(BoolQueryStringConverter))]
         public bool? RotateWorkerToken { get; set; }

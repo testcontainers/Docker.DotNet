@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SeccompOpts // (swarm.SeccompOpts)
     {
         [JsonPropertyName("Mode")]
-        public string Mode { get; set; }
+        public string Mode { get; set; } = default!;
 
         [JsonPropertyName("Profile")]
-        public IList<byte> Profile { get; set; }
+        public IList<byte> Profile { get; set; } = default!;
     }
 }

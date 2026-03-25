@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class DockerOCIImageConfig // (v1.DockerOCIImageConfig)
@@ -31,42 +32,42 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("User")]
-        public string User { get; set; }
+        public string User { get; set; } = default!;
 
         [JsonPropertyName("ExposedPorts")]
-        public IDictionary<string, EmptyStruct> ExposedPorts { get; set; }
+        public IDictionary<string, EmptyStruct> ExposedPorts { get; set; } = default!;
 
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; }
+        public IList<string> Env { get; set; } = default!;
 
         [JsonPropertyName("Entrypoint")]
-        public IList<string> Entrypoint { get; set; }
+        public IList<string> Entrypoint { get; set; } = default!;
 
         [JsonPropertyName("Cmd")]
-        public IList<string> Cmd { get; set; }
+        public IList<string> Cmd { get; set; } = default!;
 
         [JsonPropertyName("Volumes")]
-        public IDictionary<string, EmptyStruct> Volumes { get; set; }
+        public IDictionary<string, EmptyStruct> Volumes { get; set; } = default!;
 
         [JsonPropertyName("WorkingDir")]
-        public string WorkingDir { get; set; }
+        public string WorkingDir { get; set; } = default!;
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("StopSignal")]
-        public string StopSignal { get; set; }
+        public string StopSignal { get; set; } = default!;
 
         [JsonPropertyName("ArgsEscaped")]
-        public bool ArgsEscaped { get; set; }
+        public bool ArgsEscaped { get; set; } = default!;
 
         [JsonPropertyName("Healthcheck")]
-        public HealthcheckConfig Healthcheck { get; set; }
+        public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("OnBuild")]
-        public IList<string> OnBuild { get; set; }
+        public IList<string> OnBuild { get; set; } = default!;
 
         [JsonPropertyName("Shell")]
-        public IList<string> Shell { get; set; }
+        public IList<string> Shell { get; set; } = default!;
     }
 }

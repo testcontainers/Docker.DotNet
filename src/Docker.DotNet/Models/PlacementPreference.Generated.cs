@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class PlacementPreference // (swarm.PlacementPreference)
     {
         [JsonPropertyName("Spread")]
-        public SpreadOver Spread { get; set; }
+        public SpreadOver? Spread { get; set; }
     }
 }

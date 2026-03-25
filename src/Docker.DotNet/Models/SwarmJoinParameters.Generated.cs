@@ -1,23 +1,24 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmJoinParameters // (swarm.JoinRequest)
     {
         [JsonPropertyName("ListenAddr")]
-        public string ListenAddr { get; set; }
+        public string ListenAddr { get; set; } = default!;
 
         [JsonPropertyName("AdvertiseAddr")]
-        public string AdvertiseAddr { get; set; }
+        public string AdvertiseAddr { get; set; } = default!;
 
         [JsonPropertyName("DataPathAddr")]
-        public string DataPathAddr { get; set; }
+        public string DataPathAddr { get; set; } = default!;
 
         [JsonPropertyName("RemoteAddrs")]
-        public IList<string> RemoteAddrs { get; set; }
+        public IList<string> RemoteAddrs { get; set; } = default!;
 
         [JsonPropertyName("JoinToken")]
-        public string JoinToken { get; set; }
+        public string JoinToken { get; set; } = default!;
 
         [JsonPropertyName("Availability")]
-        public string Availability { get; set; }
+        public string Availability { get; set; } = default!;
     }
 }

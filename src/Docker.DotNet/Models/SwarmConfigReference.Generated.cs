@@ -1,17 +1,18 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmConfigReference // (swarm.ConfigReference)
     {
         [JsonPropertyName("File")]
-        public ConfigReferenceFileTarget File { get; set; }
+        public ConfigReferenceFileTarget? File { get; set; }
 
         [JsonPropertyName("Runtime")]
-        public ConfigReferenceRuntimeTarget Runtime { get; set; }
+        public ConfigReferenceRuntimeTarget? Runtime { get; set; }
 
         [JsonPropertyName("ConfigID")]
-        public string ConfigID { get; set; }
+        public string ConfigID { get; set; } = default!;
 
         [JsonPropertyName("ConfigName")]
-        public string ConfigName { get; set; }
+        public string ConfigName { get; set; } = default!;
     }
 }

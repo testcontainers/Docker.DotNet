@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class PluginRootFS // (plugin.RootFS)
     {
         [JsonPropertyName("diff_ids")]
-        public IList<string> DiffIds { get; set; }
+        public IList<string> DiffIds { get; set; } = default!;
 
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = default!;
     }
 }

@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class Actor // (events.Actor)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Attributes")]
-        public IDictionary<string, string> Attributes { get; set; }
+        public IDictionary<string, string> Attributes { get; set; } = default!;
     }
 }

@@ -1,69 +1,70 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerInspectResponse // (container.InspectResponse)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Created")]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = default!;
 
         [JsonPropertyName("Path")]
-        public string Path { get; set; }
+        public string Path { get; set; } = default!;
 
         [JsonPropertyName("Args")]
-        public IList<string> Args { get; set; }
+        public IList<string> Args { get; set; } = default!;
 
         [JsonPropertyName("State")]
-        public State State { get; set; }
+        public State? State { get; set; }
 
         [JsonPropertyName("Image")]
-        public string Image { get; set; }
+        public string Image { get; set; } = default!;
 
         [JsonPropertyName("ResolvConfPath")]
-        public string ResolvConfPath { get; set; }
+        public string ResolvConfPath { get; set; } = default!;
 
         [JsonPropertyName("HostnamePath")]
-        public string HostnamePath { get; set; }
+        public string HostnamePath { get; set; } = default!;
 
         [JsonPropertyName("HostsPath")]
-        public string HostsPath { get; set; }
+        public string HostsPath { get; set; } = default!;
 
         [JsonPropertyName("LogPath")]
-        public string LogPath { get; set; }
+        public string LogPath { get; set; } = default!;
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [JsonPropertyName("RestartCount")]
-        public long RestartCount { get; set; }
+        public long RestartCount { get; set; } = default!;
 
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; }
+        public string Driver { get; set; } = default!;
 
         [JsonPropertyName("Platform")]
-        public string Platform { get; set; }
+        public string Platform { get; set; } = default!;
 
         [JsonPropertyName("MountLabel")]
-        public string MountLabel { get; set; }
+        public string MountLabel { get; set; } = default!;
 
         [JsonPropertyName("ProcessLabel")]
-        public string ProcessLabel { get; set; }
+        public string ProcessLabel { get; set; } = default!;
 
         [JsonPropertyName("AppArmorProfile")]
-        public string AppArmorProfile { get; set; }
+        public string AppArmorProfile { get; set; } = default!;
 
         [JsonPropertyName("ExecIDs")]
-        public IList<string> ExecIDs { get; set; }
+        public IList<string> ExecIDs { get; set; } = default!;
 
         [JsonPropertyName("HostConfig")]
-        public HostConfig HostConfig { get; set; }
+        public HostConfig? HostConfig { get; set; }
 
         [JsonPropertyName("GraphDriver")]
-        public DriverData GraphDriver { get; set; }
+        public DriverData? GraphDriver { get; set; }
 
         [JsonPropertyName("Storage")]
-        public Storage Storage { get; set; }
+        public Storage? Storage { get; set; }
 
         [JsonPropertyName("SizeRw")]
         public long? SizeRw { get; set; }
@@ -72,15 +73,15 @@ namespace Docker.DotNet.Models
         public long? SizeRootFs { get; set; }
 
         [JsonPropertyName("Mounts")]
-        public IList<MountPoint> Mounts { get; set; }
+        public IList<MountPoint> Mounts { get; set; } = default!;
 
         [JsonPropertyName("Config")]
-        public ContainerConfig Config { get; set; }
+        public ContainerConfig? Config { get; set; }
 
         [JsonPropertyName("NetworkSettings")]
-        public NetworkSettings NetworkSettings { get; set; }
+        public NetworkSettings? NetworkSettings { get; set; }
 
         [JsonPropertyName("ImageManifestDescriptor")]
-        public Descriptor ImageManifestDescriptor { get; set; }
+        public Descriptor? ImageManifestDescriptor { get; set; }
     }
 }

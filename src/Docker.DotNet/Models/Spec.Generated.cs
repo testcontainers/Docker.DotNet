@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class Spec // (swarm.Spec)
@@ -16,27 +17,27 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Orchestration")]
-        public OrchestrationConfig Orchestration { get; set; }
+        public OrchestrationConfig Orchestration { get; set; } = default!;
 
         [JsonPropertyName("Raft")]
-        public RaftConfig Raft { get; set; }
+        public RaftConfig Raft { get; set; } = default!;
 
         [JsonPropertyName("Dispatcher")]
-        public DispatcherConfig Dispatcher { get; set; }
+        public DispatcherConfig Dispatcher { get; set; } = default!;
 
         [JsonPropertyName("CAConfig")]
-        public CAConfig CAConfig { get; set; }
+        public CAConfig CAConfig { get; set; } = default!;
 
         [JsonPropertyName("TaskDefaults")]
-        public TaskDefaults TaskDefaults { get; set; }
+        public TaskDefaults TaskDefaults { get; set; } = default!;
 
         [JsonPropertyName("EncryptionConfig")]
-        public EncryptionConfig EncryptionConfig { get; set; }
+        public EncryptionConfig EncryptionConfig { get; set; } = default!;
     }
 }
