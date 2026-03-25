@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DockerDotNetReleaseVersion Condition="'$(DockerDotNetReleaseVersion)' == ''">3.132.0</DockerDotNetReleaseVersion>
+    <UseReleasedPackage Condition="'$(UseReleasedPackage)' == ''">false</UseReleasedPackage>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" VersionOverride="0.15.8" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="'$(UseReleasedPackage)' == 'true'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);DOCKER_DOTNET_RELEASE</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="Docker.DotNet.Enhanced" VersionOverride="$(DockerDotNetReleaseVersion)" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);DOCKER_DOTNET_MAIN</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <ProjectReference Include="../../src/Docker.DotNet/Docker.DotNet.csproj" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="BenchmarkDotNet.Attributes" />
+    <Using Include="BenchmarkDotNet.Running" />
+    <Using Include="Docker.DotNet" />
+    <Using Include="Docker.DotNet.Benchmarks" />
+    <Using Include="Docker.DotNet.Models" />
+  </ItemGroup>
+</Project>
