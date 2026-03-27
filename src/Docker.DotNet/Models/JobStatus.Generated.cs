@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         public Version JobIteration { get; set; } = default!;
 
         [JsonPropertyName("LastExecution")]
-        public DateTime LastExecution { get; set; } = default!;
+        public DateTime? LastExecution { get; set; }
     }
 }

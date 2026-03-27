@@ -4,10 +4,10 @@ namespace Docker.DotNet.Models
     public class MountPoint // (container.MountPoint)
     {
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string? Type { get; set; }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Source")]
         public string Source { get; set; } = default!;
@@ -16,7 +16,7 @@ namespace Docker.DotNet.Models
         public string Destination { get; set; } = default!;
 
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string? Driver { get; set; }
 
         [JsonPropertyName("Mode")]
         public string Mode { get; set; } = default!;

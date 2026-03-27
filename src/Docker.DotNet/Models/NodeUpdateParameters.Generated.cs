@@ -17,15 +17,15 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Role")]
-        public string Role { get; set; } = default!;
+        public string? Role { get; set; }
 
         [JsonPropertyName("Availability")]
-        public string Availability { get; set; } = default!;
+        public string? Availability { get; set; }
     }
 }

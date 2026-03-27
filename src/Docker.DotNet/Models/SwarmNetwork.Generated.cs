@@ -21,19 +21,19 @@ namespace Docker.DotNet.Models
         public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; } = default!;
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; } = default!;
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; } = default!;
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public NetworkSpec Spec { get; set; } = default!;
+        public NetworkSpec? Spec { get; set; }
 
         [JsonPropertyName("DriverState")]
-        public SwarmDriver DriverState { get; set; } = default!;
+        public SwarmDriver? DriverState { get; set; }
 
         [JsonPropertyName("IPAMOptions")]
         public IPAMOptions? IPAMOptions { get; set; }

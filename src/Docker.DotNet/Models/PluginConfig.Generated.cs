@@ -40,7 +40,7 @@ namespace Docker.DotNet.Models
         public string PropagatedMount { get; set; } = default!;
 
         [JsonPropertyName("User")]
-        public PluginUser User { get; set; } = default!;
+        public PluginUser? User { get; set; }
 
         [JsonPropertyName("WorkDir")]
         public string WorkDir { get; set; } = default!;

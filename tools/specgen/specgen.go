@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -725,6 +726,8 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				jsonName = jsonTag[0]
 			}
 
+			omitEmpty := slices.Contains(jsonTag, "omitempty")
+
 			if hasTypeCustomizations {
 				for _, p := range typeCustomizations.Properties {
 					if f.Name == p.Name {
@@ -758,13 +761,13 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(MapQueryStringConverter)"})
 				}
 
-				csProp.IsOpt = !restTag.Required
+				csProp.IsOpt = omitEmpty || !restTag.Required
 				csProp.Attributes = append(csProp.Attributes, a)
 				csProp.DefaultValue = restTag.Default
 			} else {
 				a := CSAttribute{Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName"}}
 				a.Arguments = append(a.Arguments, CSArgument{jsonName, CSInboxTypesMap[reflect.String]})
-				csProp.IsOpt = f.Type.Kind() == reflect.Ptr
+				csProp.IsOpt = omitEmpty || f.Type.Kind() == reflect.Ptr
 				csProp.Attributes = append(csProp.Attributes, a)
 			}
 

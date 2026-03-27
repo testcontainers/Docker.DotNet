@@ -76,13 +76,13 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Peers")]
-        public IList<PeerInfo> Peers { get; set; } = default!;
+        public IList<PeerInfo>? Peers { get; set; }
 
         [JsonPropertyName("Containers")]
         public IDictionary<string, EndpointResource> Containers { get; set; } = default!;
 
         [JsonPropertyName("Services")]
-        public IDictionary<string, ServiceInfo> Services { get; set; } = default!;
+        public IDictionary<string, ServiceInfo>? Services { get; set; }
 
         [JsonPropertyName("Status")]
         public Status? Status { get; set; }

@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class ServiceCreateResponse // (swarm.ServiceCreateResponse)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string? ID { get; set; }
 
         [JsonPropertyName("Warnings")]
         public IList<string> Warnings { get; set; } = default!;

@@ -4,9 +4,9 @@ namespace Docker.DotNet.Models
     public class NetworkAttachment // (swarm.NetworkAttachment)
     {
         [JsonPropertyName("Network")]
-        public SwarmNetwork Network { get; set; } = default!;
+        public SwarmNetwork? Network { get; set; }
 
         [JsonPropertyName("Addresses")]
-        public IList<string> Addresses { get; set; } = default!;
+        public IList<string>? Addresses { get; set; }
     }
 }

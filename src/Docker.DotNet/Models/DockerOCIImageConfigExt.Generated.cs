@@ -7,9 +7,9 @@ namespace Docker.DotNet.Models
         public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("OnBuild")]
-        public IList<string> OnBuild { get; set; } = default!;
+        public IList<string>? OnBuild { get; set; }
 
         [JsonPropertyName("Shell")]
-        public IList<string> Shell { get; set; } = default!;
+        public IList<string>? Shell { get; set; }
     }
 }

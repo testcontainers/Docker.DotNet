@@ -21,13 +21,13 @@ namespace Docker.DotNet.Models
         public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; } = default!;
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; } = default!;
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; } = default!;
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
         public Spec Spec { get; set; } = default!;

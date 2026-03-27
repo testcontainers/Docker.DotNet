@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         public Placement? Placement { get; set; }
 
         [JsonPropertyName("Networks")]
-        public IList<NetworkAttachmentConfig> Networks { get; set; } = default!;
+        public IList<NetworkAttachmentConfig>? Networks { get; set; }
 
         [JsonPropertyName("LogDriver")]
         public SwarmDriver? LogDriver { get; set; }
@@ -31,6 +31,6 @@ namespace Docker.DotNet.Models
         public ulong ForceUpdate { get; set; } = default!;
 
         [JsonPropertyName("Runtime")]
-        public string Runtime { get; set; } = default!;
+        public string? Runtime { get; set; }
     }
 }

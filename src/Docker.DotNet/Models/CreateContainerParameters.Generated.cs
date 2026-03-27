@@ -63,7 +63,7 @@ namespace Docker.DotNet.Models
         public bool AttachStderr { get; set; } = default!;
 
         [JsonPropertyName("ExposedPorts")]
-        public IDictionary<string, EmptyStruct> ExposedPorts { get; set; } = default!;
+        public IDictionary<string, EmptyStruct>? ExposedPorts { get; set; }
 
         [JsonPropertyName("Tty")]
         public bool Tty { get; set; } = default!;
@@ -84,7 +84,7 @@ namespace Docker.DotNet.Models
         public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("ArgsEscaped")]
-        public bool ArgsEscaped { get; set; } = default!;
+        public bool? ArgsEscaped { get; set; }
 
         [JsonPropertyName("Image")]
         public string Image { get; set; } = default!;
@@ -99,23 +99,23 @@ namespace Docker.DotNet.Models
         public IList<string> Entrypoint { get; set; } = default!;
 
         [JsonPropertyName("NetworkDisabled")]
-        public bool NetworkDisabled { get; set; } = default!;
+        public bool? NetworkDisabled { get; set; }
 
         [JsonPropertyName("OnBuild")]
-        public IList<string> OnBuild { get; set; } = default!;
+        public IList<string>? OnBuild { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("StopSignal")]
-        public string StopSignal { get; set; } = default!;
+        public string? StopSignal { get; set; }
 
         [JsonPropertyName("StopTimeout")]
         [JsonConverter(typeof(TimeSpanSecondsConverter))]
         public TimeSpan? StopTimeout { get; set; }
 
         [JsonPropertyName("Shell")]
-        public IList<string> Shell { get; set; } = default!;
+        public IList<string>? Shell { get; set; }
 
         [JsonPropertyName("HostConfig")]
         public HostConfig? HostConfig { get; set; }

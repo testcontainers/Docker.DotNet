@@ -4,9 +4,9 @@ namespace Docker.DotNet.Models
     public class SwarmDriver // (swarm.Driver)
     {
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
     }
 }

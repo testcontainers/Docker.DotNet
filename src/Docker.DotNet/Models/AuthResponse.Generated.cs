@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class AuthResponse // (registry.AuthResponse)
     {
         [JsonPropertyName("IdentityToken")]
-        public string IdentityToken { get; set; } = default!;
+        public string? IdentityToken { get; set; }
 
         [JsonPropertyName("Status")]
         public string Status { get; set; } = default!;

@@ -13,19 +13,19 @@ namespace Docker.DotNet.Models
         public long Size { get; set; } = default!;
 
         [JsonPropertyName("urls")]
-        public IList<string> URLs { get; set; } = default!;
+        public IList<string>? URLs { get; set; }
 
         [JsonPropertyName("annotations")]
-        public IDictionary<string, string> Annotations { get; set; } = default!;
+        public IDictionary<string, string>? Annotations { get; set; }
 
         [JsonPropertyName("data")]
         [JsonConverter(typeof(Base64Converter))]
-        public IList<byte> Data { get; set; } = default!;
+        public IList<byte>? Data { get; set; }
 
         [JsonPropertyName("platform")]
         public Platform? Platform { get; set; }
 
         [JsonPropertyName("artifactType")]
-        public string ArtifactType { get; set; } = default!;
+        public string? ArtifactType { get; set; }
     }
 }

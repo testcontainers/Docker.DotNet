@@ -13,12 +13,12 @@ namespace Docker.DotNet.Models
         public Actor Actor { get; set; } = default!;
 
         [JsonPropertyName("scope")]
-        public string Scope { get; set; } = default!;
+        public string? Scope { get; set; }
 
         [JsonPropertyName("time")]
-        public long Time { get; set; } = default!;
+        public long? Time { get; set; }
 
         [JsonPropertyName("timeNano")]
-        public long TimeNano { get; set; } = default!;
+        public long? TimeNano { get; set; }
     }
 }

@@ -75,7 +75,7 @@ namespace Docker.DotNet.Models
         public ConsoleSize ConsoleSize { get; set; } = default!;
 
         [JsonPropertyName("Annotations")]
-        public IDictionary<string, string> Annotations { get; set; } = default!;
+        public IDictionary<string, string>? Annotations { get; set; }
 
         [JsonPropertyName("CapAdd")]
         public IList<string> CapAdd { get; set; } = default!;
@@ -129,10 +129,10 @@ namespace Docker.DotNet.Models
         public IList<string> SecurityOpt { get; set; } = default!;
 
         [JsonPropertyName("StorageOpt")]
-        public IDictionary<string, string> StorageOpt { get; set; } = default!;
+        public IDictionary<string, string>? StorageOpt { get; set; }
 
         [JsonPropertyName("Tmpfs")]
-        public IDictionary<string, string> Tmpfs { get; set; } = default!;
+        public IDictionary<string, string>? Tmpfs { get; set; }
 
         [JsonPropertyName("UTSMode")]
         public string UTSMode { get; set; } = default!;
@@ -144,10 +144,10 @@ namespace Docker.DotNet.Models
         public long ShmSize { get; set; } = default!;
 
         [JsonPropertyName("Sysctls")]
-        public IDictionary<string, string> Sysctls { get; set; } = default!;
+        public IDictionary<string, string>? Sysctls { get; set; }
 
         [JsonPropertyName("Runtime")]
-        public string Runtime { get; set; } = default!;
+        public string? Runtime { get; set; }
 
         [JsonPropertyName("Isolation")]
         public string Isolation { get; set; } = default!;
@@ -240,7 +240,7 @@ namespace Docker.DotNet.Models
         public ulong IOMaximumBandwidth { get; set; } = default!;
 
         [JsonPropertyName("Mounts")]
-        public IList<Mount> Mounts { get; set; } = default!;
+        public IList<Mount>? Mounts { get; set; }
 
         [JsonPropertyName("MaskedPaths")]
         public IList<string> MaskedPaths { get; set; } = default!;

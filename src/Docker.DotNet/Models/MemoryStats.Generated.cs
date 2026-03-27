@@ -4,27 +4,27 @@ namespace Docker.DotNet.Models
     public class MemoryStats // (container.MemoryStats)
     {
         [JsonPropertyName("usage")]
-        public ulong Usage { get; set; } = default!;
+        public ulong? Usage { get; set; }
 
         [JsonPropertyName("max_usage")]
-        public ulong MaxUsage { get; set; } = default!;
+        public ulong? MaxUsage { get; set; }
 
         [JsonPropertyName("stats")]
-        public IDictionary<string, ulong> Stats { get; set; } = default!;
+        public IDictionary<string, ulong>? Stats { get; set; }
 
         [JsonPropertyName("failcnt")]
-        public ulong Failcnt { get; set; } = default!;
+        public ulong? Failcnt { get; set; }
 
         [JsonPropertyName("limit")]
-        public ulong Limit { get; set; } = default!;
+        public ulong? Limit { get; set; }
 
         [JsonPropertyName("commitbytes")]
-        public ulong Commit { get; set; } = default!;
+        public ulong? Commit { get; set; }
 
         [JsonPropertyName("commitpeakbytes")]
-        public ulong CommitPeak { get; set; } = default!;
+        public ulong? CommitPeak { get; set; }
 
         [JsonPropertyName("privateworkingset")]
-        public ulong PrivateWorkingSet { get; set; } = default!;
+        public ulong? PrivateWorkingSet { get; set; }
     }
 }

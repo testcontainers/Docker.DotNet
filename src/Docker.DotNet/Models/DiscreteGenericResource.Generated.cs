@@ -4,9 +4,9 @@ namespace Docker.DotNet.Models
     public class DiscreteGenericResource // (swarm.DiscreteGenericResource)
     {
         [JsonPropertyName("Kind")]
-        public string Kind { get; set; } = default!;
+        public string? Kind { get; set; }
 
         [JsonPropertyName("Value")]
-        public long Value { get; set; } = default!;
+        public long? Value { get; set; }
     }
 }

@@ -7,12 +7,12 @@ namespace Docker.DotNet.Models
         public CPUUsage CPUUsage { get; set; } = default!;
 
         [JsonPropertyName("system_cpu_usage")]
-        public ulong SystemUsage { get; set; } = default!;
+        public ulong? SystemUsage { get; set; }
 
         [JsonPropertyName("online_cpus")]
-        public uint OnlineCPUs { get; set; } = default!;
+        public uint? OnlineCPUs { get; set; }
 
         [JsonPropertyName("throttling_data")]
-        public ThrottlingData ThrottlingData { get; set; } = default!;
+        public ThrottlingData? ThrottlingData { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Docker.DotNet.Models
         public ClusterVolume? ClusterVolume { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public string CreatedAt { get; set; } = default!;
+        public string? CreatedAt { get; set; }
 
         [JsonPropertyName("Driver")]
         public string Driver { get; set; } = default!;
@@ -28,7 +28,7 @@ namespace Docker.DotNet.Models
         public string Scope { get; set; } = default!;
 
         [JsonPropertyName("Status")]
-        public IDictionary<string, object> Status { get; set; } = default!;
+        public IDictionary<string, object>? Status { get; set; }
 
         [JsonPropertyName("UsageData")]
         public UsageData? UsageData { get; set; }

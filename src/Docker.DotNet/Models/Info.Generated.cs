@@ -22,15 +22,15 @@ namespace Docker.DotNet.Models
         public IList<Peer> RemoteManagers { get; set; } = default!;
 
         [JsonPropertyName("Nodes")]
-        public long Nodes { get; set; } = default!;
+        public long? Nodes { get; set; }
 
         [JsonPropertyName("Managers")]
-        public long Managers { get; set; } = default!;
+        public long? Managers { get; set; }
 
         [JsonPropertyName("Cluster")]
         public ClusterInfo? Cluster { get; set; }
 
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

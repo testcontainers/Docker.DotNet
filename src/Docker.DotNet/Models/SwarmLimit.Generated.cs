@@ -4,12 +4,12 @@ namespace Docker.DotNet.Models
     public class SwarmLimit // (swarm.Limit)
     {
         [JsonPropertyName("NanoCPUs")]
-        public long NanoCPUs { get; set; } = default!;
+        public long? NanoCPUs { get; set; }
 
         [JsonPropertyName("MemoryBytes")]
-        public long MemoryBytes { get; set; } = default!;
+        public long? MemoryBytes { get; set; }
 
         [JsonPropertyName("Pids")]
-        public long Pids { get; set; } = default!;
+        public long? Pids { get; set; }
     }
 }

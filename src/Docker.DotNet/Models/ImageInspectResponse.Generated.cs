@@ -13,13 +13,13 @@ namespace Docker.DotNet.Models
         public IList<string> RepoDigests { get; set; } = default!;
 
         [JsonPropertyName("Comment")]
-        public string Comment { get; set; } = default!;
+        public string? Comment { get; set; }
 
         [JsonPropertyName("Created")]
-        public DateTime Created { get; set; } = default!;
+        public DateTime? Created { get; set; }
 
         [JsonPropertyName("Author")]
-        public string Author { get; set; } = default!;
+        public string? Author { get; set; }
 
         [JsonPropertyName("Config")]
         public DockerOCIImageConfig? Config { get; set; }
@@ -28,13 +28,13 @@ namespace Docker.DotNet.Models
         public string Architecture { get; set; } = default!;
 
         [JsonPropertyName("Variant")]
-        public string Variant { get; set; } = default!;
+        public string? Variant { get; set; }
 
         [JsonPropertyName("Os")]
         public string Os { get; set; } = default!;
 
         [JsonPropertyName("OsVersion")]
-        public string OsVersion { get; set; } = default!;
+        public string? OsVersion { get; set; }
 
         [JsonPropertyName("Size")]
         public long Size { get; set; } = default!;
@@ -52,6 +52,6 @@ namespace Docker.DotNet.Models
         public Descriptor? Descriptor { get; set; }
 
         [JsonPropertyName("Manifests")]
-        public IList<ManifestSummary> Manifests { get; set; } = default!;
+        public IList<ManifestSummary>? Manifests { get; set; }
     }
 }

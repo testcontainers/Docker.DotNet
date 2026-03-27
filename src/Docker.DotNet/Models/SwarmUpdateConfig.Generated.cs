@@ -7,13 +7,13 @@ namespace Docker.DotNet.Models
         public ulong Parallelism { get; set; } = default!;
 
         [JsonPropertyName("Delay")]
-        public long Delay { get; set; } = default!;
+        public long? Delay { get; set; }
 
         [JsonPropertyName("FailureAction")]
-        public string FailureAction { get; set; } = default!;
+        public string? FailureAction { get; set; }
 
         [JsonPropertyName("Monitor")]
-        public long Monitor { get; set; } = default!;
+        public long? Monitor { get; set; }
 
         [JsonPropertyName("MaxFailureRatio")]
         public float MaxFailureRatio { get; set; } = default!;

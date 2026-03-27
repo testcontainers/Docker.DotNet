@@ -19,18 +19,18 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("path")]
-        public string Path { get; set; } = default!;
+        public string? Path { get; set; }
 
         [JsonPropertyName("runtimeArgs")]
-        public IList<string> Args { get; set; } = default!;
+        public IList<string>? Args { get; set; }
 
         [JsonPropertyName("runtimeType")]
-        public string Type { get; set; } = default!;
+        public string? Type { get; set; }
 
         [JsonPropertyName("options")]
-        public IDictionary<string, object> Options { get; set; } = default!;
+        public IDictionary<string, object>? Options { get; set; }
 
         [JsonPropertyName("status")]
-        public IDictionary<string, string> Status { get; set; } = default!;
+        public IDictionary<string, string>? Status { get; set; }
     }
 }

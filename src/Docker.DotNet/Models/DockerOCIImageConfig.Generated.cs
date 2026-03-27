@@ -32,42 +32,42 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("User")]
-        public string User { get; set; } = default!;
+        public string? User { get; set; }
 
         [JsonPropertyName("ExposedPorts")]
-        public IDictionary<string, EmptyStruct> ExposedPorts { get; set; } = default!;
+        public IDictionary<string, EmptyStruct>? ExposedPorts { get; set; }
 
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; } = default!;
+        public IList<string>? Env { get; set; }
 
         [JsonPropertyName("Entrypoint")]
-        public IList<string> Entrypoint { get; set; } = default!;
+        public IList<string>? Entrypoint { get; set; }
 
         [JsonPropertyName("Cmd")]
-        public IList<string> Cmd { get; set; } = default!;
+        public IList<string>? Cmd { get; set; }
 
         [JsonPropertyName("Volumes")]
-        public IDictionary<string, EmptyStruct> Volumes { get; set; } = default!;
+        public IDictionary<string, EmptyStruct>? Volumes { get; set; }
 
         [JsonPropertyName("WorkingDir")]
-        public string WorkingDir { get; set; } = default!;
+        public string? WorkingDir { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("StopSignal")]
-        public string StopSignal { get; set; } = default!;
+        public string? StopSignal { get; set; }
 
         [JsonPropertyName("ArgsEscaped")]
-        public bool ArgsEscaped { get; set; } = default!;
+        public bool? ArgsEscaped { get; set; }
 
         [JsonPropertyName("Healthcheck")]
         public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("OnBuild")]
-        public IList<string> OnBuild { get; set; } = default!;
+        public IList<string>? OnBuild { get; set; }
 
         [JsonPropertyName("Shell")]
-        public IList<string> Shell { get; set; } = default!;
+        public IList<string>? Shell { get; set; }
     }
 }

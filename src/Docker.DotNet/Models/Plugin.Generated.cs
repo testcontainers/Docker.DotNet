@@ -10,13 +10,13 @@ namespace Docker.DotNet.Models
         public bool Enabled { get; set; } = default!;
 
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string? ID { get; set; }
 
         [JsonPropertyName("Name")]
         public string Name { get; set; } = default!;
 
         [JsonPropertyName("PluginReference")]
-        public string PluginReference { get; set; } = default!;
+        public string? PluginReference { get; set; }
 
         [JsonPropertyName("Settings")]
         public PluginSettings Settings { get; set; } = default!;

@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class ClusterVolumeSpec // (volume.ClusterVolumeSpec)
     {
         [JsonPropertyName("Group")]
-        public string Group { get; set; } = default!;
+        public string? Group { get; set; }
 
         [JsonPropertyName("AccessMode")]
         public VolumeAccessMode? AccessMode { get; set; }
@@ -16,9 +16,9 @@ namespace Docker.DotNet.Models
         public CapacityRange? CapacityRange { get; set; }
 
         [JsonPropertyName("Secrets")]
-        public IList<VolumeSecret> Secrets { get; set; } = default!;
+        public IList<VolumeSecret>? Secrets { get; set; }
 
         [JsonPropertyName("Availability")]
-        public string Availability { get; set; } = default!;
+        public string? Availability { get; set; }
     }
 }

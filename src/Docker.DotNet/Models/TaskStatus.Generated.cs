@@ -4,21 +4,21 @@ namespace Docker.DotNet.Models
     public class TaskStatus // (swarm.TaskStatus)
     {
         [JsonPropertyName("Timestamp")]
-        public DateTime Timestamp { get; set; } = default!;
+        public DateTime? Timestamp { get; set; }
 
         [JsonPropertyName("State")]
-        public TaskState State { get; set; } = default!;
+        public TaskState? State { get; set; }
 
         [JsonPropertyName("Message")]
-        public string Message { get; set; } = default!;
+        public string? Message { get; set; }
 
         [JsonPropertyName("Err")]
-        public string Err { get; set; } = default!;
+        public string? Err { get; set; }
 
         [JsonPropertyName("ContainerStatus")]
         public ContainerStatus? ContainerStatus { get; set; }
 
         [JsonPropertyName("PortStatus")]
-        public PortStatus PortStatus { get; set; } = default!;
+        public PortStatus? PortStatus { get; set; }
     }
 }

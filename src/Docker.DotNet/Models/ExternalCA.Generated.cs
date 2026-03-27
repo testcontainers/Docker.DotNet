@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         public string URL { get; set; } = default!;
 
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         [JsonPropertyName("CACert")]
         public string CACert { get; set; } = default!;

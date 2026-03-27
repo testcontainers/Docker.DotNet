@@ -4,12 +4,12 @@ namespace Docker.DotNet.Models
     public class PublishStatus // (volume.PublishStatus)
     {
         [JsonPropertyName("NodeID")]
-        public string NodeID { get; set; } = default!;
+        public string? NodeID { get; set; }
 
         [JsonPropertyName("State")]
-        public string State { get; set; } = default!;
+        public string? State { get; set; }
 
         [JsonPropertyName("PublishContext")]
-        public IDictionary<string, string> PublishContext { get; set; } = default!;
+        public IDictionary<string, string>? PublishContext { get; set; }
     }
 }

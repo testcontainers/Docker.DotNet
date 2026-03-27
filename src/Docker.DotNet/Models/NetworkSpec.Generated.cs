@@ -17,7 +17,7 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
@@ -26,16 +26,16 @@ namespace Docker.DotNet.Models
         public SwarmDriver? DriverConfiguration { get; set; }
 
         [JsonPropertyName("IPv6Enabled")]
-        public bool IPv6Enabled { get; set; } = default!;
+        public bool? IPv6Enabled { get; set; }
 
         [JsonPropertyName("Internal")]
-        public bool Internal { get; set; } = default!;
+        public bool? Internal { get; set; }
 
         [JsonPropertyName("Attachable")]
-        public bool Attachable { get; set; } = default!;
+        public bool? Attachable { get; set; }
 
         [JsonPropertyName("Ingress")]
-        public bool Ingress { get; set; } = default!;
+        public bool? Ingress { get; set; }
 
         [JsonPropertyName("IPAMOptions")]
         public IPAMOptions? IPAMOptions { get; set; }
@@ -44,6 +44,6 @@ namespace Docker.DotNet.Models
         public ConfigReference? ConfigFrom { get; set; }
 
         [JsonPropertyName("Scope")]
-        public string Scope { get; set; } = default!;
+        public string? Scope { get; set; }
     }
 }

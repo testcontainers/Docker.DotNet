@@ -7,7 +7,7 @@ namespace Docker.DotNet.Models
         public ulong TotalUsage { get; set; } = default!;
 
         [JsonPropertyName("percpu_usage")]
-        public IList<ulong> PercpuUsage { get; set; } = default!;
+        public IList<ulong>? PercpuUsage { get; set; }
 
         [JsonPropertyName("usage_in_kernelmode")]
         public ulong UsageInKernelmode { get; set; } = default!;

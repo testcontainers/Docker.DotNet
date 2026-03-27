@@ -4,12 +4,12 @@ namespace Docker.DotNet.Models
     public class NetworkAttachmentConfig // (swarm.NetworkAttachmentConfig)
     {
         [JsonPropertyName("Target")]
-        public string Target { get; set; } = default!;
+        public string? Target { get; set; }
 
         [JsonPropertyName("Aliases")]
-        public IList<string> Aliases { get; set; } = default!;
+        public IList<string>? Aliases { get; set; }
 
         [JsonPropertyName("DriverOpts")]
-        public IDictionary<string, string> DriverOpts { get; set; } = default!;
+        public IDictionary<string, string>? DriverOpts { get; set; }
     }
 }

@@ -28,9 +28,9 @@ namespace Docker.DotNet.Models
         public ulong TxDropped { get; set; } = default!;
 
         [JsonPropertyName("endpoint_id")]
-        public string EndpointID { get; set; } = default!;
+        public string? EndpointID { get; set; }
 
         [JsonPropertyName("instance_id")]
-        public string InstanceID { get; set; } = default!;
+        public string? InstanceID { get; set; }
     }
 }

@@ -17,16 +17,16 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("TaskTemplate")]
-        public TaskSpec TaskTemplate { get; set; } = default!;
+        public TaskSpec? TaskTemplate { get; set; }
 
         [JsonPropertyName("Mode")]
-        public ServiceMode Mode { get; set; } = default!;
+        public ServiceMode? Mode { get; set; }
 
         [JsonPropertyName("UpdateConfig")]
         public SwarmUpdateConfig? UpdateConfig { get; set; }

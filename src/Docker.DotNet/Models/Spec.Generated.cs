@@ -17,27 +17,27 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Orchestration")]
-        public OrchestrationConfig Orchestration { get; set; } = default!;
+        public OrchestrationConfig? Orchestration { get; set; }
 
         [JsonPropertyName("Raft")]
-        public RaftConfig Raft { get; set; } = default!;
+        public RaftConfig? Raft { get; set; }
 
         [JsonPropertyName("Dispatcher")]
-        public DispatcherConfig Dispatcher { get; set; } = default!;
+        public DispatcherConfig? Dispatcher { get; set; }
 
         [JsonPropertyName("CAConfig")]
-        public CAConfig CAConfig { get; set; } = default!;
+        public CAConfig? CAConfig { get; set; }
 
         [JsonPropertyName("TaskDefaults")]
-        public TaskDefaults TaskDefaults { get; set; } = default!;
+        public TaskDefaults? TaskDefaults { get; set; }
 
         [JsonPropertyName("EncryptionConfig")]
-        public EncryptionConfig EncryptionConfig { get; set; } = default!;
+        public EncryptionConfig? EncryptionConfig { get; set; }
     }
 }

@@ -17,14 +17,14 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Data")]
         [JsonConverter(typeof(Base64Converter))]
-        public IList<byte> Data { get; set; } = default!;
+        public IList<byte>? Data { get; set; }
 
         [JsonPropertyName("Templating")]
         public SwarmDriver? Templating { get; set; }

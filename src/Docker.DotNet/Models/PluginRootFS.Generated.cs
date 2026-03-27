@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         public IList<string> DiffIds { get; set; } = default!;
 
         [JsonPropertyName("type")]
-        public string Type { get; set; } = default!;
+        public string? Type { get; set; }
     }
 }

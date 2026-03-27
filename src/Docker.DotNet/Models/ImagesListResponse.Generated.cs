@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         public Descriptor? Descriptor { get; set; }
 
         [JsonPropertyName("Manifests")]
-        public IList<ManifestSummary> Manifests { get; set; } = default!;
+        public IList<ManifestSummary>? Manifests { get; set; }
 
         [JsonPropertyName("RepoDigests")]
         public IList<string> RepoDigests { get; set; } = default!;

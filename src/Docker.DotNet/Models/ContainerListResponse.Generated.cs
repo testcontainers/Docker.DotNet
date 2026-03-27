@@ -28,10 +28,10 @@ namespace Docker.DotNet.Models
         public IList<PortSummary> Ports { get; set; } = default!;
 
         [JsonPropertyName("SizeRw")]
-        public long SizeRw { get; set; } = default!;
+        public long? SizeRw { get; set; }
 
         [JsonPropertyName("SizeRootFs")]
-        public long SizeRootFs { get; set; } = default!;
+        public long? SizeRootFs { get; set; }
 
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;

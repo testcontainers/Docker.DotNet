@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         public string Driver { get; set; } = default!;
 
         [JsonPropertyName("Info")]
-        public IList<string[]> Info { get; set; } = default!;
+        public IList<string[]>? Info { get; set; }
     }
 }

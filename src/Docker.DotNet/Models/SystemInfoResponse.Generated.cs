@@ -28,7 +28,7 @@ namespace Docker.DotNet.Models
         public IList<string[]> DriverStatus { get; set; } = default!;
 
         [JsonPropertyName("SystemStatus")]
-        public IList<string[]> SystemStatus { get; set; } = default!;
+        public IList<string[]>? SystemStatus { get; set; }
 
         [JsonPropertyName("Plugins")]
         public PluginsInfo Plugins { get; set; } = default!;
@@ -79,7 +79,7 @@ namespace Docker.DotNet.Models
         public string CgroupDriver { get; set; } = default!;
 
         [JsonPropertyName("CgroupVersion")]
-        public string CgroupVersion { get; set; } = default!;
+        public string? CgroupVersion { get; set; }
 
         [JsonPropertyName("NEventsListener")]
         public long NEventsListener { get; set; } = default!;
@@ -169,10 +169,10 @@ namespace Docker.DotNet.Models
         public IList<string> SecurityOptions { get; set; } = default!;
 
         [JsonPropertyName("ProductLicense")]
-        public string ProductLicense { get; set; } = default!;
+        public string? ProductLicense { get; set; }
 
         [JsonPropertyName("DefaultAddressPools")]
-        public IList<NetworkAddressPool> DefaultAddressPools { get; set; } = default!;
+        public IList<NetworkAddressPool>? DefaultAddressPools { get; set; }
 
         [JsonPropertyName("FirewallBackend")]
         public FirewallInfo? FirewallBackend { get; set; }
@@ -181,7 +181,7 @@ namespace Docker.DotNet.Models
         public IList<string> CDISpecDirs { get; set; } = default!;
 
         [JsonPropertyName("DiscoveredDevices")]
-        public IList<DeviceInfo> DiscoveredDevices { get; set; } = default!;
+        public IList<DeviceInfo>? DiscoveredDevices { get; set; }
 
         [JsonPropertyName("Containerd")]
         public ContainerdInfo? Containerd { get; set; }

@@ -10,12 +10,12 @@ namespace Docker.DotNet.Models
         public string OS { get; set; } = default!;
 
         [JsonPropertyName("os.version")]
-        public string OSVersion { get; set; } = default!;
+        public string? OSVersion { get; set; }
 
         [JsonPropertyName("os.features")]
-        public IList<string> OSFeatures { get; set; } = default!;
+        public IList<string>? OSFeatures { get; set; }
 
         [JsonPropertyName("variant")]
-        public string Variant { get; set; } = default!;
+        public string? Variant { get; set; }
     }
 }

@@ -16,6 +16,6 @@ namespace Docker.DotNet.Models
         public bool? Privileged { get; set; }
 
         [JsonPropertyName("user")]
-        public string User { get; set; } = default!;
+        public string? User { get; set; }
     }
 }

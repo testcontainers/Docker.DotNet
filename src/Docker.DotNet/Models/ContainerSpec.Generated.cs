@@ -4,31 +4,31 @@ namespace Docker.DotNet.Models
     public class ContainerSpec // (swarm.ContainerSpec)
     {
         [JsonPropertyName("Image")]
-        public string Image { get; set; } = default!;
+        public string? Image { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("Command")]
-        public IList<string> Command { get; set; } = default!;
+        public IList<string>? Command { get; set; }
 
         [JsonPropertyName("Args")]
-        public IList<string> Args { get; set; } = default!;
+        public IList<string>? Args { get; set; }
 
         [JsonPropertyName("Hostname")]
-        public string Hostname { get; set; } = default!;
+        public string? Hostname { get; set; }
 
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; } = default!;
+        public IList<string>? Env { get; set; }
 
         [JsonPropertyName("Dir")]
-        public string Dir { get; set; } = default!;
+        public string? Dir { get; set; }
 
         [JsonPropertyName("User")]
-        public string User { get; set; } = default!;
+        public string? User { get; set; }
 
         [JsonPropertyName("Groups")]
-        public IList<string> Groups { get; set; } = default!;
+        public IList<string>? Groups { get; set; }
 
         [JsonPropertyName("Privileges")]
         public Privileges? Privileges { get; set; }
@@ -37,19 +37,19 @@ namespace Docker.DotNet.Models
         public bool? Init { get; set; }
 
         [JsonPropertyName("StopSignal")]
-        public string StopSignal { get; set; } = default!;
+        public string? StopSignal { get; set; }
 
         [JsonPropertyName("TTY")]
-        public bool TTY { get; set; } = default!;
+        public bool? TTY { get; set; }
 
         [JsonPropertyName("OpenStdin")]
-        public bool OpenStdin { get; set; } = default!;
+        public bool? OpenStdin { get; set; }
 
         [JsonPropertyName("ReadOnly")]
-        public bool ReadOnly { get; set; } = default!;
+        public bool? ReadOnly { get; set; }
 
         [JsonPropertyName("Mounts")]
-        public IList<Mount> Mounts { get; set; } = default!;
+        public IList<Mount>? Mounts { get; set; }
 
         [JsonPropertyName("StopGracePeriod")]
         public long? StopGracePeriod { get; set; }
@@ -58,33 +58,33 @@ namespace Docker.DotNet.Models
         public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("Hosts")]
-        public IList<string> Hosts { get; set; } = default!;
+        public IList<string>? Hosts { get; set; }
 
         [JsonPropertyName("DNSConfig")]
         public DNSConfig? DNSConfig { get; set; }
 
         [JsonPropertyName("Secrets")]
-        public IList<SecretReference> Secrets { get; set; } = default!;
+        public IList<SecretReference>? Secrets { get; set; }
 
         [JsonPropertyName("Configs")]
-        public IList<SwarmConfigReference> Configs { get; set; } = default!;
+        public IList<SwarmConfigReference>? Configs { get; set; }
 
         [JsonPropertyName("Isolation")]
-        public string Isolation { get; set; } = default!;
+        public string? Isolation { get; set; }
 
         [JsonPropertyName("Sysctls")]
-        public IDictionary<string, string> Sysctls { get; set; } = default!;
+        public IDictionary<string, string>? Sysctls { get; set; }
 
         [JsonPropertyName("CapabilityAdd")]
-        public IList<string> CapabilityAdd { get; set; } = default!;
+        public IList<string>? CapabilityAdd { get; set; }
 
         [JsonPropertyName("CapabilityDrop")]
-        public IList<string> CapabilityDrop { get; set; } = default!;
+        public IList<string>? CapabilityDrop { get; set; }
 
         [JsonPropertyName("Ulimits")]
-        public IList<Ulimit> Ulimits { get; set; } = default!;
+        public IList<Ulimit>? Ulimits { get; set; }
 
         [JsonPropertyName("OomScoreAdj")]
-        public long OomScoreAdj { get; set; } = default!;
+        public long? OomScoreAdj { get; set; }
     }
 }

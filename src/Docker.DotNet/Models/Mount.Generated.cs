@@ -4,19 +4,19 @@ namespace Docker.DotNet.Models
     public class Mount // (mount.Mount)
     {
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string? Type { get; set; }
 
         [JsonPropertyName("Source")]
-        public string Source { get; set; } = default!;
+        public string? Source { get; set; }
 
         [JsonPropertyName("Target")]
-        public string Target { get; set; } = default!;
+        public string? Target { get; set; }
 
         [JsonPropertyName("ReadOnly")]
-        public bool ReadOnly { get; set; } = default!;
+        public bool? ReadOnly { get; set; }
 
         [JsonPropertyName("Consistency")]
-        public string Consistency { get; set; } = default!;
+        public string? Consistency { get; set; }
 
         [JsonPropertyName("BindOptions")]
         public BindOptions? BindOptions { get; set; }

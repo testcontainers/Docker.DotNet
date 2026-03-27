@@ -4,12 +4,12 @@ namespace Docker.DotNet.Models
     public class SwarmResources // (swarm.Resources)
     {
         [JsonPropertyName("NanoCPUs")]
-        public long NanoCPUs { get; set; } = default!;
+        public long? NanoCPUs { get; set; }
 
         [JsonPropertyName("MemoryBytes")]
-        public long MemoryBytes { get; set; } = default!;
+        public long? MemoryBytes { get; set; }
 
         [JsonPropertyName("GenericResources")]
-        public IList<GenericResource> GenericResources { get; set; } = default!;
+        public IList<GenericResource>? GenericResources { get; set; }
     }
 }
