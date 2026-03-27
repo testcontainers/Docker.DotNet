@@ -307,7 +307,7 @@ internal class ImageOperations : IImageOperations
 
     private static Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
     {
-        var configDictionary = (authConfig ?? Array.Empty<AuthConfig>()).ToDictionary(e => e.ServerAddress, e => e);
+        var configDictionary = (authConfig ?? Array.Empty<AuthConfig>()).Where(e => e.ServerAddress != null).ToDictionary(e => e.ServerAddress!, e => e);
         return new Dictionary<string, string>
         {
             {
