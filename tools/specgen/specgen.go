@@ -40,8 +40,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "Data",
-				Type:       CSType{"", "IList<byte>", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+				Type:       CSType{"", "IList<byte>"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
 			},
 		},
 	},
@@ -50,8 +50,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "StopTimeout",
-				Type:       CSType{"System", "TimeSpan", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
+				Type:       CSType{"System", "TimeSpan"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
 			},
 		},
 	},
@@ -59,8 +59,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "ConsoleSize",
-				Type:       CSType{"", "ConsoleSize", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Type:       CSType{"", "ConsoleSize"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
 			},
 		},
 	},
@@ -69,18 +69,18 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "Interval",
-				Type:       CSType{"System", "TimeSpan", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(TimeSpanNanosecondsConverter)"}}}},
+				Type:       CSType{"System", "TimeSpan"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanNanosecondsConverter)"}}}},
 			},
 			{
 				Name:       "Timeout",
-				Type:       CSType{"System", "TimeSpan", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(TimeSpanNanosecondsConverter)"}}}},
+				Type:       CSType{"System", "TimeSpan"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanNanosecondsConverter)"}}}},
 			},
 		},
 	},
 	typeToKey(reflect.TypeOf(container.RestartPolicy{})): {
-		Properties: []CSProperty{{Name: "Name", Type: CSType{"", "RestartPolicyKind", false}}},
+		Properties: []CSProperty{{Name: "Name", Type: CSType{"", "RestartPolicyKind"}}},
 	},
 	typeToKey(reflect.TypeOf(jsonstream.Error{})): {
 		Name: "JSONError",
@@ -90,11 +90,11 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name: "Time",
-				Type: CSType{"System", "DateTime", false},
+				Type: CSType{"System", "DateTime"},
 			},
 			{
 				Name: "Aux",
-				Type: CSType{"", "ObjectExtensionData", false},
+				Type: CSType{"", "ObjectExtensionData"},
 			},
 		},
 	},
@@ -105,8 +105,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "StopTimeout",
-				Type:       CSType{"System", "TimeSpan", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
+				Type:       CSType{"System", "TimeSpan"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
 			},
 		},
 	},
@@ -114,8 +114,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "ConsoleSize",
-				Type:       CSType{"", "ConsoleSize", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Type:       CSType{"", "ConsoleSize"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
 			},
 		},
 	},
@@ -123,8 +123,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "ConsoleSize",
-				Type:       CSType{"", "ConsoleSize", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Type:       CSType{"", "ConsoleSize"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
 			},
 		},
 	},
@@ -140,8 +140,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "Data",
-				Type:       CSType{"", "IList<byte>", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+				Type:       CSType{"", "IList<byte>"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
 			},
 		},
 	},
@@ -150,8 +150,8 @@ var typesToDisambiguate = map[string]*CSModelType{
 		Properties: []CSProperty{
 			{
 				Name:       "Data",
-				Type:       CSType{"", "IList<byte>", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+				Type:       CSType{"", "IList<byte>"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
 			},
 		},
 	},
@@ -171,25 +171,25 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(swarm.Task{})): {
 		Name: "TaskResponse",
 		Properties: []CSProperty{
-			{Name: "DesiredState", Type: CSType{"", "TaskState", false}},
+			{Name: "DesiredState", Type: CSType{"", "TaskState"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(swarm.TaskStatus{})): {
 		Properties: []CSProperty{
-			{Name: "State", Type: CSType{"", "TaskState", false}},
+			{Name: "State", Type: CSType{"", "TaskState"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(swarm.TLSInfo{})): {
 		Properties: []CSProperty{
 			{
 				Name:       "CertIssuerSubject",
-				Type:       CSType{"", "IList<byte>", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+				Type:       CSType{"", "IList<byte>"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
 			},
 			{
 				Name:       "CertIssuerPublicKey",
-				Type:       CSType{"", "IList<byte>", true},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter", false}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
+				Type:       CSType{"", "IList<byte>"},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(Base64Converter)"}}}},
 			},
 		},
 	},
@@ -198,25 +198,25 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(container.Summary{})): {
 		Name: "ContainerListResponse",
 		Properties: []CSProperty{
-			{Name: "Created", Type: CSType{"System", "DateTime", false}},
+			{Name: "Created", Type: CSType{"System", "DateTime"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(container.FilesystemChange{})): {
 		Name: "ContainerFileSystemChangeResponse",
 		Properties: []CSProperty{
-			{Name: "Kind", Type: CSType{"", "FileSystemChangeKind", false}},
+			{Name: "Kind", Type: CSType{"", "FileSystemChangeKind"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(container.ExecInspectResponse{})): {
 		Name: "ContainerExecInspectResponse",
 		Properties: []CSProperty{
-			{Name: "DetachKeys", Type: CSType{"", "string", false}},
+			{Name: "DetachKeys", Type: CSType{"", "string"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(container.InspectResponse{})): {
 		Name: "ContainerInspectResponse",
 		Properties: []CSProperty{
-			{Name: "Created", Type: CSType{"System", "DateTime", false}},
+			{Name: "Created", Type: CSType{"System", "DateTime"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(container.PathStat{})):    {Name: "ContainerPathStatResponse"},
@@ -226,13 +226,13 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(image.HistoryResponseItem{})): {
 		Name: "ImageHistoryResponse",
 		Properties: []CSProperty{
-			{Name: "Created", Type: CSType{"System", "DateTime", false}},
+			{Name: "Created", Type: CSType{"System", "DateTime"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(image.InspectResponse{})): {
 		Name: "ImageInspectResponse",
 		Properties: []CSProperty{
-			{Name: "Created", Type: CSType{"System", "DateTime", false}},
+			{Name: "Created", Type: CSType{"System", "DateTime"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(ImageLoadResult{})):   {Name: "ImagesLoadResponse"},
@@ -240,7 +240,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(image.Summary{})): {
 		Name: "ImagesListResponse",
 		Properties: []CSProperty{
-			{Name: "Created", Type: CSType{"System", "DateTime", false}},
+			{Name: "Created", Type: CSType{"System", "DateTime"}},
 		},
 	},
 	typeToKey(reflect.TypeOf(system.Info{})):                     {Name: "SystemInfoResponse"},
@@ -266,7 +266,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(plugin.Interface{})): {
 		Name: "PluginInterface",
 		Properties: []CSProperty{
-			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>", false}},
+			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>"}},
 		},
 	},
 
@@ -604,24 +604,24 @@ func csType(t reflect.Type, _ bool) CSType {
 
 	switch t.Kind() {
 	case reflect.Array:
-		return CSType{"", fmt.Sprintf("%s[]", csType(t.Elem(), false).Name), false}
+		return CSType{"", fmt.Sprintf("%s[]", csType(t.Elem(), false).Name)}
 	case reflect.Slice:
-		return CSType{"System.Collections.Generic", fmt.Sprintf("IList<%s>", csType(t.Elem(), false).Name), false}
+		return CSType{"System.Collections.Generic", fmt.Sprintf("IList<%s>", csType(t.Elem(), false).Name)}
 	case reflect.Map:
 		if t.Elem() == EmptyStruct {
-			return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, EmptyStruct>", csType(t.Key(), false).Name), false}
+			return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, EmptyStruct>", csType(t.Key(), false).Name)}
 		}
-		return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, %s>", csType(t.Key(), false).Name, csType(t.Elem(), false).Name), false}
+		return CSType{"System.Collections.Generic", fmt.Sprintf("IDictionary<%s, %s>", csType(t.Key(), false).Name, csType(t.Elem(), false).Name)}
 	case reflect.Ptr:
 		return csType(t.Elem(), true)
 	case reflect.Struct:
 		if m, ok := reflectedTypes[typeToKey(t)]; ok {
 			// We have aliased this type. Return it as a reference.
-			return CSType{"", m.Name, false}
+			return CSType{"", m.Name}
 		}
-		return CSType{"", t.Name(), false}
+		return CSType{"", t.Name()}
 	case reflect.Interface:
-		return CSType{"", "object", false}
+		return CSType{"", "object"}
 	default:
 		panic(fmt.Errorf("cannot convert type %s", t))
 	}
@@ -661,7 +661,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 
 			csProp := CSProperty{
 				Name: f.Name,
-				Type: CSType{"", inlineStructName, false},
+				Type: CSType{"", inlineStructName},
 			}
 
 			jsonTag := strings.Split(f.Tag.Get("json"), ",")
@@ -671,7 +671,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			}
 
 			csProp.Attributes = append(csProp.Attributes, CSAttribute{
-				Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName", false},
+				Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName"},
 				Arguments: []CSArgument{
 					{Value: jsonName, Type: CSInboxTypesMap[reflect.String]},
 				},
@@ -740,7 +740,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 					restTag.Name = strings.ToLower(f.Name)
 				}
 
-				a := CSAttribute{Type: CSType{"", "QueryStringParameter", false}}
+				a := CSAttribute{Type: CSType{"", "QueryStringParameter"}}
 				a.Arguments = append(
 					a.Arguments,
 					CSArgument{
@@ -762,7 +762,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				csProp.Attributes = append(csProp.Attributes, a)
 				csProp.DefaultValue = restTag.Default
 			} else {
-				a := CSAttribute{Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName", false}}
+				a := CSAttribute{Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName"}}
 				a.Arguments = append(a.Arguments, CSArgument{jsonName, CSInboxTypesMap[reflect.String]})
 				csProp.IsOpt = f.Type.Kind() == reflect.Ptr
 				csProp.Attributes = append(csProp.Attributes, a)
