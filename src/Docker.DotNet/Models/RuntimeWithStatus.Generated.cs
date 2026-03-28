@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class RuntimeWithStatus // (system.RuntimeWithStatus)
@@ -18,18 +19,18 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("path")]
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
         [JsonPropertyName("runtimeArgs")]
-        public IList<string> Args { get; set; }
+        public IList<string>? Args { get; set; }
 
         [JsonPropertyName("runtimeType")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         [JsonPropertyName("options")]
-        public IDictionary<string, object> Options { get; set; }
+        public IDictionary<string, object>? Options { get; set; }
 
         [JsonPropertyName("status")]
-        public IDictionary<string, string> Status { get; set; }
+        public IDictionary<string, string>? Status { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class TaskResponse // (swarm.Task)
@@ -23,51 +24,51 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; }
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Spec")]
-        public TaskSpec Spec { get; set; }
+        public TaskSpec? Spec { get; set; }
 
         [JsonPropertyName("ServiceID")]
-        public string ServiceID { get; set; }
+        public string? ServiceID { get; set; }
 
         [JsonPropertyName("Slot")]
-        public long Slot { get; set; }
+        public long? Slot { get; set; }
 
         [JsonPropertyName("NodeID")]
-        public string NodeID { get; set; }
+        public string? NodeID { get; set; }
 
         [JsonPropertyName("Status")]
-        public TaskStatus Status { get; set; }
+        public TaskStatus? Status { get; set; }
 
         [JsonPropertyName("DesiredState")]
-        public TaskState DesiredState { get; set; }
+        public TaskState? DesiredState { get; set; }
 
         [JsonPropertyName("NetworksAttachments")]
-        public IList<NetworkAttachment> NetworksAttachments { get; set; }
+        public IList<NetworkAttachment>? NetworksAttachments { get; set; }
 
         [JsonPropertyName("GenericResources")]
-        public IList<GenericResource> GenericResources { get; set; }
+        public IList<GenericResource>? GenericResources { get; set; }
 
         [JsonPropertyName("JobIteration")]
-        public Version JobIteration { get; set; }
+        public Version? JobIteration { get; set; }
 
         [JsonPropertyName("Volumes")]
-        public IList<VolumeAttachment> Volumes { get; set; }
+        public IList<VolumeAttachment> Volumes { get; set; } = default!;
     }
 }

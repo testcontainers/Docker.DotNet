@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class GenericResource // (swarm.GenericResource)
     {
         [JsonPropertyName("NamedResourceSpec")]
-        public NamedGenericResource NamedResourceSpec { get; set; }
+        public NamedGenericResource? NamedResourceSpec { get; set; }
 
         [JsonPropertyName("DiscreteResourceSpec")]
-        public DiscreteGenericResource DiscreteResourceSpec { get; set; }
+        public DiscreteGenericResource? DiscreteResourceSpec { get; set; }
     }
 }

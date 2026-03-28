@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SpreadOver // (swarm.SpreadOver)
     {
         [JsonPropertyName("SpreadDescriptor")]
-        public string SpreadDescriptor { get; set; }
+        public string SpreadDescriptor { get; set; } = default!;
     }
 }

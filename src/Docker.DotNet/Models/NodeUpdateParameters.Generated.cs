@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class NodeUpdateParameters // (swarm.NodeSpec)
@@ -16,15 +17,15 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Role")]
-        public string Role { get; set; }
+        public string? Role { get; set; }
 
         [JsonPropertyName("Availability")]
-        public string Availability { get; set; }
+        public string? Availability { get; set; }
     }
 }

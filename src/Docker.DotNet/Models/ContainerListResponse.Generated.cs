@@ -1,56 +1,57 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerListResponse // (container.Summary)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Names")]
-        public IList<string> Names { get; set; }
+        public IList<string> Names { get; set; } = default!;
 
         [JsonPropertyName("Image")]
-        public string Image { get; set; }
+        public string Image { get; set; } = default!;
 
         [JsonPropertyName("ImageID")]
-        public string ImageID { get; set; }
+        public string ImageID { get; set; } = default!;
 
         [JsonPropertyName("ImageManifestDescriptor")]
-        public Descriptor ImageManifestDescriptor { get; set; }
+        public Descriptor? ImageManifestDescriptor { get; set; }
 
         [JsonPropertyName("Command")]
-        public string Command { get; set; }
+        public string Command { get; set; } = default!;
 
         [JsonPropertyName("Created")]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = default!;
 
         [JsonPropertyName("Ports")]
-        public IList<PortSummary> Ports { get; set; }
+        public IList<PortSummary> Ports { get; set; } = default!;
 
         [JsonPropertyName("SizeRw")]
-        public long SizeRw { get; set; }
+        public long? SizeRw { get; set; }
 
         [JsonPropertyName("SizeRootFs")]
-        public long SizeRootFs { get; set; }
+        public long? SizeRootFs { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("State")]
-        public string State { get; set; }
+        public string State { get; set; } = default!;
 
         [JsonPropertyName("Status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = default!;
 
         [JsonPropertyName("HostConfig")]
-        public SummaryHostConfig HostConfig { get; set; }
+        public SummaryHostConfig HostConfig { get; set; } = default!;
 
         [JsonPropertyName("Health")]
-        public HealthSummary Health { get; set; }
+        public HealthSummary? Health { get; set; }
 
         [JsonPropertyName("NetworkSettings")]
-        public NetworkSettingsSummary NetworkSettings { get; set; }
+        public NetworkSettingsSummary? NetworkSettings { get; set; }
 
         [JsonPropertyName("Mounts")]
-        public IList<MountPoint> Mounts { get; set; }
+        public IList<MountPoint> Mounts { get; set; } = default!;
     }
 }

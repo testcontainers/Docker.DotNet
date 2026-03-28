@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class AuthResponse // (registry.AuthResponse)
     {
         [JsonPropertyName("IdentityToken")]
-        public string IdentityToken { get; set; }
+        public string? IdentityToken { get; set; }
 
         [JsonPropertyName("Status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = default!;
     }
 }

@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerdInfo // (system.ContainerdInfo)
     {
         [JsonPropertyName("Address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         [JsonPropertyName("Namespaces")]
-        public ContainerdNamespaces Namespaces { get; set; }
+        public ContainerdNamespaces Namespaces { get; set; } = default!;
     }
 }

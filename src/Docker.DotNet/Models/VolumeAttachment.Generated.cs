@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class VolumeAttachment // (swarm.VolumeAttachment)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string? ID { get; set; }
 
         [JsonPropertyName("Source")]
-        public string Source { get; set; }
+        public string? Source { get; set; }
 
         [JsonPropertyName("Target")]
-        public string Target { get; set; }
+        public string? Target { get; set; }
     }
 }

@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class PublishStatus // (volume.PublishStatus)
     {
         [JsonPropertyName("NodeID")]
-        public string NodeID { get; set; }
+        public string? NodeID { get; set; }
 
         [JsonPropertyName("State")]
-        public string State { get; set; }
+        public string? State { get; set; }
 
         [JsonPropertyName("PublishContext")]
-        public IDictionary<string, string> PublishContext { get; set; }
+        public IDictionary<string, string>? PublishContext { get; set; }
     }
 }

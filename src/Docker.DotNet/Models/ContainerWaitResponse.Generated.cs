@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerWaitResponse // (main.ContainerWaitResponse)
     {
         [JsonPropertyName("Error")]
-        public WaitExitError Error { get; set; }
+        public WaitExitError? Error { get; set; }
 
         [JsonPropertyName("StatusCode")]
-        public long StatusCode { get; set; }
+        public long StatusCode { get; set; } = default!;
     }
 }

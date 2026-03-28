@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ImagePushParameters // (main.ImagePushParameters)
     {
         [QueryStringParameter("tag", false)]
-        public string Tag { get; set; }
+        public string? Tag { get; set; }
 
         [QueryStringParameter("platform", false)]
-        public string Platform { get; set; }
+        public string? Platform { get; set; }
 
         [JsonPropertyName("RegistryAuth")]
-        public AuthConfig RegistryAuth { get; set; }
+        public AuthConfig RegistryAuth { get; set; } = default!;
     }
 }

@@ -1,17 +1,18 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class IPAMConfig // (network.IPAMConfig)
     {
         [JsonPropertyName("Subnet")]
-        public string Subnet { get; set; }
+        public string? Subnet { get; set; }
 
         [JsonPropertyName("IPRange")]
-        public string IPRange { get; set; }
+        public string? IPRange { get; set; }
 
         [JsonPropertyName("Gateway")]
-        public string Gateway { get; set; }
+        public string? Gateway { get; set; }
 
         [JsonPropertyName("AuxiliaryAddresses")]
-        public IDictionary<string, string> AuxAddress { get; set; }
+        public IDictionary<string, string>? AuxAddress { get; set; }
     }
 }

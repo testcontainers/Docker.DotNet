@@ -1,8 +1,9 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmCreateConfigResponse // (main.SwarmCreateConfigResponse)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
     }
 }

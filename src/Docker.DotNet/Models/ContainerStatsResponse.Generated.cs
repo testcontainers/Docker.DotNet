@@ -1,44 +1,45 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerStatsResponse // (container.StatsResponse)
     {
         [JsonPropertyName("id")]
-        public string ID { get; set; }
+        public string? ID { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("os_type")]
-        public string OSType { get; set; }
+        public string? OSType { get; set; }
 
         [JsonPropertyName("read")]
-        public DateTime Read { get; set; }
+        public DateTime Read { get; set; } = default!;
 
         [JsonPropertyName("cpu_stats")]
-        public CPUStats CPUStats { get; set; }
+        public CPUStats? CPUStats { get; set; }
 
         [JsonPropertyName("memory_stats")]
-        public MemoryStats MemoryStats { get; set; }
+        public MemoryStats? MemoryStats { get; set; }
 
         [JsonPropertyName("networks")]
-        public IDictionary<string, NetworkStats> Networks { get; set; }
+        public IDictionary<string, NetworkStats>? Networks { get; set; }
 
         [JsonPropertyName("pids_stats")]
-        public PidsStats PidsStats { get; set; }
+        public PidsStats? PidsStats { get; set; }
 
         [JsonPropertyName("blkio_stats")]
-        public BlkioStats BlkioStats { get; set; }
+        public BlkioStats? BlkioStats { get; set; }
 
         [JsonPropertyName("num_procs")]
-        public uint NumProcs { get; set; }
+        public uint NumProcs { get; set; } = default!;
 
         [JsonPropertyName("storage_stats")]
-        public StorageStats StorageStats { get; set; }
+        public StorageStats? StorageStats { get; set; }
 
         [JsonPropertyName("preread")]
-        public DateTime PreRead { get; set; }
+        public DateTime PreRead { get; set; } = default!;
 
         [JsonPropertyName("precpu_stats")]
-        public CPUStats PreCPUStats { get; set; }
+        public CPUStats? PreCPUStats { get; set; }
     }
 }

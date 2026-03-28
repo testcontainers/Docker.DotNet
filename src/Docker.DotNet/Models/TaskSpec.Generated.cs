@@ -1,35 +1,36 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class TaskSpec // (swarm.TaskSpec)
     {
         [JsonPropertyName("ContainerSpec")]
-        public ContainerSpec ContainerSpec { get; set; }
+        public ContainerSpec? ContainerSpec { get; set; }
 
         [JsonPropertyName("PluginSpec")]
-        public SwarmRuntimeSpec PluginSpec { get; set; }
+        public SwarmRuntimeSpec? PluginSpec { get; set; }
 
         [JsonPropertyName("NetworkAttachmentSpec")]
-        public NetworkAttachmentSpec NetworkAttachmentSpec { get; set; }
+        public NetworkAttachmentSpec? NetworkAttachmentSpec { get; set; }
 
         [JsonPropertyName("Resources")]
-        public ResourceRequirements Resources { get; set; }
+        public ResourceRequirements? Resources { get; set; }
 
         [JsonPropertyName("RestartPolicy")]
-        public SwarmRestartPolicy RestartPolicy { get; set; }
+        public SwarmRestartPolicy? RestartPolicy { get; set; }
 
         [JsonPropertyName("Placement")]
-        public Placement Placement { get; set; }
+        public Placement? Placement { get; set; }
 
         [JsonPropertyName("Networks")]
-        public IList<NetworkAttachmentConfig> Networks { get; set; }
+        public IList<NetworkAttachmentConfig>? Networks { get; set; }
 
         [JsonPropertyName("LogDriver")]
-        public SwarmDriver LogDriver { get; set; }
+        public SwarmDriver? LogDriver { get; set; }
 
         [JsonPropertyName("ForceUpdate")]
-        public ulong ForceUpdate { get; set; }
+        public ulong ForceUpdate { get; set; } = default!;
 
         [JsonPropertyName("Runtime")]
-        public string Runtime { get; set; }
+        public string? Runtime { get; set; }
     }
 }

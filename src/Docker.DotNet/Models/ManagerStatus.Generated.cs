@@ -1,14 +1,15 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ManagerStatus // (swarm.ManagerStatus)
     {
         [JsonPropertyName("Leader")]
-        public bool Leader { get; set; }
+        public bool? Leader { get; set; }
 
         [JsonPropertyName("Reachability")]
-        public string Reachability { get; set; }
+        public string? Reachability { get; set; }
 
         [JsonPropertyName("Addr")]
-        public string Addr { get; set; }
+        public string? Addr { get; set; }
     }
 }

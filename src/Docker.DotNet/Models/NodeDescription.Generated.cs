@@ -1,23 +1,24 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class NodeDescription // (swarm.NodeDescription)
     {
         [JsonPropertyName("Hostname")]
-        public string Hostname { get; set; }
+        public string? Hostname { get; set; }
 
         [JsonPropertyName("Platform")]
-        public SwarmPlatform Platform { get; set; }
+        public SwarmPlatform? Platform { get; set; }
 
         [JsonPropertyName("Resources")]
-        public SwarmResources Resources { get; set; }
+        public SwarmResources? Resources { get; set; }
 
         [JsonPropertyName("Engine")]
-        public EngineDescription Engine { get; set; }
+        public EngineDescription? Engine { get; set; }
 
         [JsonPropertyName("TLSInfo")]
-        public TLSInfo TLSInfo { get; set; }
+        public TLSInfo? TLSInfo { get; set; }
 
         [JsonPropertyName("CSIInfo")]
-        public IList<NodeCSIInfo> CSIInfo { get; set; }
+        public IList<NodeCSIInfo>? CSIInfo { get; set; }
     }
 }

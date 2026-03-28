@@ -51,36 +51,36 @@ var EmptyStruct = reflect.TypeOf(struct{}{})
 
 // CSInboxTypesMap is a map from Go type kind to C# type.
 var CSInboxTypesMap = map[reflect.Kind]CSType{
-	reflect.Int:   {"", "long", true}, // In practice most clients are 64bit so in go Int will be too.
-	reflect.Int8:  {"", "sbyte", true},
-	reflect.Int16: {"", "short", true},
-	reflect.Int32: {"", "int", true},
-	reflect.Int64: {"", "long", true},
+	reflect.Int:   {"", "long"}, // In practice most clients are 64bit so in go Int will be too.
+	reflect.Int8:  {"", "sbyte"},
+	reflect.Int16: {"", "short"},
+	reflect.Int32: {"", "int"},
+	reflect.Int64: {"", "long"},
 
-	reflect.Uint:   {"", "ulong", true}, // In practice most clients are 64bit so in go Uint will be too.
-	reflect.Uint8:  {"", "byte", true},
-	reflect.Uint16: {"", "ushort", true},
-	reflect.Uint32: {"", "uint", true},
-	reflect.Uint64: {"", "ulong", true},
+	reflect.Uint:   {"", "ulong"}, // In practice most clients are 64bit so in go Uint will be too.
+	reflect.Uint8:  {"", "byte"},
+	reflect.Uint16: {"", "ushort"},
+	reflect.Uint32: {"", "uint"},
+	reflect.Uint64: {"", "ulong"},
 
-	reflect.String: {"", "string", false},
+	reflect.String: {"", "string"},
 
-	reflect.Bool: {"", "bool", true},
+	reflect.Bool: {"", "bool"},
 
-	reflect.Float32: {"", "float", true},
-	reflect.Float64: {"", "double", true},
+	reflect.Float32: {"", "float"},
+	reflect.Float64: {"", "double"},
 }
 
 // CSCustomTypeMap is a map from Go reflected types to C# types.
 var CSCustomTypeMap = map[reflect.Type]CSType{
-	reflect.TypeOf(net.IP{}):               {"", "string", false},
-	reflect.TypeOf(net.IPNet{}):            {"", "string", false},
-	reflect.TypeOf(netip.Addr{}):           {"", "string", false},
-	reflect.TypeOf(netip.Prefix{}):         {"", "string", false},
-	reflect.TypeOf(network.HardwareAddr{}): {"", "string", false},
-	reflect.TypeOf(network.Port{}):         {"", "string", false},
-	reflect.TypeOf(time.Time{}):            {"System", "DateTime", true},
-	EmptyStruct:                            {"", "BUG_IN_CONVERSION", false},
+	reflect.TypeOf(net.IP{}):               {"", "string"},
+	reflect.TypeOf(net.IPNet{}):            {"", "string"},
+	reflect.TypeOf(netip.Addr{}):           {"", "string"},
+	reflect.TypeOf(netip.Prefix{}):         {"", "string"},
+	reflect.TypeOf(network.HardwareAddr{}): {"", "string"},
+	reflect.TypeOf(network.Port{}):         {"", "string"},
+	reflect.TypeOf(time.Time{}):            {"System", "DateTime"},
+	EmptyStruct:                            {"", "BUG_IN_CONVERSION"},
 }
 
 // CSArgument is a type that represents a C# argument that can
@@ -151,9 +151,8 @@ func (a CSAttribute) String() string {
 
 // CSType is a type that represents a C# type.
 type CSType struct {
-	Namespace  string
-	Name       string
-	IsNullable bool
+	Namespace string
+	Name      string
 }
 
 // CSParameter is a type that represents a parameter declaration of a C# parameter to a function/constructor.
@@ -206,6 +205,8 @@ func NewModel(name, sourceName string) *CSModelType {
 
 // Write the specific model type to the io writer given.
 func (t *CSModelType) Write(w io.Writer) {
+	fmt.Fprintln(w, "#nullable enable")
+
 	usings := calcUsings(t)
 	for _, u := range usings {
 		fmt.Fprintf(w, "using %s;\n", u)
@@ -347,7 +348,7 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 			fmt.Fprintf(w, "        %s\n", a)
 		}
 
-		if p.Type.IsNullable && p.IsOpt {
+		if p.IsOpt {
 			fmt.Fprintf(w, "        public %s? %s { get; set; }", p.Type.Name, p.Name)
 		} else {
 			fmt.Fprintf(w, "        public %s %s { get; set; }", p.Type.Name, p.Name)
@@ -355,6 +356,8 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 
 		if p.DefaultValue != "" {
 			fmt.Fprintf(w, " = %s;", p.DefaultValue)
+		} else if !p.IsOpt {
+			fmt.Fprintf(w, " = default!;")
 		}
 
 		fmt.Fprintln(w)

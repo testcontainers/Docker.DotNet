@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class Secret // (swarm.Secret)
@@ -17,18 +18,18 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; }
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public SwarmSecretSpec Spec { get; set; }
+        public SwarmSecretSpec Spec { get; set; } = default!;
     }
 }

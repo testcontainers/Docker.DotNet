@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class DockerOCIImageConfig // (v1.DockerOCIImageConfig)
@@ -31,42 +32,42 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("User")]
-        public string User { get; set; }
+        public string? User { get; set; }
 
         [JsonPropertyName("ExposedPorts")]
-        public IDictionary<string, EmptyStruct> ExposedPorts { get; set; }
+        public IDictionary<string, EmptyStruct>? ExposedPorts { get; set; }
 
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; }
+        public IList<string>? Env { get; set; }
 
         [JsonPropertyName("Entrypoint")]
-        public IList<string> Entrypoint { get; set; }
+        public IList<string>? Entrypoint { get; set; }
 
         [JsonPropertyName("Cmd")]
-        public IList<string> Cmd { get; set; }
+        public IList<string>? Cmd { get; set; }
 
         [JsonPropertyName("Volumes")]
-        public IDictionary<string, EmptyStruct> Volumes { get; set; }
+        public IDictionary<string, EmptyStruct>? Volumes { get; set; }
 
         [JsonPropertyName("WorkingDir")]
-        public string WorkingDir { get; set; }
+        public string? WorkingDir { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; }
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("StopSignal")]
-        public string StopSignal { get; set; }
+        public string? StopSignal { get; set; }
 
         [JsonPropertyName("ArgsEscaped")]
-        public bool ArgsEscaped { get; set; }
+        public bool? ArgsEscaped { get; set; }
 
         [JsonPropertyName("Healthcheck")]
-        public HealthcheckConfig Healthcheck { get; set; }
+        public HealthcheckConfig? Healthcheck { get; set; }
 
         [JsonPropertyName("OnBuild")]
-        public IList<string> OnBuild { get; set; }
+        public IList<string>? OnBuild { get; set; }
 
         [JsonPropertyName("Shell")]
-        public IList<string> Shell { get; set; }
+        public IList<string>? Shell { get; set; }
     }
 }

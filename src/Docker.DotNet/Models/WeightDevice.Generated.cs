@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class WeightDevice // (blkiodev.WeightDevice)
     {
         [JsonPropertyName("Path")]
-        public string Path { get; set; }
+        public string Path { get; set; } = default!;
 
         [JsonPropertyName("Weight")]
-        public ushort Weight { get; set; }
+        public ushort Weight { get; set; } = default!;
     }
 }

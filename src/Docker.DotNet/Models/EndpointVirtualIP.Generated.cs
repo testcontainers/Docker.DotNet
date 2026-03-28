@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class EndpointVirtualIP // (swarm.EndpointVirtualIP)
     {
         [JsonPropertyName("NetworkID")]
-        public string NetworkID { get; set; }
+        public string? NetworkID { get; set; }
 
         [JsonPropertyName("Addr")]
-        public string Addr { get; set; }
+        public string? Addr { get; set; }
     }
 }

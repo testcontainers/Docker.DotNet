@@ -1,20 +1,21 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class BindOptions // (mount.BindOptions)
     {
         [JsonPropertyName("Propagation")]
-        public string Propagation { get; set; }
+        public string? Propagation { get; set; }
 
         [JsonPropertyName("NonRecursive")]
-        public bool NonRecursive { get; set; }
+        public bool? NonRecursive { get; set; }
 
         [JsonPropertyName("CreateMountpoint")]
-        public bool CreateMountpoint { get; set; }
+        public bool? CreateMountpoint { get; set; }
 
         [JsonPropertyName("ReadOnlyNonRecursive")]
-        public bool ReadOnlyNonRecursive { get; set; }
+        public bool? ReadOnlyNonRecursive { get; set; }
 
         [JsonPropertyName("ReadOnlyForceRecursive")]
-        public bool ReadOnlyForceRecursive { get; set; }
+        public bool? ReadOnlyForceRecursive { get; set; }
     }
 }

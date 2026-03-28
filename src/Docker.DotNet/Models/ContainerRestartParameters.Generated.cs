@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainerRestartParameters // (main.ContainerRestartParameters)
@@ -6,6 +7,6 @@ namespace Docker.DotNet.Models
         public uint? WaitBeforeKillSeconds { get; set; }
 
         [QueryStringParameter("signal", false)]
-        public string Signal { get; set; }
+        public string? Signal { get; set; }
     }
 }

@@ -1,11 +1,12 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class TopologyRequirement // (volume.TopologyRequirement)
     {
         [JsonPropertyName("Requisite")]
-        public IList<VolumeTopology> Requisite { get; set; }
+        public IList<VolumeTopology>? Requisite { get; set; }
 
         [JsonPropertyName("Preferred")]
-        public IList<VolumeTopology> Preferred { get; set; }
+        public IList<VolumeTopology>? Preferred { get; set; }
     }
 }

@@ -305,14 +305,25 @@ internal class ImageOperations : IImageOperations
         };
     }
 
-    private static Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfig)
+    private static Dictionary<string, string> RegistryConfigHeaders(IEnumerable<AuthConfig>? authConfigs)
     {
-        var configDictionary = (authConfig ?? Array.Empty<AuthConfig>()).ToDictionary(e => e.ServerAddress, e => e);
+        var registryAuthConfigurations = new Dictionary<string, AuthConfig>();
+
+        foreach (var registryAuthConfiguration in authConfigs ?? Array.Empty<AuthConfig>())
+        {
+            var registryAddress = registryAuthConfiguration.ServerAddress;
+
+            if (!string.IsNullOrEmpty(registryAddress))
+            {
+                registryAuthConfigurations[registryAddress] = registryAuthConfiguration;
+            }
+        }
+
         return new Dictionary<string, string>
         {
             {
                 RegistryConfigHeaderKey,
-                Convert.ToBase64String(DockerClient.JsonSerializer.SerializeToUtf8Bytes(configDictionary))
+                Convert.ToBase64String(DockerClient.JsonSerializer.SerializeToUtf8Bytes(registryAuthConfigurations))
             }
         };
     }

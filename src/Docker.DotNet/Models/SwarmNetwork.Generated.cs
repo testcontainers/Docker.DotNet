@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmNetwork // (swarm.Network)
@@ -17,24 +18,24 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; }
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public NetworkSpec Spec { get; set; }
+        public NetworkSpec? Spec { get; set; }
 
         [JsonPropertyName("DriverState")]
-        public SwarmDriver DriverState { get; set; }
+        public SwarmDriver? DriverState { get; set; }
 
         [JsonPropertyName("IPAMOptions")]
-        public IPAMOptions IPAMOptions { get; set; }
+        public IPAMOptions? IPAMOptions { get; set; }
     }
 }

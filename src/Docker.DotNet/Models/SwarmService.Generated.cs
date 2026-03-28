@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class SwarmService // (swarm.Service)
@@ -17,33 +18,33 @@ namespace Docker.DotNet.Models
         }
 
         [JsonPropertyName("ID")]
-        public string ID { get; set; }
+        public string ID { get; set; } = default!;
 
         [JsonPropertyName("Version")]
-        public Version Version { get; set; }
+        public Version? Version { get; set; }
 
         [JsonPropertyName("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [JsonPropertyName("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         [JsonPropertyName("Spec")]
-        public ServiceSpec Spec { get; set; }
+        public ServiceSpec? Spec { get; set; }
 
         [JsonPropertyName("PreviousSpec")]
-        public ServiceSpec PreviousSpec { get; set; }
+        public ServiceSpec? PreviousSpec { get; set; }
 
         [JsonPropertyName("Endpoint")]
-        public Endpoint Endpoint { get; set; }
+        public Endpoint? Endpoint { get; set; }
 
         [JsonPropertyName("UpdateStatus")]
-        public UpdateStatus UpdateStatus { get; set; }
+        public UpdateStatus? UpdateStatus { get; set; }
 
         [JsonPropertyName("ServiceStatus")]
-        public ServiceStatus ServiceStatus { get; set; }
+        public ServiceStatus? ServiceStatus { get; set; }
 
         [JsonPropertyName("JobStatus")]
-        public JobStatus JobStatus { get; set; }
+        public JobStatus? JobStatus { get; set; }
     }
 }

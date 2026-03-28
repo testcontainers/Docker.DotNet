@@ -1,3 +1,4 @@
+#nullable enable
 namespace Docker.DotNet.Models
 {
     public class ContainersListParameters // (main.ContainersListParameters)
@@ -12,6 +13,6 @@ namespace Docker.DotNet.Models
         public bool? Size { get; set; }
 
         [QueryStringParameter("filters", false, typeof(MapQueryStringConverter))]
-        public IDictionary<string, IDictionary<string, bool>> Filters { get; set; }
+        public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }
