@@ -6,6 +6,8 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
     <Project Path="src/Docker.DotNet.BasicAuth/Docker.DotNet.BasicAuth.csproj" />
     <Project Path="src/Docker.DotNet.Handler.Abstractions/Docker.DotNet.Handler.Abstractions.csproj" />
     <Project Path="src/Docker.DotNet.LegacyHttp/Docker.DotNet.LegacyHttp.csproj" />
@@ -15,10 +17,9 @@
     <Project Path="src/Docker.DotNet.X509/Docker.DotNet.X509.csproj" />
     <Project Path="src/Docker.DotNet/Docker.DotNet.csproj" />
     <Project Path="src/Microsoft.Net.Http.Client/Microsoft.Net.Http.Client.csproj" />
-    <File Path="src/Directory.Build.props" />
-    <File Path="src/Directory.Build.targets" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="test/Docker.DotNet.Benchmarks/Docker.DotNet.Benchmarks.csproj" />
     <Project Path="test/Docker.DotNet.Tests/Docker.DotNet.Tests.csproj" />
     <Project Path="test/Docker.DotNet.TestsV2/Docker.DotNet.TestsV2.csproj" />
   </Folder>
