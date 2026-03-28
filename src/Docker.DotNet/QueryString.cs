@@ -126,7 +126,7 @@ internal class QueryString<T> : IQueryString where T : class
 
 /// <summary>
 /// Generates query string formatted as:
-/// [url]?key=value1&key=value2&key=value3...
+/// [url]?key=value1&amp;key=value2&amp;key=value3...
 /// </summary>
 internal class EnumerableQueryString : IQueryString
 {
