@@ -743,7 +743,18 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 					restTag.Name = strings.ToLower(f.Name)
 				}
 
-				a := CSAttribute{Type: CSType{"", "QueryStringParameter"}}
+				queryStringParameter := "QueryStringParameter"
+
+				switch f.Type.Kind() {
+				case reflect.Bool:
+					queryStringParameter += "<BoolQueryStringConverter>"
+				case reflect.Slice, reflect.Array:
+					queryStringParameter += "<EnumerableQueryStringConverter>"
+				case reflect.Map:
+					queryStringParameter += "<MapQueryStringConverter>"
+				}
+
+				a := CSAttribute{Type: CSType{"", queryStringParameter}}
 				a.Arguments = append(
 					a.Arguments,
 					CSArgument{
@@ -751,15 +762,6 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 						CSInboxTypesMap[reflect.String]},
 					CSArgument{strconv.FormatBool(restTag.Required),
 						CSInboxTypesMap[reflect.Bool]})
-
-				switch f.Type.Kind() {
-				case reflect.Bool:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(BoolQueryStringConverter)"})
-				case reflect.Slice, reflect.Array:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(EnumerableQueryStringConverter)"})
-				case reflect.Map:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(MapQueryStringConverter)"})
-				}
 
 				csProp.IsOpt = omitEmpty || !restTag.Required
 				csProp.Attributes = append(csProp.Attributes, a)

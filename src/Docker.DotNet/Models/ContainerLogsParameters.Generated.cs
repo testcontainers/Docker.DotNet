@@ -3,10 +3,10 @@ namespace Docker.DotNet.Models
 {
     public class ContainerLogsParameters // (main.ContainerLogsParameters)
     {
-        [QueryStringParameter("stdout", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("stdout", false)]
         public bool? ShowStdout { get; set; }
 
-        [QueryStringParameter("stderr", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("stderr", false)]
         public bool? ShowStderr { get; set; }
 
         [QueryStringParameter("since", false)]
@@ -15,10 +15,10 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("until", false)]
         public string? Until { get; set; }
 
-        [QueryStringParameter("timestamps", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("timestamps", false)]
         public bool? Timestamps { get; set; }
 
-        [QueryStringParameter("follow", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("follow", false)]
         public bool? Follow { get; set; }
 
         [QueryStringParameter("tail", false)]

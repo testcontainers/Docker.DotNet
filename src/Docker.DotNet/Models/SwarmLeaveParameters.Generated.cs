@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class SwarmLeaveParameters // (main.SwarmLeaveParameters)
     {
-        [QueryStringParameter("force", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("force", false)]
         public bool? Force { get; set; }
     }
 }

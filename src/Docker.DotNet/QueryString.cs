@@ -4,13 +4,11 @@ internal class QueryString<
 #if NET
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
 #endif
-T> : IQueryString where T : class
+T> : IQueryString where T : class, new()
 {
     private T Object { get; }
 
     private Dictionary<PropertyInfo, QueryStringParameterAttribute> AttributedPublicProperties { get; }
-
-    private IQueryStringConverterInstanceFactory QueryStringConverterInstanceFactory { get; }
 
     public QueryString(T value)
     {
@@ -20,7 +18,6 @@ T> : IQueryString where T : class
         }
 
         Object = value;
-        QueryStringConverterInstanceFactory = new QueryStringConverterInstanceFactory();
         AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
     }
 
@@ -45,19 +42,18 @@ T> : IQueryString where T : class
             {
                 var keyStr = attribute.Name;
                 string[] valueStr;
-                if (attribute.ConverterType == null)
+                if (attribute.GetConverter() is IQueryStringConverter converter)
                 {
-                    valueStr = [value!.ToString()!];
-                }
-                else
-                {
-                    var converter = QueryStringConverterInstanceFactory.GetConverterInstance(attribute.ConverterType);
                     valueStr = ConvertValue(converter, value!);
 
                     if (valueStr == null)
                     {
-                        throw new InvalidOperationException($"Got null from value converter '{attribute.ConverterType.FullName}'");
+                        throw new InvalidOperationException($"Got null from value converter '{converter.GetType().FullName}'");
                     }
+                }
+                else
+                {
+                    valueStr = [value!.ToString()!];
                 }
 
                 queryParameters[keyStr] = valueStr;

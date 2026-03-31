@@ -1,35 +1,29 @@
 namespace Docker.DotNet;
 
 [AttributeUsage(AttributeTargets.Property)]
-internal sealed class QueryStringParameterAttribute : Attribute
+internal class QueryStringParameterAttribute : Attribute
 {
     public string Name { get; private set; }
 
     public bool IsRequired { get; private set; }
 
-#if NET
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-#endif
-    public Type? ConverterType { get; private set; }
+    public virtual IQueryStringConverter? GetConverter() => null;
 
-    public QueryStringParameterAttribute(string name, bool required,
-#if NET
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-#endif
-        Type? converterType = null)
+    public QueryStringParameterAttribute(string name, bool required)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
 
-        if (converterType != null && !converterType.GetInterfaces().Contains(typeof(IQueryStringConverter)))
-        {
-            throw new ArgumentException($"Provided query string converter type is not '{typeof(IQueryStringConverter).FullName}'.", nameof(converterType));
-        }
-
         Name = name;
         IsRequired = required;
-        ConverterType = converterType;
     }
+}
+
+internal sealed class QueryStringParameterAttribute<TConverter>(string name, bool required) : QueryStringParameterAttribute(name, required) where TConverter : IQueryStringConverter, new()
+{
+    private static readonly ConcurrentDictionary<Type, IQueryStringConverter> ConverterInstanceRegistry = new ConcurrentDictionary<Type, IQueryStringConverter>();
+
+    public override IQueryStringConverter GetConverter() => ConverterInstanceRegistry.GetOrAdd(typeof(TConverter), static _ => new TConverter());
 }

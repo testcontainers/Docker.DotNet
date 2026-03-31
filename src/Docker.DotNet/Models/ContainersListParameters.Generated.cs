@@ -3,16 +3,16 @@ namespace Docker.DotNet.Models
 {
     public class ContainersListParameters // (main.ContainersListParameters)
     {
-        [QueryStringParameter("all", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("all", false)]
         public bool? All { get; set; }
 
         [QueryStringParameter("limit", false)]
         public long? Limit { get; set; }
 
-        [QueryStringParameter("size", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("size", false)]
         public bool? Size { get; set; }
 
-        [QueryStringParameter("filters", false, typeof(MapQueryStringConverter))]
+        [QueryStringParameter<MapQueryStringConverter>("filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }

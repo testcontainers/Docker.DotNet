@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class PluginRemoveParameters // (main.PluginRemoveParameters)
     {
-        [QueryStringParameter("force", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter<BoolQueryStringConverter>("force", false)]
         public bool? Force { get; set; }
     }
 }
