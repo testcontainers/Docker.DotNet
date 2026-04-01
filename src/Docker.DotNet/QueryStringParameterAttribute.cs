@@ -23,7 +23,7 @@ internal class QueryStringParameterAttribute : Attribute
 
 internal sealed class QueryStringParameterAttribute<TConverter>(string name, bool required) : QueryStringParameterAttribute(name, required) where TConverter : IQueryStringConverter, new()
 {
-    private static readonly ConcurrentDictionary<Type, IQueryStringConverter> ConverterInstanceRegistry = new ConcurrentDictionary<Type, IQueryStringConverter>();
+    private static TConverter? ConverterInstance;
 
-    public override IQueryStringConverter GetConverter() => ConverterInstanceRegistry.GetOrAdd(typeof(TConverter), static _ => new TConverter());
+    public override IQueryStringConverter GetConverter() => ConverterInstance ??= new TConverter();
 }
