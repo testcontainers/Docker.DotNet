@@ -1,7 +1,5 @@
 namespace Docker.DotNet;
 
-using System;
-
 public sealed class DockerClient : IDockerClient
 {
     internal readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
