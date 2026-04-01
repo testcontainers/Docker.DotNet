@@ -82,7 +82,7 @@ internal class SwarmOperations : ISwarmOperations
             .ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default)
+    public async Task<IList<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var queryParameters = parameters == null ? null : new QueryString<ServiceListParameters>(parameters);
 
@@ -193,7 +193,7 @@ internal class SwarmOperations : ISwarmOperations
         };
     }
 
-    public async Task<IEnumerable<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default)
+    public async Task<IList<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default)
     {
         return await _client.MakeRequestAsync<NodeListResponse[]>([NotInSwarmResponseHandler], HttpMethod.Get, "nodes", cancellationToken)
             .ConfigureAwait(false);
