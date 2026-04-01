@@ -771,6 +771,8 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				a.Arguments = append(a.Arguments, CSArgument{jsonName, CSInboxTypesMap[reflect.String]})
 				csProp.IsOpt = omitEmpty || f.Type.Kind() == reflect.Ptr
 				csProp.Attributes = append(csProp.Attributes, a)
+
+				m.HasJsonSerializableProperties = true
 			}
 
 			if hasTypeCustomizations {
@@ -857,7 +859,7 @@ func main() {
 		reflectType(t)
 	}
 
-	names := make([]string, 0, len(reflectedTypes))
+	jsonSerializableNames := make([]string, 0, len(reflectedTypes))
 
 	for k, v := range reflectedTypes {
 		if _, e := os.Stat(path.Join(sourcePath, v.Name+".Generated.cs")); e == nil {
@@ -882,10 +884,12 @@ func main() {
 		f.Close()
 		os.Rename(f.Name(), path.Join(sourcePath, v.Name+".Generated.cs"))
 
-		names = append(names, v.Name)
+		if v.HasJsonSerializableProperties {
+			jsonSerializableNames = append(jsonSerializableNames, v.Name)
+		}
 	}
 
-	slices.Sort(names)
+	slices.Sort(jsonSerializableNames)
 
 	jscf, err := os.Create(path.Join(sourcePath, "DockerModelsJsonSerializerContext.Generated.cs"))
 	if err != nil {
@@ -898,7 +902,7 @@ func main() {
 
 	fmt.Fprintln(jscb, "namespace Docker.DotNet.Models")
 	fmt.Fprintln(jscb, "{")
-	for _, name := range names {
+	for _, name := range jsonSerializableNames {
 		fmt.Fprintf(jscb, "    [JsonSerializable(typeof(%s))]\n", name)
 	}
 	fmt.Fprintln(jscb, "    internal sealed partial class DockerModelsJsonSerializerContext : JsonSerializerContext { }")
