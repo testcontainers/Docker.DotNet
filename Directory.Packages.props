@@ -11,7 +11,7 @@
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.5.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.0-pre.33" />
-    <PackageVersion Include="xunit.v3.aot.mtp-v2" Version="4.0.0-pre.33" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.0-pre.81" />
+    <PackageVersion Include="xunit.v3.aot.mtp-v2" Version="4.0.0-pre.81" />
   </ItemGroup>
 </Project>
