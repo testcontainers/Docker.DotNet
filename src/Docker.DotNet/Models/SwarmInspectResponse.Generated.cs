@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Swarm represents a swarm.
+    /// </summary>
     public class SwarmInspectResponse // (swarm.Swarm)
     {
         public SwarmInspectResponse()

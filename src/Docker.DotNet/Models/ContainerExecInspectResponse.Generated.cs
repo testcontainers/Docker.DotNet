@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ExecInspectResponse is the API response for the &quot;GET /exec/{id}/json&quot;
+    /// endpoint and holds information about and exec.
+    /// </summary>
     public class ContainerExecInspectResponse // (container.ExecInspectResponse)
     {
         [JsonPropertyName("ID")]

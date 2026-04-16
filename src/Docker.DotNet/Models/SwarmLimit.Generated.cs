@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Limit describes limits on resources which can be requested by a task.
+    /// </summary>
     public class SwarmLimit // (swarm.Limit)
     {
         [JsonPropertyName("NanoCPUs")]

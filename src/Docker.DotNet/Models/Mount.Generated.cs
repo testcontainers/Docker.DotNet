@@ -1,11 +1,19 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Mount represents a mount (volume).
+    /// </summary>
     public class Mount // (mount.Mount)
     {
         [JsonPropertyName("Type")]
         public string? Type { get; set; }
 
+        /// <summary>
+        /// Source specifies the name of the mount. Depending on mount type, this
+        /// may be a volume name or a host path, or even ignored.
+        /// Source is not supported for tmpfs (must be an empty value)
+        /// </summary>
         [JsonPropertyName("Source")]
         public string? Source { get; set; }
 

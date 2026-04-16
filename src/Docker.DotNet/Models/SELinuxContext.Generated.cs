@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// SELinuxContext contains the SELinux labels of the container.
+    /// </summary>
     public class SELinuxContext // (swarm.SELinuxContext)
     {
         [JsonPropertyName("Disable")]

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// CreateRequest is the request message sent to the server for network create call.
+    /// </summary>
     public class NetworksCreateParameters // (network.CreateRequest)
     {
         [JsonPropertyName("Name")]

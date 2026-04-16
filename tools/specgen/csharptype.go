@@ -177,6 +177,7 @@ type CSProperty struct {
 	IsOpt        bool
 	Attributes   []CSAttribute
 	DefaultValue string
+	Comment      string
 }
 
 // CSModelType is a type that represents a reflected type to generate a C# model for.
@@ -191,6 +192,7 @@ type CSModelType struct {
 	// completed but as long as this is true we will not attempt to generate the
 	// type more than once.
 	IsStarted bool
+	Comment   string
 }
 
 // NewModel creates a new model type with valid slices
@@ -275,7 +277,22 @@ func safeAddUsing(using string, usings []string, added map[string]bool) []string
 	return usings
 }
 
+func writeXMLComment(w io.Writer, comment string, indent string) {
+	if comment == "" {
+		return
+	}
+
+	fmt.Fprintf(w, "%s/// <summary>\n", indent)
+	escapedComment := escapeXMLComment(comment)
+	for _, line := range strings.Split(escapedComment, "\n") {
+		fmt.Fprintf(w, "%s/// %s\n", indent, line)
+	}
+	fmt.Fprintf(w, "%s/// </summary>\n", indent)
+}
+
 func writeClass(w io.Writer, t *CSModelType) {
+	writeXMLComment(w, t.Comment, "    ")
+
 	for _, a := range t.Attributes {
 		fmt.Fprintf(w, "    %s\n", a)
 	}
@@ -344,6 +361,8 @@ func writeConstructors(w io.Writer, typeName string, constructors []CSConstructo
 func writeProperties(w io.Writer, properties []CSProperty) {
 	len := len(properties)
 	for i, p := range properties {
+		writeXMLComment(w, p.Comment, "        ")
+
 		for _, a := range p.Attributes {
 			fmt.Fprintf(w, "        %s\n", a)
 		}
@@ -366,4 +385,15 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 			fmt.Fprintln(w, "")
 		}
 	}
+}
+
+func escapeXMLComment(text string) string {
+	replacer := strings.NewReplacer(
+		"&", "&amp;",
+		"<", "&lt;",
+		">", "&gt;",
+		"\"", "&quot;",
+		"'", "&apos;",
+	)
+	return replacer.Replace(text)
 }

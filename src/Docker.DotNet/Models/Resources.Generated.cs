@@ -1,8 +1,14 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Resources contains container&apos;s resources (cgroups config, ulimits...)
+    /// </summary>
     public class Resources // (container.Resources)
     {
+        /// <summary>
+        /// Applicable to all platforms
+        /// </summary>
         [JsonPropertyName("CpuShares")]
         public long CPUShares { get; set; } = default!;
 
@@ -12,6 +18,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("NanoCpus")]
         public long NanoCPUs { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to UNIX platforms
+        /// </summary>
         [JsonPropertyName("CgroupParent")]
         public string CgroupParent { get; set; } = default!;
 
@@ -78,6 +87,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Ulimits")]
         public IList<Ulimit> Ulimits { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to Windows
+        /// </summary>
         [JsonPropertyName("CpuCount")]
         public long CPUCount { get; set; } = default!;
 

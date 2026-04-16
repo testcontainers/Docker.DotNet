@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// InspectResponse is the response for the GET &quot;/containers/{name:.*}/json&quot;
+    /// endpoint.
+    /// </summary>
     public class ContainerInspectResponse // (container.InspectResponse)
     {
         [JsonPropertyName("Id")]
@@ -60,9 +64,15 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("HostConfig")]
         public HostConfig? HostConfig { get; set; }
 
+        /// <summary>
+        /// GraphDriver contains information about the container&apos;s graph driver.
+        /// </summary>
         [JsonPropertyName("GraphDriver")]
         public DriverData? GraphDriver { get; set; }
 
+        /// <summary>
+        /// Storage contains information about the storage used for the container&apos;s filesystem.
+        /// </summary>
         [JsonPropertyName("Storage")]
         public Storage? Storage { get; set; }
 
@@ -81,6 +91,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("NetworkSettings")]
         public NetworkSettings? NetworkSettings { get; set; }
 
+        /// <summary>
+        /// ImageManifestDescriptor is the descriptor of a platform-specific manifest of the image used to create the container.
+        /// </summary>
         [JsonPropertyName("ImageManifestDescriptor")]
         public Descriptor? ImageManifestDescriptor { get; set; }
     }

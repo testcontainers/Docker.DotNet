@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// UpdateConfig holds the mutable attributes of a Container.
+    /// Those attributes can be updated at runtime.
+    /// </summary>
     public class UpdateConfig // (container.UpdateConfig)
     {
         public UpdateConfig()
@@ -43,6 +47,9 @@ namespace Docker.DotNet.Models
             }
         }
 
+        /// <summary>
+        /// Applicable to all platforms
+        /// </summary>
         [JsonPropertyName("CpuShares")]
         public long CPUShares { get; set; } = default!;
 
@@ -52,6 +59,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("NanoCpus")]
         public long NanoCPUs { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to UNIX platforms
+        /// </summary>
         [JsonPropertyName("CgroupParent")]
         public string CgroupParent { get; set; } = default!;
 
@@ -118,6 +128,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Ulimits")]
         public IList<Ulimit> Ulimits { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to Windows
+        /// </summary>
         [JsonPropertyName("CpuCount")]
         public long CPUCount { get; set; } = default!;
 

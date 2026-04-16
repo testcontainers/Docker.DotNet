@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// WeightDevice is a structure that holds device:weight pair
+    /// </summary>
     public class WeightDevice // (blkiodev.WeightDevice)
     {
         [JsonPropertyName("Path")]

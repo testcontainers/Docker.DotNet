@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ContainerStatus represents the status of a container.
+    /// </summary>
     public class ContainerStatus // (swarm.ContainerStatus)
     {
         [JsonPropertyName("ContainerID")]

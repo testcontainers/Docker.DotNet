@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// EngineDescription represents the description of an engine.
+    /// </summary>
     public class EngineDescription // (swarm.EngineDescription)
     {
         [JsonPropertyName("EngineVersion")]

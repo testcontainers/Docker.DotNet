@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// DeviceRequest represents a request for devices from a device driver.
+    /// Used by GPU device drivers.
+    /// </summary>
     public class DeviceRequest // (container.DeviceRequest)
     {
         [JsonPropertyName("Driver")]

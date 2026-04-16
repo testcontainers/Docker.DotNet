@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Progress describes a progress message in a JSON stream.
+    /// </summary>
     public class JSONProgress // (jsonstream.Progress)
     {
         [JsonPropertyName("current")]

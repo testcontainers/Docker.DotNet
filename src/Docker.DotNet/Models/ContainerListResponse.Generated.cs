@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Summary contains response of Engine API:
+    /// GET &quot;/containers/json&quot;
+    /// </summary>
     public class ContainerListResponse // (container.Summary)
     {
         [JsonPropertyName("Id")]

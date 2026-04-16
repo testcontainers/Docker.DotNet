@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ContainerSpec represents the spec of a container.
+    /// </summary>
     public class ContainerSpec // (swarm.ContainerSpec)
     {
         [JsonPropertyName("Image")]
@@ -57,6 +60,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Healthcheck")]
         public HealthcheckConfig? Healthcheck { get; set; }
 
+        /// <summary>
+        /// The format of extra hosts on swarmkit is specified in:
+        /// http://man7.org/linux/man-pages/man5/hosts.5.html
+        ///    IP_address canonical_hostname [aliases...]
+        /// </summary>
         [JsonPropertyName("Hosts")]
         public IList<string>? Hosts { get; set; }
 

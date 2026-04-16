@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Meta is a base object inherited by most of the other once.
+    /// </summary>
     public class Meta // (swarm.Meta)
     {
         [JsonPropertyName("Version")]

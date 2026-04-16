@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// PruneReport contains the response for Engine API:
+    /// POST &quot;/containers/prune&quot;
+    /// </summary>
     public class ContainersPruneResponse // (container.PruneReport)
     {
         [JsonPropertyName("ContainersDeleted")]

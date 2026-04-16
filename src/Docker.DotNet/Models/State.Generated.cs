@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// State stores container&apos;s running state
+    /// it&apos;s part of ContainerJSONBase and returned by &quot;inspect&quot; command
+    /// </summary>
     public class State // (container.State)
     {
         [JsonPropertyName("Status")]

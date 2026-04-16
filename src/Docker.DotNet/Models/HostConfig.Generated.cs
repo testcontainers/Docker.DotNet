@@ -1,6 +1,11 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// HostConfig the non-portable Config structure of a container.
+    /// Here, &quot;non-portable&quot; means &quot;dependent of the host we are running on&quot;.
+    /// Portable information *should* appear in Config.
+    /// </summary>
     public class HostConfig // (container.HostConfig)
     {
         public HostConfig()
@@ -43,6 +48,9 @@ namespace Docker.DotNet.Models
             }
         }
 
+        /// <summary>
+        /// Applicable to all platforms
+        /// </summary>
         [JsonPropertyName("Binds")]
         public IList<string> Binds { get; set; } = default!;
 
@@ -77,6 +85,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Annotations")]
         public IDictionary<string, string>? Annotations { get; set; }
 
+        /// <summary>
+        /// Applicable to UNIX platforms
+        /// </summary>
         [JsonPropertyName("CapAdd")]
         public IList<string> CapAdd { get; set; } = default!;
 
@@ -149,9 +160,15 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Runtime")]
         public string? Runtime { get; set; }
 
+        /// <summary>
+        /// Applicable to Windows
+        /// </summary>
         [JsonPropertyName("Isolation")]
         public string Isolation { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to all platforms
+        /// </summary>
         [JsonPropertyName("CpuShares")]
         public long CPUShares { get; set; } = default!;
 
@@ -161,6 +178,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("NanoCpus")]
         public long NanoCPUs { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to UNIX platforms
+        /// </summary>
         [JsonPropertyName("CgroupParent")]
         public string CgroupParent { get; set; } = default!;
 
@@ -227,6 +247,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Ulimits")]
         public IList<Ulimit> Ulimits { get; set; } = default!;
 
+        /// <summary>
+        /// Applicable to Windows
+        /// </summary>
         [JsonPropertyName("CpuCount")]
         public long CPUCount { get; set; } = default!;
 
@@ -239,15 +262,27 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("IOMaximumBandwidth")]
         public ulong IOMaximumBandwidth { get; set; } = default!;
 
+        /// <summary>
+        /// Mounts specs used by the container
+        /// </summary>
         [JsonPropertyName("Mounts")]
         public IList<Mount>? Mounts { get; set; }
 
+        /// <summary>
+        /// MaskedPaths is the list of paths to be masked inside the container (this overrides the default set of paths)
+        /// </summary>
         [JsonPropertyName("MaskedPaths")]
         public IList<string> MaskedPaths { get; set; } = default!;
 
+        /// <summary>
+        /// ReadonlyPaths is the list of paths to be set as read-only inside the container (this overrides the default set of paths)
+        /// </summary>
         [JsonPropertyName("ReadonlyPaths")]
         public IList<string> ReadonlyPaths { get; set; } = default!;
 
+        /// <summary>
+        /// Run a custom init inside the container, if null, use the daemon&apos;s configured settings
+        /// </summary>
         [JsonPropertyName("Init")]
         public bool? Init { get; set; }
     }

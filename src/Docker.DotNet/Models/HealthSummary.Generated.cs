@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// HealthSummary stores a summary of the container&apos;s healthcheck results.
+    /// </summary>
     public class HealthSummary // (container.HealthSummary)
     {
         [JsonPropertyName("Status")]

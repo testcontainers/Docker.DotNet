@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ManagerStatus represents the status of a manager.
+    /// </summary>
     public class ManagerStatus // (swarm.ManagerStatus)
     {
         [JsonPropertyName("Leader")]

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ServiceSpec represents the spec of a service.
+    /// </summary>
     public class ServiceSpec // (swarm.ServiceSpec)
     {
         public ServiceSpec()
@@ -22,6 +25,10 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Labels")]
         public IDictionary<string, string> Labels { get; set; } = default!;
 
+        /// <summary>
+        /// TaskTemplate defines how the service should construct new tasks when
+        /// orchestrating this service.
+        /// </summary>
         [JsonPropertyName("TaskTemplate")]
         public TaskSpec? TaskTemplate { get; set; }
 

@@ -1,6 +1,14 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Config contains the configuration data about a container.
+    /// It should hold only portable information about the container.
+    /// Here, &quot;portable&quot; means &quot;independent from the host we are running on&quot;.
+    /// Non-portable information *should* appear in HostConfig.
+    /// All fields added to this struct must be marked `omitempty` to keep getting
+    /// predictable hashes from the old `v1Compatibility` configuration.
+    /// </summary>
     public class ContainerConfig // (container.Config)
     {
         [JsonPropertyName("Hostname")]

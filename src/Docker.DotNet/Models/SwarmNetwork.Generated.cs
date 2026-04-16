@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Network represents a network.
+    /// </summary>
     public class SwarmNetwork // (swarm.Network)
     {
         public SwarmNetwork()
