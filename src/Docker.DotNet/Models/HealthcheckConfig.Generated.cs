@@ -15,10 +15,12 @@ namespace Docker.DotNet.Models
         public TimeSpan? Timeout { get; set; }
 
         [JsonPropertyName("StartPeriod")]
-        public long? StartPeriod { get; set; }
+        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
+        public TimeSpan? StartPeriod { get; set; }
 
         [JsonPropertyName("StartInterval")]
-        public long? StartInterval { get; set; }
+        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
+        public TimeSpan? StartInterval { get; set; }
 
         [JsonPropertyName("Retries")]
         public long? Retries { get; set; }

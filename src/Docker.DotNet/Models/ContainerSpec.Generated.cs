@@ -52,7 +52,8 @@ namespace Docker.DotNet.Models
         public IList<Mount>? Mounts { get; set; }
 
         [JsonPropertyName("StopGracePeriod")]
-        public long? StopGracePeriod { get; set; }
+        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
+        public TimeSpan? StopGracePeriod { get; set; }
 
         [JsonPropertyName("Healthcheck")]
         public HealthcheckConfig? Healthcheck { get; set; }
