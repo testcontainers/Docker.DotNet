@@ -21,9 +21,10 @@ internal class QueryStringParameterAttribute : Attribute
     }
 }
 
-internal sealed class QueryStringParameterAttribute<TConverter>(string name, bool required) : QueryStringParameterAttribute(name, required) where TConverter : IQueryStringConverter, new()
+internal sealed class QueryStringParameterAttribute<TConverter>(string name, bool required)
+    : QueryStringParameterAttribute(name, required) where TConverter : IQueryStringConverter, new()
 {
-    private static TConverter? ConverterInstance;
+    private static TConverter? _converterInstance;
 
-    public override IQueryStringConverter GetConverter() => ConverterInstance ??= new TConverter();
+    public override IQueryStringConverter GetConverter() => _converterInstance ??= new TConverter();
 }

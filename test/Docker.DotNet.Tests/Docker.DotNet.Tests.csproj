@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RuntimeIdentifier Condition=" '$(RuntimeIdentifier)' == '' AND $([MSBuild]::IsOsPlatform('Linux')) AND $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == Arm64 ">linux-arm64</RuntimeIdentifier>
@@ -51,6 +51,6 @@
     <Using Include="Xunit.v3" />
   </ItemGroup>
   <Target Name="PublishAsBuildAfterTarget" AfterTargets="Build" DependsOnTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
-    <!-- placeholder task to force Publish to happen during Build: https://github.com/dotnet/msbuild/issues/3138 -->
+    <!-- Placeholder task to force publishing during build: https://github.com/dotnet/msbuild/issues/3138. -->
   </Target>
 </Project>

@@ -4,7 +4,7 @@ internal class QueryString<
 #if NET
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
 #endif
-T> : IQueryString where T : class, new()
+T> : IQueryString where T : class
 {
     private T Object { get; }
 
@@ -12,7 +12,7 @@ T> : IQueryString where T : class, new()
 
     public QueryString(T value)
     {
-        if (EqualityComparer<T>.Default.Equals(value))
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value));
         }
@@ -33,7 +33,7 @@ T> : IQueryString where T : class, new()
             // 'Required' check
             if (attribute.IsRequired && value == null)
             {
-                string propertyFullName = $"{property.GetType().FullName}.{property.Name}";
+                string propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
                 throw new ArgumentException("Got null/unset value for a required query parameter.", propertyFullName);
             }
 
@@ -42,7 +42,7 @@ T> : IQueryString where T : class, new()
             {
                 var keyStr = attribute.Name;
                 string[] valueStr;
-                if (attribute.GetConverter() is IQueryStringConverter converter)
+                if (attribute.GetConverter() is { } converter)
                 {
                     valueStr = ConvertValue(converter, value!);
 
@@ -118,7 +118,7 @@ T> : IQueryString where T : class, new()
     }
 
 #if NET
-    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Activator.CreateInstance is only used for value types here; safe for runtime usage.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Activator.CreateInstance is only used for value types here, safe for runtime usage.")]
 #endif
     private static bool IsDefaultOfType(object? o)
     {

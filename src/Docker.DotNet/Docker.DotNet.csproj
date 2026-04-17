@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Docker.DotNet</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced</PackageId>
