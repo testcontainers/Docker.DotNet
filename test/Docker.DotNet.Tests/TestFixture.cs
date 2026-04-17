@@ -3,7 +3,7 @@ namespace Docker.DotNet.Tests;
 [CollectionDefinition(nameof(TestCollection))]
 public sealed class TestCollection : ICollectionFixture<TestFixture>;
 
-public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDisposable, ILogger
+public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, ILogger
 {
     private const LogLevel MinLogLevel = LogLevel.Debug;
 
@@ -149,11 +149,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, IDispos
             await DockerClient.Images.DeleteImageAsync(image.ID, new ImageDeleteParameters { Force = true }, Cts.Token)
                 .ConfigureAwait(false);
         }
-    }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
         Cts.Dispose();
         DockerClient.Dispose();
     }
