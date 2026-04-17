@@ -652,8 +652,9 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			inlineStructName := t.Name() + f.Name
 
 			inlineModel := &CSModelType{
-				Name:       inlineStructName,
-				SourceName: fmt.Sprintf("%s.%s", t, f.Name),
+				Name:                          inlineStructName,
+				SourceName:                    fmt.Sprintf("%s.%s", t, f.Name),
+				HasJsonSerializableProperties: true,
 			}
 
 			reflectTypeMembers(f.Type, inlineModel)
@@ -679,6 +680,8 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			})
 
 			m.Properties = append(m.Properties, csProp)
+
+			m.HasJsonSerializableProperties = true
 		} else if f.Anonymous {
 			// If the type is anonymous we need to inline its values to this model.
 			clen := len(m.Constructors)
@@ -698,6 +701,10 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 
 			// Now we need to add in all of the inherited types parameters
 			m.Properties = append(m.Properties, newType.Properties...)
+
+			if newType.HasJsonSerializableProperties {
+				m.HasJsonSerializableProperties = true
+			}
 		} else {
 			// If we are referencing a struct that isnt inline or anonymous we need to update it too.
 			if ut := ultimateType(f.Type); ut.Kind() == reflect.Struct {
@@ -787,6 +794,11 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			// Lastly assign the property to our type.
 			m.Properties = append(m.Properties, csProp)
 		}
+	}
+
+	// If we have no properties, we still want to generate a JsonSerializerContext for this type, so we mark it as having json serializable properties to ensure that happens.
+	if len(m.Properties) == 0 {
+		m.HasJsonSerializableProperties = true
 	}
 }
 
