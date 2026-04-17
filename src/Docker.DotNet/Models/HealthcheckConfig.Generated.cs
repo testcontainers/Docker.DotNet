@@ -7,19 +7,15 @@ namespace Docker.DotNet.Models
         public IList<string>? Test { get; set; }
 
         [JsonPropertyName("Interval")]
-        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
         public TimeSpan? Interval { get; set; }
 
         [JsonPropertyName("Timeout")]
-        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
         public TimeSpan? Timeout { get; set; }
 
         [JsonPropertyName("StartPeriod")]
-        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
         public TimeSpan? StartPeriod { get; set; }
 
         [JsonPropertyName("StartInterval")]
-        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
         public TimeSpan? StartInterval { get; set; }
 
         [JsonPropertyName("Retries")]

@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
@@ -714,16 +713,6 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				a.Arguments = append(a.Arguments, CSArgument{jsonName, CSInboxTypesMap[reflect.String]})
 				csProp.IsOpt = omitEmpty || f.Type.Kind() == reflect.Ptr
 				csProp.Attributes = append(csProp.Attributes, a)
-
-				switch ultimateType(f.Type) {
-				case reflect.TypeOf(time.Duration(0)):
-					csProp.Attributes = append(csProp.Attributes, CSAttribute{
-						Type: CSType{"System.Text.Json.Serialization", "JsonConverter"},
-						Arguments: []CSArgument{
-							{Value: "typeof(TimeSpanNanosecondsConverter)"},
-						},
-					})
-				}
 			}
 
 			if hasTypeCustomizations {

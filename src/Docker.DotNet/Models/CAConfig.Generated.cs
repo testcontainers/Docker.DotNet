@@ -4,7 +4,6 @@ namespace Docker.DotNet.Models
     public class CAConfig // (swarm.CAConfig)
     {
         [JsonPropertyName("NodeCertExpiry")]
-        [JsonConverter(typeof(TimeSpanNanosecondsConverter))]
         public TimeSpan? NodeCertExpiry { get; set; }
 
         [JsonPropertyName("ExternalCAs")]
