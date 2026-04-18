@@ -126,7 +126,7 @@ namespace Docker.DotNet.Models
         public string? StopSignal { get; set; }
 
         [JsonPropertyName("StopTimeout")]
-        [JsonConverter(typeof(TimeSpanSecondsConverter))]
+        [JsonConverter(typeof(JsonTimeSpanSecondsConverter))]
         public TimeSpan? StopTimeout { get; set; }
 
         [JsonPropertyName("Shell")]

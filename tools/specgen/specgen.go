@@ -42,7 +42,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{
 				Name:       "StopTimeout",
 				Type:       CSType{"System", "TimeSpan"},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(JsonTimeSpanSecondsConverter)"}}}},
 			},
 		},
 	},
@@ -83,7 +83,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{
 				Name:       "StopTimeout",
 				Type:       CSType{"System", "TimeSpan"},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(TimeSpanSecondsConverter)"}}}},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(JsonTimeSpanSecondsConverter)"}}}},
 			},
 		},
 	},
