@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-internal sealed class JsonTimeSpanNanoSecondsConverter : JsonConverter<TimeSpan>
+internal sealed class JsonTimeSpanNanosecondsConverter : JsonConverter<TimeSpan>
 {
     private const int NanosecondsPerTick = 100;
 
