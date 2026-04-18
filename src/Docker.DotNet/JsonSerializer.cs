@@ -42,26 +42,27 @@ internal sealed class JsonSerializer
 
     public string Serialize<T>(T value)
     {
-        return System.Text.Json.JsonSerializer.Serialize(value, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)));
+        return System.Text.Json.JsonSerializer.Serialize(value, JsonTypeInfoCache<T>.Value);
     }
 
     public byte[] SerializeToUtf8Bytes<T>(T value)
     {
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)));
+        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, JsonTypeInfoCache<T>.Value);
     }
 
     public T Deserialize<T>(byte[] json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize(json, (JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)))!;
+        return System.Text.Json.JsonSerializer.Deserialize(json, JsonTypeInfoCache<T>.Value)!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
     {
-        return content.ReadFromJsonAsync((JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)), cancellationToken)!;
+        return content.ReadFromJsonAsync(JsonTypeInfoCache<T>.Value, cancellationToken)!;
     }
 
     public async IAsyncEnumerable<T> DeserializeAsync<T>(Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        var jsonTypeInfo = JsonTypeInfoCache<T>.Value;
         var reader = PipeReader.Create(stream);
 
         while (true)
@@ -73,7 +74,7 @@ internal sealed class JsonSerializer
 
             while (!buffer.IsEmpty && TryParseJson(ref buffer, out var jsonDocument))
             {
-                yield return jsonDocument!.Deserialize((JsonTypeInfo<T>)_options.GetTypeInfo(typeof(T)))!;
+                yield return jsonDocument!.Deserialize(jsonTypeInfo)!;
             }
 
             if (result.IsCompleted)
@@ -98,6 +99,11 @@ internal sealed class JsonSerializer
         }
 
         return false;
+    }
+
+    private static class JsonTypeInfoCache<T>
+    {
+        public static readonly JsonTypeInfo<T> Value = (JsonTypeInfo<T>)Instance._options.GetTypeInfo(typeof(T));
     }
 }
 
