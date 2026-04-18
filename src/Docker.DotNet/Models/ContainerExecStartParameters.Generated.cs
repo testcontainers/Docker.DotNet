@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         public bool TTY { get; set; } = default!;
 
         [JsonPropertyName("ConsoleSize")]
-        [JsonConverter(typeof(ConsoleSizeConverter))]
+        [JsonConverter(typeof(JsonConsoleSizeConverter))]
         public ConsoleSize ConsoleSize { get; set; } = default!;
     }
 }

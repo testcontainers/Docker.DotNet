@@ -51,7 +51,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{
 				Name:       "ConsoleSize",
 				Type:       CSType{"", "ConsoleSize"},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(JsonConsoleSizeConverter)"}}}},
 			},
 		},
 	},
@@ -92,7 +92,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{
 				Name:       "ConsoleSize",
 				Type:       CSType{"", "ConsoleSize"},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(JsonConsoleSizeConverter)"}}}},
 			},
 		},
 	},
@@ -101,7 +101,7 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{
 				Name:       "ConsoleSize",
 				Type:       CSType{"", "ConsoleSize"},
-				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(ConsoleSizeConverter)"}}}},
+				Attributes: []CSAttribute{{Type: CSType{"System.Text.Json.Serialization", "JsonConverter"}, Arguments: []CSArgument{{Value: "typeof(JsonConsoleSizeConverter)"}}}},
 			},
 		},
 	},
