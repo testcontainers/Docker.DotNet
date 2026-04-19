@@ -1,11 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Linq;
-
-namespace Docker.DotNet.SourceAnalyzers;
+﻿namespace Docker.DotNet.SourceAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
@@ -38,8 +31,7 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         if (methodSymbol.Name != "MakeRequestAsync")
             return;
 
-        var containingType = methodSymbol.ContainingType;
-        if (containingType?.ToDisplayString() != "Docker.DotNet.DockerClient")
+        if (methodSymbol.ContainingType?.ToDisplayString() != "Docker.DotNet.DockerClient")
             return;
 
         if (methodSymbol.TypeArguments.Length == 0)
