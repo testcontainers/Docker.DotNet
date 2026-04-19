@@ -109,6 +109,8 @@ internal sealed class JsonSerializer
 
 // Additional source-generated metadata for collections and dictionaries used by operations.
 
+[JsonSerializable(typeof(string))]
+
 // Filters
 [JsonSerializable(typeof(IDictionary<string, IDictionary<string, bool>>))]
 
@@ -137,8 +139,14 @@ internal sealed class JsonSerializer
 // PluginOperations.GetPrivilegesAsync
 [JsonSerializable(typeof(PluginPrivilege[]))]
 
+// SecretOperations.ListAsync
+[JsonSerializable(typeof(Secret[]))]
+
 // SwarmOperations.ListServicesAsync
 [JsonSerializable(typeof(SwarmService[]))]
 // SwarmOperations.ListNodesAsync
 [JsonSerializable(typeof(NodeListResponse[]))]
+
+// TaskOperations.ListAsync
+[JsonSerializable(typeof(TaskResponse[]))]
 internal sealed partial class DockerExtendedJsonSerializerContext : JsonSerializerContext { }

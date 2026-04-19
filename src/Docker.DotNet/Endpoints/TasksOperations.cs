@@ -18,7 +18,7 @@ internal class TasksOperations : ITasksOperations
     {
         var queryParameters = parameters == null ? null : new QueryString<TasksListParameters>(parameters);
 
-        return await _client.MakeRequestAsync<IList<TaskResponse>>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", queryParameters, cancellationToken)
+        return await _client.MakeRequestAsync<TaskResponse[]>(_client.NoErrorHandlers, HttpMethod.Get, "tasks", queryParameters, cancellationToken)
             .ConfigureAwait(false);
     }
 
