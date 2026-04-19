@@ -53,10 +53,10 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("author", false)]
         public string? Author { get; set; }
 
-        [QueryStringParameter("changes", false, typeof(EnumerableQueryStringConverter))]
+        [QueryStringParameter("changes", false, typeof(QueryStringEnumerableConverter))]
         public IList<string>? Changes { get; set; }
 
-        [QueryStringParameter("pause", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("pause", false, typeof(QueryStringBoolConverter))]
         public bool? Pause { get; set; }
 
         [JsonPropertyName("Hostname")]

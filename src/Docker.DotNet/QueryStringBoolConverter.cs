@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-internal class BoolQueryStringConverter : IQueryStringConverter
+internal class QueryStringBoolConverter : IQueryStringConverter
 {
     public bool CanConvert(Type t)
     {

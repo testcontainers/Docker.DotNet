@@ -9,7 +9,7 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("limit", false)]
         public long? Limit { get; set; }
 
-        [QueryStringParameter("filters", false, typeof(MapQueryStringConverter))]
+        [QueryStringParameter("filters", false, typeof(QueryStringMapConverter))]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }

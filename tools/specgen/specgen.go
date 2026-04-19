@@ -698,11 +698,11 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 
 				switch f.Type.Kind() {
 				case reflect.Bool:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(BoolQueryStringConverter)"})
+					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(QueryStringBoolConverter)"})
 				case reflect.Slice, reflect.Array:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(EnumerableQueryStringConverter)"})
+					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(QueryStringEnumerableConverter)"})
 				case reflect.Map:
-					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(MapQueryStringConverter)"})
+					a.Arguments = append(a.Arguments, CSArgument{Value: "typeof(QueryStringMapConverter)"})
 				}
 
 				csProp.IsOpt = omitEmpty || !restTag.Required

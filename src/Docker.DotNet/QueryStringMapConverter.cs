@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-internal class MapQueryStringConverter : IQueryStringConverter
+internal class QueryStringMapConverter : IQueryStringConverter
 {
     public bool CanConvert(Type t)
     {
