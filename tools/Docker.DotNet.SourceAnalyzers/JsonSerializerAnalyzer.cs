@@ -7,7 +7,7 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
         DiagnosticId,
         "Missing JsonSerializable attribute",
-        "Type '{0}' used in Docker.DotNet.DockerClient.MakeRequestAsync is not registered in the DockerExtendedJsonSerializerContext",
+        "Type '{0}' used in {1} is not registered in DockerExtendedJsonSerializerContext",
         "Usage",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true);
@@ -18,7 +18,12 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
+
+        // Handle method calls (MakeRequestAsync, etc.)
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+
+        // Handle 'new JsonRequestContent<T>'
+        context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -28,48 +33,77 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol methodSymbol)
             return;
 
-        if (methodSymbol.Name != "MakeRequestAsync")
+        bool isStjEntryPoint =
+            (methodSymbol.Name == "MakeRequestAsync" && methodSymbol.ContainingType?.Name == "DockerClient") ||
+            (methodSymbol.Name == "MonitorStreamForMessagesAsync" && methodSymbol.ContainingType?.Name == "StreamUtil") ||
+            (methodSymbol.ContainingType?.Name == "JsonSerializer" && methodSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet");
+
+        if (isStjEntryPoint && methodSymbol.TypeArguments.Length == 1)
+        {
+            var methodName = $"{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
+            CheckAndReportType(context, methodSymbol.TypeArguments[0], invocation.GetLocation(), methodName);
+        }
+    }
+
+    private static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context)
+    {
+        var creation = (ObjectCreationExpressionSyntax)context.Node;
+
+        if (context.SemanticModel.GetSymbolInfo(creation).Symbol is not IMethodSymbol constructorSymbol)
             return;
 
-        if (methodSymbol.ContainingType?.ToDisplayString() != "Docker.DotNet.DockerClient")
-            return;
+        var typeSymbol = constructorSymbol.ContainingType;
 
-        if (methodSymbol.TypeArguments.Length == 0)
-            return;
+        // Check if we are instantiating JsonRequestContent<T>
+        if (typeSymbol.Name == "JsonRequestContent" &&
+            typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet")
+        {
+            if (typeSymbol.TypeArguments.Length == 1)
+            {
+                var typeName = typeSymbol.Name;
+                CheckAndReportType(context, typeSymbol.TypeArguments[0], creation.GetLocation(), typeName);
+            }
+        }
+    }
 
-        var targetType = methodSymbol.TypeArguments[0];
-
-        if (targetType.TypeKind == TypeKind.TypeParameter)
+    private static void CheckAndReportType(SyntaxNodeAnalysisContext context, ITypeSymbol targetType, Location location, string sourceName)
+    {
+        // Skip generic type parameters, Object, and the internal NoContent marker
+        if (targetType.TypeKind == TypeKind.TypeParameter ||
+            targetType.SpecialType == SpecialType.System_Object ||
+            targetType.Name == "NoContent")
+        {
             return;
+        }
 
-        if (targetType.Name == "NoContent" && targetType.ContainingType?.ToDisplayString() == "Docker.DotNet.DockerClient")
-            return;
-
-        var jsonSerializableAttributeSymbol = context.Compilation.GetTypeByMetadataName("System.Text.Json.Serialization.JsonSerializableAttribute");
-        if (jsonSerializableAttributeSymbol == null)
-            return;
+        var jsonSerializableAttributeTypeSymbol = context.Compilation.GetTypeByMetadataName("System.Text.Json.Serialization.JsonSerializableAttribute");
+        if (jsonSerializableAttributeTypeSymbol == null) return;
 
         var isRegistered = false;
-
-        foreach (var jsonSerializerContextTypeName in new[] { "Docker.DotNet.DockerExtendedJsonSerializerContext", "Docker.DotNet.Models.DockerModelsJsonSerializerContext" })
+        var jsonSerializerContextNames = new[]
         {
-            var jsonSerializerContextType = context.Compilation.GetTypeByMetadataName(jsonSerializerContextTypeName);
-            if (jsonSerializerContextType == null) continue;
+            "Docker.DotNet.DockerExtendedJsonSerializerContext",
+            "Docker.DotNet.Models.DockerModelsJsonSerializerContext"
+        };
 
-            isRegistered =
-                jsonSerializerContextType.GetAttributes().Any(attr =>
-                    SymbolEqualityComparer.Default.Equals(attr.AttributeClass, jsonSerializableAttributeSymbol) &&
-                    attr.ConstructorArguments.Any(arg =>
-                        arg.Value is ITypeSymbol registeredType &&
-                        SymbolEqualityComparer.Default.Equals(registeredType, targetType)));
+        foreach (var jsonSerializerContextName in jsonSerializerContextNames)
+        {
+            var jsonSerializerContextTypeSymbol = context.Compilation.GetTypeByMetadataName(jsonSerializerContextName);
+            if (jsonSerializerContextTypeSymbol == null) continue;
 
-            if (isRegistered) break;
+            if (jsonSerializerContextTypeSymbol.GetAttributes().Any(attr =>
+                SymbolEqualityComparer.Default.Equals(attr.AttributeClass, jsonSerializableAttributeTypeSymbol) &&
+                attr.ConstructorArguments.Any(arg =>
+                    arg.Value is ITypeSymbol reg && SymbolEqualityComparer.Default.Equals(reg, targetType))))
+            {
+                isRegistered = true;
+                break;
+            }
         }
 
         if (!isRegistered)
         {
-            var diagnostic = Diagnostic.Create(Rule, invocation.GetLocation(), targetType.ToDisplayString());
-            context.ReportDiagnostic(diagnostic);
+            context.ReportDiagnostic(Diagnostic.Create(Rule, location, targetType.ToDisplayString(), sourceName));
         }
     }
 }

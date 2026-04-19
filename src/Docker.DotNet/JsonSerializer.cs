@@ -110,9 +110,11 @@ internal sealed class JsonSerializer
 // Additional source-generated metadata for collections and dictionaries used by operations.
 
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(IList<string>))]
 
 // Filters
 [JsonSerializable(typeof(IDictionary<string, IDictionary<string, bool>>))]
+[JsonSerializable(typeof(IDictionary<string, string>))]
 
 // ConfigOperations.ListConfigsAsync
 [JsonSerializable(typeof(SwarmConfig[]))]
@@ -130,6 +132,8 @@ internal sealed class JsonSerializer
 [JsonSerializable(typeof(Dictionary<string, string>[]))]
 // ImageOperations.SearchImagesAsync
 [JsonSerializable(typeof(ImageSearchResponse[]))]
+// ImageOperations.RegistryConfigHeaders
+[JsonSerializable(typeof(Dictionary<string, AuthConfig>))]
 
 // NetworkOperations.ListNetworksAsync
 [JsonSerializable(typeof(NetworkResponse[]))]
@@ -138,6 +142,8 @@ internal sealed class JsonSerializer
 [JsonSerializable(typeof(Plugin[]))]
 // PluginOperations.GetPrivilegesAsync
 [JsonSerializable(typeof(PluginPrivilege[]))]
+// PluginOperations.InstallPluginAsync
+[JsonSerializable(typeof(IList<PluginPrivilege>))]
 
 // SecretOperations.ListAsync
 [JsonSerializable(typeof(Secret[]))]
