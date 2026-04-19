@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj" />
     <ProjectReference Include="..\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj" />
     <ProjectReference Include="..\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj" />
+    <ProjectReference Include="..\..\tools\Docker.DotNet.SourceAnalyzers\Docker.DotNet.SourceAnalyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
