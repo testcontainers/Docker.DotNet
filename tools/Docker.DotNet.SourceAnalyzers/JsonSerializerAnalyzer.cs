@@ -3,14 +3,15 @@
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DDN001";
+    private const string DiagnosticId = "DDN001";
+
     private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
         DiagnosticId,
         "Missing JsonSerializable attribute",
-        "Type '{0}' used in {1} is not registered in DockerExtendedJsonSerializerContext",
+        "Type '{0}' used in '{1}' is not registered in a Docker JSON serializer context",
         "Usage",
         DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
@@ -19,10 +20,10 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
-        // Handle method calls (MakeRequestAsync, MonitorStreamForMessagesAsync and all methods call to JsonSerializer.*)
+        // Handle method calls (MakeRequestAsync, MonitorStreamForMessagesAsync and all methods call of JsonSerializer.*).
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
 
-        // Handle new JsonRequestContent<T>
+        // Handle new JsonRequestContent<T>.
         context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
     }
 
@@ -31,9 +32,11 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         var invocation = (InvocationExpressionSyntax)context.Node;
 
         if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol methodSymbol)
+        {
             return;
+        }
 
-        bool isStjEntryPoint =
+        var isStjEntryPoint =
             (methodSymbol.Name == "MakeRequestAsync" && methodSymbol.ContainingType?.Name == "DockerClient") ||
             (methodSymbol.Name == "MonitorStreamForMessagesAsync" && methodSymbol.ContainingType?.Name == "StreamUtil") ||
             (methodSymbol.ContainingType?.Name == "JsonSerializer" && methodSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet");
@@ -50,24 +53,26 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         var creation = (ObjectCreationExpressionSyntax)context.Node;
 
         if (context.SemanticModel.GetSymbolInfo(creation).Symbol is not IMethodSymbol constructorSymbol)
+        {
             return;
+        }
 
         var typeSymbol = constructorSymbol.ContainingType;
 
-        if (typeSymbol.Name == "JsonRequestContent" &&
-            typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet")
+        var isStjEntryPoint =
+            typeSymbol.Name == "JsonRequestContent" &&
+            typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet";
+
+        if (isStjEntryPoint && typeSymbol.TypeArguments.Length > 0)
         {
-            if (typeSymbol.TypeArguments.Length > 0)
-            {
-                var typeName = typeSymbol.Name;
-                CheckAndReportType(context, typeSymbol.TypeArguments[0], creation.GetLocation(), typeName);
-            }
+            var typeName = typeSymbol.Name;
+            CheckAndReportType(context, typeSymbol.TypeArguments[0], creation.GetLocation(), typeName);
         }
     }
 
     private static void CheckAndReportType(SyntaxNodeAnalysisContext context, ITypeSymbol targetType, Location location, string sourceName)
     {
-        // Skip generic type parameters and the internal NoContent marker
+        // Skip generic type parameters and the internal NoContent marker.
         if (targetType.TypeKind == TypeKind.TypeParameter ||
             targetType.Name == "NoContent")
         {
@@ -75,24 +80,34 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         }
 
         var jsonSerializableAttributeTypeSymbol = context.Compilation.GetTypeByMetadataName("System.Text.Json.Serialization.JsonSerializableAttribute");
-        if (jsonSerializableAttributeTypeSymbol == null) return;
+        if (jsonSerializableAttributeTypeSymbol == null)
+        {
+            return;
+        }
 
-        var isRegistered = false;
         var jsonSerializerContextNames = new[]
         {
             "Docker.DotNet.DockerExtendedJsonSerializerContext",
             "Docker.DotNet.Models.DockerModelsJsonSerializerContext"
         };
 
+        var isRegistered = false;
+
         foreach (var jsonSerializerContextName in jsonSerializerContextNames)
         {
             var jsonSerializerContextTypeSymbol = context.Compilation.GetTypeByMetadataName(jsonSerializerContextName);
-            if (jsonSerializerContextTypeSymbol == null) continue;
+            if (jsonSerializerContextTypeSymbol == null)
+            {
+                continue;
+            }
 
-            if (jsonSerializerContextTypeSymbol.GetAttributes().Any(attr =>
-                SymbolEqualityComparer.Default.Equals(attr.AttributeClass, jsonSerializableAttributeTypeSymbol) &&
-                attr.ConstructorArguments.Any(arg =>
-                    arg.Value is ITypeSymbol reg && SymbolEqualityComparer.Default.Equals(reg, targetType))))
+            var isRegisteredInContext =
+                jsonSerializerContextTypeSymbol.GetAttributes().Any(attr =>
+                    SymbolEqualityComparer.Default.Equals(attr.AttributeClass, jsonSerializableAttributeTypeSymbol) &&
+                    attr.ConstructorArguments.Any(arg =>
+                        arg.Value is ITypeSymbol reg && SymbolEqualityComparer.Default.Equals(reg, targetType)));
+
+            if (isRegisteredInContext)
             {
                 isRegistered = true;
                 break;
