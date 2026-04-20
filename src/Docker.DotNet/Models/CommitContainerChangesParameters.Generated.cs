@@ -53,10 +53,10 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("author", false)]
         public string? Author { get; set; }
 
-        [QueryStringParameter<EnumerableQueryStringConverter>("changes", false)]
+        [QueryStringParameter<QueryStringEnumerableConverter>("changes", false)]
         public IList<string>? Changes { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("pause", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("pause", false)]
         public bool? Pause { get; set; }
 
         [JsonPropertyName("Hostname")]
@@ -126,7 +126,7 @@ namespace Docker.DotNet.Models
         public string? StopSignal { get; set; }
 
         [JsonPropertyName("StopTimeout")]
-        [JsonConverter(typeof(TimeSpanSecondsConverter))]
+        [JsonConverter(typeof(JsonTimeSpanSecondsConverter))]
         public TimeSpan? StopTimeout { get; set; }
 
         [JsonPropertyName("Shell")]

@@ -7,12 +7,12 @@ namespace Docker.DotNet.Models
         public string? Condition { get; set; }
 
         [JsonPropertyName("Delay")]
-        public long? Delay { get; set; }
+        public TimeSpan? Delay { get; set; }
 
         [JsonPropertyName("MaxAttempts")]
         public ulong? MaxAttempts { get; set; }
 
         [JsonPropertyName("Window")]
-        public long? Window { get; set; }
+        public TimeSpan? Window { get; set; }
     }
 }

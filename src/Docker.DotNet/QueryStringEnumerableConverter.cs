@@ -3,7 +3,7 @@ namespace Docker.DotNet;
 /// <summary>
 /// Handles serialization of objects like Lists, Arrays, etc.
 /// </summary>
-internal class EnumerableQueryStringConverter : IQueryStringConverter
+internal class QueryStringEnumerableConverter : IQueryStringConverter
 {
     public bool CanConvert(Type t)
     {

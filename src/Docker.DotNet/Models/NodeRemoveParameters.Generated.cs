@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class NodeRemoveParameters // (main.NodeRemoveParameters)
     {
-        [QueryStringParameter<BoolQueryStringConverter>("force", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("force", false)]
         public bool? Force { get; set; }
     }
 }

@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class ContainersPruneParameters // (main.ContainersPruneParameters)
     {
-        [QueryStringParameter<MapQueryStringConverter>("filters", false)]
+        [QueryStringParameter<QueryStringMapConverter>("filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }

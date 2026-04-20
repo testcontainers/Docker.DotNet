@@ -18,7 +18,7 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("message", false)]
         public string? Message { get; set; }
 
-        [QueryStringParameter<EnumerableQueryStringConverter>("changes", false)]
+        [QueryStringParameter<QueryStringEnumerableConverter>("changes", false)]
         public IList<string>? Changes { get; set; }
 
         [QueryStringParameter("platform", false)]

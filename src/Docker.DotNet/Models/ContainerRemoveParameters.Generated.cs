@@ -3,13 +3,13 @@ namespace Docker.DotNet.Models
 {
     public class ContainerRemoveParameters // (main.ContainerRemoveParameters)
     {
-        [QueryStringParameter<BoolQueryStringConverter>("v", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("v", false)]
         public bool? RemoveVolumes { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("link", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("link", false)]
         public bool? RemoveLinks { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("force", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("force", false)]
         public bool? Force { get; set; }
     }
 }

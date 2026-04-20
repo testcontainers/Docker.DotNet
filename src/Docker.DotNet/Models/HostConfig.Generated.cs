@@ -71,7 +71,7 @@ namespace Docker.DotNet.Models
         public IList<string> VolumesFrom { get; set; } = default!;
 
         [JsonPropertyName("ConsoleSize")]
-        [JsonConverter(typeof(ConsoleSizeConverter))]
+        [JsonConverter(typeof(JsonConsoleSizeConverter))]
         public ConsoleSize ConsoleSize { get; set; } = default!;
 
         [JsonPropertyName("Annotations")]

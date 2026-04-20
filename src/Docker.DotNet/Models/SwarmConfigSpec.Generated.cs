@@ -23,8 +23,7 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("Data")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? Data { get; set; }
+        public byte[]? Data { get; set; }
 
         [JsonPropertyName("Templating")]
         public SwarmDriver? Templating { get; set; }

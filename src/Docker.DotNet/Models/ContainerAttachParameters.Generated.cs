@@ -3,22 +3,22 @@ namespace Docker.DotNet.Models
 {
     public class ContainerAttachParameters // (main.ContainerAttachParameters)
     {
-        [QueryStringParameter<BoolQueryStringConverter>("stream", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("stream", false)]
         public bool? Stream { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("stdin", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("stdin", false)]
         public bool? Stdin { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("stdout", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("stdout", false)]
         public bool? Stdout { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("stderr", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("stderr", false)]
         public bool? Stderr { get; set; }
 
         [QueryStringParameter("detachKeys", false)]
         public string? DetachKeys { get; set; }
 
-        [QueryStringParameter<BoolQueryStringConverter>("logs", false)]
+        [QueryStringParameter<QueryStringBoolConverter>("logs", false)]
         public bool? Logs { get; set; }
     }
 }
