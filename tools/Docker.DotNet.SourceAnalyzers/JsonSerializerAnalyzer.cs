@@ -17,7 +17,8 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
 
     public override void Initialize(AnalysisContext context)
     {
-        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
+
         context.EnableConcurrentExecution();
 
         // Handle method calls (MakeRequestAsync, MonitorStreamForMessagesAsync and all methods call of JsonSerializer.*).
@@ -25,6 +26,9 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
 
         // Handle new JsonRequestContent<T>.
         context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
+
+        // Handle [QueryStringMapParameter<T>(...)].
+        context.RegisterSyntaxNodeAction(AnalyzeAttribute, SyntaxKind.Attribute);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -67,6 +71,27 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         {
             var typeName = typeSymbol.Name;
             CheckAndReportType(context, typeSymbol.TypeArguments[0], creation.GetLocation(), typeName);
+        }
+    }
+
+    private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+    {
+        var attribute = (AttributeSyntax)context.Node;
+
+        if (context.SemanticModel.GetSymbolInfo(attribute).Symbol is not IMethodSymbol constructorSymbol)
+        {
+            return;
+        }
+
+        var typeSymbol = constructorSymbol.ContainingType;
+
+        var isStjEntryPoint =
+            typeSymbol.Name == "QueryStringMapParameterAttribute" &&
+            typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet";
+
+        if (isStjEntryPoint && typeSymbol.TypeArguments.Length > 0)
+        {
+            CheckAndReportType(context, typeSymbol.TypeArguments[0], attribute.GetLocation(), typeSymbol.Name);
         }
     }
 
