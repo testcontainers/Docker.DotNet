@@ -1,6 +1,6 @@
 namespace Docker.DotNet.Tests;
 
-public sealed class ConsoleSizeConverterTests
+public sealed class JsonConsoleSizeConverterTests
 {
     private const ulong Height = 24;
 

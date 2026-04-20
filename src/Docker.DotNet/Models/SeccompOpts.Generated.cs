@@ -19,6 +19,6 @@ namespace Docker.DotNet.Models
         /// custom profile in this manner.
         /// </summary>
         [JsonPropertyName("Profile")]
-        public IList<byte>? Profile { get; set; }
+        public byte[]? Profile { get; set; }
     }
 }

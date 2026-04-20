@@ -17,14 +17,12 @@ namespace Docker.DotNet.Models
         /// CertIssuer is the raw subject bytes of the issuer
         /// </summary>
         [JsonPropertyName("CertIssuerSubject")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? CertIssuerSubject { get; set; }
+        public byte[]? CertIssuerSubject { get; set; }
 
         /// <summary>
         /// CertIssuerPublicKey is the raw public key bytes of the issuer
         /// </summary>
         [JsonPropertyName("CertIssuerPublicKey")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? CertIssuerPublicKey { get; set; }
+        public byte[]? CertIssuerPublicKey { get; set; }
     }
 }

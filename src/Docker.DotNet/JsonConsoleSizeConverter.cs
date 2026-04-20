@@ -1,6 +1,6 @@
 namespace Docker.DotNet;
 
-internal sealed class ConsoleSizeConverter : JsonConverter<ConsoleSize?>
+internal sealed class JsonConsoleSizeConverter : JsonConverter<ConsoleSize?>
 {
     public override ConsoleSize? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

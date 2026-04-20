@@ -11,6 +11,6 @@ namespace Docker.DotNet.Models
         /// dispatcher.
         /// </summary>
         [JsonPropertyName("HeartbeatPeriod")]
-        public long? HeartbeatPeriod { get; set; }
+        public TimeSpan? HeartbeatPeriod { get; set; }
     }
 }

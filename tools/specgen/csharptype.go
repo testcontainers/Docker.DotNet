@@ -80,6 +80,8 @@ var CSCustomTypeMap = map[reflect.Type]CSType{
 	reflect.TypeOf(network.HardwareAddr{}): {"", "string"},
 	reflect.TypeOf(network.Port{}):         {"", "string"},
 	reflect.TypeOf(time.Time{}):            {"System", "DateTime"},
+	reflect.TypeOf(time.Duration(0)):       {"System", "TimeSpan"},
+	reflect.TypeOf([]byte(nil)):            {"", "byte[]"},
 	EmptyStruct:                            {"", "BUG_IN_CONVERSION"},
 }
 

@@ -33,8 +33,7 @@ namespace Docker.DotNet.Models
         /// [MaxConfigSize]: https://pkg.go.dev/github.com/moby/swarmkit/v2@v2.0.0-20250103191802-8c1959736554/manager/controlapi#MaxConfigSize
         /// </summary>
         [JsonPropertyName("Data")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? Data { get; set; }
+        public byte[]? Data { get; set; }
 
         /// <summary>
         /// Templating controls whether and how to evaluate the config payload as

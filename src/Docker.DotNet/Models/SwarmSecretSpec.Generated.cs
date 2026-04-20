@@ -37,8 +37,7 @@ namespace Docker.DotNet.Models
         /// [MaxSecretSize]: https://pkg.go.dev/github.com/moby/swarmkit/v2@v2.0.0/api/validation#MaxSecretSize
         /// </summary>
         [JsonPropertyName("Data")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? Data { get; set; }
+        public byte[]? Data { get; set; }
 
         /// <summary>
         /// Driver is the name of the secrets driver used to fetch the secret&apos;s

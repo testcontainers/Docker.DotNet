@@ -19,8 +19,7 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string>? Annotations { get; set; }
 
         [JsonPropertyName("data")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? Data { get; set; }
+        public byte[]? Data { get; set; }
 
         [JsonPropertyName("platform")]
         public Platform? Platform { get; set; }

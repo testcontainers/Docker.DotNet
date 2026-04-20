@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         /// NodeCertExpiry is the duration certificates should be issued for
         /// </summary>
         [JsonPropertyName("NodeCertExpiry")]
-        public long? NodeCertExpiry { get; set; }
+        public TimeSpan? NodeCertExpiry { get; set; }
 
         /// <summary>
         /// ExternalCAs is a list of CAs to which a manager node will make

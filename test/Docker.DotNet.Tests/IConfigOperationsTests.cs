@@ -23,7 +23,7 @@ public class IConfigOperationsTests
         {
             Name = $"Config-{Guid.NewGuid().ToString().Substring(1, 10)}",
             Labels = new Dictionary<string, string> { { "key", "value" } },
-            Data = new List<byte> { 1, 2, 3, 4, 5 }
+            Data = [1, 2, 3, 4, 5]
         };
 
         var configParameters = new SwarmCreateConfigParameters

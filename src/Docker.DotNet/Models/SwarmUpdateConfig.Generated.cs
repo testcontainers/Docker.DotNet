@@ -17,7 +17,7 @@ namespace Docker.DotNet.Models
         /// Amount of time between updates.
         /// </summary>
         [JsonPropertyName("Delay")]
-        public long? Delay { get; set; }
+        public TimeSpan? Delay { get; set; }
 
         /// <summary>
         /// FailureAction is the action to take when an update failures.
@@ -34,7 +34,7 @@ namespace Docker.DotNet.Models
         /// be used.
         /// </summary>
         [JsonPropertyName("Monitor")]
-        public long? Monitor { get; set; }
+        public TimeSpan? Monitor { get; set; }
 
         /// <summary>
         /// MaxFailureRatio is the fraction of tasks that may fail during
