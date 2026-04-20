@@ -3,25 +3,25 @@ namespace Docker.DotNet.Models
 {
     public class ServiceLogsParameters // (main.ServiceLogsParameters)
     {
-        [QueryStringParameter("stdout", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("stdout", false, typeof(QueryStringBoolConverter))]
         public bool? ShowStdout { get; set; }
 
-        [QueryStringParameter("stderr", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("stderr", false, typeof(QueryStringBoolConverter))]
         public bool? ShowStderr { get; set; }
 
         [QueryStringParameter("since", false)]
         public string? Since { get; set; }
 
-        [QueryStringParameter("timestamps", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("timestamps", false, typeof(QueryStringBoolConverter))]
         public bool? Timestamps { get; set; }
 
-        [QueryStringParameter("follow", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("follow", false, typeof(QueryStringBoolConverter))]
         public bool? Follow { get; set; }
 
         [QueryStringParameter("tail", false)]
         public string? Tail { get; set; }
 
-        [QueryStringParameter("details", false, typeof(BoolQueryStringConverter))]
+        [QueryStringParameter("details", false, typeof(QueryStringBoolConverter))]
         public bool? Details { get; set; }
     }
 }

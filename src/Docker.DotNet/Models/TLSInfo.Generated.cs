@@ -7,11 +7,9 @@ namespace Docker.DotNet.Models
         public string? TrustRoot { get; set; }
 
         [JsonPropertyName("CertIssuerSubject")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? CertIssuerSubject { get; set; }
+        public byte[]? CertIssuerSubject { get; set; }
 
         [JsonPropertyName("CertIssuerPublicKey")]
-        [JsonConverter(typeof(Base64Converter))]
-        public IList<byte>? CertIssuerPublicKey { get; set; }
+        public byte[]? CertIssuerPublicKey { get; set; }
     }
 }

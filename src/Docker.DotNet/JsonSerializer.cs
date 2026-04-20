@@ -19,7 +19,7 @@ internal sealed class JsonSerializer
         _options.Converters.Add(new JsonEnumMemberConverter<RestartPolicyKind>());
         _options.Converters.Add(new JsonEnumMemberConverter<TaskState>());
         _options.Converters.Add(new JsonDateTimeConverter());
-        _options.Converters.Add(new JsonNullableDateTimeConverter());
+        _options.Converters.Add(new JsonTimeSpanNanosecondsConverter());
     }
 
     public static JsonSerializer Instance { get; }

@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class CAConfig // (swarm.CAConfig)
     {
         [JsonPropertyName("NodeCertExpiry")]
-        public long? NodeCertExpiry { get; set; }
+        public TimeSpan? NodeCertExpiry { get; set; }
 
         [JsonPropertyName("ExternalCAs")]
         public IList<ExternalCA>? ExternalCAs { get; set; }

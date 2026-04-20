@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         public string? Mode { get; set; }
 
         [JsonPropertyName("Profile")]
-        public IList<byte>? Profile { get; set; }
+        public byte[]? Profile { get; set; }
     }
 }
