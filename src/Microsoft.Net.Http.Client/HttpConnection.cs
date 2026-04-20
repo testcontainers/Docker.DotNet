@@ -121,7 +121,7 @@ internal sealed class HttpConnection : IDisposable
             var line = await Transport.ReadLineAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(line))
+            if (line is null || line.Length == 0)
             {
                 break;
             }
