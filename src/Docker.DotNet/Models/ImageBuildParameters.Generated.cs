@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class ImageBuildParameters // (main.ImageBuildParameters)
     {
-        [QueryStringListParameter<IList<string>>("t", false)]
+        [QueryStringListParameter("t", false)]
         public IList<string>? Tags { get; set; }
 
         [QueryStringBoolParameter("q", false)]
@@ -60,10 +60,10 @@ namespace Docker.DotNet.Models
         [QueryStringBoolParameter("squash", false)]
         public bool? Squash { get; set; }
 
-        [QueryStringListParameter<IList<string>>("cachefrom", false)]
+        [QueryStringListParameter("cachefrom", false)]
         public IList<string>? CacheFrom { get; set; }
 
-        [QueryStringListParameter<IList<string>>("extrahosts", false)]
+        [QueryStringListParameter("extrahosts", false)]
         public IList<string>? ExtraHosts { get; set; }
 
         [QueryStringParameter("target", false)]

@@ -53,7 +53,7 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("author", false)]
         public string? Author { get; set; }
 
-        [QueryStringListParameter<IList<string>>("changes", false)]
+        [QueryStringListParameter("changes", false)]
         public IList<string>? Changes { get; set; }
 
         [QueryStringBoolParameter("pause", false)]

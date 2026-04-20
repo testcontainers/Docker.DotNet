@@ -7,6 +7,11 @@ internal sealed class QueryStringMapParameterAttribute<T>(string name, bool requ
         Debug.Assert(value != null);
         Debug.Assert(value is T);
 
-        return [JsonSerializer.Instance.Serialize((T)value!)];
+        if (value is not T typedValue)
+        {
+            throw new ArgumentException($"Expected value of type '{typeof(T)}'.", nameof(value));
+        }
+
+        return [JsonSerializer.Instance.Serialize(typedValue)];
     }
 }
