@@ -1,4 +1,4 @@
-﻿namespace Docker.DotNet.SourceAnalyzers;
+namespace Docker.DotNet.SourceAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
