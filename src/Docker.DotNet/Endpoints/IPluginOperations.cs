@@ -15,6 +15,7 @@ public interface IPluginOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<Plugin>> ListPluginsAsync(PluginListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -28,6 +29,7 @@ public interface IPluginOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<PluginPrivilege>> GetPrivilegesAsync(PluginGetPrivilegeParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -43,6 +45,7 @@ public interface IPluginOperations
     /// 204 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task InstallPluginAsync(PluginInstallParameters parameters, IProgress<JSONMessage> progress, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -58,6 +61,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<Plugin> InspectPluginAsync(string name, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -73,6 +77,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task RemovePluginAsync(string name, PluginRemoveParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -88,6 +93,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task EnablePluginAsync(string name, PluginEnableParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -103,6 +109,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task DisablePluginAsync(string name, PluginDisableParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -118,6 +125,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task UpgradePluginAsync(string name, PluginUpgradeParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -131,6 +139,7 @@ public interface IPluginOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task CreatePluginAsync(PluginCreateParameters parameters, Stream plugin, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -148,6 +157,7 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task PushPluginAsync(string name, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -163,5 +173,6 @@ public interface IPluginOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">The name of the plugin. The `:latest` tag is optional, and is the default if omitted.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task ConfigurePluginAsync(string name, PluginConfigureParameters parameters, CancellationToken cancellationToken = default);
 }

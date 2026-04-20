@@ -9,6 +9,7 @@ public interface IConfigOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<SwarmConfig>> ListConfigsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -20,6 +21,7 @@ public interface IConfigOperations
     /// 409 - Name conflicts with an existing object.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<SwarmCreateConfigResponse> CreateConfigAsync(SwarmCreateConfigParameters body, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -32,6 +34,7 @@ public interface IConfigOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the config.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<SwarmConfig> InspectConfigAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -43,5 +46,6 @@ public interface IConfigOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the config.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task RemoveConfigAsync(string id, CancellationToken cancellationToken = default);
 }

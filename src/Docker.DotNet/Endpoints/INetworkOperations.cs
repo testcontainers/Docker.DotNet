@@ -11,6 +11,7 @@ public interface INetworkOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<NetworkResponse>> ListNetworksAsync(NetworksListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -23,6 +24,7 @@ public interface INetworkOperations
     /// 404 - Network not found.
     /// </remarks>
     /// <param name="id">Network ID or name.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<NetworkResponse> InspectNetworkAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -36,6 +38,7 @@ public interface INetworkOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">Network ID or name.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task DeleteNetworkAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -49,6 +52,7 @@ public interface INetworkOperations
     /// 404 - Plugin not found.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<NetworksCreateResponse> CreateNetworkAsync(NetworksCreateParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -63,6 +67,7 @@ public interface INetworkOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">Network ID or name.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task ConnectNetworkAsync(string id, NetworkConnectParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -77,12 +82,12 @@ public interface INetworkOperations
     /// 404 - Network or container not found.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task DisconnectNetworkAsync(string id, NetworkDisconnectParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete unused networks.
     /// </summary>
-    /// <param name="id">Network ID or name.</param>
     /// <remarks>
     /// docker network disconnect
     ///
@@ -93,13 +98,13 @@ public interface INetworkOperations
     /// 404 - Network or container not found.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     [Obsolete("Use INetworkOperations.PruneNetworksAsync")]
     Task DeleteUnusedNetworksAsync(NetworksDeleteUnusedParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete unused networks.
     /// </summary>
-    /// <param name="id">Network ID or name.</param>
     /// <remarks>
     /// docker network disconnect
     ///
@@ -110,5 +115,6 @@ public interface INetworkOperations
     /// 404 - Network or container not found.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<NetworksPruneResponse> PruneNetworksAsync(NetworksDeleteUnusedParameters? parameters = null, CancellationToken cancellationToken = default);
 }

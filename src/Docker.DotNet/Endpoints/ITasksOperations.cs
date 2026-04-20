@@ -38,5 +38,6 @@ public interface ITasksOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the task.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<TaskResponse> InspectAsync(string id, CancellationToken cancellationToken = default);
 }
