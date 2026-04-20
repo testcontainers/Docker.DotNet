@@ -700,7 +700,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				case reflect.Bool:
 					queryStringParameter = "QueryStringBoolParameter"
 				case reflect.Slice, reflect.Array:
-					queryStringParameter = "QueryStringListParameter<" + csProp.Type.Name + ">"
+					queryStringParameter = "QueryStringListParameter"
 				case reflect.Map:
 					queryStringParameter = "QueryStringMapParameter<" + csProp.Type.Name + ">"
 				}
