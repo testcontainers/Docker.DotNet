@@ -1,0 +1,4 @@
+
+{
+    "dotnet.unitTests.runSettingsPath": "TestExplorer.runsettings",
+}
