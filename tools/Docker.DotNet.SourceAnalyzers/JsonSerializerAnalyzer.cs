@@ -19,10 +19,10 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
-        // Handle method calls (MakeRequestAsync, etc.)
+        // Handle method calls (MakeRequestAsync, MonitorStreamForMessagesAsync and all methods call to JsonSerializer.*)
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
 
-        // Handle 'new JsonRequestContent<T>'
+        // Handle new JsonRequestContent<T>
         context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
     }
 
@@ -38,9 +38,9 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
             (methodSymbol.Name == "MonitorStreamForMessagesAsync" && methodSymbol.ContainingType?.Name == "StreamUtil") ||
             (methodSymbol.ContainingType?.Name == "JsonSerializer" && methodSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet");
 
-        if (isStjEntryPoint && methodSymbol.TypeArguments.Length == 1)
+        if (isStjEntryPoint && methodSymbol.TypeArguments.Length > 0)
         {
-            var methodName = $"{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
+            var methodName = $"{methodSymbol.ContainingType!.Name}.{methodSymbol.Name}";
             CheckAndReportType(context, methodSymbol.TypeArguments[0], invocation.GetLocation(), methodName);
         }
     }
@@ -54,11 +54,10 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
 
         var typeSymbol = constructorSymbol.ContainingType;
 
-        // Check if we are instantiating JsonRequestContent<T>
         if (typeSymbol.Name == "JsonRequestContent" &&
             typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet")
         {
-            if (typeSymbol.TypeArguments.Length == 1)
+            if (typeSymbol.TypeArguments.Length > 0)
             {
                 var typeName = typeSymbol.Name;
                 CheckAndReportType(context, typeSymbol.TypeArguments[0], creation.GetLocation(), typeName);
@@ -68,9 +67,8 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
 
     private static void CheckAndReportType(SyntaxNodeAnalysisContext context, ITypeSymbol targetType, Location location, string sourceName)
     {
-        // Skip generic type parameters, Object, and the internal NoContent marker
+        // Skip generic type parameters and the internal NoContent marker
         if (targetType.TypeKind == TypeKind.TypeParameter ||
-            targetType.SpecialType == SpecialType.System_Object ||
             targetType.Name == "NoContent")
         {
             return;

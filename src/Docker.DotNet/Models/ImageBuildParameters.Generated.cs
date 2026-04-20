@@ -3,22 +3,22 @@ namespace Docker.DotNet.Models
 {
     public class ImageBuildParameters // (main.ImageBuildParameters)
     {
-        [QueryStringParameter<QueryStringEnumerableConverter>("t", false)]
+        [QueryStringListParameter<IList<string>>("t", false)]
         public IList<string>? Tags { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("q", false)]
+        [QueryStringBoolParameter("q", false)]
         public bool? SuppressOutput { get; set; }
 
         [QueryStringParameter("remote", false)]
         public string? RemoteContext { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("nocache", false)]
+        [QueryStringBoolParameter("nocache", false)]
         public bool? NoCache { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("rm", false)]
+        [QueryStringBoolParameter("rm", false)]
         public bool? Remove { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("forcerm", false)]
+        [QueryStringBoolParameter("forcerm", false)]
         public bool? ForceRemove { get; set; }
 
         [QueryStringParameter("pull", false)]
@@ -51,19 +51,19 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("dockerfile", false)]
         public string? Dockerfile { get; set; }
 
-        [QueryStringParameter<QueryStringMapConverter>("buildargs", false)]
+        [QueryStringMapParameter<IDictionary<string, string>>("buildargs", false)]
         public IDictionary<string, string>? BuildArgs { get; set; }
 
-        [QueryStringParameter<QueryStringMapConverter>("labels", false)]
+        [QueryStringMapParameter<IDictionary<string, string>>("labels", false)]
         public IDictionary<string, string>? Labels { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("squash", false)]
+        [QueryStringBoolParameter("squash", false)]
         public bool? Squash { get; set; }
 
-        [QueryStringParameter<QueryStringEnumerableConverter>("cachefrom", false)]
+        [QueryStringListParameter<IList<string>>("cachefrom", false)]
         public IList<string>? CacheFrom { get; set; }
 
-        [QueryStringParameter<QueryStringEnumerableConverter>("extrahosts", false)]
+        [QueryStringListParameter<IList<string>>("extrahosts", false)]
         public IList<string>? ExtraHosts { get; set; }
 
         [QueryStringParameter("target", false)]

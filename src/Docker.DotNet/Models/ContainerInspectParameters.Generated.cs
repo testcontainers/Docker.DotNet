@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class ContainerInspectParameters // (main.ContainerInspectParameters)
     {
-        [QueryStringParameter<QueryStringBoolConverter>("size", false)]
+        [QueryStringBoolParameter("size", false)]
         public bool? IncludeSize { get; set; }
     }
 }

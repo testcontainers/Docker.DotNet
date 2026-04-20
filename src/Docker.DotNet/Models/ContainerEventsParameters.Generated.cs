@@ -9,7 +9,7 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("until", false)]
         public string? Until { get; set; }
 
-        [QueryStringParameter<QueryStringMapConverter>("filters", false)]
+        [QueryStringMapParameter<IDictionary<string, IDictionary<string, bool>>>("filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }

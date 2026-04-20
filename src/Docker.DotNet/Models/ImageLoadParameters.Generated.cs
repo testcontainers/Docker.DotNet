@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class ImageLoadParameters // (main.ImageLoadParameters)
     {
-        [QueryStringParameter<QueryStringBoolConverter>("quiet", true)]
+        [QueryStringBoolParameter("quiet", true)]
         public bool Quiet { get; set; } = default!;
     }
 }

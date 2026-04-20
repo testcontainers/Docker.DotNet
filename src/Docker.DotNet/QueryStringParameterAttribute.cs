@@ -7,7 +7,7 @@ internal class QueryStringParameterAttribute : Attribute
 
     public bool IsRequired { get; private set; }
 
-    public virtual IQueryStringConverter? GetConverter() => null;
+    public virtual string[] Convert(object value) => [value.ToString()!];
 
     public QueryStringParameterAttribute(string name, bool required)
     {
@@ -19,12 +19,4 @@ internal class QueryStringParameterAttribute : Attribute
         Name = name;
         IsRequired = required;
     }
-}
-
-internal sealed class QueryStringParameterAttribute<TConverter>(string name, bool required)
-    : QueryStringParameterAttribute(name, required) where TConverter : IQueryStringConverter, new()
-{
-    private static TConverter? _converterInstance;
-
-    public override IQueryStringConverter GetConverter() => _converterInstance ??= new TConverter();
 }

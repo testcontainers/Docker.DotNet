@@ -6,10 +6,10 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("path", true)]
         public string Path { get; set; } = default!;
 
-        [QueryStringParameter<QueryStringBoolConverter>("noOverwriteDirNonDir", false)]
+        [QueryStringBoolParameter("noOverwriteDirNonDir", false)]
         public bool? AllowOverwriteDirWithFile { get; set; }
 
-        [QueryStringParameter<QueryStringBoolConverter>("copyUIDGID", false)]
+        [QueryStringBoolParameter("copyUIDGID", false)]
         public bool? CopyUIDGID { get; set; }
     }
 }

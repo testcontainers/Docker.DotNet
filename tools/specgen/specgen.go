@@ -698,11 +698,11 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 
 				switch f.Type.Kind() {
 				case reflect.Bool:
-					queryStringParameter += "<QueryStringBoolConverter>"
+					queryStringParameter = "QueryStringBoolParameter"
 				case reflect.Slice, reflect.Array:
-					queryStringParameter += "<QueryStringEnumerableConverter>"
+					queryStringParameter = "QueryStringListParameter<" + csProp.Type.Name + ">"
 				case reflect.Map:
-					queryStringParameter += "<QueryStringMapConverter>"
+					queryStringParameter = "QueryStringMapParameter<" + csProp.Type.Name + ">"
 				}
 
 				a := CSAttribute{Type: CSType{"", queryStringParameter}}

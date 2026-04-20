@@ -41,20 +41,7 @@ T> : IQueryString where T : class
             if (attribute.IsRequired || !IsDefaultOfType(value))
             {
                 var keyStr = attribute.Name;
-                string[] valueStr;
-                if (attribute.GetConverter() is { } converter)
-                {
-                    valueStr = ConvertValue(converter, value!);
-
-                    if (valueStr == null)
-                    {
-                        throw new InvalidOperationException($"Got null from value converter '{converter.GetType().FullName}'");
-                    }
-                }
-                else
-                {
-                    valueStr = [value!.ToString()!];
-                }
+                var valueStr = attribute.Convert(value!);
 
                 queryParameters[keyStr] = valueStr;
             }
@@ -74,16 +61,6 @@ T> : IQueryString where T : class
                 pair => string.Join("&",
                     pair.Value.Select(
                         v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
-    }
-
-    private static string[] ConvertValue(IQueryStringConverter converter, object value)
-    {
-        if (!converter.CanConvert(value.GetType()))
-        {
-            throw new InvalidOperationException(
-                $"Cannot convert type {value.GetType().FullName} using {converter.GetType().FullName}.");
-        }
-        return converter.Convert(value);
     }
 
     private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<

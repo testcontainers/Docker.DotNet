@@ -3,7 +3,7 @@ namespace Docker.DotNet.Models
 {
     public class NetworksDeleteUnusedParameters // (main.NetworksDeleteUnusedParameters)
     {
-        [QueryStringParameter<QueryStringMapConverter>("filters", false)]
+        [QueryStringMapParameter<IDictionary<string, IDictionary<string, bool>>>("filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
     }
 }
