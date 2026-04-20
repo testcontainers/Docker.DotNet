@@ -116,43 +116,35 @@ internal sealed class JsonSerializer
 [JsonSerializable(typeof(IDictionary<string, IDictionary<string, bool>>))]
 [JsonSerializable(typeof(IDictionary<string, string>))]
 
-// ConfigOperations.ListConfigsAsync
-[JsonSerializable(typeof(SwarmConfig[]))]
+// ConfigOperations
+[JsonSerializable(typeof(SwarmConfig[]))] // ListConfigsAsync
 
-// ContainerOperations.ListContainersAsync
-[JsonSerializable(typeof(ContainerListResponse[]))]
-// ContainerOperations.InspectChangesAsync
-[JsonSerializable(typeof(ContainerFileSystemChangeResponse[]))]
+// ContainerOperations
+[JsonSerializable(typeof(ContainerFileSystemChangeResponse[]))] // InspectChangesAsync
+[JsonSerializable(typeof(ContainerListResponse[]))] // ListContainersAsync
 
-// ImageOperations.ListImagesAsync
-[JsonSerializable(typeof(ImagesListResponse[]))]
-// ImageOperations.GetImageHistoryAsync
-[JsonSerializable(typeof(ImageHistoryResponse[]))]
-// ImageOperations.DeleteImageAsync
-[JsonSerializable(typeof(Dictionary<string, string>[]))]
-// ImageOperations.SearchImagesAsync
-[JsonSerializable(typeof(ImageSearchResponse[]))]
-// ImageOperations.RegistryConfigHeaders
-[JsonSerializable(typeof(Dictionary<string, AuthConfig>))]
+// ImageOperations
+[JsonSerializable(typeof(Dictionary<string, string>[]))] // DeleteImageAsync
+[JsonSerializable(typeof(ImageHistoryResponse[]))] // GetImageHistoryAsync
+[JsonSerializable(typeof(ImagesListResponse[]))] // ListImagesAsync
+[JsonSerializable(typeof(Dictionary<string, AuthConfig>))] // RegistryConfigHeaders
+[JsonSerializable(typeof(ImageSearchResponse[]))] // SearchImagesAsync
 
-// NetworkOperations.ListNetworksAsync
-[JsonSerializable(typeof(NetworkResponse[]))]
+// NetworkOperations
+[JsonSerializable(typeof(NetworkResponse[]))] // ListNetworksAsync
 
-// PluginOperations.ListPluginsAsync
-[JsonSerializable(typeof(Plugin[]))]
-// PluginOperations.GetPrivilegesAsync
-[JsonSerializable(typeof(PluginPrivilege[]))]
-// PluginOperations.InstallPluginAsync
-[JsonSerializable(typeof(IList<PluginPrivilege>))]
+// PluginOperations
+[JsonSerializable(typeof(PluginPrivilege[]))] // GetPrivilegesAsync
+[JsonSerializable(typeof(IList<PluginPrivilege>))] // InstallPluginAsync
+[JsonSerializable(typeof(Plugin[]))] // ListPluginsAsync
 
-// SecretOperations.ListAsync
-[JsonSerializable(typeof(Secret[]))]
+// SecretOperations
+[JsonSerializable(typeof(Secret[]))] // ListAsync
 
-// SwarmOperations.ListServicesAsync
-[JsonSerializable(typeof(SwarmService[]))]
-// SwarmOperations.ListNodesAsync
-[JsonSerializable(typeof(NodeListResponse[]))]
+// SwarmOperations
+[JsonSerializable(typeof(NodeListResponse[]))] // ListNodesAsync
+[JsonSerializable(typeof(SwarmService[]))] // ListServicesAsync
 
-// TaskOperations.ListAsync
-[JsonSerializable(typeof(TaskResponse[]))]
+// TaskOperations
+[JsonSerializable(typeof(TaskResponse[]))] // ListAsync
 internal sealed partial class DockerExtendedJsonSerializerContext : JsonSerializerContext { }
