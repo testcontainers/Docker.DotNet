@@ -15,7 +15,7 @@ public class IConfigOperationsTests
     [Fact]
     public async Task SwarmConfig_CanCreateAndRead()
     {
-        var currentConfigs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
+        var currentConfigs = await _testFixture.DockerClient.Configs.ListConfigsAsync(TestContext.Current.CancellationToken);
 
         _testOutputHelper.WriteLine($"Current Configs: {currentConfigs.Count}");
 
@@ -31,15 +31,15 @@ public class IConfigOperationsTests
             Config = testConfigSpec
         };
 
-        var createdConfig = await _testFixture.DockerClient.Configs.CreateConfigAsync(configParameters);
+        var createdConfig = await _testFixture.DockerClient.Configs.CreateConfigAsync(configParameters, TestContext.Current.CancellationToken);
         Assert.NotNull(createdConfig.ID);
         _testOutputHelper.WriteLine($"Config created: {createdConfig.ID}");
 
-        var configs = await _testFixture.DockerClient.Configs.ListConfigsAsync();
+        var configs = await _testFixture.DockerClient.Configs.ListConfigsAsync(TestContext.Current.CancellationToken);
         Assert.Contains(configs, c => c.ID == createdConfig.ID);
         _testOutputHelper.WriteLine($"Current Configs: {configs.Count}");
 
-        var configResponse = await _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID);
+        var configResponse = await _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID, TestContext.Current.CancellationToken);
 
         Assert.NotNull(configResponse);
 
@@ -51,8 +51,8 @@ public class IConfigOperationsTests
 
         _testOutputHelper.WriteLine("Config created is the same.");
 
-        await _testFixture.DockerClient.Configs.RemoveConfigAsync(createdConfig.ID);
+        await _testFixture.DockerClient.Configs.RemoveConfigAsync(createdConfig.ID, TestContext.Current.CancellationToken);
 
-        await Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID));
+        await Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Configs.InspectConfigAsync(createdConfig.ID, TestContext.Current.CancellationToken));
     }
 }

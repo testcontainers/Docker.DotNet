@@ -64,7 +64,7 @@ public sealed class DockerTlsCertificates
         }
 
         return certificate;
-#elif NET6_0_OR_GREATER
+#elif NET
         var certificate = X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
 
         if (OperatingSystem.IsWindows())
@@ -75,10 +75,8 @@ public sealed class DockerTlsCertificates
         }
 
         return certificate;
-#elif NETSTANDARD
-        return Polyfills.X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
 #else
-        return X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
+        return Polyfills.X509Certificate2.CreateFromPemFile(certPemPath, keyPemPath);
 #endif
     }
 
@@ -141,7 +139,7 @@ public sealed class DockerTlsCertificates
             using var chain = new X509Chain();
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
-#if NET5_0_OR_GREATER
+#if NET
             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
             chain.ChainPolicy.CustomTrustStore.Add(certificateAuthorityCertificate);
             return chain.Build(serverCertificate2);

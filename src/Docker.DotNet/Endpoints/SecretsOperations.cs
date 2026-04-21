@@ -11,7 +11,7 @@ internal class SecretsOperations : ISecretsOperations
 
     public async Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<IList<Secret>>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken)
+        return await _client.MakeRequestAsync<Secret[]>(_client.NoErrorHandlers, HttpMethod.Get, "secrets", cancellationToken)
             .ConfigureAwait(false);
     }
 

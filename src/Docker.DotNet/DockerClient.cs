@@ -1,7 +1,5 @@
 namespace Docker.DotNet;
 
-using System;
-
 public sealed class DockerClient : IDockerClient
 {
     internal readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
@@ -370,7 +368,7 @@ public sealed class DockerClient : IDockerClient
 
         if (Timeout.InfiniteTimeSpan == timeout)
         {
-#if NET6_0_OR_GREATER
+#if NET
             return await _client.SendAsync(request, completionOption, cancellationToken)
                 .ConfigureAwait(false);
 #else

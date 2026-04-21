@@ -1,22 +1,23 @@
 namespace Docker.DotNet;
 
-internal class QueryString<T> : IQueryString where T : class
+internal class QueryString<
+#if NET
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+T> : IQueryString where T : class
 {
     private T Object { get; }
 
     private Dictionary<PropertyInfo, QueryStringParameterAttribute> AttributedPublicProperties { get; }
 
-    private IQueryStringConverterInstanceFactory QueryStringConverterInstanceFactory { get; }
-
     public QueryString(T value)
     {
-        if (EqualityComparer<T>.Default.Equals(value))
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value));
         }
 
         Object = value;
-        QueryStringConverterInstanceFactory = new QueryStringConverterInstanceFactory();
         AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
     }
 
@@ -32,7 +33,7 @@ internal class QueryString<T> : IQueryString where T : class
             // 'Required' check
             if (attribute.IsRequired && value == null)
             {
-                string propertyFullName = $"{property.GetType().FullName}.{property.Name}";
+                string propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
                 throw new ArgumentException("Got null/unset value for a required query parameter.", propertyFullName);
             }
 
@@ -40,21 +41,7 @@ internal class QueryString<T> : IQueryString where T : class
             if (attribute.IsRequired || !IsDefaultOfType(value))
             {
                 var keyStr = attribute.Name;
-                string[] valueStr;
-                if (attribute.ConverterType == null)
-                {
-                    valueStr = [value!.ToString()!];
-                }
-                else
-                {
-                    var converter = QueryStringConverterInstanceFactory.GetConverterInstance(attribute.ConverterType);
-                    valueStr = ConvertValue(converter, value!);
-
-                    if (valueStr == null)
-                    {
-                        throw new InvalidOperationException($"Got null from value converter '{attribute.ConverterType.FullName}'");
-                    }
-                }
+                var valueStr = attribute.Convert(value!);
 
                 queryParameters[keyStr] = valueStr;
             }
@@ -76,17 +63,11 @@ internal class QueryString<T> : IQueryString where T : class
                         v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
     }
 
-    private static string[] ConvertValue(IQueryStringConverter converter, object value)
-    {
-        if (!converter.CanConvert(value.GetType()))
-        {
-            throw new InvalidOperationException(
-                $"Cannot convert type {value.GetType().FullName} using {converter.GetType().FullName}.");
-        }
-        return converter.Convert(value);
-    }
-
-    private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<TValue, TAttribType>() where TAttribType : Attribute
+    private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<
+#if NET
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+    TValue, TAttribType>() where TAttribType : Attribute
     {
         Dictionary<PropertyInfo, TAttribType>? attributedPublicProperties = null;
 
@@ -113,6 +94,9 @@ internal class QueryString<T> : IQueryString where T : class
         return attributedPublicProperties;
     }
 
+#if NET
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Activator.CreateInstance is only used for value types here, safe for runtime usage.")]
+#endif
     private static bool IsDefaultOfType(object? o)
     {
         if (o is ValueType)

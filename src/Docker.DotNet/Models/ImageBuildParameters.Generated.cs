@@ -3,22 +3,22 @@ namespace Docker.DotNet.Models
 {
     public class ImageBuildParameters // (main.ImageBuildParameters)
     {
-        [QueryStringParameter("t", false, typeof(QueryStringEnumerableConverter))]
+        [QueryStringListParameter("t", false)]
         public IList<string>? Tags { get; set; }
 
-        [QueryStringParameter("q", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("q", false)]
         public bool? SuppressOutput { get; set; }
 
         [QueryStringParameter("remote", false)]
         public string? RemoteContext { get; set; }
 
-        [QueryStringParameter("nocache", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("nocache", false)]
         public bool? NoCache { get; set; }
 
-        [QueryStringParameter("rm", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("rm", false)]
         public bool? Remove { get; set; }
 
-        [QueryStringParameter("forcerm", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("forcerm", false)]
         public bool? ForceRemove { get; set; }
 
         [QueryStringParameter("pull", false)]
@@ -51,19 +51,19 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("dockerfile", false)]
         public string? Dockerfile { get; set; }
 
-        [QueryStringParameter("buildargs", false, typeof(QueryStringMapConverter))]
+        [QueryStringMapParameter<IDictionary<string, string>>("buildargs", false)]
         public IDictionary<string, string>? BuildArgs { get; set; }
 
-        [QueryStringParameter("labels", false, typeof(QueryStringMapConverter))]
+        [QueryStringMapParameter<IDictionary<string, string>>("labels", false)]
         public IDictionary<string, string>? Labels { get; set; }
 
-        [QueryStringParameter("squash", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("squash", false)]
         public bool? Squash { get; set; }
 
-        [QueryStringParameter("cachefrom", false, typeof(QueryStringEnumerableConverter))]
+        [QueryStringListParameter("cachefrom", false)]
         public IList<string>? CacheFrom { get; set; }
 
-        [QueryStringParameter("extrahosts", false, typeof(QueryStringEnumerableConverter))]
+        [QueryStringListParameter("extrahosts", false)]
         public IList<string>? ExtraHosts { get; set; }
 
         [QueryStringParameter("target", false)]

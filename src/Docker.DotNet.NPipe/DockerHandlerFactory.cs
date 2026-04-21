@@ -45,10 +45,10 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
 
             var dockerStream = new DockerPipeStream(clientStream);
 
-#if NETSTANDARD
-            var namedPipeConnectTimeout = (int)transportOptions.ConnectTimeout.TotalMilliseconds;
-#else
+#if NET
             var namedPipeConnectTimeout = transportOptions.ConnectTimeout;
+#else
+            var namedPipeConnectTimeout = (int)transportOptions.ConnectTimeout.TotalMilliseconds;
 #endif
 
             await clientStream.ConnectAsync(namedPipeConnectTimeout, cancellationToken)

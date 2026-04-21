@@ -50,12 +50,11 @@ public class IImageOperationsTests
     [Fact]
     public Task CreateImageAsync_ErrorResponse_ThrowsDockerApiException()
     {
-        return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Images.CreateImageAsync(
-            new ImagesCreateParameters
+        return Assert.ThrowsAsync<DockerApiException>(() => _testFixture.DockerClient.Images.CreateImageAsync(new ImagesCreateParameters
             {
                 FromImage = "1.2.3.Apparently&this$is+not-a_valid%repository//name",
                 Tag = "ancient-one"
-            }, null, null));
+            }, null, null, TestContext.Current.CancellationToken));
     }
 
     [Fact]

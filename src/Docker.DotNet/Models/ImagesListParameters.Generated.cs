@@ -3,19 +3,19 @@ namespace Docker.DotNet.Models
 {
     public class ImagesListParameters // (main.ImagesListParameters)
     {
-        [QueryStringParameter("all", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("all", false)]
         public bool? All { get; set; }
 
-        [QueryStringParameter("filters", false, typeof(QueryStringMapConverter))]
+        [QueryStringMapParameter<IDictionary<string, IDictionary<string, bool>>>("filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
 
-        [QueryStringParameter("shared-size", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("shared-size", false)]
         public bool? SharedSize { get; set; }
 
-        [QueryStringParameter("digests", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("digests", false)]
         public bool? Digests { get; set; }
 
-        [QueryStringParameter("manifests", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("manifests", false)]
         public bool? Manifests { get; set; }
     }
 }

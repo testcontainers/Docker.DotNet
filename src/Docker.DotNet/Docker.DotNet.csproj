@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Docker.DotNet.NativeHttp\Docker.DotNet.NativeHttp.csproj" />
     <ProjectReference Include="..\Docker.DotNet.NPipe\Docker.DotNet.NPipe.csproj" />
     <ProjectReference Include="..\Docker.DotNet.Unix\Docker.DotNet.Unix.csproj" />
+    <ProjectReference Include="..\..\tools\Docker.DotNet.SourceAnalyzers\Docker.DotNet.SourceAnalyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
@@ -29,6 +30,7 @@
     <Using Include="System.Collections.Concurrent" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Globalization" />
     <Using Include="System.IO" />
     <Using Include="System.IO.Pipelines" />
@@ -49,6 +51,7 @@
     <Using Include="System.Text" />
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.Json.Serialization" />
+    <Using Include="System.Text.Json.Serialization.Metadata" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet" />
