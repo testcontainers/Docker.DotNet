@@ -17,6 +17,9 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 models_dir="$(cd "$script_dir/../../src/Docker.DotNet/Models" && pwd)"
 specgen_bin="$script_dir/specgen"
 
+version="${release_tag#docker-}"
+props_path="$script_dir/../../Directory.Build.props"
+
 pushd "$script_dir" > /dev/null
 
 cleanup() {
@@ -31,6 +34,9 @@ go get "github.com/moby/moby/api@$release_tag"
 
 echo "Updating moby client package to tag '$release_tag'"
 go get "github.com/moby/moby/client@$release_tag"
+
+echo "Updating props DockerVersion with '$version'"
+sed -i "s|<DockerVersion>.*</DockerVersion>|<DockerVersion>$version</DockerVersion>|" "$props_path"
 
 echo "Building specgen"
 go build

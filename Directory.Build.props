@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <DockerVersion>v29.1.5</DockerVersion>
   </PropertyGroup>
   <!-- Strong-naming -->
   <PropertyGroup Label="Signing">
