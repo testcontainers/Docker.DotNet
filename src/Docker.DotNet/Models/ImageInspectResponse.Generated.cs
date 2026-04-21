@@ -53,5 +53,8 @@ namespace Docker.DotNet.Models
 
         [JsonPropertyName("Manifests")]
         public IList<ManifestSummary>? Manifests { get; set; }
+
+        [JsonPropertyName("Identity")]
+        public Identity? Identity { get; set; }
     }
 }

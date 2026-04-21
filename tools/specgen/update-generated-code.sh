@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
     echo "Usage: $0 <release-tag>"
-    echo "Example: $0 docker-v29.1.5"
+    echo "Example: $0 docker-v29.4.1"
 }
 
 if [[ $# -ne 1 ]]; then

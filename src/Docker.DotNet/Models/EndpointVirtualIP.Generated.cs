@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         public string? NetworkID { get; set; }
 
         [JsonPropertyName("Addr")]
-        public string? Addr { get; set; }
+        public string Addr { get; set; } = default!;
     }
 }

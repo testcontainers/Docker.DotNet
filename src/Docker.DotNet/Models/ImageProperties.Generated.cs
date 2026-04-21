@@ -6,6 +6,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Platform")]
         public Platform Platform { get; set; } = default!;
 
+        [JsonPropertyName("Identity")]
+        public Identity? Identity { get; set; }
+
         [JsonPropertyName("Size")]
         public ImagePropertiesSize Size { get; set; } = default!;
 

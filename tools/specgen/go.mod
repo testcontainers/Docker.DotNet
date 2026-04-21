@@ -3,8 +3,8 @@ module github.com/dotnet/Docker.DotNet/tools/specgen
 go 1.24.0
 
 require (
-	github.com/moby/moby/api v1.52.1-0.20260116122120-3b01d641ef33
-	github.com/moby/moby/client v0.2.2-0.20260116122120-3b01d641ef33
+	github.com/moby/moby/api v1.54.3-0.20260420162417-6c91b92cc710
+	github.com/moby/moby/client v0.4.2-0.20260420162417-6c91b92cc710
 	github.com/opencontainers/image-spec v1.1.1
 )
 
@@ -14,7 +14,7 @@ require (
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/go-connections v0.6.0 // indirect
+	github.com/docker/go-connections v0.7.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

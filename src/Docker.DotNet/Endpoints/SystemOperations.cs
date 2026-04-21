@@ -72,4 +72,12 @@ internal class SystemOperations : ISystemOperations
             progress,
             cancellationToken);
     }
+
+    public async Task<SystemDataUsageInfoResponse> GetDataUsageInfoAsync(SytemDataUsageInfoParameters? parameters = null, CancellationToken cancellationToken = default)
+    {
+        var queryParameters = parameters == null ? null : new QueryString<SytemDataUsageInfoParameters>(parameters);
+
+        return await _client.MakeRequestAsync<SystemDataUsageInfoResponse>(_client.NoErrorHandlers, HttpMethod.Get, "system/df", queryParameters, cancellationToken)
+            .ConfigureAwait(false);
+    }
 }

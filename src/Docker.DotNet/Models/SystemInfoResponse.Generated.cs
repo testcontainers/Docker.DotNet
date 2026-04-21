@@ -183,6 +183,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("DiscoveredDevices")]
         public IList<DeviceInfo>? DiscoveredDevices { get; set; }
 
+        [JsonPropertyName("NRI")]
+        public NRIInfo? NRI { get; set; }
+
         [JsonPropertyName("Containerd")]
         public ContainerdInfo? Containerd { get; set; }
 
