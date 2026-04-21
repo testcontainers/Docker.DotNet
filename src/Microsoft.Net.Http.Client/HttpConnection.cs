@@ -76,7 +76,7 @@ internal sealed class HttpConnection : IDisposable
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
         var buffer = new ArrayBufferWriter<byte>();
 #else
-        var buffer = new MemoryStream();
+        using var buffer = new MemoryStream();
 #endif
 
         WriteString(buffer, request.Method.Method);
