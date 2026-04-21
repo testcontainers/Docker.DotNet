@@ -21,9 +21,13 @@ T> : IQueryString where T : class
         AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
     }
 
-    public IDictionary<string, string[]> GetKeyValuePairs()
+    /// <summary>
+    /// Returns formatted query string.
+    /// </summary>
+    /// <returns></returns>
+    public string GetQueryString()
     {
-        var queryParameters = new Dictionary<string, string[]>();
+        var sb = new StringBuilder();
         foreach (var pair in AttributedPublicProperties)
         {
             var property = pair.Key;
@@ -41,26 +45,21 @@ T> : IQueryString where T : class
             if (attribute.IsRequired || !IsDefaultOfType(value))
             {
                 var keyStr = attribute.Name;
-                var valueStr = attribute.Convert(value!);
 
-                queryParameters[keyStr] = valueStr;
+                foreach (var valueStr in attribute.Convert(value!))
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append('&');
+                    }
+                    sb.Append(Uri.EscapeDataString(keyStr));
+                    sb.Append('=');
+                    sb.Append(Uri.EscapeDataString(valueStr));
+                }
             }
         }
 
-        return queryParameters;
-    }
-
-    /// <summary>
-    /// Returns formatted query string.
-    /// </summary>
-    /// <returns></returns>
-    public string GetQueryString()
-    {
-        return string.Join("&",
-            GetKeyValuePairs().Select(
-                pair => string.Join("&",
-                    pair.Value.Select(
-                        v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
+        return sb.ToString();
     }
 
     private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<
