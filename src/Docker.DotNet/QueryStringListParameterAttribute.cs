@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 internal sealed class QueryStringListParameterAttribute(string name, bool required) : QueryStringParameterAttribute(name, required)
 {
-    public override string[] Convert(object value)
+    public override IEnumerable<string> Convert(object value)
     {
         Debug.Assert(value != null);
         Debug.Assert(value is IList<string>);
@@ -12,6 +12,6 @@ internal sealed class QueryStringListParameterAttribute(string name, bool requir
             throw new ArgumentException($"Expected value of type '{typeof(IList<string>)}'.", nameof(value));
         }
 
-        return typedValue.ToArray();
+        return typedValue;
     }
 }

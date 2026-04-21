@@ -21,46 +21,48 @@ T> : IQueryString where T : class
         AttributedPublicProperties = FindAttributedPublicProperties<T, QueryStringParameterAttribute>();
     }
 
-    public IDictionary<string, string[]> GetKeyValuePairs()
-    {
-        var queryParameters = new Dictionary<string, string[]>();
-        foreach (var pair in AttributedPublicProperties)
-        {
-            var property = pair.Key;
-            var attribute = pair.Value;
-            var value = property.GetValue(Object, null);
-
-            // 'Required' check
-            if (attribute.IsRequired && value == null)
-            {
-                string propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
-                throw new ArgumentException("Got null/unset value for a required query parameter.", propertyFullName);
-            }
-
-            // Serialize
-            if (attribute.IsRequired || !IsDefaultOfType(value))
-            {
-                var keyStr = attribute.Name;
-                var valueStr = attribute.Convert(value!);
-
-                queryParameters[keyStr] = valueStr;
-            }
-        }
-
-        return queryParameters;
-    }
-
     /// <summary>
     /// Returns formatted query string.
     /// </summary>
     /// <returns></returns>
     public string GetQueryString()
     {
-        return string.Join("&",
-            GetKeyValuePairs().Select(
-                pair => string.Join("&",
-                    pair.Value.Select(
-                        v => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(v)}"))));
+        var queryStringBuilder = new StringBuilder();
+
+        foreach (var attributedProperty in AttributedPublicProperties)
+        {
+            var property = attributedProperty.Key;
+            var attribute = attributedProperty.Value;
+
+            var value = property.GetValue(Object, null);
+
+            // 'Required' check
+            if (attribute.IsRequired && value == null)
+            {
+                var propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
+                throw new ArgumentException("Got null/unset value for a required query parameter.", propertyFullName);
+            }
+
+            // Serialization
+            if (attribute.IsRequired || !IsDefaultOfType(value))
+            {
+                var queryParameterName = attribute.Name;
+
+                foreach (var queryParameterValue in attribute.Convert(value!))
+                {
+                    if (queryStringBuilder.Length > 0)
+                    {
+                        queryStringBuilder.Append('&');
+                    }
+
+                    queryStringBuilder.Append(Uri.EscapeDataString(queryParameterName));
+                    queryStringBuilder.Append('=');
+                    queryStringBuilder.Append(Uri.EscapeDataString(queryParameterValue));
+                }
+            }
+        }
+
+        return queryStringBuilder.ToString();
     }
 
     private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<

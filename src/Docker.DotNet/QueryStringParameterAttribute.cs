@@ -7,7 +7,7 @@ internal class QueryStringParameterAttribute : Attribute
 
     public bool IsRequired { get; private set; }
 
-    public virtual string[] Convert(object value) => [value.ToString()!];
+    public virtual IEnumerable<string> Convert(object value) => [value.ToString()!];
 
     public QueryStringParameterAttribute(string name, bool required)
     {
