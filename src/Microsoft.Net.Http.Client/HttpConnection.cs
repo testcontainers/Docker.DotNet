@@ -16,11 +16,16 @@ internal sealed class HttpConnection : IDisposable
         try
         {
             // Serialize headers & send
-            string rawRequest = SerializeRequest(request);
-            byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
+            var requestBytes = SerializeRequest(request);
 
-            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            await Transport.WriteAsync(requestBytes, cancellationToken)
                 .ConfigureAwait(false);
+#else
+            var bytes = requestBytes.ToArray();
+            await Transport.WriteAsync(bytes, 0, bytes.Length, cancellationToken)
+                .ConfigureAwait(false);
+#endif
 
             if (request.Content != null)
             {
@@ -66,17 +71,22 @@ internal sealed class HttpConnection : IDisposable
         }
     }
 
-    private string SerializeRequest(HttpRequestMessage request)
+    private static ReadOnlyMemory<byte> SerializeRequest(HttpRequestMessage request)
     {
-        StringBuilder builder = new StringBuilder();
-        builder.Append(request.Method);
-        builder.Append(' ');
-        builder.Append(request.GetAddressLineProperty());
-        builder.Append(" HTTP/");
-        builder.Append(request.Version.ToString(2));
-        builder.Append("\r\n");
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        var buffer = new ArrayBufferWriter<byte>();
+#else
+        var buffer = new MemoryStream();
+#endif
 
-        AppendHeaders(builder, request.Headers);
+        WriteString(buffer, request.Method.Method);
+        WriteBytes(buffer, " "u8);
+        WriteString(buffer, request.GetAddressLineProperty());
+        WriteBytes(buffer, " HTTP/"u8);
+        WriteString(buffer, request.Version.ToString(2));
+        WriteBytes(buffer, "\r\n"u8);
+
+        AppendHeaders(buffer, request.Headers);
 
         if (request.Content != null)
         {
@@ -87,29 +97,83 @@ internal sealed class HttpConnection : IDisposable
                 request.Content.Headers.ContentLength = contentLength.Value;
             }
 
-            AppendHeaders(builder, request.Content.Headers);
+            AppendHeaders(buffer, request.Content.Headers);
             if (!contentLength.HasValue)
             {
                 // Add header for chunked mode.
-                builder.Append("Transfer-Encoding: chunked\r\n");
+                WriteBytes(buffer, "Transfer-Encoding: chunked\r\n"u8);
             }
         }
         // Headers end with an empty line
-        builder.Append("\r\n");
-        return builder.ToString();
-    }
+        WriteBytes(buffer, "\r\n"u8);
 
-    // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
-    // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
-    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
-    {
-        foreach (var header in headers)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        return buffer.WrittenMemory;
+#else
+        if (buffer.TryGetBuffer(out var segment))
         {
-            builder.Append(header.Key);
-            builder.Append(": ");
-            builder.Append(string.Join(", ", header.Value));
-            builder.Append("\r\n");
+            return segment;
         }
+        return buffer.ToArray();
+#endif
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        static void AppendHeaders(ArrayBufferWriter<byte> buffer, HttpHeaders headers)
+#else
+        static void AppendHeaders(MemoryStream buffer, HttpHeaders headers)
+#endif
+        {
+            foreach (var header in headers)
+            {
+                WriteString(buffer, header.Key);
+                WriteBytes(buffer, ": "u8);
+                var first = false;
+                foreach (var value in header.Value)
+                {
+                    if (first)
+                    {
+                        WriteBytes(buffer, ", "u8);
+                    }
+                    first = true;
+
+                    WriteString(buffer, value);
+                }
+                WriteBytes(buffer, "\r\n"u8);
+            }
+        }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        static void WriteString(ArrayBufferWriter<byte> buffer, string? str)
+        {
+            if (str is null) return;
+
+#if NET
+            Encoding.ASCII.GetBytes(str, buffer);
+#else
+            var length = Encoding.ASCII.GetByteCount(str);
+            var span = buffer.GetSpan(length);
+            var written = Encoding.ASCII.GetBytes(str, span);
+            buffer.Advance(written);
+#endif
+        }
+        static void WriteBytes(ArrayBufferWriter<byte> buffer, ReadOnlySpan<byte> span)
+        {
+            buffer.Write(span);
+        }
+#else
+        static void WriteString(MemoryStream buffer, string? str)
+        {
+            if (str is null) return;
+
+            var bytes = Encoding.ASCII.GetBytes(str);
+            buffer.Write(bytes, 0, bytes.Length);
+        }
+        static void WriteBytes(MemoryStream buffer, ReadOnlySpan<byte> span)
+        {
+            var bytes = span.ToArray();
+            buffer.Write(bytes, 0, bytes.Length);
+        }
+#endif
     }
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
