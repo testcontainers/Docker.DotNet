@@ -84,7 +84,7 @@ internal static class RequestExtensions
 
     public static T? GetProperty<T>(this HttpRequestMessage request, string key)
     {
-#if NET6_0_OR_GREATER
+#if NET
         return request.Options.TryGetValue(new HttpRequestOptionsKey<T>(key), out var obj) ? obj : default;
 #else
         return request.Properties.TryGetValue(key, out var obj) ? (T)obj : default;
@@ -93,7 +93,7 @@ internal static class RequestExtensions
 
     public static void SetProperty<T>(this HttpRequestMessage request, string key, T value)
     {
-#if NET6_0_OR_GREATER
+#if NET
         request.Options.Set(new HttpRequestOptionsKey<T>(key), value);
 #else
         request.Properties[key] = value;

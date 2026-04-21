@@ -5,7 +5,7 @@ namespace Docker.DotNet.NativeHttp;
 /// </summary>
 public sealed record NativeHttpTransportOptions
 {
-#if NET6_0_OR_GREATER
+#if NET
     /// <summary>
     /// Gets a callback that configures the created <see cref="SocketsHttpHandler"/> instance.
     /// </summary>

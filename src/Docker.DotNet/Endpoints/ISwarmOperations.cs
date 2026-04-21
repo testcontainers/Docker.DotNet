@@ -121,7 +121,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
-    Task<IEnumerable<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default);
+    Task<IList<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update a service.
@@ -198,7 +198,7 @@ public interface ISwarmOperations
     /// 503 - Node is not part of a swarm.
     /// </remarks>
     /// <returns></returns>
-    Task<IEnumerable<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default);
+    Task<IList<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inspect a node.

@@ -26,7 +26,7 @@ public sealed class JsonEnumMemberConverterTests
         Assert.Equal(restartPolicyKind, deserializedParameters.HostConfig.RestartPolicy.Name);
     }
 
-    private sealed class RestartPolicyKindTestData : TheoryData<RestartPolicyKind>
+    public sealed class RestartPolicyKindTestData : TheoryData<RestartPolicyKind>
     {
         public RestartPolicyKindTestData()
         {

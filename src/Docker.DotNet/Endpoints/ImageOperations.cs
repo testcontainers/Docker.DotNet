@@ -313,7 +313,7 @@ internal class ImageOperations : IImageOperations
         {
             var registryAddress = registryAuthConfiguration.ServerAddress;
 
-            if (!string.IsNullOrEmpty(registryAddress))
+            if (registryAddress is not null && registryAddress.Length > 0)
             {
                 registryAuthConfigurations[registryAddress] = registryAuthConfiguration;
             }

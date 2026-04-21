@@ -11,7 +11,7 @@ internal class ConfigOperations : IConfigOperations
 
     public async Task<IList<SwarmConfig>> ListConfigsAsync(CancellationToken cancellationToken = default)
     {
-        return await _client.MakeRequestAsync<IList<SwarmConfig>>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken)
+        return await _client.MakeRequestAsync<SwarmConfig[]>(_client.NoErrorHandlers, HttpMethod.Get, "configs", cancellationToken)
             .ConfigureAwait(false);
     }
 

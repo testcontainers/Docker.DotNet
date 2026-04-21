@@ -3,10 +3,10 @@ namespace Docker.DotNet.Models
 {
     public class ImageDeleteParameters // (main.ImageDeleteParameters)
     {
-        [QueryStringParameter("force", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("force", false)]
         public bool? Force { get; set; }
 
-        [QueryStringParameter("noprune", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("noprune", false)]
         public bool? NoPrune { get; set; }
     }
 }

@@ -132,13 +132,9 @@ jobs:
           exit 1
 
       - name: Test (${{ matrix.docker.name }})
-        run: >-
-          dotnet test
-          --configuration Release
-          --framework ${{ matrix.dotnet.tfm }}
-          --no-restore
-          --no-build
-          --logger console
+        run: |
+          ./test/Docker.DotNet.Tests/bin/Release/${{ matrix.dotnet.tfm }}/linux-x64/publish/Docker.DotNet.Tests
+          ./test/Docker.DotNet.TestsV2/bin/Release/${{ matrix.dotnet.tfm }}/linux-x64/publish/Docker.DotNet.TestsV2
         env:
           DOCKER_HOST: ${{ matrix.docker.docker_host }}
           DOCKER_TLS_VERIFY: ${{ matrix.docker.tls_verify }}

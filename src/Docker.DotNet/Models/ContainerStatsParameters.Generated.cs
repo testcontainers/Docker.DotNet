@@ -3,10 +3,10 @@ namespace Docker.DotNet.Models
 {
     public class ContainerStatsParameters // (main.ContainerStatsParameters)
     {
-        [QueryStringParameter("stream", true, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("stream", true)]
         public bool Stream { get; set; } = true;
 
-        [QueryStringParameter("one-shot", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("one-shot", false)]
         public bool? OneShot { get; set; }
     }
 }

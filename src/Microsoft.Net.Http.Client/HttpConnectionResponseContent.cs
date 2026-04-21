@@ -45,7 +45,7 @@ public class HttpConnectionResponseContent : HttpContent
         return _responseStream!.CopyToAsync(stream);
     }
 
-#if NET6_0_OR_GREATER
+#if NET
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
         return _responseStream!.CopyToAsync(stream, cancellationToken);

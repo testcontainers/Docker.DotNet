@@ -9,13 +9,13 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("version", true)]
         public long Version { get; set; } = default!;
 
-        [QueryStringParameter("rotateworkertoken", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("rotateworkertoken", false)]
         public bool? RotateWorkerToken { get; set; }
 
-        [QueryStringParameter("rotatemanagertoken", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("rotatemanagertoken", false)]
         public bool? RotateManagerToken { get; set; }
 
-        [QueryStringParameter("rotatemanagerunlockkey", false, typeof(QueryStringBoolConverter))]
+        [QueryStringBoolParameter("rotatemanagerunlockkey", false)]
         public bool? RotateManagerUnlockKey { get; set; }
     }
 }

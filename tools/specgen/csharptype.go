@@ -192,7 +192,8 @@ type CSModelType struct {
 	// yet. it is possible that given the recursive nature that it not be
 	// completed but as long as this is true we will not attempt to generate the
 	// type more than once.
-	IsStarted bool
+	IsStarted                     bool
+	HasJsonSerializableProperties bool
 }
 
 // NewModel creates a new model type with valid slices
