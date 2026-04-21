@@ -27,39 +27,42 @@ T> : IQueryString where T : class
     /// <returns></returns>
     public string GetQueryString()
     {
-        var sb = new StringBuilder();
-        foreach (var pair in AttributedPublicProperties)
+        var queryStringBuilder = new StringBuilder();
+
+        foreach (var attributedProperty in AttributedPublicProperties)
         {
-            var property = pair.Key;
-            var attribute = pair.Value;
+            var property = attributedProperty.Key;
+            var attribute = attributedProperty.Value;
+
             var value = property.GetValue(Object, null);
 
             // 'Required' check
             if (attribute.IsRequired && value == null)
             {
-                string propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
+                var propertyFullName = $"{property.DeclaringType?.FullName}.{property.Name}";
                 throw new ArgumentException("Got null/unset value for a required query parameter.", propertyFullName);
             }
 
-            // Serialize
+            // Serialization
             if (attribute.IsRequired || !IsDefaultOfType(value))
             {
-                var keyStr = attribute.Name;
+                var queryParameterName = attribute.Name;
 
-                foreach (var valueStr in attribute.Convert(value!))
+                foreach (var queryParameterValue in attribute.Convert(value!))
                 {
-                    if (sb.Length > 0)
+                    if (queryStringBuilder.Length > 0)
                     {
-                        sb.Append('&');
+                        queryStringBuilder.Append('&');
                     }
-                    sb.Append(Uri.EscapeDataString(keyStr));
-                    sb.Append('=');
-                    sb.Append(Uri.EscapeDataString(valueStr));
+
+                    queryStringBuilder.Append(Uri.EscapeDataString(queryParameterName));
+                    queryStringBuilder.Append('=');
+                    queryStringBuilder.Append(Uri.EscapeDataString(queryParameterValue));
                 }
             }
         }
 
-        return sb.ToString();
+        return queryStringBuilder.ToString();
     }
 
     private static Dictionary<PropertyInfo, TAttribType> FindAttributedPublicProperties<
