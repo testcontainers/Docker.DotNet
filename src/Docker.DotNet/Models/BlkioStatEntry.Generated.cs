@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// BlkioStatEntry is one small entity to store a piece of Blkio stats
+    /// Not used on Windows.
+    /// </summary>
     public class BlkioStatEntry // (container.BlkioStatEntry)
     {
         [JsonPropertyName("major")]

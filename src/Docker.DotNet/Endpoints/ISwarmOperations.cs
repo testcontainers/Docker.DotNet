@@ -12,6 +12,7 @@ public interface ISwarmOperations
     /// 500 - Server Error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<SwarmUnlockResponse> GetSwarmUnlockKeyAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -24,6 +25,7 @@ public interface ISwarmOperations
     /// 503 - Node is already part of a swarm.
     /// </remarks>
     /// <param name="parameters">The join parameters.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     /// <returns>The node id.</returns>
     Task<string> InitSwarmAsync(SwarmInitParameters parameters, CancellationToken cancellationToken = default);
 
@@ -36,6 +38,7 @@ public interface ISwarmOperations
     /// 500 - Server Error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<SwarmInspectResponse> InspectSwarmAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -47,6 +50,7 @@ public interface ISwarmOperations
     /// 503 - Node is already part of a swarm.
     /// </remarks>
     /// <param name="parameters">The join parameters.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task JoinSwarmAsync(SwarmJoinParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -58,6 +62,7 @@ public interface ISwarmOperations
     /// 503 - Node not part of a swarm.
     /// </remarks>
     /// <param name="parameters">The leave parameters.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task LeaveSwarmAsync(SwarmLeaveParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -69,6 +74,7 @@ public interface ISwarmOperations
     /// 503 - Node is not part of a swarm.
     /// </remarks>
     /// <param name="parameters">The swarm's unlock key.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task UnlockSwarmAsync(SwarmUnlockParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -81,6 +87,7 @@ public interface ISwarmOperations
     /// 503 - Node is not part of a swarm.
     /// </remarks>
     /// <param name="parameters">The update parameters.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task UpdateSwarmAsync(SwarmUpdateParameters parameters, CancellationToken cancellationToken = default);
 
     #endregion Swarm
@@ -98,6 +105,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<ServiceCreateResponse> CreateServiceAsync(ServiceCreateParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -110,6 +118,7 @@ public interface ISwarmOperations
     /// 503 - Node is not part of a swarm.
     /// </remarks>
     /// <param name="id">ID or name of service.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     /// <returns>The service spec.</returns>
     Task<SwarmService> InspectServiceAsync(string id, CancellationToken cancellationToken = default);
 
@@ -121,6 +130,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<SwarmService>> ListServicesAsync(ServiceListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -133,6 +143,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     /// <param name="id">ID or name of service.</param>
     /// <returns>The service spec.</returns>
     Task<ServiceUpdateResponse> UpdateServiceAsync(string id, ServiceUpdateParameters parameters, CancellationToken cancellationToken = default);
@@ -147,6 +158,7 @@ public interface ISwarmOperations
     /// 503 - Node is not part of a swarm.
     /// </remarks>
     /// <param name="id">ID or name of service.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task RemoveServiceAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -197,7 +209,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
-    /// <returns></returns>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<NodeListResponse>> ListNodesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -209,6 +221,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<NodeListResponse> InspectNodeAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -220,6 +233,7 @@ public interface ISwarmOperations
     /// 500 - Server error.
     /// 503 - Node is not part of a swarm.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task RemoveNodeAsync(string id, bool? force = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -234,6 +248,7 @@ public interface ISwarmOperations
     /// <param name="id">ID or name of the node.</param>
     /// <param name="version">Current version of the node object.</param>
     /// <param name="parameters">Parameters to update.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task UpdateNodeAsync(string id, ulong version, NodeUpdateParameters parameters, CancellationToken cancellationToken = default);
 
     #endregion

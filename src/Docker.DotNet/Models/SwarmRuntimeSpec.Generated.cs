@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// RuntimeSpec defines the base payload which clients can specify for creating
+    /// a service with the plugin runtime.
+    /// </summary>
     public class SwarmRuntimeSpec // (swarm.RuntimeSpec)
     {
         [JsonPropertyName("name")]

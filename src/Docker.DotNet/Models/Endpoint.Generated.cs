@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Endpoint represents an endpoint.
+    /// </summary>
     public class Endpoint // (swarm.Endpoint)
     {
         [JsonPropertyName("Spec")]

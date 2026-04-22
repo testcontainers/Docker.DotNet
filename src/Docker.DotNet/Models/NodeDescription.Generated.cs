@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// NodeDescription represents the description of a node.
+    /// </summary>
     public class NodeDescription // (swarm.NodeDescription)
     {
         [JsonPropertyName("Hostname")]

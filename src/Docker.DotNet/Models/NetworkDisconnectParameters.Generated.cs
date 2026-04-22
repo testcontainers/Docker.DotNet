@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// NetworkDisconnectOptions represents the data to be used to disconnect a container
+    /// from the network.
+    /// </summary>
     public class NetworkDisconnectParameters // (client.NetworkDisconnectOptions)
     {
         [JsonPropertyName("Container")]

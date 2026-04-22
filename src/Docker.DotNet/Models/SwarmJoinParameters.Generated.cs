@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// JoinRequest is the request used to join a swarm.
+    /// </summary>
     public class SwarmJoinParameters // (swarm.JoinRequest)
     {
         [JsonPropertyName("ListenAddr")]
@@ -15,6 +18,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("RemoteAddrs")]
         public IList<string> RemoteAddrs { get; set; } = default!;
 
+        /// <summary>
+        /// accept by secret
+        /// </summary>
         [JsonPropertyName("JoinToken")]
         public string JoinToken { get; set; } = default!;
 

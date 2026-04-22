@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// SecretReference is a reference to a secret in swarm
+    /// </summary>
     public class SecretReference // (swarm.SecretReference)
     {
         [JsonPropertyName("File")]

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Driver represents a volume driver.
+    /// </summary>
     public class Driver // (mount.Driver)
     {
         [JsonPropertyName("Name")]

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// NetworkSpec represents the spec of a network.
+    /// </summary>
     public class NetworkSpec // (swarm.NetworkSpec)
     {
         public NetworkSpec()

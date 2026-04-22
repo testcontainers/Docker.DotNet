@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ClusterInfo represents info about the cluster for outputting in &quot;info&quot;
+    /// it contains the same information as &quot;Swarm&quot;, but without the JoinTokens
+    /// </summary>
     public class ClusterInfo // (swarm.ClusterInfo)
     {
         public ClusterInfo()

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Privileges defines the security options for the container.
+    /// </summary>
     public class Privileges // (swarm.Privileges)
     {
         [JsonPropertyName("CredentialSpec")]

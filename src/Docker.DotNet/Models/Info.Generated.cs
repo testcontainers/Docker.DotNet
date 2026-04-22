@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Info represents generic information about swarm.
+    /// </summary>
     public class Info // (swarm.Info)
     {
         [JsonPropertyName("NodeID")]

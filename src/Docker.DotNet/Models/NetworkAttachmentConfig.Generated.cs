@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// NetworkAttachmentConfig represents the configuration of a network attachment.
+    /// </summary>
     public class NetworkAttachmentConfig // (swarm.NetworkAttachmentConfig)
     {
         [JsonPropertyName("Target")]

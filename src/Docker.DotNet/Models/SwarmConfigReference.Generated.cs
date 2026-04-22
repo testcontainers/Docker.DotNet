@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ConfigReference is a reference to a config in swarm
+    /// </summary>
     public class SwarmConfigReference // (swarm.ConfigReference)
     {
         [JsonPropertyName("File")]

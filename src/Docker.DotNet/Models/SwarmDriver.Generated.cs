@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Driver represents a driver (network, logging, secrets backend).
+    /// </summary>
     public class SwarmDriver // (swarm.Driver)
     {
         [JsonPropertyName("Name")]

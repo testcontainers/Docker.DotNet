@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Runtime describes an OCI runtime
+    /// </summary>
     public class Runtime // (system.Runtime)
     {
         [JsonPropertyName("path")]

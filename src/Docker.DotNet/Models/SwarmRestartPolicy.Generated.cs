@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// RestartPolicy represents the restart policy.
+    /// </summary>
     public class SwarmRestartPolicy // (swarm.RestartPolicy)
     {
         [JsonPropertyName("Condition")]

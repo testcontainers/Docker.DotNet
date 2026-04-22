@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Platform represents the platform (Arch/OS).
+    /// </summary>
     public class SwarmPlatform // (swarm.Platform)
     {
         [JsonPropertyName("Architecture")]

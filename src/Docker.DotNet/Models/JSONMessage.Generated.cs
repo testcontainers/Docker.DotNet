@@ -1,6 +1,11 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// JSONMessage defines a message struct. It describes
+    /// the created time, where it from, status, ID of the
+    /// message. It&apos;s used for docker events.
+    /// </summary>
     public class JSONMessage // (jsonstream.Message)
     {
         [JsonPropertyName("stream")]
@@ -18,6 +23,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("errorDetail")]
         public JSONError? Error { get; set; }
 
+        /// <summary>
+        /// Aux contains out-of-band data, such as digests for push signing and image id after building.
+        /// </summary>
         [JsonPropertyName("aux")]
         public ObjectExtensionData? Aux { get; set; }
     }

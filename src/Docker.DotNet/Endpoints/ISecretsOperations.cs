@@ -9,6 +9,7 @@ public interface ISecretsOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<IList<Secret>> ListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -20,6 +21,7 @@ public interface ISecretsOperations
     /// 409 - Name conflicts with an existing object.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<SecretCreateResponse> CreateAsync(SwarmSecretSpec body, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -32,6 +34,7 @@ public interface ISecretsOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the secret.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<Secret> InspectAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -43,5 +46,6 @@ public interface ISecretsOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="id">ID of the secret.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

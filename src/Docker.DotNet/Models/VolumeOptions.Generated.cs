@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// VolumeOptions represents the options for a mount of type volume.
+    /// </summary>
     public class VolumeOptions // (mount.VolumeOptions)
     {
         [JsonPropertyName("NoCopy")]

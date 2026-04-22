@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// InitRequest is the request used to init a swarm.
+    /// </summary>
     public class SwarmInitParameters // (swarm.InitRequest)
     {
         [JsonPropertyName("ListenAddr")]

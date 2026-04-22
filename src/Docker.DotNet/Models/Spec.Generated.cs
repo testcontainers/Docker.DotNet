@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Spec represents the spec of a swarm.
+    /// </summary>
     public class Spec // (swarm.Spec)
     {
         public Spec()

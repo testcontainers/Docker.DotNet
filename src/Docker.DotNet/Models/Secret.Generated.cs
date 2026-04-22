@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Secret represents a secret.
+    /// </summary>
     public class Secret // (swarm.Secret)
     {
         public Secret()

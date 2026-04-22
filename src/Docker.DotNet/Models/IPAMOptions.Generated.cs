@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// IPAMOptions represents ipam options.
+    /// </summary>
     public class IPAMOptions // (swarm.IPAMOptions)
     {
         [JsonPropertyName("Driver")]

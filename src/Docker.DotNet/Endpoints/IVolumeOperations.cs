@@ -9,6 +9,7 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<VolumesListResponse> ListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -18,6 +19,7 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<VolumesListResponse> ListAsync(VolumesListParameters? parameters = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -28,6 +30,7 @@ public interface IVolumeOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="parameters">Volume parameters to create.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<VolumeResponse> CreateAsync(VolumesCreateParameters parameters, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -39,6 +42,7 @@ public interface IVolumeOperations
     /// 500 - Server error.
     /// </remarks>
     /// <param name="name">Volume name or ID.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<VolumeResponse> InspectAsync(string name, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -54,6 +58,7 @@ public interface IVolumeOperations
     /// </remarks>
     /// <param name="name">Volume name or ID.</param>
     /// <param name="force">Force the removal of the volume.</param>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task RemoveAsync(string name, bool? force = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -65,5 +70,6 @@ public interface IVolumeOperations
     /// 200 - No error.
     /// 500 - Server error.
     /// </remarks>
+    /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
     Task<VolumesPruneResponse> PruneAsync(VolumesPruneParameters? parameters = null, CancellationToken cancellationToken = default);
 }

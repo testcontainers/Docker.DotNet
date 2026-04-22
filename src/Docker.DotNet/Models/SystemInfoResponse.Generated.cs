@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Info contains response of Engine API:
+    /// GET &quot;/info&quot;
+    /// </summary>
     public class SystemInfoResponse // (system.Info)
     {
         [JsonPropertyName("ID")]
@@ -27,6 +31,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("DriverStatus")]
         public IList<string[]> DriverStatus { get; set; } = default!;
 
+        /// <summary>
+        /// SystemStatus is only propagated by the Swarm standalone API
+        /// </summary>
         [JsonPropertyName("SystemStatus")]
         public IList<string[]>? SystemStatus { get; set; }
 
@@ -147,6 +154,11 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Swarm")]
         public Info Swarm { get; set; } = default!;
 
+        /// <summary>
+        /// LiveRestoreEnabled determines whether containers should be kept
+        /// running when the daemon is shutdown or upon daemon start if
+        /// running containers are detected
+        /// </summary>
         [JsonPropertyName("LiveRestoreEnabled")]
         public bool LiveRestoreEnabled { get; set; } = default!;
 
@@ -186,6 +198,12 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Containerd")]
         public ContainerdInfo? Containerd { get; set; }
 
+        /// <summary>
+        /// Warnings contains a slice of warnings that occurred  while collecting
+        /// system information. These warnings are intended to be informational
+        /// messages for the user, and are not intended to be parsed / used for
+        /// other purposes, as they do not have a fixed format.
+        /// </summary>
         [JsonPropertyName("Warnings")]
         public IList<string> Warnings { get; set; } = default!;
     }
