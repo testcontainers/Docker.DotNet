@@ -227,16 +227,15 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>"}},
 		},
 	},
-
+	typeToKey(reflect.TypeOf(build.DiskUsage{})):         {Name: "BuildDiskUsage"},
+	typeToKey(reflect.TypeOf(container.DiskUsage{})):     {Name: "ContainerDiskUsage"},
 	typeToKey(reflect.TypeOf(container.StatsResponse{})): {Name: "ContainerStatsResponse"},
+	typeToKey(reflect.TypeOf(image.DiskUsage{})):         {Name: "ImageDiskUsage"},
+	typeToKey(reflect.TypeOf(system.DiskUsage{})):        {Name: "SystemDataUsageInfoResponse"},
 	typeToKey(reflect.TypeOf(system.VersionResponse{})):  {Name: "VersionResponse"},
+	typeToKey(reflect.TypeOf(volume.DiskUsage{})):        {Name: "VolumeDiskUsage"},
 	typeToKey(reflect.TypeOf(volume.PruneReport{})):      {Name: "VolumesPruneResponse"},
 	typeToKey(reflect.TypeOf(VolumeResponse{})):          {Name: "VolumeResponse"},
-	typeToKey(reflect.TypeOf(system.DiskUsage{})):        {Name: "SystemDataUsageInfoResponse"},
-	typeToKey(reflect.TypeOf(image.DiskUsage{})):         {Name: "ImageDiskUsage"},
-	typeToKey(reflect.TypeOf(container.DiskUsage{})):     {Name: "ContainerDiskUsage"},
-	typeToKey(reflect.TypeOf(volume.DiskUsage{})):        {Name: "VolumeDiskUsage"},
-	typeToKey(reflect.TypeOf(build.DiskUsage{})):         {Name: "BuildDiskUsage"},
 }
 
 var dockerTypesToReflect = []reflect.Type{

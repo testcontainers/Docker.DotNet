@@ -9,11 +9,11 @@ A tool that reflects the Docker client [engine-api](https://github.com/docker/en
 Use the update scripts from the repository root to fetch Docker API/client definitions for a specific [release tag](https://github.com/moby/moby/releases/) and regenerate [Docker.DotNet Models](../../src/Docker.DotNet/Models):
 
 ```powershell
-.\tools\specgen\update-generated-code.ps1 -ReleaseTag docker-v29.1.5
+.\tools\specgen\update-generated-code.ps1 -ReleaseTag docker-v29.4.1
 ```
 
 ```bash
-./tools/specgen/update-generated-code.sh docker-v29.1.5
+./tools/specgen/update-generated-code.sh docker-v29.4.1
 ```
 
 The scripts will:
