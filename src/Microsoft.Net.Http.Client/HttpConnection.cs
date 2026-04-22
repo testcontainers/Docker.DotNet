@@ -4,6 +4,12 @@ internal sealed class HttpConnection : IDisposable
 {
     private static readonly ISet<string> DockerStreamHeaders = new HashSet<string> { "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+    private static readonly RequestSerializerArrayBufferWriter RequestSerializer = new();
+#else
+    private static readonly RequestSerializerMemoryStream RequestSerializer = new();
+#endif
+
     public HttpConnection(BufferedReadStream transport)
     {
         Transport = transport;
@@ -16,7 +22,7 @@ internal sealed class HttpConnection : IDisposable
         try
         {
             // Serialize headers & send
-            var requestBytes = SerializeRequest(request);
+            var requestBytes = RequestSerializer.SerializeRequest(request);
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
             await Transport.WriteAsync(requestBytes, cancellationToken)
@@ -69,111 +75,6 @@ internal sealed class HttpConnection : IDisposable
             Dispose(); // Any errors at this layer abort the connection.
             throw new HttpRequestException("The requested failed, see inner exception for details.", ex);
         }
-    }
-
-    private static ReadOnlyMemory<byte> SerializeRequest(HttpRequestMessage request)
-    {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-        var buffer = new ArrayBufferWriter<byte>();
-#else
-        using var buffer = new MemoryStream();
-#endif
-
-        WriteString(buffer, request.Method.Method);
-        WriteBytes(buffer, " "u8);
-        WriteString(buffer, request.GetAddressLineProperty());
-        WriteBytes(buffer, " HTTP/"u8);
-        WriteString(buffer, request.Version.ToString(2));
-        WriteBytes(buffer, "\r\n"u8);
-
-        AppendHeaders(buffer, request.Headers);
-
-        if (request.Content != null)
-        {
-            // Force the content to compute its content length if it has not already.
-            var contentLength = request.Content.Headers.ContentLength;
-            if (contentLength.HasValue)
-            {
-                request.Content.Headers.ContentLength = contentLength.Value;
-            }
-
-            AppendHeaders(buffer, request.Content.Headers);
-            if (!contentLength.HasValue)
-            {
-                // Add header for chunked mode.
-                WriteBytes(buffer, "Transfer-Encoding: chunked\r\n"u8);
-            }
-        }
-        // Headers end with an empty line
-        WriteBytes(buffer, "\r\n"u8);
-
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-        return buffer.WrittenMemory;
-#else
-        if (buffer.TryGetBuffer(out var segment))
-        {
-            return segment;
-        }
-        return buffer.ToArray();
-#endif
-
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-        static void AppendHeaders(ArrayBufferWriter<byte> buffer, HttpHeaders headers)
-#else
-        static void AppendHeaders(MemoryStream buffer, HttpHeaders headers)
-#endif
-        {
-            foreach (var header in headers)
-            {
-                WriteString(buffer, header.Key);
-                WriteBytes(buffer, ": "u8);
-                var first = false;
-                foreach (var value in header.Value)
-                {
-                    if (first)
-                    {
-                        WriteBytes(buffer, ", "u8);
-                    }
-                    first = true;
-
-                    WriteString(buffer, value);
-                }
-                WriteBytes(buffer, "\r\n"u8);
-            }
-        }
-
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-        static void WriteString(ArrayBufferWriter<byte> buffer, string? str)
-        {
-            if (str is null) return;
-
-#if NET
-            Encoding.ASCII.GetBytes(str, buffer);
-#else
-            var length = Encoding.ASCII.GetByteCount(str);
-            var span = buffer.GetSpan(length);
-            var written = Encoding.ASCII.GetBytes(str, span);
-            buffer.Advance(written);
-#endif
-        }
-        static void WriteBytes(ArrayBufferWriter<byte> buffer, ReadOnlySpan<byte> span)
-        {
-            buffer.Write(span);
-        }
-#else
-        static void WriteString(MemoryStream buffer, string? str)
-        {
-            if (str is null) return;
-
-            var bytes = Encoding.ASCII.GetBytes(str);
-            buffer.Write(bytes, 0, bytes.Length);
-        }
-        static void WriteBytes(MemoryStream buffer, ReadOnlySpan<byte> span)
-        {
-            var bytes = span.ToArray();
-            buffer.Write(bytes, 0, bytes.Length);
-        }
-#endif
     }
 
     private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
