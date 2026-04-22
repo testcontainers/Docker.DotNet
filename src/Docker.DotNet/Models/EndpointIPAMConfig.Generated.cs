@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// EndpointIPAMConfig represents IPAM configurations for the endpoint
+    /// </summary>
     public class EndpointIPAMConfig // (network.EndpointIPAMConfig)
     {
         [JsonPropertyName("IPv4Address")]

@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// StorageStats is the disk I/O stats for read/write on Windows.
+    /// </summary>
     public class StorageStats // (container.StorageStats)
     {
         [JsonPropertyName("read_count_normalized")]

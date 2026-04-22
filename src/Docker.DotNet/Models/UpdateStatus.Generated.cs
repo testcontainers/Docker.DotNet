@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// UpdateStatus reports the status of a service update.
+    /// </summary>
     public class UpdateStatus // (swarm.UpdateStatus)
     {
         [JsonPropertyName("State")]

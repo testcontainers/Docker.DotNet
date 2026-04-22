@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ServiceConfig stores daemon registry services configuration.
+    /// </summary>
     public class ServiceConfig // (registry.ServiceConfig)
     {
         [JsonPropertyName("InsecureRegistryCIDRs")]

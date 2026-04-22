@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// IPAMConfig represents IPAM configurations
+    /// </summary>
     public class IPAMConfig // (network.IPAMConfig)
     {
         [JsonPropertyName("Subnet")]

@@ -1,6 +1,11 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// PathStat is used to encode the header from
+    /// GET &quot;/containers/{name:.*}/archive&quot;
+    /// &quot;Name&quot; is the file or directory name.
+    /// </summary>
     public class ContainerPathStatResponse // (container.PathStat)
     {
         [JsonPropertyName("name")]

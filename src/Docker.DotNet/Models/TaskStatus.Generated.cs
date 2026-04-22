@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// TaskStatus represents the status of a task.
+    /// </summary>
     public class TaskStatus // (swarm.TaskStatus)
     {
         [JsonPropertyName("Timestamp")]

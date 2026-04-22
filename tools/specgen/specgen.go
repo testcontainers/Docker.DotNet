@@ -3,8 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"io/fs"
 	"os"
+	"os/exec"
 	"path"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strconv"
@@ -25,6 +31,12 @@ import (
 )
 
 var reflectedTypes = map[string]*CSModelType{}
+
+// TypeComments maps package.TypeName to the type's documentation comment
+var typeComments = map[string]string{}
+
+// FieldComments maps package.TypeName.FieldName to the field's documentation comment
+var fieldComments = map[string]string{}
 
 func typeToKey(t reflect.Type) string {
 	return t.String()
@@ -593,6 +605,129 @@ func ultimateType(t reflect.Type) reflect.Type {
 	}
 }
 
+// extractGoCommentsRecursive recursively extracts comments from all Go files in a directory and its subdirectories
+func extractGoCommentsRecursive(rootDir string, baseImportPath string) error {
+	fset := token.NewFileSet()
+	type fileInfo struct {
+		importPath string
+		file       *ast.File
+	}
+	files := []fileInfo{}
+
+	// Walk the directory tree
+	err := filepath.WalkDir(rootDir, func(filePath string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+
+		// Skip vendor directories
+		if d.IsDir() && strings.Contains(filePath, "vendor") {
+			return filepath.SkipDir
+		}
+
+		// Skip non-.go files and test files
+		if d.IsDir() || !strings.HasSuffix(d.Name(), ".go") || strings.HasSuffix(d.Name(), "_test.go") {
+			return nil
+		}
+
+		// Parse the Go file
+		file, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to parse %s: %v\n", filePath, err)
+			return nil // Skip unparseable files
+		}
+
+		// Compute the full import path for this file
+		fileDir := filepath.Dir(filePath)
+		rel, err := filepath.Rel(rootDir, fileDir)
+		if err != nil {
+			return err
+		}
+		fullImportPath := baseImportPath
+		if rel != "." {
+			fullImportPath = baseImportPath + "/" + filepath.ToSlash(rel)
+		}
+
+		files = append(files, fileInfo{importPath: fullImportPath, file: file})
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	for _, fileInfo := range files {
+		file := fileInfo.file
+		importPath := fileInfo.importPath
+
+		for _, decl := range file.Decls {
+			switch d := decl.(type) {
+			case *ast.GenDecl:
+				if d.Tok == token.TYPE {
+					for _, spec := range d.Specs {
+						if typeSpec, ok := spec.(*ast.TypeSpec); ok {
+							typeName := typeSpec.Name.Name
+
+							if comment := commentText(typeSpec.Doc, d.Doc); comment != "" {
+								typeKey := fmt.Sprintf("%s.%s", importPath, typeName)
+								typeComments[typeKey] = comment
+							}
+
+							if structType, ok := typeSpec.Type.(*ast.StructType); ok && structType.Fields != nil {
+								for _, field := range structType.Fields.List {
+									for _, fieldName := range field.Names {
+										if fieldComment := commentText(field.Doc, field.Comment); fieldComment != "" {
+											fieldKey := fmt.Sprintf("%s.%s.%s", importPath, typeName, fieldName.Name)
+											fieldComments[fieldKey] = fieldComment
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// commentText returns the first non-empty comment from the provided groups.
+func commentText(groups ...*ast.CommentGroup) string {
+	for _, group := range groups {
+		if group == nil {
+			continue
+		}
+
+		if comment := strings.TrimSpace(group.Text()); comment != "" {
+			return comment
+		}
+	}
+
+	return ""
+}
+
+// getTypeComment retrieves the documentation comment for a type
+func getTypeComment(t reflect.Type) string {
+	// Look up using the full package path
+	typeKey := fmt.Sprintf("%s.%s", t.PkgPath(), t.Name())
+	if comment, ok := typeComments[typeKey]; ok {
+		return comment
+	}
+	return ""
+}
+
+// getFieldComment retrieves the documentation comment for a struct field
+func getFieldComment(t reflect.Type, fieldName string) string {
+	// Look up using the full package path
+	fieldKey := fmt.Sprintf("%s.%s.%s", t.PkgPath(), t.Name(), fieldName)
+	if comment, ok := fieldComments[fieldKey]; ok {
+		return comment
+	}
+	return ""
+}
+
 func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
@@ -616,8 +751,9 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			reflectedTypes[typeToKey(f.Type)] = inlineModel
 
 			csProp := CSProperty{
-				Name: f.Name,
-				Type: CSType{"", inlineStructName},
+				Name:    f.Name,
+				Type:    CSType{"", inlineStructName},
+				Comment: getFieldComment(t, f.Name),
 			}
 
 			jsonTag := strings.Split(f.Tag.Get("json"), ",")
@@ -680,7 +816,11 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			}
 
 			// Create our new property.
-			csProp := CSProperty{Name: f.Name, Type: csType(f.Type, false)}
+			csProp := CSProperty{
+				Name:    f.Name,
+				Type:    csType(f.Type, false),
+				Comment: getFieldComment(t, f.Name),
+			}
 
 			jsonName := f.Name
 			if jsonTag[0] != "" {
@@ -781,6 +921,7 @@ func reflectType(t reflect.Type) {
 
 	if activeType == nil {
 		activeType = NewModel(name, t.String())
+		activeType.Comment = getTypeComment(t)
 	}
 
 	activeType.IsStarted = true
@@ -805,6 +946,23 @@ func main() {
 		}
 	} else {
 		sourcePath, _ = os.Getwd()
+	}
+
+	// Extract comments from moby/moby source files
+	mobyModules := []string{
+		"github.com/moby/moby/api",
+		"github.com/moby/moby/client",
+	}
+
+	for _, moduleName := range mobyModules {
+		modulePath, err := findGoModulePath(moduleName)
+		if err != nil {
+			fmt.Printf("Warning: Failed to find module %s: %v\n", moduleName, err)
+			continue
+		}
+		if err := extractGoCommentsRecursive(modulePath, moduleName); err != nil {
+			fmt.Printf("Warning: Failed to extract comments from %s: %v\n", modulePath, err)
+		}
 	}
 
 	// Delete any previously generated files.
@@ -881,4 +1039,21 @@ func main() {
 	}
 
 	jscf.Close()
+}
+
+func findGoModulePath(moduleName string) (string, error) {
+	// Ask the Go toolchain for the resolved module directory instead of reconstructing
+	// GOPATH/pkg/mod paths, which can drift from the active module cache and version.
+	cmd := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", moduleName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("resolve module %s: %w: %s", moduleName, err, strings.TrimSpace(string(output)))
+	}
+
+	modulePath := strings.TrimSpace(string(output))
+	if modulePath == "" {
+		return "", fmt.Errorf("resolve module %s: empty module directory", moduleName)
+	}
+
+	return modulePath, nil
 }

@@ -11,6 +11,10 @@ $scriptDir = $PSScriptRoot
 $modelsDir = Resolve-Path (Join-Path $scriptDir '..\..\src\Docker.DotNet\Models')
 $specgenExe = Join-Path $scriptDir 'specgen.exe'
 
+$utf8WithoutBom = [System.Text.UTF8Encoding]::new($false)
+$dockerVersion = $ReleaseTag -Replace 'docker-', ''
+$directoryBuildPropsPath = Join-Path $scriptDir '..\..\Directory.Build.props'
+
 Push-Location $scriptDir
 
 try {
@@ -19,6 +23,11 @@ try {
 
     Write-Host "Updating moby client package to tag '$ReleaseTag'"
     go get "github.com/moby/moby/client@$ReleaseTag"
+
+    Write-Host "Updating props DockerVersion with '$dockerVersion'"
+    $directoryBuildPropsContent = [System.IO.File]::ReadAllText($directoryBuildPropsPath, $utf8WithoutBom)
+    $directoryBuildPropsContent = $directoryBuildPropsContent -Replace '(?<=<DockerVersion>).*?(?=</DockerVersion>)', $dockerVersion
+    [System.IO.File]::WriteAllText($directoryBuildPropsPath, $directoryBuildPropsContent, $utf8WithoutBom)
 
     Write-Host 'Building specgen'
     go build

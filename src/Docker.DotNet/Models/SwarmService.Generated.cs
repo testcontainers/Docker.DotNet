@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Service represents a service.
+    /// </summary>
     public class SwarmService // (swarm.Service)
     {
         public SwarmService()
@@ -41,9 +44,20 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("UpdateStatus")]
         public UpdateStatus? UpdateStatus { get; set; }
 
+        /// <summary>
+        /// ServiceStatus is an optional, extra field indicating the number of
+        /// desired and running tasks. It is provided primarily as a shortcut to
+        /// calculating these values client-side, which otherwise would require
+        /// listing all tasks for a service, an operation that could be
+        /// computation and network expensive.
+        /// </summary>
         [JsonPropertyName("ServiceStatus")]
         public ServiceStatus? ServiceStatus { get; set; }
 
+        /// <summary>
+        /// JobStatus is the status of a Service which is in one of ReplicatedJob or
+        /// GlobalJob modes. It is absent on Replicated and Global services.
+        /// </summary>
         [JsonPropertyName("JobStatus")]
         public JobStatus? JobStatus { get; set; }
     }

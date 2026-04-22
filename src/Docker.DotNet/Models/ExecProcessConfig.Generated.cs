@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ExecProcessConfig holds information about the exec process
+    /// running on the host.
+    /// </summary>
     public class ExecProcessConfig // (container.ExecProcessConfig)
     {
         [JsonPropertyName("tty")]

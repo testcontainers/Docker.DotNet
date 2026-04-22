@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// ServiceMode represents the mode of a service.
+    /// </summary>
     public class ServiceMode // (swarm.ServiceMode)
     {
         [JsonPropertyName("Replicated")]

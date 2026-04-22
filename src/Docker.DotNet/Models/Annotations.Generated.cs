@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Annotations represents how to describe an object.
+    /// </summary>
     public class Annotations // (swarm.Annotations)
     {
         [JsonPropertyName("Name")]

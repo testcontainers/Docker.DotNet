@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// NodeSpec represents the spec of a node.
+    /// </summary>
     public class NodeUpdateParameters // (swarm.NodeSpec)
     {
         public NodeUpdateParameters()

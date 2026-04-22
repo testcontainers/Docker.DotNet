@@ -20,7 +20,7 @@ public interface IImageOperations
     /// </summary>
     /// <param name="contents">A readable tar stream of file contents for the build.</param>
     /// <param name="parameters">Specifics of how to perform the operation.</param>
-    /// <param name="authConfig">Information for authenticating with the registry.</param>
+    /// <param name="authConfigs">Information for authenticating with the registry.</param>
     /// <param name="headers">Additional headers to include in the HTTP request to the registry.</param>
     /// <param name="progress">Provides a delegate the receives progress updates while the operation is underway.</param>
     /// <param name="cancellationToken">When triggered, the operation will stop at the next available time, if possible.</param>
@@ -195,7 +195,6 @@ public interface IImageOperations
     /// <remarks>
     /// The equivalent commands in the Docker CLI are <c>docker tag</c> and <c>docker image tag</c>.
     /// </remarks>
-    /// <param name="name">Image name or id.</param>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerImageNotFoundException">No such image was found.</exception>
     /// <exception cref="DockerApiException">There was a conflict, or the input is invalid, or the daemon experienced an error.</exception>
@@ -214,7 +213,6 @@ public interface IImageOperations
     /// <br/>
     /// The equivalent commands in the Docker CLI are <c>docker inspect</c> and <c>docker image inspect</c>.
     /// </remarks>
-    /// <param name="name">Image name or id.</param>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerImageNotFoundException">No such image was found.</exception>
     /// <exception cref="DockerApiException">There was a conflict, or the input is invalid, or the daemon experienced an error.</exception>
@@ -269,7 +267,6 @@ public interface IImageOperations
     /// <remarks>
     /// The equivalent command in the Docker CLI is <c>docker export</c>.
     /// </remarks>
-    /// <param name="name">Image name or ID.</param>
     /// <seealso cref="SaveImagesAsync(string[], CancellationToken)"/>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">There was a conflict, or the input is invalid, or the daemon experienced an error.</exception>
@@ -290,7 +287,6 @@ public interface IImageOperations
     /// <br/>
     /// The equivalent command in the Docker CLI is <c>docker export</c>.
     /// </remarks>
-    /// <param name="names">Image names to filter by.</param>
     /// <seealso cref="SaveImageAsync(string, CancellationToken)"/>
     /// <exception cref="ArgumentNullException">One or more of the inputs was <see langword="null"/>.</exception>
     /// <exception cref="DockerApiException">There was a conflict, or the input is invalid, or the daemon experienced an error.</exception>

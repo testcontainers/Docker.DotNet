@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// Task represents a task.
+    /// </summary>
     public class TaskResponse // (swarm.Task)
     {
         public TaskResponse()
@@ -65,9 +68,20 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("GenericResources")]
         public IList<GenericResource>? GenericResources { get; set; }
 
+        /// <summary>
+        /// JobIteration is the JobIteration of the Service that this Task was
+        /// spawned from, if the Service is a ReplicatedJob or GlobalJob. This is
+        /// used to determine which Tasks belong to which run of the job. This field
+        /// is absent if the Service mode is Replicated or Global.
+        /// </summary>
         [JsonPropertyName("JobIteration")]
         public Version? JobIteration { get; set; }
 
+        /// <summary>
+        /// Volumes is the list of VolumeAttachments for this task. It specifies
+        /// which particular volumes are to be used by this particular task, and
+        /// fulfilling what mounts in the spec.
+        /// </summary>
         [JsonPropertyName("Volumes")]
         public IList<VolumeAttachment> Volumes { get; set; } = default!;
     }

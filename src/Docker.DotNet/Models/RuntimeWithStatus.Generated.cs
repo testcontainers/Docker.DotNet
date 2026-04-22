@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// RuntimeWithStatus extends [Runtime] to hold [RuntimeStatus].
+    /// </summary>
     public class RuntimeWithStatus // (system.RuntimeWithStatus)
     {
         public RuntimeWithStatus()

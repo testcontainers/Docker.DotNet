@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// PluginDescription represents the description of an engine plugin.
+    /// </summary>
     public class PluginDescription // (swarm.PluginDescription)
     {
         [JsonPropertyName("Type")]
