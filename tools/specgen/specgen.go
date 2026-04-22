@@ -623,6 +623,7 @@ func extractGoCommentsRecursive(rootDir string, baseImportPath string) error {
 		// Parse the Go file
 		file, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to parse %s: %v\n", filePath, err)
 			return nil // Skip unparseable files
 		}
 
