@@ -1,6 +1,9 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// SignatureTimestamp contains information about a verified signed timestamp for an image signature.
+    /// </summary>
     public class SignatureTimestamp // (image.SignatureTimestamp)
     {
         [JsonPropertyName("Type")]

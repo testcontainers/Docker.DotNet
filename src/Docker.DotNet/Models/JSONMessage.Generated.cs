@@ -2,9 +2,9 @@
 namespace Docker.DotNet.Models
 {
     /// <summary>
-    /// JSONMessage defines a message struct. It describes
+    /// Message defines a message struct. It describes
     /// the created time, where it from, status, ID of the
-    /// message. It&apos;s used for docker events.
+    /// message.
     /// </summary>
     public class JSONMessage // (jsonstream.Message)
     {

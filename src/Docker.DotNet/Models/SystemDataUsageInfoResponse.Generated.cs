@@ -1,6 +1,10 @@
 #nullable enable
 namespace Docker.DotNet.Models
 {
+    /// <summary>
+    /// DiskUsage contains response of Engine API:
+    /// GET &quot;/system/df&quot;
+    /// </summary>
     public class SystemDataUsageInfoResponse // (system.DiskUsage)
     {
         [JsonPropertyName("ImageUsage")]
