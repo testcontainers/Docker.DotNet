@@ -23,6 +23,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("errorDetail")]
         public JSONError? Error { get; set; }
 
+        /// <summary>
+        /// Aux contains out-of-band data, such as digests for push signing and image id after building.
+        /// </summary>
         [JsonPropertyName("aux")]
         public ObjectExtensionData? Aux { get; set; }
     }

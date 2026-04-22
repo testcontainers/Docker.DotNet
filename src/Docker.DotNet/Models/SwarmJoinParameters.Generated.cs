@@ -18,6 +18,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("RemoteAddrs")]
         public IList<string> RemoteAddrs { get; set; } = default!;
 
+        /// <summary>
+        /// accept by secret
+        /// </summary>
         [JsonPropertyName("JoinToken")]
         public string JoinToken { get; set; } = default!;
 

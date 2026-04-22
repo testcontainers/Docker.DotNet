@@ -31,6 +31,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("DriverStatus")]
         public IList<string[]> DriverStatus { get; set; } = default!;
 
+        /// <summary>
+        /// SystemStatus is only propagated by the Swarm standalone API
+        /// </summary>
         [JsonPropertyName("SystemStatus")]
         public IList<string[]>? SystemStatus { get; set; }
 

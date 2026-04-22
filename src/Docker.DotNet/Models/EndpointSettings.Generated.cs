@@ -15,6 +15,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Links")]
         public IList<string> Links { get; set; } = default!;
 
+        /// <summary>
+        /// Aliases holds the list of extra, user-specified DNS names for this endpoint.
+        /// </summary>
         [JsonPropertyName("Aliases")]
         public IList<string> Aliases { get; set; } = default!;
 

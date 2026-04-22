@@ -6,9 +6,15 @@ namespace Docker.DotNet.Models
     /// </summary>
     public class NetworkSettings // (container.NetworkSettings)
     {
+        /// <summary>
+        /// SandboxID uniquely represents a container&apos;s network stack
+        /// </summary>
         [JsonPropertyName("SandboxID")]
         public string SandboxID { get; set; } = default!;
 
+        /// <summary>
+        /// SandboxKey identifies the sandbox
+        /// </summary>
         [JsonPropertyName("SandboxKey")]
         public string SandboxKey { get; set; } = default!;
 

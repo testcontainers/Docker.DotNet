@@ -8,6 +8,7 @@ import (
 	"go/token"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -627,7 +628,10 @@ func extractGoCommentsRecursive(rootDir string, baseImportPath string) error {
 
 		// Compute the full import path for this file
 		fileDir := filepath.Dir(filePath)
-		rel, _ := filepath.Rel(rootDir, fileDir)
+		rel, err := filepath.Rel(rootDir, fileDir)
+		if err != nil {
+			return err
+		}
 		fullImportPath := baseImportPath
 		if rel != "." {
 			fullImportPath = baseImportPath + "/" + filepath.ToSlash(rel)
@@ -653,23 +657,17 @@ func extractGoCommentsRecursive(rootDir string, baseImportPath string) error {
 						if typeSpec, ok := spec.(*ast.TypeSpec); ok {
 							typeName := typeSpec.Name.Name
 
-							if d.Doc != nil {
-								comment := strings.TrimSpace(d.Doc.Text())
-								if comment != "" {
-									typeKey := fmt.Sprintf("%s.%s", importPath, typeName)
-									typeComments[typeKey] = comment
-								}
+							if comment := commentText(typeSpec.Doc, d.Doc); comment != "" {
+								typeKey := fmt.Sprintf("%s.%s", importPath, typeName)
+								typeComments[typeKey] = comment
 							}
 
 							if structType, ok := typeSpec.Type.(*ast.StructType); ok && structType.Fields != nil {
 								for _, field := range structType.Fields.List {
 									for _, fieldName := range field.Names {
-										if field.Doc != nil {
-											fieldComment := strings.TrimSpace(field.Doc.Text())
-											if fieldComment != "" {
-												fieldKey := fmt.Sprintf("%s.%s.%s", importPath, typeName, fieldName.Name)
-												fieldComments[fieldKey] = fieldComment
-											}
+										if fieldComment := commentText(field.Doc, field.Comment); fieldComment != "" {
+											fieldKey := fmt.Sprintf("%s.%s.%s", importPath, typeName, fieldName.Name)
+											fieldComments[fieldKey] = fieldComment
 										}
 									}
 								}
@@ -682,6 +680,21 @@ func extractGoCommentsRecursive(rootDir string, baseImportPath string) error {
 	}
 
 	return nil
+}
+
+// commentText returns the first non-empty comment from the provided groups.
+func commentText(groups ...*ast.CommentGroup) string {
+	for _, group := range groups {
+		if group == nil {
+			continue
+		}
+
+		if comment := strings.TrimSpace(group.Text()); comment != "" {
+			return comment
+		}
+	}
+
+	return ""
 }
 
 // getTypeComment retrieves the documentation comment for a type
@@ -931,13 +944,13 @@ func main() {
 	}
 
 	for _, moduleName := range mobyModules {
-		moduleInfo, err := findGoModulePath(moduleName)
+		modulePath, err := findGoModulePath(moduleName)
 		if err != nil {
 			fmt.Printf("Warning: Failed to find module %s: %v\n", moduleName, err)
 			continue
 		}
-		if err := extractGoCommentsRecursive(moduleInfo.Path, moduleInfo.ImportPath); err != nil {
-			fmt.Printf("Warning: Failed to extract comments from %s: %v\n", moduleInfo.Path, err)
+		if err := extractGoCommentsRecursive(modulePath, moduleName); err != nil {
+			fmt.Printf("Warning: Failed to extract comments from %s: %v\n", modulePath, err)
 		}
 	}
 
@@ -1017,70 +1030,19 @@ func main() {
 	jscf.Close()
 }
 
-// ModuleInfo contains both the filesystem path and import path for a Go module
-type ModuleInfo struct {
-	Path       string // filesystem path to the module
-	ImportPath string // import path like github.com/moby/moby/api
-}
-
-// findGoModulePath attempts to find the path to a Go module in GOPATH and returns both the filesystem path and import path
-func findGoModulePath(moduleName string) (*ModuleInfo, error) {
-	goPath := os.Getenv("GOPATH")
-	if goPath == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
-		goPath = filepath.Join(home, "go")
-	}
-
-	// Look in $GOPATH/pkg/mod for the module
-	modCacheBase := filepath.Join(goPath, "pkg", "mod", filepath.FromSlash(moduleName))
-	baseDir := filepath.Dir(modCacheBase)
-	baseName := filepath.Base(modCacheBase)
-
-	entries, err := os.ReadDir(baseDir)
+func findGoModulePath(moduleName string) (string, error) {
+	// Ask the Go toolchain for the resolved module directory instead of reconstructing
+	// GOPATH/pkg/mod paths, which can drift from the active module cache and version.
+	cmd := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", moduleName)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("resolve module %s: %w: %s", moduleName, err, strings.TrimSpace(string(output)))
 	}
 
-	// Find the latest version of the module (e.g., "moby@v1.44.0")
-	var latestVersion string
-	var latestPath string
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		// Check if this is a version of our module (e.g., "moby@v1.44.0")
-		if strings.HasPrefix(name, baseName+"@") {
-			if latestVersion == "" || name > latestVersion {
-				latestVersion = name
-				latestPath = filepath.Join(baseDir, name)
-			}
-		}
+	modulePath := strings.TrimSpace(string(output))
+	if modulePath == "" {
+		return "", fmt.Errorf("resolve module %s: empty module directory", moduleName)
 	}
 
-	if latestPath != "" {
-		// Extract import path from the filesystem path
-		fspath := latestPath
-
-		// Remove version suffix (after @)
-		atIndex := strings.Index(fspath, "@")
-		if atIndex != -1 {
-			fspath = fspath[:atIndex]
-		}
-
-		// Remove $GOPATH/pkg/mod/ prefix
-		modPrefix := filepath.Join(goPath, "pkg", "mod") + string(os.PathSeparator)
-		if after, ok := strings.CutPrefix(fspath, modPrefix); ok {
-			fspath = after
-		}
-
-		importPath := filepath.ToSlash(fspath)
-		return &ModuleInfo{Path: latestPath, ImportPath: importPath}, nil
-	}
-
-	return nil, fmt.Errorf("module %s not found in Go module cache", moduleName)
+	return modulePath, nil
 }

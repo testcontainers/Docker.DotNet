@@ -20,6 +20,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Target")]
         public string? Target { get; set; }
 
+        /// <summary>
+        /// attempts recursive read-only if possible
+        /// </summary>
         [JsonPropertyName("ReadOnly")]
         public bool? ReadOnly { get; set; }
 

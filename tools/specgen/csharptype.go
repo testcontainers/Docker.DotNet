@@ -362,7 +362,7 @@ func writeConstructors(w io.Writer, typeName string, constructors []CSConstructo
 }
 
 func writeProperties(w io.Writer, properties []CSProperty) {
-	len := len(properties)
+	propertyCount := len(properties)
 	for i, p := range properties {
 		writeXMLComment(w, p.Comment, "        ")
 
@@ -384,7 +384,7 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 
 		fmt.Fprintln(w)
 
-		if i != len-1 {
+		if i != propertyCount-1 {
 			fmt.Fprintln(w, "")
 		}
 	}

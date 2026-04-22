@@ -9,6 +9,9 @@ namespace Docker.DotNet.Models
         [JsonPropertyName("Driver")]
         public string Driver { get; set; } = default!;
 
+        /// <summary>
+        /// Per network IPAM driver options
+        /// </summary>
         [JsonPropertyName("Options")]
         public IDictionary<string, string> Options { get; set; } = default!;
 
