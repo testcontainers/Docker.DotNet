@@ -111,27 +111,15 @@ internal sealed class HttpConnection : IDisposable
 
         return buffer.GetWrittenMemory();
 
+        // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
+        // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
         void AppendHeaders(HttpHeaders headers)
         {
             foreach (var header in headers)
             {
-                var first = false;
-
                 buffer.WriteString(header.Key);
                 buffer.WriteBytes(": "u8);
-
-                foreach (var value in header.Value)
-                {
-                    if (first)
-                    {
-                        buffer.WriteBytes(", "u8);
-                    }
-
-                    first = true;
-
-                    buffer.WriteString(value);
-                }
-
+                buffer.WriteString(string.Join(", ", header.Value));
                 buffer.WriteBytes("\r\n"u8);
             }
         }
