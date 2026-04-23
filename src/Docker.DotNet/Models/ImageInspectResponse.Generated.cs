@@ -147,5 +147,13 @@ namespace Docker.DotNet.Models
         /// </summary>
         [JsonPropertyName("Manifests")]
         public IList<ManifestSummary>? Manifests { get; set; }
+
+        /// <summary>
+        /// Identity holds information about the identity and origin of the image.
+        /// This is trusted information verified by the daemon and cannot be modified
+        /// by tagging an image to a different name.
+        /// </summary>
+        [JsonPropertyName("Identity")]
+        public Identity? Identity { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Release tag to use for moby api/client (example: docker-v29.1.5)")]
+    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Release tag to use for moby api/client (example: docker-v29.4.1)")]
     [ValidateNotNullOrEmpty()]
     [string]$ReleaseTag
 )

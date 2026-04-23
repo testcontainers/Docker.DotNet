@@ -74,4 +74,9 @@ public interface ISystemOperations
     /// 500 - Server error.
     /// </remarks>
     Task MonitorEventsAsync(ContainerEventsParameters parameters, IProgress<Message> progress, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get data usage information
+    /// </summary>
+    Task<SystemDataUsageInfoResponse> GetDataUsageInfoAsync(SytemDataUsageInfoParameters? parameters = null, CancellationToken cancellationToken = default);
 }

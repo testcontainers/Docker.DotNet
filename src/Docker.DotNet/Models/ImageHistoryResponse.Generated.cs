@@ -2,7 +2,9 @@
 namespace Docker.DotNet.Models
 {
     /// <summary>
-    /// HistoryResponseItem individual image layer information in response to ImageHistory operation
+    /// HistoryResponseItem HistoryResponseItem
+    /// 
+    /// individual image layer information in response to ImageHistory operation
     /// 
     /// swagger:model HistoryResponseItem
     /// </summary>

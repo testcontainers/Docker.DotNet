@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/moby/moby/api/types/build"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/api/types/image"
@@ -226,9 +227,13 @@ var typesToDisambiguate = map[string]*CSModelType{
 			{Name: "Types", Type: CSType{"System.Collections.Generic", "IList<string>"}},
 		},
 	},
-
+	typeToKey(reflect.TypeOf(build.DiskUsage{})):         {Name: "BuildDiskUsage"},
+	typeToKey(reflect.TypeOf(container.DiskUsage{})):     {Name: "ContainerDiskUsage"},
 	typeToKey(reflect.TypeOf(container.StatsResponse{})): {Name: "ContainerStatsResponse"},
+	typeToKey(reflect.TypeOf(image.DiskUsage{})):         {Name: "ImageDiskUsage"},
+	typeToKey(reflect.TypeOf(system.DiskUsage{})):        {Name: "SystemDataUsageInfoResponse"},
 	typeToKey(reflect.TypeOf(system.VersionResponse{})):  {Name: "VersionResponse"},
+	typeToKey(reflect.TypeOf(volume.DiskUsage{})):        {Name: "VolumeDiskUsage"},
 	typeToKey(reflect.TypeOf(volume.PruneReport{})):      {Name: "VolumesPruneResponse"},
 	typeToKey(reflect.TypeOf(VolumeResponse{})):          {Name: "VolumeResponse"},
 }
@@ -381,6 +386,10 @@ var dockerTypesToReflect = []reflect.Type{
 	// GET /info
 	reflect.TypeOf(system.Info{}),
 	reflect.TypeOf(registry.ServiceConfig{}),
+
+	// GET /system/df
+	reflect.TypeOf(SytemDataUsageInfoParameters{}),
+	reflect.TypeOf(system.DiskUsage{}),
 
 	// GET /networks
 	reflect.TypeOf(NetworksListParameters{}),

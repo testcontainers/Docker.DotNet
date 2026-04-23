@@ -15,6 +15,6 @@ namespace Docker.DotNet.Models
         /// compatibility, but only the IP address is used.
         /// </summary>
         [JsonPropertyName("Addr")]
-        public string? Addr { get; set; }
+        public string Addr { get; set; } = default!;
     }
 }

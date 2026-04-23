@@ -249,4 +249,11 @@ public class ISystemOperationsTests
     {
         await _testFixture.DockerClient.System.PingAsync(TestContext.Current.CancellationToken);
     }
+
+    [Fact]
+    public async Task GetDataUsageInfoAsync_Succeeds()
+    {
+        var result = await _testFixture.DockerClient.System.GetDataUsageInfoAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(result);
+    }
 }

@@ -432,3 +432,9 @@ type SecretCreateResponse struct {
 type TasksListParameters struct {
 	Filters Args `rest:"query"`
 }
+
+// SytemDataUsageInfoParameters for GET /system/df
+type SytemDataUsageInfoParameters struct {
+	Type    []string `rest:"query"`
+	Verbose bool     `rest:"query"`
+}
