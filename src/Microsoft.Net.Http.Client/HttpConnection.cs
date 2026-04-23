@@ -16,11 +16,16 @@ internal sealed class HttpConnection : IDisposable
         try
         {
             // Serialize headers & send
-            string rawRequest = SerializeRequest(request);
-            byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
+            var requestBytes = SerializeRequest(request);
 
-            await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            await Transport.WriteAsync(requestBytes, cancellationToken)
                 .ConfigureAwait(false);
+#else
+            var bytes = requestBytes.ToArray();
+            await Transport.WriteAsync(bytes, 0, bytes.Length, cancellationToken)
+                .ConfigureAwait(false);
+#endif
 
             if (request.Content != null)
             {
@@ -66,17 +71,22 @@ internal sealed class HttpConnection : IDisposable
         }
     }
 
-    private string SerializeRequest(HttpRequestMessage request)
+    private static ReadOnlyMemory<byte> SerializeRequest(HttpRequestMessage request)
     {
-        StringBuilder builder = new StringBuilder();
-        builder.Append(request.Method);
-        builder.Append(' ');
-        builder.Append(request.GetAddressLineProperty());
-        builder.Append(" HTTP/");
-        builder.Append(request.Version.ToString(2));
-        builder.Append("\r\n");
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        var buffer = new ArrayBufferWriterRequestBuffer();
+#else
+        using var buffer = new MemoryStreamRequestBuffer();
+#endif
 
-        AppendHeaders(builder, request.Headers);
+        buffer.WriteString(request.Method.Method);
+        buffer.WriteBytes(" "u8);
+        buffer.WriteString(request.GetAddressLineProperty());
+        buffer.WriteBytes(" HTTP/"u8);
+        buffer.WriteString(request.Version.ToString(2));
+        buffer.WriteBytes("\r\n"u8);
+
+        AppendHeaders(request.Headers);
 
         if (request.Content != null)
         {
@@ -87,28 +97,31 @@ internal sealed class HttpConnection : IDisposable
                 request.Content.Headers.ContentLength = contentLength.Value;
             }
 
-            AppendHeaders(builder, request.Content.Headers);
+            AppendHeaders(request.Content.Headers);
+
             if (!contentLength.HasValue)
             {
                 // Add header for chunked mode.
-                builder.Append("Transfer-Encoding: chunked\r\n");
+                buffer.WriteBytes("Transfer-Encoding: chunked\r\n"u8);
             }
         }
-        // Headers end with an empty line
-        builder.Append("\r\n");
-        return builder.ToString();
-    }
 
-    // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
-    // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
-    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
-    {
-        foreach (var header in headers)
+        // Headers end with an empty line
+        buffer.WriteBytes("\r\n"u8);
+
+        return buffer.GetWrittenMemory();
+
+        // HttpHeaders.ToString() uses Environment.NewLine which is \n on macOS/Linux.
+        // RFC 9112 §2.2 requires \r\n regardless of platform, so we serialize headers explicitly.
+        void AppendHeaders(HttpHeaders headers)
         {
-            builder.Append(header.Key);
-            builder.Append(": ");
-            builder.Append(string.Join(", ", header.Value));
-            builder.Append("\r\n");
+            foreach (var header in headers)
+            {
+                buffer.WriteString(header.Key);
+                buffer.WriteBytes(": "u8);
+                buffer.WriteString(string.Join(", ", header.Value));
+                buffer.WriteBytes("\r\n"u8);
+            }
         }
     }
 
