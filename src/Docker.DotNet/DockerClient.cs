@@ -35,6 +35,7 @@ public sealed class DockerClient : IDockerClient
         Volumes = new VolumeOperations(this);
         Secrets = new SecretsOperations(this);
         Configs = new ConfigOperations(this);
+        Distribution = new DistributionOperations(this);
         Swarm = new SwarmOperations(this);
         Tasks = new TasksOperations(this);
         Plugin = new PluginOperations(this);
@@ -56,6 +57,8 @@ public sealed class DockerClient : IDockerClient
     public ISecretsOperations Secrets { get; }
 
     public IConfigOperations Configs { get; }
+
+    public IDistributionOperations Distribution { get; }
 
     public ISwarmOperations Swarm { get; }
 
