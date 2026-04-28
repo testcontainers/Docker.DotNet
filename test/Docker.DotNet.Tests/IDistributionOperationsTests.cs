@@ -29,7 +29,7 @@ public class IDistributionOperationsTests
         return Assert.ThrowsAsync<DockerImageNotFoundException>(
             () => _testFixture.DockerClient.Distribution.InspectAsync(
                 "alpine:does-not-exist",
-                TestContext.Current.CancellationToken));
+                _testFixture.Cts.Token));
     }
 
     [Fact]
@@ -38,11 +38,11 @@ public class IDistributionOperationsTests
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => _testFixture.DockerClient.Distribution.InspectAsync(
                 null!,
-                TestContext.Current.CancellationToken));
+                _testFixture.Cts.Token));
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => _testFixture.DockerClient.Distribution.InspectAsync(
                 string.Empty,
-                TestContext.Current.CancellationToken));
+                _testFixture.Cts.Token));
     }
 }
