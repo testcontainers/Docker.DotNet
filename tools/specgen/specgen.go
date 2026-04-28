@@ -123,6 +123,9 @@ var typesToDisambiguate = map[string]*CSModelType{
 	typeToKey(reflect.TypeOf(volume.Secret{})):         {Name: "VolumeSecret"},
 	typeToKey(reflect.TypeOf(volume.Topology{})):       {Name: "VolumeTopology"},
 	typeToKey(reflect.TypeOf(registry.AuthResponse{})): {Name: "AuthResponse"},
+	typeToKey(reflect.TypeOf(registry.DistributionInspect{})): {
+		Name: "DistributionInspectResponse",
+	},
 	typeToKey(reflect.TypeOf(registry.SearchResult{})): {Name: "ImageSearchResponse"},
 	typeToKey(reflect.TypeOf(swarm.RuntimeSpec{})):     {Name: "SwarmRuntimeSpec"},
 	typeToKey(reflect.TypeOf(swarm.ConfigSpec{})):      {Name: "SwarmConfigSpec"},
@@ -342,6 +345,9 @@ var dockerTypesToReflect = []reflect.Type{
 	reflect.TypeOf(ContainerEventsParameters{}),
 	reflect.TypeOf(events.Actor{}),
 	reflect.TypeOf(events.Message{}),
+
+	// GET /distribution/{name}/json
+	reflect.TypeOf(registry.DistributionInspect{}),
 
 	// POST /images/create
 	reflect.TypeOf(ImagesCreateParameters{}),
