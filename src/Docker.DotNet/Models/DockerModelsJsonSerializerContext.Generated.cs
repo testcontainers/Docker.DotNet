@@ -57,6 +57,7 @@ namespace Docker.DotNet.Models
     [JsonSerializable(typeof(DeviceMapping))]
     [JsonSerializable(typeof(DeviceRequest))]
     [JsonSerializable(typeof(DiscreteGenericResource))]
+    [JsonSerializable(typeof(DistributionInspectResponse))]
     [JsonSerializable(typeof(DispatcherConfig))]
     [JsonSerializable(typeof(DockerOCIImageConfig))]
     [JsonSerializable(typeof(DockerOCIImageConfigExt))]

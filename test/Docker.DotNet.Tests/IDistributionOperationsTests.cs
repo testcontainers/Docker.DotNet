@@ -28,7 +28,7 @@ public class IDistributionOperationsTests
     {
         return Assert.ThrowsAsync<DockerImageNotFoundException>(
             () => _testFixture.DockerClient.Distribution.InspectAsync(
-                "docker.io/library/definitely-not-a-real-image:does-not-exist",
+                "alpine:does-not-exist",
                 TestContext.Current.CancellationToken));
     }
 
