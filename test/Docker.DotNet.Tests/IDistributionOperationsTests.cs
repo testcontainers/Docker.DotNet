@@ -33,9 +33,14 @@ public class IDistributionOperationsTests
     }
 
     [Fact]
-    public Task InspectAsync_NullOrEmptyName_ThrowsArgumentNullException()
+    public async Task InspectAsync_NullOrEmptyName_ThrowsArgumentNullException()
     {
-        return Assert.ThrowsAsync<ArgumentNullException>(
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _testFixture.DockerClient.Distribution.InspectAsync(
+                null!,
+                TestContext.Current.CancellationToken));
+
+        await Assert.ThrowsAsync<ArgumentNullException>(
             () => _testFixture.DockerClient.Distribution.InspectAsync(
                 string.Empty,
                 TestContext.Current.CancellationToken));
