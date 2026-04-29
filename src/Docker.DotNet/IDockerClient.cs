@@ -18,6 +18,8 @@ public interface IDockerClient : IDisposable
 
     IConfigOperations Configs { get; }
 
+    IDistributionOperations Distribution { get; }
+
     ISwarmOperations Swarm { get; }
 
     ITasksOperations Tasks { get; }
