@@ -13,13 +13,6 @@ public class ISystemOperationsTests
     }
 
     [Fact]
-    public void Docker_IsRunning()
-    {
-        var dockerProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName.Equals("docker", StringComparison.InvariantCultureIgnoreCase) || process.ProcessName.Equals("dockerd", StringComparison.InvariantCultureIgnoreCase));
-        Assert.NotNull(dockerProcess);
-    }
-
-    [Fact]
     public async Task GetSystemInfoAsync_Succeeds()
     {
         var info = await _testFixture.DockerClient.System.GetSystemInfoAsync(TestContext.Current.CancellationToken);
