@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace Docker.DotNet.TestsV2;
 
 public sealed class DockerClientBuilderTests
@@ -5,13 +7,41 @@ public sealed class DockerClientBuilderTests
     [Fact]
     public void Constructor_SetsPlatformDefaultEndpoint()
     {
-        var builder = new TestDockerClientBuilder();
+        // The constructor resolves the endpoint like the docker CLI does, so the
+        // environment must be neutralized for the platform default to be selected:
+        // no DOCKER_HOST/DOCKER_CONTEXT/DOCKER_TLS_VERIFY, and an empty DOCKER_CONFIG
+        // directory so no active context is discovered.
+        var host = Environment.GetEnvironmentVariable("DOCKER_HOST");
+        var context = Environment.GetEnvironmentVariable("DOCKER_CONTEXT");
+        var tlsVerify = Environment.GetEnvironmentVariable("DOCKER_TLS_VERIFY");
+        var config = Environment.GetEnvironmentVariable("DOCKER_CONFIG");
 
-        var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? new Uri("npipe://./pipe/docker_engine")
-            : new Uri("unix:/var/run/docker.sock");
+        var emptyConfigDir = Path.Combine(Path.GetTempPath(), "docker-dotnet-test-" + Guid.NewGuid().ToString("n"));
+        Directory.CreateDirectory(emptyConfigDir);
 
-        Assert.Equal(expected, builder.ClientOptions.Endpoint);
+        try
+        {
+            Environment.SetEnvironmentVariable("DOCKER_HOST", null);
+            Environment.SetEnvironmentVariable("DOCKER_CONTEXT", null);
+            Environment.SetEnvironmentVariable("DOCKER_TLS_VERIFY", null);
+            Environment.SetEnvironmentVariable("DOCKER_CONFIG", emptyConfigDir);
+
+            var builder = new TestDockerClientBuilder();
+
+            var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? new Uri("npipe://./pipe/docker_engine")
+                : new Uri("unix:/var/run/docker.sock");
+
+            Assert.Equal(expected, builder.ClientOptions.Endpoint);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("DOCKER_HOST", host);
+            Environment.SetEnvironmentVariable("DOCKER_CONTEXT", context);
+            Environment.SetEnvironmentVariable("DOCKER_TLS_VERIFY", tlsVerify);
+            Environment.SetEnvironmentVariable("DOCKER_CONFIG", config);
+            Directory.Delete(emptyConfigDir, recursive: true);
+        }
     }
 
     [Fact]
