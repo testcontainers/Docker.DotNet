@@ -9,19 +9,39 @@ public class DockerClientBuilder
 {
     private static readonly bool NativeHttpEnabled = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1";
 
+    private readonly DockerConfig _dockerConfig;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DockerClientBuilder"/> class.
     /// </summary>
     /// <remarks>
-    /// Resolves the endpoint the same way the <c>docker</c> CLI does:
-    /// <c>DOCKER_HOST</c> (with <c>DOCKER_TLS_VERIFY</c> upgrading <c>tcp://</c> to <c>https://</c>),
-    /// then the active Docker context (<c>DOCKER_CONTEXT</c> or <c>currentContext</c> in
-    /// <c>~/.docker/config.json</c>), then the platform default socket
-    /// (<c>npipe://./pipe/docker_engine</c> on Windows, <c>unix:/var/run/docker.sock</c> on Linux/macOS).
+    /// Resolves the Docker endpoint using the same precedence as the <c>docker</c> CLI.
+    ///
+    /// First, the value of <c>DOCKER_HOST</c> is used when it is set. If
+    /// <c>DOCKER_TLS_VERIFY</c> is enabled, <c>tcp://</c> endpoints are treated
+    /// as <c>https://</c>.
+    ///
+    /// If no host is specified, the active Docker context is used. The context is
+    /// determined from <c>DOCKER_CONTEXT</c> or from <c>currentContext</c> in
+    /// <c>~/.docker/config.json</c>.
+    ///
+    /// When neither a host nor a context is configured, the platform default
+    /// endpoint is used: <c>npipe://./pipe/docker_engine</c> on Windows and
+    /// <c>unix:///var/run/docker.sock</c> on Linux and macOS.
     /// </remarks>
     public DockerClientBuilder()
+        : this(DockerConfig.Instance)
     {
-        _ = WithEndpoint(DockerContextResolver.Resolve());
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DockerClientBuilder"/> class.
+    /// </summary>
+    /// <param name="dockerConfig">The Docker config used to resolve the endpoint.</param>
+    public DockerClientBuilder(DockerConfig dockerConfig)
+    {
+        _dockerConfig = dockerConfig;
+        _ = WithEndpoint(dockerConfig.GetCurrentEndpoint());
     }
 
     /// <summary>
@@ -33,6 +53,7 @@ public class DockerClientBuilder
         ClientOptions clientOptions,
         ILogger logger)
     {
+        _dockerConfig = DockerConfig.Instance;
         ClientOptions = clientOptions;
         Logger = logger;
     }
@@ -70,14 +91,16 @@ public class DockerClientBuilder
     }
 
     /// <summary>
-    /// Sets the Docker endpoint to the one declared by the named Docker context
-    /// (read from <c>~/.docker/contexts/meta/&lt;sha256(name)&gt;/meta.json</c>).
+    /// Sets the Docker endpoint declared by the named Docker context.
     /// </summary>
+    /// <remarks>
+    /// Reads the endpoint from <c>~/.docker/contexts/meta/&lt;sha256(name)&gt;/meta.json</c>.
+    /// </remarks>
     /// <param name="contextName">The context name (e.g. <c>desktop-linux</c>).</param>
     /// <returns>The builder instance.</returns>
     public DockerClientBuilder WithContext(string contextName)
     {
-        return WithEndpoint(DockerContextResolver.ResolveForContext(contextName));
+        return WithEndpoint(_dockerConfig.GetEndpoint(contextName));
     }
 
     /// <summary>
@@ -243,8 +266,7 @@ public class DockerClientBuilder
             "tcp" or "http" or "https" => NativeHttpEnabled
                 ? NativeHttp.DockerHandlerFactory.Instance
                 : LegacyHttp.DockerHandlerFactory.Instance,
-            "ssh" => throw new NotSupportedException(
-                "SSH endpoints are not supported. Use a tcp/https/unix/npipe endpoint, or set up an SSH tunnel and point DOCKER_HOST (or a Docker context) at the forwarded socket."),
+            "ssh" => throw new SshDockerEndpointNotSupportedException(),
             _ => throw new NotSupportedException($"The URI scheme '{scheme}' is not supported.")
         };
     }

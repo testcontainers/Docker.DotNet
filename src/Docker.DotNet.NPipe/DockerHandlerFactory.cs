@@ -27,43 +27,16 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
 
         var uri = clientOptions.Endpoint;
 
-        // Accept both npipe://<server>/pipe/<name> and the four-slash form
-        // npipe:////<server>/pipe/<name> that docker contexts use on Windows
-        // (e.g. "npipe:////./pipe/docker_engine"). The latter parses with an
-        // empty Host and the server name as a path segment.
         var segments = uri.Segments;
-        var pipeIndex = -1;
-        for (var i = 0; i < segments.Length; i++)
-        {
-            if ("pipe/".Equals(segments[i], StringComparison.OrdinalIgnoreCase))
-            {
-                pipeIndex = i;
-                break;
-            }
-        }
 
-        if (pipeIndex < 0 || pipeIndex >= segments.Length - 1)
+        if (segments.Length != 3 || !"pipe/".Equals(segments[1], StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("The endpoint is not a npipe URI.");
         }
 
-        var pipeName = segments[pipeIndex + 1].TrimEnd('/');
-        if (string.IsNullOrEmpty(pipeName))
-        {
-            throw new InvalidOperationException("The endpoint is not a npipe URI.");
-        }
+        var pipeName = uri.Segments[2];
 
-        var serverName = uri.Host;
-        if (string.IsNullOrEmpty(serverName) && pipeIndex > 0)
-        {
-            serverName = segments[pipeIndex - 1].TrimEnd('/');
-        }
-
-        if (string.IsNullOrEmpty(serverName) || "localhost".Equals(serverName, StringComparison.OrdinalIgnoreCase))
-        {
-            serverName = ".";
-        }
-
+        var serverName = "localhost".Equals(uri.Host, StringComparison.OrdinalIgnoreCase) ? "." : uri.Host;
         uri = new UriBuilder(Uri.UriSchemeHttp, pipeName).Uri;
 
         var streamOpener = new ManagedHandler.StreamOpener(async (_, _, cancellationToken) =>

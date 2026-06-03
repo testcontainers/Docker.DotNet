@@ -24,9 +24,15 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.Collections.Concurrent" />
     <Using Include="System.Collections.Generic" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.IO" />
     <Using Include="System.Net.Http" />
+    <Using Include="System.Runtime.CompilerServices" />
     <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Security.Cryptography" />
+    <Using Include="System.Text" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="Docker.DotNet.Handler.Abstractions" />
     <Using Include="Docker.DotNet.LegacyHttp" />

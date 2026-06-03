@@ -50,9 +50,14 @@ internal sealed class JsonSerializer
         return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, JsonTypeInfoCache<T>.Value);
     }
 
-    public T Deserialize<T>(byte[] json)
+    public T Deserialize<T>(byte[] utf8Json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize(json, JsonTypeInfoCache<T>.Value)!;
+        return System.Text.Json.JsonSerializer.Deserialize(utf8Json, JsonTypeInfoCache<T>.Value)!;
+    }
+
+    public T Deserialize<T>(Stream utf8Json, JsonTypeInfo<T> jsonTypeInfo)
+    {
+        return System.Text.Json.JsonSerializer.Deserialize(utf8Json, jsonTypeInfo)!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
