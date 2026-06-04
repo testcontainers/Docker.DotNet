@@ -217,13 +217,6 @@ public sealed class DockerConfig
             throw new DockerConfigurationException($"The Docker host '{_settings.DockerHost}' is invalid.");
         }
 
-        if (!string.IsNullOrEmpty(_settings.DockerTlsVerify) && dockerHost.Scheme == "tcp")
-        {
-            var builder = new UriBuilder(dockerHost);
-            builder.Scheme = Uri.UriSchemeHttps;
-            return builder.Uri;
-        }
-
         return dockerHost;
     }
 

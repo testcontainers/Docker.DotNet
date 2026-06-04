@@ -17,17 +17,15 @@ public class DockerClientBuilder
     /// <remarks>
     /// Resolves the Docker endpoint using the same precedence as the <c>docker</c> CLI.
     ///
-    /// First, the value of <c>DOCKER_HOST</c> is used when it is set. If
-    /// <c>DOCKER_TLS_VERIFY</c> is enabled, <c>tcp://</c> endpoints are treated
-    /// as <c>https://</c>.
+    /// First, the value of <c>DOCKER_HOST</c> is used when it is set.
     ///
     /// If no host is specified, the active Docker context is used. The context is
     /// determined from <c>DOCKER_CONTEXT</c> or from <c>currentContext</c> in
     /// <c>~/.docker/config.json</c>.
     ///
     /// When neither a host nor a context is configured, the platform default
-    /// endpoint is used: <c>npipe://./pipe/docker_engine</c> on Windows and
-    /// <c>unix:///var/run/docker.sock</c> on Linux and macOS.
+    /// endpoint is used: <c>unix:///var/run/docker.sock</c> on Linux and macOS
+    /// and <c>npipe://./pipe/docker_engine</c> on Windows.
     /// </remarks>
     public DockerClientBuilder()
         : this(DockerConfig.Instance)

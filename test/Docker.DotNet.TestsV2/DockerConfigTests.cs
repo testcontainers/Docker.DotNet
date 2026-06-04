@@ -184,22 +184,6 @@ public static class DockerConfigTests
         }
 
         [Fact]
-        public void ReturnsSecureEndpointWhenDockerHostIsSetAndTlsVerifyIsEnabled()
-        {
-            IDockerCliSettings settings = new TestDockerCliSettings
-            {
-                DockerHost = "tcp://127.0.0.1:2376/",
-                DockerTlsVerify = "1"
-            };
-
-            var dockerConfig = new DockerConfig(settings);
-
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
-
-            Assert.Equal(new Uri("https://127.0.0.1:2376/"), currentEndpoint);
-        }
-
-        [Fact]
         public void ThrowsWhenDockerHostIsInvalid()
         {
             IDockerCliSettings settings = new TestDockerCliSettings
