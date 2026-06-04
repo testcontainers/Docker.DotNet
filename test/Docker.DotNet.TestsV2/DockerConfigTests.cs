@@ -11,7 +11,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(DockerCli.GetCurrentEndpoint(), currentEndpoint);
         }
@@ -26,7 +26,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(DockerCli.GetCurrentEndpoint(), currentEndpoint);
         }
@@ -41,7 +41,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(DockerCli.GetCurrentEndpoint("default"), currentEndpoint);
         }
@@ -69,7 +69,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), currentEndpoint);
         }
@@ -87,7 +87,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), currentEndpoint);
         }
@@ -105,7 +105,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), currentEndpoint);
         }
@@ -120,7 +120,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetCurrentEndpoint);
+            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetEndpoint);
 
             Assert.Equal("The Docker context 'missing' does not exist.", exception.Message);
             Assert.IsType<DirectoryNotFoundException>(exception.InnerException);
@@ -139,7 +139,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetCurrentEndpoint);
+            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetEndpoint);
 
             Assert.StartsWith("The Docker host is null or empty in ", exception.Message);
             Assert.Contains(context.DockerConfigDirectoryPath, exception.Message);
@@ -160,7 +160,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(DockerCli.GetCurrentEndpoint(), currentEndpoint);
         }
@@ -178,7 +178,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var currentEndpoint = dockerConfig.GetCurrentEndpoint();
+            var currentEndpoint = dockerConfig.GetEndpoint();
 
             Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), currentEndpoint);
         }
@@ -193,7 +193,7 @@ public static class DockerConfigTests
 
             var dockerConfig = new DockerConfig(settings);
 
-            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetCurrentEndpoint);
+            var exception = Assert.Throws<DockerConfigurationException>(dockerConfig.GetEndpoint);
 
             Assert.Equal("The Docker host 'not-a-valid-uri' is invalid.", exception.Message);
         }

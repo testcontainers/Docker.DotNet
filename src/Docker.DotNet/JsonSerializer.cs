@@ -55,9 +55,9 @@ internal sealed class JsonSerializer
         return System.Text.Json.JsonSerializer.Deserialize(utf8Json, JsonTypeInfoCache<T>.Value)!;
     }
 
-    public T Deserialize<T>(Stream utf8Json, JsonTypeInfo<T> jsonTypeInfo)
+    public T Deserialize<T>(Stream utf8Json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize(utf8Json, jsonTypeInfo)!;
+        return System.Text.Json.JsonSerializer.Deserialize(utf8Json, JsonTypeInfoCache<T>.Value)!;
     }
 
     public Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken cancellationToken)
@@ -152,4 +152,7 @@ internal sealed class JsonSerializer
 
 // TaskOperations
 [JsonSerializable(typeof(TaskResponse[]))] // ListAsync
-internal sealed partial class DockerExtendedJsonSerializerContext : JsonSerializerContext { }
+
+// DockerConfig context deserialization
+[JsonSerializable(typeof(DockerConfig.DockerContextMeta))]
+internal sealed partial class DockerExtendedJsonSerializerContext : JsonSerializerContext;

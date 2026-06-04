@@ -38,7 +38,7 @@ public class DockerClientBuilder
     /// <param name="dockerConfig">The Docker config to preserve.</param>
     public DockerClientBuilder(
         DockerConfig dockerConfig)
-        : this(dockerConfig, new ClientOptions { Endpoint = dockerConfig.GetCurrentEndpoint() }, NullLogger.Instance)
+        : this(dockerConfig, new ClientOptions { Endpoint = dockerConfig.GetEndpoint() }, NullLogger.Instance)
     {
     }
 

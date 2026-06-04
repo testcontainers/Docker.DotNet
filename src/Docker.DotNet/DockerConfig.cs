@@ -71,7 +71,7 @@ public sealed class DockerConfig
     /// Executes a command equivalent to <c>docker context inspect --format {{.Endpoints.docker.Host}}</c>.
     /// </remarks>
     /// <returns>A <see cref="Uri"/> representing the current Docker endpoint.</returns>
-    public Uri GetCurrentEndpoint()
+    public Uri GetEndpoint()
     {
         var dockerHost = GetDockerHost();
         if (dockerHost is not null)
@@ -135,8 +135,8 @@ public sealed class DockerConfig
         try
         {
             using var metaFileStream = File.OpenRead(metaFilePath);
-            var meta = System.Text.Json.JsonSerializer.Deserialize(metaFileStream, SourceGenerationContext.Default.DockerContextMeta);
-            var host = meta?.Endpoints?.Docker?.Host;
+            var meta = JsonSerializer.Instance.Deserialize<DockerContextMeta>(metaFileStream);
+            var host = meta.Endpoints?.Docker?.Host;
 
             if (host is null || host.Length == 0)
             {
