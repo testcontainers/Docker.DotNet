@@ -41,7 +41,21 @@ dotnet add package Docker.DotNet.Enhanced
 
 ## Usage
 
-You can initialize the client as follows:
+### Default client (Docker CLI–style resolution)
+
+`new DockerClientBuilder()` resolves the Docker endpoint the same way the `docker` CLI does. This works the same on Linux, macOS, and Windows:
+
+1. **Environment variables**: `DOCKER_HOST`, if set.
+2. **Docker context**: the active context from `DOCKER_CONTEXT`, or from the `currentContext` field in `~/.docker/config.json` (`%USERPROFILE%\.docker\config.json` on Windows). For a named context, the endpoint is read from `~/.docker/contexts/meta/<sha256(name)>/meta.json`. `DOCKER_CONFIG` is honored if set.
+3. **Platform default**: used when neither `DOCKER_HOST` nor a non-default context is configured: `unix:///var/run/docker.sock` on Linux/macOS, `npipe://./pipe/docker_engine` on Windows.
+
+```csharp
+using Docker.DotNet;
+var client = new DockerClientBuilder()
+    .Build();
+```
+
+### Explicit endpoint
 
 ```csharp
 using Docker.DotNet;
@@ -64,20 +78,24 @@ var client = new DockerClientBuilder()
 ```csharp
 using Docker.DotNet;
 var client = new DockerClientBuilder()
-    .WithEndpoint(new Uri("unix:/var/run/docker.sock"))
+    .WithEndpoint(new Uri("unix:///var/run/docker.sock"))
     .Build();
 ```
 
-**Note:**
 For HTTP(S) connections or special authentication types (e.g. X509, BasicAuth), see the corresponding sections below.
 
-To connect to your local [Docker Desktop on Windows](https://docs.docker.com/desktop/setup/install/windows-install/) instance via named pipe or your local [Docker Desktop on Mac](https://docs.docker.com/desktop/setup/install/mac-install/) instance via Unix socket:
+### Specific Docker context by name
+
+Use `WithContext` to target a context by name. The endpoint is read from `~/.docker/contexts/meta/<sha256(name)>/meta.json`:
 
 ```csharp
 using Docker.DotNet;
 var client = new DockerClientBuilder()
+    .WithContext("desktop-linux")
     .Build();
 ```
+
+`ssh://` endpoints (from SSH-based Docker contexts) are not supported. To connect to a remote daemon over SSH, set up an SSH tunnel and point `DOCKER_HOST` (or a context) at the forwarded socket.
 
 ### Enabling .NET Native HTTP Handler
 

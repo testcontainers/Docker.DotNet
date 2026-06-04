@@ -47,6 +47,7 @@
     <Using Include="System.Runtime.InteropServices" />
     <Using Include="System.Runtime.Serialization" />
     <Using Include="System.Security.Authentication" />
+    <Using Include="System.Security.Cryptography" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
     <Using Include="System.Text.Json" />

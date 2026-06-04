@@ -3,19 +3,35 @@ namespace Docker.DotNet.TestsV2;
 public sealed class DockerClientBuilderTests
 {
     [Fact]
-    public void Constructor_SetsPlatformDefaultEndpoint()
+    public void ReturnsInjectedEndpointWhenConstructedWithDockerConfig()
     {
-        var builder = new TestDockerClientBuilder();
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerHost = "tcp://127.0.0.1:2375/"
+        };
 
-        var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? new Uri("npipe://./pipe/docker_engine")
-            : new Uri("unix:/var/run/docker.sock");
+        var builder = new TestDockerClientBuilder(new DockerConfig(settings));
 
-        Assert.Equal(expected, builder.ClientOptions.Endpoint);
+        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
     }
 
     [Fact]
-    public void WithApiVersion_UpdatesClientOptions()
+    public void ReturnsDefaultEndpointWhenTypedBuilderIsConstructed()
+    {
+        var transportFactory = new FakeTransportFactory();
+
+        var transportOptions = new FakeTransportOptions();
+
+        var expectedEndpoint = new TestDockerClientBuilder().ClientOptions.Endpoint;
+
+        _ = new DockerClientBuilder<FakeTransportOptions>(transportFactory, transportOptions)
+            .Build();
+
+        Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void UpdatesClientOptionsWhenApiVersionIsSet()
     {
         var version = new Version(1, 52);
         var builder = new TestDockerClientBuilder();
@@ -27,7 +43,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithEndpoint_UpdatesClientOptions()
+    public void UpdatesClientOptionsWhenEndpointIsSet()
     {
         var endpoint = new Uri("http://localhost:2375");
         var builder = new TestDockerClientBuilder();
@@ -39,7 +55,24 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithAuthProvider_UpdatesClientOptions()
+    public void UsesInjectedDockerConfigWhenContextIsSet()
+    {
+        using var context = new ConfigMetaFile("custom", new Uri("tcp://127.0.0.1:2375/"));
+
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerConfig = context.DockerConfigDirectoryPath
+        };
+
+        var builder = new TestDockerClientBuilder(new DockerConfig(settings));
+
+        _ = builder.WithContext("custom");
+
+        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void UpdatesClientOptionsWhenAuthProviderIsSet()
     {
         var authProvider = new PassThroughAuthProvider(true);
         var builder = new TestDockerClientBuilder();
@@ -51,7 +84,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithHeader_AddsAndReplacesHeader()
+    public void AddsAndReplacesHeadersWhenHeaderIsSet()
     {
         var builder = new TestDockerClientBuilder();
 
@@ -65,7 +98,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithHeaders_MergesAndReplacesHeaders()
+    public void MergesAndReplacesHeadersWhenHeadersAreSet()
     {
         var headers = new Dictionary<string, string>();
         headers["x-one"] = "1b";
@@ -82,7 +115,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithTimeout_UpdatesClientOptions()
+    public void UpdatesClientOptionsWhenTimeoutIsSet()
     {
         var timeout = TimeSpan.FromSeconds(1);
         var builder = new TestDockerClientBuilder();
@@ -94,7 +127,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithLogger_UpdatesLogger()
+    public void UpdatesLoggerWhenLoggerIsSet()
     {
         var logger = NullLogger.Instance;
         var builder = new TestDockerClientBuilder();
@@ -106,44 +139,25 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_WithUnsupportedScheme_ThrowsNotSupportedException()
+    public void ReturnsTypedBuilderWhenBuiltInTransportIsSelected()
     {
-        var builder = new DockerClientBuilder()
-            .WithEndpoint(new Uri("ssh://docker-host"));
+        var builder = new DockerClientBuilder();
 
-        var exception = Assert.Throws<NotSupportedException>(() => builder.Build());
+        Assert.IsType<DockerClientBuilder<LegacyHttpTransportOptions>>(
+            builder.WithTransportOptions(new LegacyHttpTransportOptions()));
 
-        Assert.Contains("ssh", exception.Message, StringComparison.OrdinalIgnoreCase);
-    }
+        Assert.IsType<DockerClientBuilder<NativeHttpTransportOptions>>(
+            builder.WithTransportOptions(new NativeHttpTransportOptions()));
 
-    [Theory]
-    [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
-    [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
-    public void ResolveTransportFactory_UsesExpectedFactory_WhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
-    {
-        var builder = new TestDockerClientBuilder();
+        Assert.IsType<DockerClientBuilder<NPipeTransportOptions>>(
+            builder.WithTransportOptions(new NPipeTransportOptions()));
 
-        var actualFactory = builder.ResolveTransportFactory(new Uri(endpoint));
-
-        Assert.IsType(expectedFactoryType, actualFactory);
+        Assert.IsType<DockerClientBuilder<UnixSocketTransportOptions>>(
+            builder.WithTransportOptions(new UnixSocketTransportOptions()));
     }
 
     [Fact]
-    public void ResolveTransportFactory_UsesExpectedFactory_WhenHttpSchemeIsProvided()
-    {
-        var builder = new TestDockerClientBuilder();
-
-        var actualFactory = builder.ResolveTransportFactory(new Uri("http://localhost:2375"));
-
-        var expectedFactoryType = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1"
-            ? typeof(NativeHttp.DockerHandlerFactory)
-            : typeof(LegacyHttp.DockerHandlerFactory);
-
-        Assert.IsType(expectedFactoryType, actualFactory);
-    }
-
-    [Fact]
-    public void Build_PreservesClientOptionsAndLogger_WhenSetBeforeTransportSelection()
+    public void PreservesClientOptionsAndLoggerWhenConfiguredBeforeTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -179,7 +193,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_PreservesClientOptionsAndLogger_WhenSetAfterTransportSelection()
+    public void PreservesClientOptionsAndLoggerWhenConfiguredAfterTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -215,7 +229,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_PreservesEndpointInClientOptions_WhenTransportNormalizesEndpoint()
+    public void PreservesEndpointInClientOptionsWhenTransportNormalizesEndpoint()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -232,25 +246,53 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithTransportOptions_ReturnsTypedBuilder_WhenBuiltInTransportIsSelected()
+    public void ThrowsWhenUnsupportedSchemeIsBuilt()
     {
-        var builder = new DockerClientBuilder();
+        var builder = new DockerClientBuilder()
+            .WithEndpoint(new Uri("ssh://docker-host"));
 
-        Assert.IsType<DockerClientBuilder<LegacyHttpTransportOptions>>(
-            builder.WithTransportOptions(new LegacyHttpTransportOptions()));
+        var exception = Assert.Throws<SshDockerEndpointNotSupportedException>(builder.Build);
 
-        Assert.IsType<DockerClientBuilder<NativeHttpTransportOptions>>(
-            builder.WithTransportOptions(new NativeHttpTransportOptions()));
+        Assert.Contains("ssh", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
 
-        Assert.IsType<DockerClientBuilder<NPipeTransportOptions>>(
-            builder.WithTransportOptions(new NPipeTransportOptions()));
+    [Theory]
+    [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
+    [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
+    public void UsesExpectedFactoryWhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
+    {
+        var builder = new TestDockerClientBuilder();
 
-        Assert.IsType<DockerClientBuilder<UnixSocketTransportOptions>>(
-            builder.WithTransportOptions(new UnixSocketTransportOptions()));
+        var actualFactory = builder.ResolveTransportFactory(new Uri(endpoint));
+
+        Assert.IsType(expectedFactoryType, actualFactory);
+    }
+
+    [Fact]
+    public void UsesExpectedFactoryWhenHttpSchemeIsProvided()
+    {
+        var builder = new TestDockerClientBuilder();
+
+        var actualFactory = builder.ResolveTransportFactory(new Uri("http://localhost:2375"));
+
+        var expectedFactoryType = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1"
+            ? typeof(NativeHttp.DockerHandlerFactory)
+            : typeof(LegacyHttp.DockerHandlerFactory);
+
+        Assert.IsType(expectedFactoryType, actualFactory);
     }
 
     private sealed class TestDockerClientBuilder : DockerClientBuilder
     {
+        public TestDockerClientBuilder()
+        {
+        }
+
+        public TestDockerClientBuilder(DockerConfig dockerConfig)
+            : base(dockerConfig)
+        {
+        }
+
         public new ClientOptions ClientOptions
             => base.ClientOptions;
 
@@ -259,6 +301,17 @@ public sealed class DockerClientBuilderTests
 
         public IDockerHandlerFactory ResolveTransportFactory(Uri endpoint)
             => base.ResolveTransportFactory(endpoint.Scheme);
+    }
+
+    private sealed class TestDockerCliSettings : IDockerCliSettings
+    {
+        public string DockerConfig { get; init; }
+
+        public string DockerHost { get; init; }
+
+        public string DockerTlsVerify { get; init; }
+
+        public string DockerContext { get; init; }
     }
 
     private sealed class PassThroughAuthProvider(bool tlsEnabled) : IAuthProvider

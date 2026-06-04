@@ -18,6 +18,27 @@ public sealed class DockerClientBuilder<TTransportOptions> : DockerClientBuilder
     public DockerClientBuilder(
         IDockerHandlerFactory<TTransportOptions> transportFactory,
         TTransportOptions transportOptions)
+        : base()
+    {
+        _transportFactory = transportFactory;
+        _transportOptions = transportOptions;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DockerClientBuilder{TTransportOptions}"/> class.
+    /// </summary>
+    /// <param name="transportFactory">The transport handler factory.</param>
+    /// <param name="transportOptions">The transport options.</param>
+    /// <param name="dockerConfig">The Docker config to preserve.</param>
+    /// <param name="clientOptions">The client options to preserve.</param>
+    /// <param name="logger">The logger to preserve.</param>
+    public DockerClientBuilder(
+        IDockerHandlerFactory<TTransportOptions> transportFactory,
+        TTransportOptions transportOptions,
+        DockerConfig dockerConfig,
+        ClientOptions clientOptions,
+        ILogger logger)
+        : base(dockerConfig, clientOptions, logger)
     {
         _transportFactory = transportFactory;
         _transportOptions = transportOptions;
@@ -35,10 +56,8 @@ public sealed class DockerClientBuilder<TTransportOptions> : DockerClientBuilder
         TTransportOptions transportOptions,
         ClientOptions clientOptions,
         ILogger logger)
-        : base(clientOptions, logger)
+        : this(transportFactory, transportOptions, DockerConfig.Instance, clientOptions, logger)
     {
-        _transportFactory = transportFactory;
-        _transportOptions = transportOptions;
     }
 
     /// <summary>
