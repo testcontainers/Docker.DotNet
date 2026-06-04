@@ -73,6 +73,10 @@ public static class DockerCli
             _processStartInfo.RedirectStandardOutput = true;
             _processStartInfo.RedirectStandardError = true;
             _processStartInfo.UseShellExecute = false;
+            _processStartInfo.Environment.Remove("DOCKER_HOST");
+            _processStartInfo.Environment.Remove("DOCKER_TLS_VERIFY");
+            _processStartInfo.Environment.Remove("DOCKER_CERT_PATH");
+            _processStartInfo.Environment.Remove("DOCKER_CONTEXT");
         }
 
         public CommandResult Execute()
