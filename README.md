@@ -41,13 +41,13 @@ dotnet add package Docker.DotNet.Enhanced
 
 ## Usage
 
-### Default client (docker CLI–style resolution)
+### Default client (Docker CLI–style resolution)
 
 `new DockerClientBuilder()` resolves the Docker endpoint the same way the `docker` CLI does. This works the same on Linux, macOS, and Windows:
 
-1. **Environment variables** — `DOCKER_HOST` (with `DOCKER_TLS_VERIFY` upgrading `tcp://` to `https://`).
-2. **Docker context** — `DOCKER_CONTEXT`, or the `currentContext` field in `~/.docker/config.json` (`%USERPROFILE%\.docker\config.json` on Windows). The endpoint is read from `~/.docker/contexts/meta/<sha256(name)>/meta.json`. `DOCKER_CONFIG` is honored if set.
-3. **Platform default** — `unix:/var/run/docker.sock` on Linux/macOS, `npipe://./pipe/docker_engine` on Windows.
+1. **Environment variables**: `DOCKER_HOST`, if set.
+2. **Docker context**: the active context from `DOCKER_CONTEXT`, or from the `currentContext` field in `~/.docker/config.json` (`%USERPROFILE%\.docker\config.json` on Windows). For a named context, the endpoint is read from `~/.docker/contexts/meta/<sha256(name)>/meta.json`. `DOCKER_CONFIG` is honored if set.
+3. **Platform default**: used when neither `DOCKER_HOST` nor a non-default context is configured: `unix:///var/run/docker.sock` on Linux/macOS, `npipe://./pipe/docker_engine` on Windows.
 
 ```csharp
 using Docker.DotNet;
@@ -78,7 +78,7 @@ var client = new DockerClientBuilder()
 ```csharp
 using Docker.DotNet;
 var client = new DockerClientBuilder()
-    .WithEndpoint(new Uri("unix:/var/run/docker.sock"))
+    .WithEndpoint(new Uri("unix:///var/run/docker.sock"))
     .Build();
 ```
 
