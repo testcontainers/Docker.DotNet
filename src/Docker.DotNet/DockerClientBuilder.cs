@@ -35,11 +35,11 @@ public class DockerClientBuilder
     /// <summary>
     /// Initializes a new instance of the <see cref="DockerClientBuilder"/> class.
     /// </summary>
-    /// <param name="dockerConfig">The Docker config used to resolve the endpoint.</param>
-    public DockerClientBuilder(DockerConfig dockerConfig)
+    /// <param name="dockerConfig">The Docker config to preserve.</param>
+    public DockerClientBuilder(
+        DockerConfig dockerConfig)
+        : this(dockerConfig, new ClientOptions { Endpoint = dockerConfig.GetCurrentEndpoint() }, NullLogger.Instance)
     {
-        _dockerConfig = dockerConfig;
-        _ = WithEndpoint(dockerConfig.GetCurrentEndpoint());
     }
 
     /// <summary>
@@ -50,8 +50,22 @@ public class DockerClientBuilder
     protected DockerClientBuilder(
         ClientOptions clientOptions,
         ILogger logger)
+        : this(DockerConfig.Instance, clientOptions, logger)
     {
-        _dockerConfig = DockerConfig.Instance;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DockerClientBuilder"/> class.
+    /// </summary>
+    /// <param name="dockerConfig">The Docker config to preserve.</param>
+    /// <param name="clientOptions">The client options to preserve.</param>
+    /// <param name="logger">The logger to preserve.</param>
+    protected DockerClientBuilder(
+        DockerConfig dockerConfig,
+        ClientOptions clientOptions,
+        ILogger logger)
+    {
+        _dockerConfig = dockerConfig;
         ClientOptions = clientOptions;
         Logger = logger;
     }
@@ -59,12 +73,12 @@ public class DockerClientBuilder
     /// <summary>
     /// Gets the client options.
     /// </summary>
-    protected ClientOptions ClientOptions { get; private set; } = new();
+    protected ClientOptions ClientOptions { get; private set; }
 
     /// <summary>
     /// Gets the logger.
     /// </summary>
-    protected ILogger Logger { get; private set; } = NullLogger.Instance;
+    protected ILogger Logger { get; private set; }
 
     /// <summary>
     /// Sets the Docker Engine API version to request.
@@ -187,7 +201,7 @@ public class DockerClientBuilder
     /// <returns>A typed builder that uses the legacy HTTP transport.</returns>
     public DockerClientBuilder<LegacyHttpTransportOptions> WithTransportOptions(LegacyHttpTransportOptions transportOptions)
     {
-        return new DockerClientBuilder<LegacyHttpTransportOptions>(LegacyHttp.DockerHandlerFactory.Instance, transportOptions, ClientOptions, Logger);
+        return new DockerClientBuilder<LegacyHttpTransportOptions>(LegacyHttp.DockerHandlerFactory.Instance, transportOptions, _dockerConfig, ClientOptions, Logger);
     }
 
     /// <summary>
@@ -197,7 +211,7 @@ public class DockerClientBuilder
     /// <returns>A typed builder that uses the native HTTP transport.</returns>
     public DockerClientBuilder<NativeHttpTransportOptions> WithTransportOptions(NativeHttpTransportOptions transportOptions)
     {
-        return new DockerClientBuilder<NativeHttpTransportOptions>(NativeHttp.DockerHandlerFactory.Instance, transportOptions, ClientOptions, Logger);
+        return new DockerClientBuilder<NativeHttpTransportOptions>(NativeHttp.DockerHandlerFactory.Instance, transportOptions, _dockerConfig, ClientOptions, Logger);
     }
 
     /// <summary>
@@ -207,7 +221,7 @@ public class DockerClientBuilder
     /// <returns>A typed builder that uses the named pipe transport.</returns>
     public DockerClientBuilder<NPipeTransportOptions> WithTransportOptions(NPipeTransportOptions transportOptions)
     {
-        return new DockerClientBuilder<NPipeTransportOptions>(NPipe.DockerHandlerFactory.Instance, transportOptions, ClientOptions, Logger);
+        return new DockerClientBuilder<NPipeTransportOptions>(NPipe.DockerHandlerFactory.Instance, transportOptions, _dockerConfig, ClientOptions, Logger);
     }
 
     /// <summary>
@@ -217,11 +231,11 @@ public class DockerClientBuilder
     /// <returns>A typed builder that uses the Unix socket transport.</returns>
     public DockerClientBuilder<UnixSocketTransportOptions> WithTransportOptions(UnixSocketTransportOptions transportOptions)
     {
-        return new DockerClientBuilder<UnixSocketTransportOptions>(Unix.DockerHandlerFactory.Instance, transportOptions, ClientOptions, Logger);
+        return new DockerClientBuilder<UnixSocketTransportOptions>(Unix.DockerHandlerFactory.Instance, transportOptions, _dockerConfig, ClientOptions, Logger);
     }
 
     /// <summary>
-    /// Selects a custom transport by providing a handler factory and transport-specific options.
+    /// Selects custom transport by providing a handler factory and transport-specific options.
     /// </summary>
     /// <typeparam name="TTransportOptions">The type of transport options consumed by the custom handler factory.</typeparam>
     /// <param name="transportFactory">The custom transport handler factory.</param>
@@ -229,7 +243,7 @@ public class DockerClientBuilder
     /// <returns>A typed builder that uses the provided custom transport.</returns>
     public DockerClientBuilder<TTransportOptions> WithTransportOptions<TTransportOptions>(IDockerHandlerFactory<TTransportOptions> transportFactory, TTransportOptions transportOptions)
     {
-        return new DockerClientBuilder<TTransportOptions>(transportFactory, transportOptions, ClientOptions, Logger);
+        return new DockerClientBuilder<TTransportOptions>(transportFactory, transportOptions, _dockerConfig, ClientOptions, Logger);
     }
 
     /// <summary>

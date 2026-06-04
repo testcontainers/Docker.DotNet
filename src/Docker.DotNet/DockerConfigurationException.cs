@@ -7,7 +7,7 @@ namespace Docker.DotNet;
 public sealed class DockerConfigurationException : Exception
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DockerConfigurationException" /> class.
+    /// Initializes a new instance of the <see cref="DockerConfigurationException"/> class.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     public DockerConfigurationException(string message)
@@ -16,7 +16,7 @@ public sealed class DockerConfigurationException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DockerConfigurationException" /> class.
+    /// Initializes a new instance of the <see cref="DockerConfigurationException"/> class.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="innerException">The exception that is the cause of the current exception.</param>

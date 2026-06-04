@@ -14,7 +14,7 @@ public sealed class TestFixture : Progress<JSONMessage>, IAsyncLifetime, ILogger
     private bool _hasInitializedSwarm;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestFixture" /> class.
+    /// Initializes a new instance of the <see cref="TestFixture"/> class.
     /// </summary>
     /// <param name="messageSink">The message sink.</param>
     /// <exception cref="TimeoutException">Thrown when tests are not completed within 5 minutes.</exception>

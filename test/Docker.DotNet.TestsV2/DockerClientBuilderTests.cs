@@ -3,7 +3,7 @@ namespace Docker.DotNet.TestsV2;
 public sealed class DockerClientBuilderTests
 {
     [Fact]
-    public void Constructor_UsesInjectedDockerConfigEndpoint()
+    public void ReturnsInjectedEndpointWhenConstructedWithDockerConfig()
     {
         IDockerCliSettings settings = new TestDockerCliSettings
         {
@@ -16,7 +16,22 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithApiVersion_UpdatesClientOptions()
+    public void ReturnsDefaultEndpointWhenTypedBuilderIsConstructed()
+    {
+        var transportFactory = new FakeTransportFactory();
+
+        var transportOptions = new FakeTransportOptions();
+
+        var expectedEndpoint = new TestDockerClientBuilder().ClientOptions.Endpoint;
+
+        _ = new DockerClientBuilder<FakeTransportOptions>(transportFactory, transportOptions)
+            .Build();
+
+        Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void UpdatesClientOptionsWhenApiVersionIsSet()
     {
         var version = new Version(1, 52);
         var builder = new TestDockerClientBuilder();
@@ -28,7 +43,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithEndpoint_UpdatesClientOptions()
+    public void UpdatesClientOptionsWhenEndpointIsSet()
     {
         var endpoint = new Uri("http://localhost:2375");
         var builder = new TestDockerClientBuilder();
@@ -40,7 +55,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithContext_UsesInjectedDockerConfig()
+    public void UsesInjectedDockerConfigWhenContextIsSet()
     {
         using var context = new ConfigMetaFile("custom", new Uri("tcp://127.0.0.1:2375/"));
 
@@ -57,7 +72,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithAuthProvider_UpdatesClientOptions()
+    public void UpdatesClientOptionsWhenAuthProviderIsSet()
     {
         var authProvider = new PassThroughAuthProvider(true);
         var builder = new TestDockerClientBuilder();
@@ -69,7 +84,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithHeader_AddsAndReplacesHeader()
+    public void AddsAndReplacesHeadersWhenHeaderIsSet()
     {
         var builder = new TestDockerClientBuilder();
 
@@ -83,7 +98,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithHeaders_MergesAndReplacesHeaders()
+    public void MergesAndReplacesHeadersWhenHeadersAreSet()
     {
         var headers = new Dictionary<string, string>();
         headers["x-one"] = "1b";
@@ -100,7 +115,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithTimeout_UpdatesClientOptions()
+    public void UpdatesClientOptionsWhenTimeoutIsSet()
     {
         var timeout = TimeSpan.FromSeconds(1);
         var builder = new TestDockerClientBuilder();
@@ -112,7 +127,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithLogger_UpdatesLogger()
+    public void UpdatesLoggerWhenLoggerIsSet()
     {
         var logger = NullLogger.Instance;
         var builder = new TestDockerClientBuilder();
@@ -124,7 +139,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void WithTransportOptions_ReturnsTypedBuilder_WhenBuiltInTransportIsSelected()
+    public void ReturnsTypedBuilderWhenBuiltInTransportIsSelected()
     {
         var builder = new DockerClientBuilder();
 
@@ -142,7 +157,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_PreservesClientOptionsAndLogger_WhenSetBeforeTransportSelection()
+    public void PreservesClientOptionsAndLoggerWhenConfiguredBeforeTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -178,7 +193,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_PreservesClientOptionsAndLogger_WhenSetAfterTransportSelection()
+    public void PreservesClientOptionsAndLoggerWhenConfiguredAfterTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -214,7 +229,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_PreservesEndpointInClientOptions_WhenTransportNormalizesEndpoint()
+    public void PreservesEndpointInClientOptionsWhenTransportNormalizesEndpoint()
     {
         var transportFactory = new FakeTransportFactory();
 
@@ -231,7 +246,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void Build_WithUnsupportedScheme_ThrowsNotSupportedException()
+    public void ThrowsWhenUnsupportedSchemeIsBuilt()
     {
         var builder = new DockerClientBuilder()
             .WithEndpoint(new Uri("ssh://docker-host"));
@@ -244,7 +259,7 @@ public sealed class DockerClientBuilderTests
     [Theory]
     [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
     [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
-    public void ResolveTransportFactory_UsesExpectedFactory_WhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
+    public void UsesExpectedFactoryWhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
     {
         var builder = new TestDockerClientBuilder();
 
@@ -254,7 +269,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void ResolveTransportFactory_UsesExpectedFactory_WhenHttpSchemeIsProvided()
+    public void UsesExpectedFactoryWhenHttpSchemeIsProvided()
     {
         var builder = new TestDockerClientBuilder();
 

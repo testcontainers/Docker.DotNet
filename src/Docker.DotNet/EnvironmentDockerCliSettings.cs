@@ -14,7 +14,7 @@ internal sealed class EnvironmentDockerCliSettings : IDockerCliSettings
     }
 
     /// <summary>
-    /// Gets the <see cref="EnvironmentDockerCliSettings" /> instance.
+    /// Gets the <see cref="EnvironmentDockerCliSettings"/> instance.
     /// </summary>
     public static EnvironmentDockerCliSettings Instance { get; } = new();
 

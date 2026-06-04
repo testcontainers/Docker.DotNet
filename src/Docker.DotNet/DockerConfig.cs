@@ -24,7 +24,7 @@ public sealed class DockerConfig
     private readonly string _dockerConfigFilePath;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DockerConfig" /> class.
+    /// Initializes a new instance of the <see cref="DockerConfig"/> class.
     /// </summary>
     public DockerConfig()
         : this(EnvironmentDockerCliSettings.Instance)
@@ -32,7 +32,7 @@ public sealed class DockerConfig
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DockerConfig" /> class.
+    /// Initializes a new instance of the <see cref="DockerConfig"/> class.
     /// </summary>
     /// <param name="settings">The Docker CLI settings.</param>
     public DockerConfig(IDockerCliSettings settings)
@@ -43,20 +43,20 @@ public sealed class DockerConfig
     }
 
     /// <summary>
-    /// Gets the <see cref="DockerConfig" /> instance.
+    /// Gets the <see cref="DockerConfig"/> instance.
     /// </summary>
     public static DockerConfig Instance { get; } = new();
 
-    /// <inheritdoc cref="FileSystemInfo.Exists" />
+    /// <inheritdoc cref="FileSystemInfo.Exists"/>
     public bool Exists => File.Exists(_dockerConfigFilePath);
 
-    /// <inheritdoc cref="FileSystemInfo.FullName" />
+    /// <inheritdoc cref="FileSystemInfo.FullName"/>
     public string FullName => _dockerConfigFilePath;
 
     /// <summary>
     /// Parses the Docker config file.
     /// </summary>
-    /// <returns>A <see cref="JsonDocument" /> representing the Docker config.</returns>
+    /// <returns>A <see cref="JsonDocument"/> representing the Docker config.</returns>
     public JsonDocument Parse()
     {
         using var dockerConfigFileStream = File.OpenRead(_dockerConfigFilePath);
@@ -70,7 +70,7 @@ public sealed class DockerConfig
     /// See the Docker CLI implementation <a href="https://github.com/docker/cli/blob/v25.0.0/cli/command/cli.go#L364-L390">comments</a>.
     /// Executes a command equivalent to <c>docker context inspect --format {{.Endpoints.docker.Host}}</c>.
     /// </remarks>
-    /// <returns>A <see cref="Uri" /> representing the current Docker endpoint.</returns>
+    /// <returns>A <see cref="Uri"/> representing the current Docker endpoint.</returns>
     public Uri GetCurrentEndpoint()
     {
         var dockerHost = GetDockerHost();
@@ -97,7 +97,7 @@ public sealed class DockerConfig
     /// Gets the Docker endpoint declared by the named Docker context.
     /// </summary>
     /// <param name="contextName">The Docker context name.</param>
-    /// <returns>A <see cref="Uri" /> representing the Docker endpoint for the context.</returns>
+    /// <returns>A <see cref="Uri"/> representing the Docker endpoint for the context.</returns>
     public Uri GetEndpoint(string contextName)
     {
         if (string.IsNullOrWhiteSpace(contextName))
