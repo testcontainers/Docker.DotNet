@@ -12,7 +12,7 @@ namespace Docker.DotNet.Models
         /// Key is the name of the key of the key-value pair passed to the plugin.
         /// </summary>
         [JsonPropertyName("Key")]
-        public string Key { get; set; } = default!;
+        public string Key { get; set; } = string.Empty;
 
         /// <summary>
         /// Secret is the swarm Secret object from which to read data. This can be a
@@ -20,6 +20,6 @@ namespace Docker.DotNet.Models
         /// value of the key-value pair passed to the plugin.
         /// </summary>
         [JsonPropertyName("Secret")]
-        public string Secret { get; set; } = default!;
+        public string Secret { get; set; } = string.Empty;
     }
 }

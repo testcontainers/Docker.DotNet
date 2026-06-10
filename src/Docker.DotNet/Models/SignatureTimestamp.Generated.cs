@@ -7,10 +7,10 @@ namespace Docker.DotNet.Models
     public class SignatureTimestamp // (image.SignatureTimestamp)
     {
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
 
         [JsonPropertyName("URI")]
-        public string URI { get; set; } = default!;
+        public string URI { get; set; } = string.Empty;
 
         [JsonPropertyName("Timestamp")]
         public DateTime Timestamp { get; set; } = default!;

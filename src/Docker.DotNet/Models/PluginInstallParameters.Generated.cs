@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class PluginInstallParameters // (main.PluginInstallParameters)
     {
         [QueryStringParameter("remote", true)]
-        public string Remote { get; set; } = default!;
+        public string Remote { get; set; } = string.Empty;
 
         [QueryStringParameter("name", false)]
         public string? Name { get; set; }

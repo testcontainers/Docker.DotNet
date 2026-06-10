@@ -21,6 +21,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Status")]
-        public string Status { get; set; } = default!;
+        public string Status { get; set; } = string.Empty;
     }
 }

@@ -4,10 +4,10 @@ namespace Docker.DotNet.Models
     public class Descriptor // (v1.Descriptor)
     {
         [JsonPropertyName("mediaType")]
-        public string MediaType { get; set; } = default!;
+        public string MediaType { get; set; } = string.Empty;
 
         [JsonPropertyName("digest")]
-        public string Digest { get; set; } = default!;
+        public string Digest { get; set; } = string.Empty;
 
         [JsonPropertyName("size")]
         public long Size { get; set; } = default!;

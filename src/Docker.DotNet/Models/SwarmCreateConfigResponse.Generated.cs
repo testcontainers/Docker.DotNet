@@ -4,6 +4,6 @@ namespace Docker.DotNet.Models
     public class SwarmCreateConfigResponse // (main.SwarmCreateConfigResponse)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
     }
 }

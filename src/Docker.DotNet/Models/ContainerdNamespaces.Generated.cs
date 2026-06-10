@@ -24,7 +24,7 @@ namespace Docker.DotNet.Models
         /// is used.
         /// </summary>
         [JsonPropertyName("Containers")]
-        public string Containers { get; set; } = default!;
+        public string Containers { get; set; } = string.Empty;
 
         /// <summary>
         /// Plugins holds the default containerd namespace used for
@@ -36,6 +36,6 @@ namespace Docker.DotNet.Models
         /// is used.
         /// </summary>
         [JsonPropertyName("Plugins")]
-        public string Plugins { get; set; } = default!;
+        public string Plugins { get; set; } = string.Empty;
     }
 }

@@ -7,13 +7,13 @@ namespace Docker.DotNet.Models
     public class SwarmInitParameters // (swarm.InitRequest)
     {
         [JsonPropertyName("ListenAddr")]
-        public string ListenAddr { get; set; } = default!;
+        public string ListenAddr { get; set; } = string.Empty;
 
         [JsonPropertyName("AdvertiseAddr")]
-        public string AdvertiseAddr { get; set; } = default!;
+        public string AdvertiseAddr { get; set; } = string.Empty;
 
         [JsonPropertyName("DataPathAddr")]
-        public string DataPathAddr { get; set; } = default!;
+        public string DataPathAddr { get; set; } = string.Empty;
 
         [JsonPropertyName("DataPathPort")]
         public uint DataPathPort { get; set; } = default!;
@@ -28,7 +28,7 @@ namespace Docker.DotNet.Models
         public bool AutoLockManagers { get; set; } = default!;
 
         [JsonPropertyName("Availability")]
-        public string Availability { get; set; } = default!;
+        public string Availability { get; set; } = string.Empty;
 
         [JsonPropertyName("DefaultAddrPool")]
         public IList<string> DefaultAddrPool { get; set; } = default!;

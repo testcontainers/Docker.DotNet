@@ -37,7 +37,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// User-defined key/value metadata.
@@ -56,7 +56,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("ParentId")]
-        public string ParentID { get; set; } = default!;
+        public string ParentID { get; set; } = string.Empty;
 
         /// <summary>
         /// Descriptor is the OCI descriptor of the image target.

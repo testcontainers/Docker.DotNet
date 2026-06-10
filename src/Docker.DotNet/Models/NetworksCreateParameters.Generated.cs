@@ -10,19 +10,19 @@ namespace Docker.DotNet.Models
         /// Name is the requested name of the network.
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Driver is the driver-name used to create the network (e.g. `bridge`, `overlay`)
         /// </summary>
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         /// <summary>
         /// Scope describes the level at which the network exists (e.g. `swarm` for cluster-wide or `local` for machine level).
         /// </summary>
         [JsonPropertyName("Scope")]
-        public string Scope { get; set; } = default!;
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// EnableIPv4 represents whether to enable IPv4.

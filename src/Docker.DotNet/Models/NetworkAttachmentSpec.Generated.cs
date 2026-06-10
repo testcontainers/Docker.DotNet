@@ -8,6 +8,6 @@ namespace Docker.DotNet.Models
     public class NetworkAttachmentSpec // (swarm.NetworkAttachmentSpec)
     {
         [JsonPropertyName("ContainerID")]
-        public string ContainerID { get; set; } = default!;
+        public string ContainerID { get; set; } = string.Empty;
     }
 }

@@ -8,10 +8,10 @@ namespace Docker.DotNet.Models
     public class PluginPrivilege // (plugin.Privilege)
     {
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
 
         [JsonPropertyName("Value")]
         public IList<string> Value { get; set; } = default!;

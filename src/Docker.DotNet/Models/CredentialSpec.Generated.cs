@@ -7,12 +7,12 @@ namespace Docker.DotNet.Models
     public class CredentialSpec // (swarm.CredentialSpec)
     {
         [JsonPropertyName("Config")]
-        public string Config { get; set; } = default!;
+        public string Config { get; set; } = string.Empty;
 
         [JsonPropertyName("File")]
-        public string File { get; set; } = default!;
+        public string File { get; set; } = string.Empty;
 
         [JsonPropertyName("Registry")]
-        public string Registry { get; set; } = default!;
+        public string Registry { get; set; } = string.Empty;
     }
 }

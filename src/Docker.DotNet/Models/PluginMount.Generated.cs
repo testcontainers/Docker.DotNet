@@ -14,7 +14,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// destination
@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Destination")]
-        public string Destination { get; set; } = default!;
+        public string Destination { get; set; } = string.Empty;
 
         /// <summary>
         /// name
@@ -30,7 +30,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// options
@@ -61,6 +61,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
     }
 }

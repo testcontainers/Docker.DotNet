@@ -13,9 +13,9 @@ namespace Docker.DotNet.Models
         public ConfigReferenceRuntimeTarget? Runtime { get; set; }
 
         [JsonPropertyName("ConfigID")]
-        public string ConfigID { get; set; } = default!;
+        public string ConfigID { get; set; } = string.Empty;
 
         [JsonPropertyName("ConfigName")]
-        public string ConfigName { get; set; } = default!;
+        public string ConfigName { get; set; } = string.Empty;
     }
 }

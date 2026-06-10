@@ -13,33 +13,33 @@ namespace Docker.DotNet.Models
         /// Example: container_1
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// endpoint ID
         /// Example: 628cadb8bcb92de107b2a1e516cbffe463e321f548feb37697cce00ad694f21a
         /// </summary>
         [JsonPropertyName("EndpointID")]
-        public string EndpointID { get; set; } = default!;
+        public string EndpointID { get; set; } = string.Empty;
 
         /// <summary>
         /// mac address
         /// Example: 02:42:ac:13:00:02
         /// </summary>
         [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; } = default!;
+        public string MacAddress { get; set; } = string.Empty;
 
         /// <summary>
         /// IPv4 address
         /// Example: 172.19.0.2/16
         /// </summary>
         [JsonPropertyName("IPv4Address")]
-        public string IPv4Address { get; set; } = default!;
+        public string IPv4Address { get; set; } = string.Empty;
 
         /// <summary>
         /// IPv6 address
         /// </summary>
         [JsonPropertyName("IPv6Address")]
-        public string IPv6Address { get; set; } = default!;
+        public string IPv6Address { get; set; } = string.Empty;
     }
 }

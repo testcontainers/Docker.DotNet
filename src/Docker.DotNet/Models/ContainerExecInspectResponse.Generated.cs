@@ -8,7 +8,7 @@ namespace Docker.DotNet.Models
     public class ContainerExecInspectResponse // (container.ExecInspectResponse)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Running")]
         public bool Running { get; set; } = default!;
@@ -32,10 +32,10 @@ namespace Docker.DotNet.Models
         public bool CanRemove { get; set; } = default!;
 
         [JsonPropertyName("ContainerID")]
-        public string ContainerID { get; set; } = default!;
+        public string ContainerID { get; set; } = string.Empty;
 
         [JsonPropertyName("DetachKeys")]
-        public string DetachKeys { get; set; } = default!;
+        public string DetachKeys { get; set; } = string.Empty;
 
         [JsonPropertyName("Pid")]
         public long Pid { get; set; } = default!;

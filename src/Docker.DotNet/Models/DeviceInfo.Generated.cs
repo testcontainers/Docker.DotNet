@@ -10,13 +10,13 @@ namespace Docker.DotNet.Models
         /// Source indicates the origin device driver.
         /// </summary>
         [JsonPropertyName("Source")]
-        public string Source { get; set; } = default!;
+        public string Source { get; set; } = string.Empty;
 
         /// <summary>
         /// ID is the unique identifier for the device.
         /// Example: CDI FQDN like &quot;vendor.com/gpu=0&quot;, or other driver-specific device ID
         /// </summary>
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
     }
 }

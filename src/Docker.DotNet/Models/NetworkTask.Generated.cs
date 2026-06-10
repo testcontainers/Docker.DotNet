@@ -12,19 +12,19 @@ namespace Docker.DotNet.Models
         /// name
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// endpoint ID
         /// </summary>
         [JsonPropertyName("EndpointID")]
-        public string EndpointID { get; set; } = default!;
+        public string EndpointID { get; set; } = string.Empty;
 
         /// <summary>
         /// endpoint IP
         /// </summary>
         [JsonPropertyName("EndpointIP")]
-        public string EndpointIP { get; set; } = default!;
+        public string EndpointIP { get; set; } = string.Empty;
 
         /// <summary>
         /// info

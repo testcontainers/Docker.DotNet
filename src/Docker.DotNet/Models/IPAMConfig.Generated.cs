@@ -7,13 +7,13 @@ namespace Docker.DotNet.Models
     public class IPAMConfig // (network.IPAMConfig)
     {
         [JsonPropertyName("Subnet")]
-        public string Subnet { get; set; } = default!;
+        public string Subnet { get; set; } = string.Empty;
 
         [JsonPropertyName("IPRange")]
-        public string IPRange { get; set; } = default!;
+        public string IPRange { get; set; } = string.Empty;
 
         [JsonPropertyName("Gateway")]
-        public string Gateway { get; set; } = default!;
+        public string Gateway { get; set; } = string.Empty;
 
         [JsonPropertyName("AuxiliaryAddresses")]
         public IDictionary<string, string>? AuxAddress { get; set; }

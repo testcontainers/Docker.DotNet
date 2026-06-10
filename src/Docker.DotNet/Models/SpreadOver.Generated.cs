@@ -11,6 +11,6 @@ namespace Docker.DotNet.Models
         /// label descriptor, such as engine.labels.az
         /// </summary>
         [JsonPropertyName("SpreadDescriptor")]
-        public string SpreadDescriptor { get; set; } = default!;
+        public string SpreadDescriptor { get; set; } = string.Empty;
     }
 }

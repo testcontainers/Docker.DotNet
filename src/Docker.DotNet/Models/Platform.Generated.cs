@@ -4,10 +4,10 @@ namespace Docker.DotNet.Models
     public class Platform // (v1.Platform)
     {
         [JsonPropertyName("architecture")]
-        public string Architecture { get; set; } = default!;
+        public string Architecture { get; set; } = string.Empty;
 
         [JsonPropertyName("os")]
-        public string OS { get; set; } = default!;
+        public string OS { get; set; } = string.Empty;
 
         [JsonPropertyName("os.version")]
         public string? OSVersion { get; set; }

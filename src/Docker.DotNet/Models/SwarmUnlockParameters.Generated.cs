@@ -4,6 +4,6 @@ namespace Docker.DotNet.Models
     public class SwarmUnlockParameters // (main.SwarmUnlockParameters)
     {
         [JsonPropertyName("UnlockKey")]
-        public string UnlockKey { get; set; } = default!;
+        public string UnlockKey { get; set; } = string.Empty;
     }
 }

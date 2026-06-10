@@ -58,7 +58,7 @@ namespace Docker.DotNet.Models
         /// File (path) where the containerId is written
         /// </summary>
         [JsonPropertyName("ContainerIDFile")]
-        public string ContainerIDFile { get; set; } = default!;
+        public string ContainerIDFile { get; set; } = string.Empty;
 
         /// <summary>
         /// Configuration of the logs for this container
@@ -70,7 +70,7 @@ namespace Docker.DotNet.Models
         /// Network mode to use for the container
         /// </summary>
         [JsonPropertyName("NetworkMode")]
-        public string NetworkMode { get; set; } = default!;
+        public string NetworkMode { get; set; } = string.Empty;
 
         /// <summary>
         /// Port mapping between the exposed port (container) and the host
@@ -94,7 +94,7 @@ namespace Docker.DotNet.Models
         /// Name of the volume driver used to mount volumes
         /// </summary>
         [JsonPropertyName("VolumeDriver")]
-        public string VolumeDriver { get; set; } = default!;
+        public string VolumeDriver { get; set; } = string.Empty;
 
         /// <summary>
         /// List of volumes to take from other container
@@ -131,7 +131,7 @@ namespace Docker.DotNet.Models
         /// Cgroup namespace mode to use for the container
         /// </summary>
         [JsonPropertyName("CgroupnsMode")]
-        public string CgroupnsMode { get; set; } = default!;
+        public string CgroupnsMode { get; set; } = string.Empty;
 
         /// <summary>
         /// List of DNS server to lookup
@@ -167,13 +167,13 @@ namespace Docker.DotNet.Models
         /// IPC namespace to use for the container
         /// </summary>
         [JsonPropertyName("IpcMode")]
-        public string IpcMode { get; set; } = default!;
+        public string IpcMode { get; set; } = string.Empty;
 
         /// <summary>
         /// Cgroup to use for the container
         /// </summary>
         [JsonPropertyName("Cgroup")]
-        public string Cgroup { get; set; } = default!;
+        public string Cgroup { get; set; } = string.Empty;
 
         /// <summary>
         /// List of links (in the name:alias form)
@@ -191,7 +191,7 @@ namespace Docker.DotNet.Models
         /// PID namespace to use for the container
         /// </summary>
         [JsonPropertyName("PidMode")]
-        public string PidMode { get; set; } = default!;
+        public string PidMode { get; set; } = string.Empty;
 
         /// <summary>
         /// Is the container in privileged mode
@@ -233,13 +233,13 @@ namespace Docker.DotNet.Models
         /// UTS namespace to use for the container
         /// </summary>
         [JsonPropertyName("UTSMode")]
-        public string UTSMode { get; set; } = default!;
+        public string UTSMode { get; set; } = string.Empty;
 
         /// <summary>
         /// The user namespace to use for the container
         /// </summary>
         [JsonPropertyName("UsernsMode")]
-        public string UsernsMode { get; set; } = default!;
+        public string UsernsMode { get; set; } = string.Empty;
 
         /// <summary>
         /// Total shm memory usage
@@ -263,7 +263,7 @@ namespace Docker.DotNet.Models
         /// Applicable to Windows
         /// </summary>
         [JsonPropertyName("Isolation")]
-        public string Isolation { get; set; } = default!;
+        public string Isolation { get; set; } = string.Empty;
 
         /// <summary>
         /// Applicable to all platforms
@@ -287,7 +287,7 @@ namespace Docker.DotNet.Models
         /// Applicable to UNIX platforms
         /// </summary>
         [JsonPropertyName("CgroupParent")]
-        public string CgroupParent { get; set; } = default!;
+        public string CgroupParent { get; set; } = string.Empty;
 
         /// <summary>
         /// Block IO weight (relative weight vs. other containers)
@@ -338,13 +338,13 @@ namespace Docker.DotNet.Models
         /// CpusetCpus 0-2, 0,1
         /// </summary>
         [JsonPropertyName("CpusetCpus")]
-        public string CpusetCpus { get; set; } = default!;
+        public string CpusetCpus { get; set; } = string.Empty;
 
         /// <summary>
         /// CpusetMems 0-2, 0,1
         /// </summary>
         [JsonPropertyName("CpusetMems")]
-        public string CpusetMems { get; set; } = default!;
+        public string CpusetMems { get; set; } = string.Empty;
 
         /// <summary>
         /// List of devices to map inside the container

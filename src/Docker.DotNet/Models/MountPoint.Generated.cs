@@ -29,14 +29,14 @@ namespace Docker.DotNet.Models
         /// field is empty.
         /// </summary>
         [JsonPropertyName("Source")]
-        public string Source { get; set; } = default!;
+        public string Source { get; set; } = string.Empty;
 
         /// <summary>
         /// Destination is the path relative to the container root (`/`) where the
         /// Source is mounted inside the container.
         /// </summary>
         [JsonPropertyName("Destination")]
-        public string Destination { get; set; } = default!;
+        public string Destination { get; set; } = string.Empty;
 
         /// <summary>
         /// Driver is the volume driver used to create the volume (if it is a volume).
@@ -51,7 +51,7 @@ namespace Docker.DotNet.Models
         /// The default is platform-specific (`&quot;z&quot;` on Linux, empty on Windows).
         /// </summary>
         [JsonPropertyName("Mode")]
-        public string Mode { get; set; } = default!;
+        public string Mode { get; set; } = string.Empty;
 
         /// <summary>
         /// RW indicates whether the mount is mounted writable (read-write).
@@ -68,6 +68,6 @@ namespace Docker.DotNet.Models
         /// This field is not used on Windows.
         /// </summary>
         [JsonPropertyName("Propagation")]
-        public string Propagation { get; set; } = default!;
+        public string Propagation { get; set; } = string.Empty;
     }
 }

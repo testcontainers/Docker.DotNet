@@ -379,7 +379,11 @@ func writeProperties(w io.Writer, properties []CSProperty) {
 		if p.DefaultValue != "" {
 			fmt.Fprintf(w, " = %s;", p.DefaultValue)
 		} else if !p.IsOpt {
-			fmt.Fprintf(w, " = default!;")
+			if p.Type.Name == "string" {
+				fmt.Fprintf(w, " = string.Empty;")
+			} else {
+				fmt.Fprintf(w, " = default!;")
+			}
 		}
 
 		fmt.Fprintln(w)

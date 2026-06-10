@@ -14,7 +14,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// name
@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// settable

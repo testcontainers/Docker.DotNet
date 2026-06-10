@@ -10,15 +10,15 @@ namespace Docker.DotNet.Models
         public bool Disable { get; set; } = default!;
 
         [JsonPropertyName("User")]
-        public string User { get; set; } = default!;
+        public string User { get; set; } = string.Empty;
 
         [JsonPropertyName("Role")]
-        public string Role { get; set; } = default!;
+        public string Role { get; set; } = string.Empty;
 
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
 
         [JsonPropertyName("Level")]
-        public string Level { get; set; } = default!;
+        public string Level { get; set; } = string.Empty;
     }
 }

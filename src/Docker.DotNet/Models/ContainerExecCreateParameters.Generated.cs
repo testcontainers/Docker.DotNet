@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class ContainerExecCreateParameters // (main.ContainerExecCreateParameters)
     {
         [JsonPropertyName("User")]
-        public string User { get; set; } = default!;
+        public string User { get; set; } = string.Empty;
 
         [JsonPropertyName("Privileged")]
         public bool Privileged { get; set; } = default!;
@@ -26,13 +26,13 @@ namespace Docker.DotNet.Models
         public bool AttachStdout { get; set; } = default!;
 
         [JsonPropertyName("DetachKeys")]
-        public string DetachKeys { get; set; } = default!;
+        public string DetachKeys { get; set; } = string.Empty;
 
         [JsonPropertyName("Env")]
         public IList<string> Env { get; set; } = default!;
 
         [JsonPropertyName("WorkingDir")]
-        public string WorkingDir { get; set; } = default!;
+        public string WorkingDir { get; set; } = string.Empty;
 
         [JsonPropertyName("Cmd")]
         public IList<string> Cmd { get; set; } = default!;

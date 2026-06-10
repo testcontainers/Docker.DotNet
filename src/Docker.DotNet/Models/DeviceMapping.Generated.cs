@@ -7,12 +7,12 @@ namespace Docker.DotNet.Models
     public class DeviceMapping // (container.DeviceMapping)
     {
         [JsonPropertyName("PathOnHost")]
-        public string PathOnHost { get; set; } = default!;
+        public string PathOnHost { get; set; } = string.Empty;
 
         [JsonPropertyName("PathInContainer")]
-        public string PathInContainer { get; set; } = default!;
+        public string PathInContainer { get; set; } = string.Empty;
 
         [JsonPropertyName("CgroupPermissions")]
-        public string CgroupPermissions { get; set; } = default!;
+        public string CgroupPermissions { get; set; } = string.Empty;
     }
 }

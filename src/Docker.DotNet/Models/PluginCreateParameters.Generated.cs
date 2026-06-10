@@ -4,6 +4,6 @@ namespace Docker.DotNet.Models
     public class PluginCreateParameters // (main.PluginCreateParameters)
     {
         [QueryStringParameter("name", true)]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
     }
 }

@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class Ulimit // (units.Ulimit)
     {
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Hard")]
         public long Hard { get; set; } = default!;
