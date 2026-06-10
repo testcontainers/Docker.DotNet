@@ -13,13 +13,13 @@ namespace Docker.DotNet.Models
         /// Example: 6869d7c1732b
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// IP-address of the peer-node in the Swarm cluster.
         /// Example: 10.133.77.91
         /// </summary>
         [JsonPropertyName("IP")]
-        public string IP { get; set; } = default!;
+        public string IP { get; set; } = string.Empty;
     }
 }

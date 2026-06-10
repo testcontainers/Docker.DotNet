@@ -21,7 +21,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// documentation
@@ -29,7 +29,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Documentation")]
-        public string Documentation { get; set; } = default!;
+        public string Documentation { get; set; } = string.Empty;
 
         /// <summary>
         /// entrypoint
@@ -97,7 +97,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("PropagatedMount")]
-        public string PropagatedMount { get; set; } = default!;
+        public string PropagatedMount { get; set; } = string.Empty;
 
         /// <summary>
         /// user
@@ -111,7 +111,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("WorkDir")]
-        public string WorkDir { get; set; } = default!;
+        public string WorkDir { get; set; } = string.Empty;
 
         /// <summary>
         /// rootfs

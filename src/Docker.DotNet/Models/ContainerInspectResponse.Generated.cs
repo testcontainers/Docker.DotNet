@@ -8,13 +8,13 @@ namespace Docker.DotNet.Models
     public class ContainerInspectResponse // (container.InspectResponse)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Created")]
         public DateTime Created { get; set; } = default!;
 
         [JsonPropertyName("Path")]
-        public string Path { get; set; } = default!;
+        public string Path { get; set; } = string.Empty;
 
         [JsonPropertyName("Args")]
         public IList<string> Args { get; set; } = default!;
@@ -23,40 +23,40 @@ namespace Docker.DotNet.Models
         public State? State { get; set; }
 
         [JsonPropertyName("Image")]
-        public string Image { get; set; } = default!;
+        public string Image { get; set; } = string.Empty;
 
         [JsonPropertyName("ResolvConfPath")]
-        public string ResolvConfPath { get; set; } = default!;
+        public string ResolvConfPath { get; set; } = string.Empty;
 
         [JsonPropertyName("HostnamePath")]
-        public string HostnamePath { get; set; } = default!;
+        public string HostnamePath { get; set; } = string.Empty;
 
         [JsonPropertyName("HostsPath")]
-        public string HostsPath { get; set; } = default!;
+        public string HostsPath { get; set; } = string.Empty;
 
         [JsonPropertyName("LogPath")]
-        public string LogPath { get; set; } = default!;
+        public string LogPath { get; set; } = string.Empty;
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("RestartCount")]
         public long RestartCount { get; set; } = default!;
 
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         [JsonPropertyName("Platform")]
-        public string Platform { get; set; } = default!;
+        public string Platform { get; set; } = string.Empty;
 
         [JsonPropertyName("MountLabel")]
-        public string MountLabel { get; set; } = default!;
+        public string MountLabel { get; set; } = string.Empty;
 
         [JsonPropertyName("ProcessLabel")]
-        public string ProcessLabel { get; set; } = default!;
+        public string ProcessLabel { get; set; } = string.Empty;
 
         [JsonPropertyName("AppArmorProfile")]
-        public string AppArmorProfile { get; set; } = default!;
+        public string AppArmorProfile { get; set; } = string.Empty;
 
         [JsonPropertyName("ExecIDs")]
         public IList<string> ExecIDs { get; set; } = default!;

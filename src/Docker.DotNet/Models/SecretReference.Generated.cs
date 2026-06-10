@@ -10,9 +10,9 @@ namespace Docker.DotNet.Models
         public SecretReferenceFileTarget? File { get; set; }
 
         [JsonPropertyName("SecretID")]
-        public string SecretID { get; set; } = default!;
+        public string SecretID { get; set; } = string.Empty;
 
         [JsonPropertyName("SecretName")]
-        public string SecretName { get; set; } = default!;
+        public string SecretName { get; set; } = string.Empty;
     }
 }

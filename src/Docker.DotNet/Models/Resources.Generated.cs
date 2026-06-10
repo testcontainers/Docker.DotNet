@@ -28,7 +28,7 @@ namespace Docker.DotNet.Models
         /// Applicable to UNIX platforms
         /// </summary>
         [JsonPropertyName("CgroupParent")]
-        public string CgroupParent { get; set; } = default!;
+        public string CgroupParent { get; set; } = string.Empty;
 
         /// <summary>
         /// Block IO weight (relative weight vs. other containers)
@@ -79,13 +79,13 @@ namespace Docker.DotNet.Models
         /// CpusetCpus 0-2, 0,1
         /// </summary>
         [JsonPropertyName("CpusetCpus")]
-        public string CpusetCpus { get; set; } = default!;
+        public string CpusetCpus { get; set; } = string.Empty;
 
         /// <summary>
         /// CpusetMems 0-2, 0,1
         /// </summary>
         [JsonPropertyName("CpusetMems")]
-        public string CpusetMems { get; set; } = default!;
+        public string CpusetMems { get; set; } = string.Empty;
 
         /// <summary>
         /// List of devices to map inside the container

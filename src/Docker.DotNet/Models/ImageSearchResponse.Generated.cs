@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         /// Name is the name of the repository
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// IsAutomated indicates whether the result is automated.
@@ -36,6 +36,6 @@ namespace Docker.DotNet.Models
         /// Description is a textual description of the repository
         /// </summary>
         [JsonPropertyName("description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
     }
 }

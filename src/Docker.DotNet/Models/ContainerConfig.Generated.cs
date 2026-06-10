@@ -15,19 +15,19 @@ namespace Docker.DotNet.Models
         /// Hostname
         /// </summary>
         [JsonPropertyName("Hostname")]
-        public string Hostname { get; set; } = default!;
+        public string Hostname { get; set; } = string.Empty;
 
         /// <summary>
         /// Domainname
         /// </summary>
         [JsonPropertyName("Domainname")]
-        public string Domainname { get; set; } = default!;
+        public string Domainname { get; set; } = string.Empty;
 
         /// <summary>
         /// User that will run the command(s) inside the container, also support user:group
         /// </summary>
         [JsonPropertyName("User")]
-        public string User { get; set; } = default!;
+        public string User { get; set; } = string.Empty;
 
         /// <summary>
         /// Attach the standard input, makes possible user interaction
@@ -99,7 +99,7 @@ namespace Docker.DotNet.Models
         /// Name of the image as it was passed by the operator (e.g. could be symbolic)
         /// </summary>
         [JsonPropertyName("Image")]
-        public string Image { get; set; } = default!;
+        public string Image { get; set; } = string.Empty;
 
         /// <summary>
         /// List of volumes (mounts) used for the container
@@ -111,7 +111,7 @@ namespace Docker.DotNet.Models
         /// Current directory (PWD) in the command will be launched
         /// </summary>
         [JsonPropertyName("WorkingDir")]
-        public string WorkingDir { get; set; } = default!;
+        public string WorkingDir { get; set; } = string.Empty;
 
         /// <summary>
         /// Entrypoint to run when starting the container

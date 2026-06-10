@@ -27,7 +27,7 @@ namespace Docker.DotNet.Models
         /// Name. This ID can be used to refer to the cluster volume.
         /// </summary>
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Version")]
         public Version? Version { get; set; }

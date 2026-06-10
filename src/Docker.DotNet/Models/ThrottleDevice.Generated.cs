@@ -7,7 +7,7 @@ namespace Docker.DotNet.Models
     public class ThrottleDevice // (blkiodev.ThrottleDevice)
     {
         [JsonPropertyName("Path")]
-        public string Path { get; set; } = default!;
+        public string Path { get; set; } = string.Empty;
 
         [JsonPropertyName("Rate")]
         public ulong Rate { get; set; } = default!;

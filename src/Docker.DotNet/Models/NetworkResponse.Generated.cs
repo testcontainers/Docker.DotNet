@@ -41,7 +41,7 @@ namespace Docker.DotNet.Models
         /// Example: my_network
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// ID that uniquely identifies a network on a single machine.
@@ -49,7 +49,7 @@ namespace Docker.DotNet.Models
         /// Example: 7d86d31b1478e7cca9ebed7e73aa0fdeec46c5ca29497431d3007d2d9e15ed99
         /// </summary>
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// Date and time at which the network was created in
@@ -67,7 +67,7 @@ namespace Docker.DotNet.Models
         /// Example: local
         /// </summary>
         [JsonPropertyName("Scope")]
-        public string Scope { get; set; } = default!;
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// The name of the driver used to create the network (e.g. `bridge`,
@@ -76,7 +76,7 @@ namespace Docker.DotNet.Models
         /// Example: overlay
         /// </summary>
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         /// <summary>
         /// Whether the network was created with IPv4 enabled.

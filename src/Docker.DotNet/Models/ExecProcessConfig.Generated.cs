@@ -11,7 +11,7 @@ namespace Docker.DotNet.Models
         public bool Tty { get; set; } = default!;
 
         [JsonPropertyName("entrypoint")]
-        public string Entrypoint { get; set; } = default!;
+        public string Entrypoint { get; set; } = string.Empty;
 
         [JsonPropertyName("arguments")]
         public IList<string> Arguments { get; set; } = default!;

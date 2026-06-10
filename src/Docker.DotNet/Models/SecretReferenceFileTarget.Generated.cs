@@ -7,13 +7,13 @@ namespace Docker.DotNet.Models
     public class SecretReferenceFileTarget // (swarm.SecretReferenceFileTarget)
     {
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("UID")]
-        public string UID { get; set; } = default!;
+        public string UID { get; set; } = string.Empty;
 
         [JsonPropertyName("GID")]
-        public string GID { get; set; } = default!;
+        public string GID { get; set; } = string.Empty;
 
         [JsonPropertyName("Mode")]
         public uint Mode { get; set; } = default!;

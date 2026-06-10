@@ -10,10 +10,10 @@ namespace Docker.DotNet.Models
     public class SignerIdentity // (image.SignerIdentity)
     {
         [JsonPropertyName("CertificateIssuer")]
-        public string CertificateIssuer { get; set; } = default!;
+        public string CertificateIssuer { get; set; } = string.Empty;
 
         [JsonPropertyName("SubjectAlternativeName")]
-        public string SubjectAlternativeName { get; set; } = default!;
+        public string SubjectAlternativeName { get; set; } = string.Empty;
 
         /// <summary>
         /// The OIDC issuer. Should match `iss` claim of ID token or, in the case of

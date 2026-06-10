@@ -7,10 +7,10 @@ namespace Docker.DotNet.Models
     public class ComponentVersion // (system.ComponentVersion)
     {
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Version")]
-        public string Version { get; set; } = default!;
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// Details contains Key/value pairs of strings with additional information

@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         /// Status is one of [Starting], [Healthy] or [Unhealthy].
         /// </summary>
         [JsonPropertyName("Status")]
-        public string Status { get; set; } = default!;
+        public string Status { get; set; } = string.Empty;
 
         /// <summary>
         /// FailingStreak is the number of consecutive failures

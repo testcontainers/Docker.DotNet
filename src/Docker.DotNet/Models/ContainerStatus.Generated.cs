@@ -7,7 +7,7 @@ namespace Docker.DotNet.Models
     public class ContainerStatus // (swarm.ContainerStatus)
     {
         [JsonPropertyName("ContainerID")]
-        public string ContainerID { get; set; } = default!;
+        public string ContainerID { get; set; } = string.Empty;
 
         [JsonPropertyName("PID")]
         public long PID { get; set; } = default!;

@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// Descriptor is the OCI descriptor of the image.
@@ -44,7 +44,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Kind")]
-        public string Kind { get; set; } = default!;
+        public string Kind { get; set; } = string.Empty;
 
         /// <summary>
         /// Present only if Kind == ManifestKindImage.

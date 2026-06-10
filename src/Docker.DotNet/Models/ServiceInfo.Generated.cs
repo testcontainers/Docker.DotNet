@@ -12,7 +12,7 @@ namespace Docker.DotNet.Models
         /// v IP
         /// </summary>
         [JsonPropertyName("VIP")]
-        public string VIP { get; set; } = default!;
+        public string VIP { get; set; } = string.Empty;
 
         /// <summary>
         /// ports

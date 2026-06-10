@@ -11,7 +11,7 @@ namespace Docker.DotNet.Models
         /// Name of device driver
         /// </summary>
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         /// <summary>
         /// Number of devices to request (-1 = All)

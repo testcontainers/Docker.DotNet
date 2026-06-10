@@ -58,6 +58,6 @@ namespace Docker.DotNet.Models
         /// started, or the new task is started before the old task is shut down.
         /// </summary>
         [JsonPropertyName("Order")]
-        public string Order { get; set; } = default!;
+        public string Order { get; set; } = string.Empty;
     }
 }

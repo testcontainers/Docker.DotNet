@@ -9,7 +9,7 @@ namespace Docker.DotNet.Models
     public class ContainerPathStatResponse // (container.PathStat)
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("size")]
         public long Size { get; set; } = default!;
@@ -21,6 +21,6 @@ namespace Docker.DotNet.Models
         public DateTime Mtime { get; set; } = default!;
 
         [JsonPropertyName("linkTarget")]
-        public string LinkTarget { get; set; } = default!;
+        public string LinkTarget { get; set; } = string.Empty;
     }
 }

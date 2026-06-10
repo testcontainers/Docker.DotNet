@@ -34,16 +34,16 @@ namespace Docker.DotNet.Models
         public long GwPriority { get; set; } = default!;
 
         [JsonPropertyName("NetworkID")]
-        public string NetworkID { get; set; } = default!;
+        public string NetworkID { get; set; } = string.Empty;
 
         [JsonPropertyName("EndpointID")]
-        public string EndpointID { get; set; } = default!;
+        public string EndpointID { get; set; } = string.Empty;
 
         [JsonPropertyName("Gateway")]
-        public string Gateway { get; set; } = default!;
+        public string Gateway { get; set; } = string.Empty;
 
         [JsonPropertyName("IPAddress")]
-        public string IPAddress { get; set; } = default!;
+        public string IPAddress { get; set; } = string.Empty;
 
         /// <summary>
         /// MacAddress may be used to specify a MAC address when the container is created.
@@ -51,16 +51,16 @@ namespace Docker.DotNet.Models
         /// generated address).
         /// </summary>
         [JsonPropertyName("MacAddress")]
-        public string MacAddress { get; set; } = default!;
+        public string MacAddress { get; set; } = string.Empty;
 
         [JsonPropertyName("IPPrefixLen")]
         public long IPPrefixLen { get; set; } = default!;
 
         [JsonPropertyName("IPv6Gateway")]
-        public string IPv6Gateway { get; set; } = default!;
+        public string IPv6Gateway { get; set; } = string.Empty;
 
         [JsonPropertyName("GlobalIPv6Address")]
-        public string GlobalIPv6Address { get; set; } = default!;
+        public string GlobalIPv6Address { get; set; } = string.Empty;
 
         [JsonPropertyName("GlobalIPv6PrefixLen")]
         public long GlobalIPv6PrefixLen { get; set; } = default!;

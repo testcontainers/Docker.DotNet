@@ -11,7 +11,7 @@ namespace Docker.DotNet.Models
     public class Actor // (events.Actor)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Attributes")]
         public IDictionary<string, string> Attributes { get; set; } = default!;

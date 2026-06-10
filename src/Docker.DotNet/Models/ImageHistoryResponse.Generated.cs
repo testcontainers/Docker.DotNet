@@ -15,7 +15,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Comment")]
-        public string Comment { get; set; } = default!;
+        public string Comment { get; set; } = string.Empty;
 
         /// <summary>
         /// created
@@ -29,14 +29,14 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("CreatedBy")]
-        public string CreatedBy { get; set; } = default!;
+        public string CreatedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// Id
         /// Required: true
         /// </summary>
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// size
