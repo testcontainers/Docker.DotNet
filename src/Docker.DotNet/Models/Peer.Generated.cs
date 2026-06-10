@@ -7,9 +7,9 @@ namespace Docker.DotNet.Models
     public class Peer // (swarm.Peer)
     {
         [JsonPropertyName("NodeID")]
-        public string NodeID { get; set; } = default!;
+        public string NodeID { get; set; } = string.Empty;
 
         [JsonPropertyName("Addr")]
-        public string Addr { get; set; } = default!;
+        public string Addr { get; set; } = string.Empty;
     }
 }

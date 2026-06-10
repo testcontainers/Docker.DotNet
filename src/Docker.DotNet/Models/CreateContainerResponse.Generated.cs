@@ -16,7 +16,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// Warnings encountered when creating the container

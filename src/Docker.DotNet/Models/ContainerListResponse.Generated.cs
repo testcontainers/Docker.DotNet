@@ -8,22 +8,22 @@ namespace Docker.DotNet.Models
     public class ContainerListResponse // (container.Summary)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Names")]
         public IList<string> Names { get; set; } = default!;
 
         [JsonPropertyName("Image")]
-        public string Image { get; set; } = default!;
+        public string Image { get; set; } = string.Empty;
 
         [JsonPropertyName("ImageID")]
-        public string ImageID { get; set; } = default!;
+        public string ImageID { get; set; } = string.Empty;
 
         [JsonPropertyName("ImageManifestDescriptor")]
         public Descriptor? ImageManifestDescriptor { get; set; }
 
         [JsonPropertyName("Command")]
-        public string Command { get; set; } = default!;
+        public string Command { get; set; } = string.Empty;
 
         [JsonPropertyName("Created")]
         public DateTime Created { get; set; } = default!;
@@ -41,10 +41,10 @@ namespace Docker.DotNet.Models
         public IDictionary<string, string> Labels { get; set; } = default!;
 
         [JsonPropertyName("State")]
-        public string State { get; set; } = default!;
+        public string State { get; set; } = string.Empty;
 
         [JsonPropertyName("Status")]
-        public string Status { get; set; } = default!;
+        public string Status { get; set; } = string.Empty;
 
         [JsonPropertyName("HostConfig")]
         public SummaryHostConfig HostConfig { get; set; } = default!;

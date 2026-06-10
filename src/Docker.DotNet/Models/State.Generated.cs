@@ -11,7 +11,7 @@ namespace Docker.DotNet.Models
         /// String representation of the container state. Can be one of &quot;created&quot;, &quot;running&quot;, &quot;paused&quot;, &quot;restarting&quot;, &quot;removing&quot;, &quot;exited&quot;, or &quot;dead&quot;
         /// </summary>
         [JsonPropertyName("Status")]
-        public string Status { get; set; } = default!;
+        public string Status { get; set; } = string.Empty;
 
         [JsonPropertyName("Running")]
         public bool Running { get; set; } = default!;
@@ -35,13 +35,13 @@ namespace Docker.DotNet.Models
         public long ExitCode { get; set; } = default!;
 
         [JsonPropertyName("Error")]
-        public string Error { get; set; } = default!;
+        public string Error { get; set; } = string.Empty;
 
         [JsonPropertyName("StartedAt")]
-        public string StartedAt { get; set; } = default!;
+        public string StartedAt { get; set; } = string.Empty;
 
         [JsonPropertyName("FinishedAt")]
-        public string FinishedAt { get; set; } = default!;
+        public string FinishedAt { get; set; } = string.Empty;
 
         [JsonPropertyName("Health")]
         public Health? Health { get; set; }

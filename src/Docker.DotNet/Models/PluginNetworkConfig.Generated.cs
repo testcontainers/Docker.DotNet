@@ -14,6 +14,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
     }
 }

@@ -12,6 +12,6 @@ namespace Docker.DotNet.Models
         /// or &quot;Docker Desktop 4.49.0 (208003)&quot;)
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
     }
 }

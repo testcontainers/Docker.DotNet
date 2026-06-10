@@ -10,12 +10,12 @@ namespace Docker.DotNet.Models
         /// HostIP is the host IP Address
         /// </summary>
         [JsonPropertyName("HostIp")]
-        public string HostIP { get; set; } = default!;
+        public string HostIP { get; set; } = string.Empty;
 
         /// <summary>
         /// HostPort is the host port number
         /// </summary>
         [JsonPropertyName("HostPort")]
-        public string HostPort { get; set; } = default!;
+        public string HostPort { get; set; } = string.Empty;
     }
 }

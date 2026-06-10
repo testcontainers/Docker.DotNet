@@ -4,6 +4,6 @@ namespace Docker.DotNet.Models
     public class CommitContainerChangesResponse // (main.CommitContainerChangesResponse)
     {
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
     }
 }

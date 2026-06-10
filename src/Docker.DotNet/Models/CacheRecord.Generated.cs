@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         /// ID is the unique ID of the build cache record.
         /// </summary>
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// Parents is the list of parent build cache record IDs.
@@ -22,13 +22,13 @@ namespace Docker.DotNet.Models
         /// Type is the cache record type.
         /// </summary>
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
 
         /// <summary>
         /// Description is a description of the build-step that produced the build cache.
         /// </summary>
         [JsonPropertyName("Description")]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// InUse indicates if the build cache is in use.

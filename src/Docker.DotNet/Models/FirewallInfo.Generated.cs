@@ -10,7 +10,7 @@ namespace Docker.DotNet.Models
         /// Driver is the name of the firewall backend driver.
         /// </summary>
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         /// <summary>
         /// Info is a list of label/value pairs, containing information related to the firewall.

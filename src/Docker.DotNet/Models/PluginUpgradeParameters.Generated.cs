@@ -4,7 +4,7 @@ namespace Docker.DotNet.Models
     public class PluginUpgradeParameters // (main.PluginUpgradeParameters)
     {
         [QueryStringParameter("remote", true)]
-        public string Remote { get; set; } = default!;
+        public string Remote { get; set; } = string.Empty;
 
         [JsonPropertyName("RegistryAuth")]
         public AuthConfig RegistryAuth { get; set; } = default!;

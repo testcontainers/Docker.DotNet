@@ -35,6 +35,6 @@ namespace Docker.DotNet.Models
         /// Enum: [&quot;tcp&quot;,&quot;udp&quot;,&quot;sctp&quot;]
         /// </summary>
         [JsonPropertyName("Type")]
-        public string Type { get; set; } = default!;
+        public string Type { get; set; } = string.Empty;
     }
 }

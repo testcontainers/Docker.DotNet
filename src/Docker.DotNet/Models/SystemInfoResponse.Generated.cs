@@ -8,7 +8,7 @@ namespace Docker.DotNet.Models
     public class SystemInfoResponse // (system.Info)
     {
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Containers")]
         public long Containers { get; set; } = default!;
@@ -26,7 +26,7 @@ namespace Docker.DotNet.Models
         public long Images { get; set; } = default!;
 
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         [JsonPropertyName("DriverStatus")]
         public IList<string[]> DriverStatus { get; set; } = default!;
@@ -77,13 +77,13 @@ namespace Docker.DotNet.Models
         public long NGoroutines { get; set; } = default!;
 
         [JsonPropertyName("SystemTime")]
-        public string SystemTime { get; set; } = default!;
+        public string SystemTime { get; set; } = string.Empty;
 
         [JsonPropertyName("LoggingDriver")]
-        public string LoggingDriver { get; set; } = default!;
+        public string LoggingDriver { get; set; } = string.Empty;
 
         [JsonPropertyName("CgroupDriver")]
-        public string CgroupDriver { get; set; } = default!;
+        public string CgroupDriver { get; set; } = string.Empty;
 
         [JsonPropertyName("CgroupVersion")]
         public string? CgroupVersion { get; set; }
@@ -92,22 +92,22 @@ namespace Docker.DotNet.Models
         public long NEventsListener { get; set; } = default!;
 
         [JsonPropertyName("KernelVersion")]
-        public string KernelVersion { get; set; } = default!;
+        public string KernelVersion { get; set; } = string.Empty;
 
         [JsonPropertyName("OperatingSystem")]
-        public string OperatingSystem { get; set; } = default!;
+        public string OperatingSystem { get; set; } = string.Empty;
 
         [JsonPropertyName("OSVersion")]
-        public string OSVersion { get; set; } = default!;
+        public string OSVersion { get; set; } = string.Empty;
 
         [JsonPropertyName("OSType")]
-        public string OSType { get; set; } = default!;
+        public string OSType { get; set; } = string.Empty;
 
         [JsonPropertyName("Architecture")]
-        public string Architecture { get; set; } = default!;
+        public string Architecture { get; set; } = string.Empty;
 
         [JsonPropertyName("IndexServerAddress")]
-        public string IndexServerAddress { get; set; } = default!;
+        public string IndexServerAddress { get; set; } = string.Empty;
 
         [JsonPropertyName("RegistryConfig")]
         public ServiceConfig? RegistryConfig { get; set; }
@@ -122,19 +122,19 @@ namespace Docker.DotNet.Models
         public IList<GenericResource> GenericResources { get; set; } = default!;
 
         [JsonPropertyName("DockerRootDir")]
-        public string DockerRootDir { get; set; } = default!;
+        public string DockerRootDir { get; set; } = string.Empty;
 
         [JsonPropertyName("HttpProxy")]
-        public string HTTPProxy { get; set; } = default!;
+        public string HTTPProxy { get; set; } = string.Empty;
 
         [JsonPropertyName("HttpsProxy")]
-        public string HTTPSProxy { get; set; } = default!;
+        public string HTTPSProxy { get; set; } = string.Empty;
 
         [JsonPropertyName("NoProxy")]
-        public string NoProxy { get; set; } = default!;
+        public string NoProxy { get; set; } = string.Empty;
 
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Labels")]
         public IList<string> Labels { get; set; } = default!;
@@ -143,13 +143,13 @@ namespace Docker.DotNet.Models
         public bool ExperimentalBuild { get; set; } = default!;
 
         [JsonPropertyName("ServerVersion")]
-        public string ServerVersion { get; set; } = default!;
+        public string ServerVersion { get; set; } = string.Empty;
 
         [JsonPropertyName("Runtimes")]
         public IDictionary<string, RuntimeWithStatus> Runtimes { get; set; } = default!;
 
         [JsonPropertyName("DefaultRuntime")]
-        public string DefaultRuntime { get; set; } = default!;
+        public string DefaultRuntime { get; set; } = string.Empty;
 
         [JsonPropertyName("Swarm")]
         public Info Swarm { get; set; } = default!;
@@ -163,10 +163,10 @@ namespace Docker.DotNet.Models
         public bool LiveRestoreEnabled { get; set; } = default!;
 
         [JsonPropertyName("Isolation")]
-        public string Isolation { get; set; } = default!;
+        public string Isolation { get; set; } = string.Empty;
 
         [JsonPropertyName("InitBinary")]
-        public string InitBinary { get; set; } = default!;
+        public string InitBinary { get; set; } = string.Empty;
 
         [JsonPropertyName("ContainerdCommit")]
         public Commit ContainerdCommit { get; set; } = default!;

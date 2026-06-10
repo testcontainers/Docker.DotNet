@@ -7,6 +7,6 @@ namespace Docker.DotNet.Models
         /// For is the digest of the image manifest that this attestation is for.
         /// </summary>
         [JsonPropertyName("For")]
-        public string For { get; set; } = default!;
+        public string For { get; set; } = string.Empty;
     }
 }

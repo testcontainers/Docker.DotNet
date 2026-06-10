@@ -7,19 +7,19 @@ namespace Docker.DotNet.Models
     public class Info // (swarm.Info)
     {
         [JsonPropertyName("NodeID")]
-        public string NodeID { get; set; } = default!;
+        public string NodeID { get; set; } = string.Empty;
 
         [JsonPropertyName("NodeAddr")]
-        public string NodeAddr { get; set; } = default!;
+        public string NodeAddr { get; set; } = string.Empty;
 
         [JsonPropertyName("LocalNodeState")]
-        public string LocalNodeState { get; set; } = default!;
+        public string LocalNodeState { get; set; } = string.Empty;
 
         [JsonPropertyName("ControlAvailable")]
         public bool ControlAvailable { get; set; } = default!;
 
         [JsonPropertyName("Error")]
-        public string Error { get; set; } = default!;
+        public string Error { get; set; } = string.Empty;
 
         [JsonPropertyName("RemoteManagers")]
         public IList<Peer> RemoteManagers { get; set; } = default!;

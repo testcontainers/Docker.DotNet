@@ -17,13 +17,13 @@ namespace Docker.DotNet.Models
         /// Version is the version of the daemon.
         /// </summary>
         [JsonPropertyName("Version")]
-        public string Version { get; set; } = default!;
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// APIVersion is the highest API version supported by the server.
         /// </summary>
         [JsonPropertyName("ApiVersion")]
-        public string APIVersion { get; set; } = default!;
+        public string APIVersion { get; set; } = string.Empty;
 
         /// <summary>
         /// MinAPIVersion is the minimum API version the server supports.
@@ -35,13 +35,13 @@ namespace Docker.DotNet.Models
         /// Os is the operating system the server runs on.
         /// </summary>
         [JsonPropertyName("Os")]
-        public string Os { get; set; } = default!;
+        public string Os { get; set; } = string.Empty;
 
         /// <summary>
         /// Arch is the hardware architecture the server runs on.
         /// </summary>
         [JsonPropertyName("Arch")]
-        public string Arch { get; set; } = default!;
+        public string Arch { get; set; } = string.Empty;
 
         /// <summary>
         /// Components contains version information for the components making

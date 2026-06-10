@@ -18,7 +18,7 @@ namespace Docker.DotNet.Models
         /// holds digests of image manifests that reference the image.
         /// </summary>
         [JsonPropertyName("Id")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
 
         /// <summary>
         /// RepoTags is a list of image names/tags in the local image cache that
@@ -75,7 +75,7 @@ namespace Docker.DotNet.Models
         /// Architecture is the hardware CPU architecture that the image runs on.
         /// </summary>
         [JsonPropertyName("Architecture")]
-        public string Architecture { get; set; } = default!;
+        public string Architecture { get; set; } = string.Empty;
 
         /// <summary>
         /// Variant is the CPU architecture variant (presently ARM-only).
@@ -87,7 +87,7 @@ namespace Docker.DotNet.Models
         /// OS is the Operating System the image is built to run on.
         /// </summary>
         [JsonPropertyName("Os")]
-        public string Os { get; set; } = default!;
+        public string Os { get; set; } = string.Empty;
 
         /// <summary>
         /// OsVersion is the version of the Operating System the image is built to

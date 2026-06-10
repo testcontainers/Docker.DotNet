@@ -8,7 +8,7 @@ namespace Docker.DotNet.Models
     public class NetworkConnectParameters // (client.NetworkConnectOptions)
     {
         [JsonPropertyName("Container")]
-        public string Container { get; set; } = default!;
+        public string Container { get; set; } = string.Empty;
 
         [JsonPropertyName("EndpointConfig")]
         public EndpointSettings? EndpointConfig { get; set; }

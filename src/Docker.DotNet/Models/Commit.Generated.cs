@@ -11,6 +11,6 @@ namespace Docker.DotNet.Models
         /// ID is the actual commit ID or version of external tool.
         /// </summary>
         [JsonPropertyName("ID")]
-        public string ID { get; set; } = default!;
+        public string ID { get; set; } = string.Empty;
     }
 }

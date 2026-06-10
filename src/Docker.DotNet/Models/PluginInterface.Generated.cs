@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Socket")]
-        public string Socket { get; set; } = default!;
+        public string Socket { get; set; } = string.Empty;
 
         /// <summary>
         /// types

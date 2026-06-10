@@ -27,7 +27,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Driver")]
-        public string Driver { get; set; } = default!;
+        public string Driver { get; set; } = string.Empty;
 
         /// <summary>
         /// User-defined key/value metadata.
@@ -43,7 +43,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Mountpoint")]
-        public string Mountpoint { get; set; } = default!;
+        public string Mountpoint { get; set; } = string.Empty;
 
         /// <summary>
         /// Name of the volume.
@@ -51,7 +51,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The driver specific options used when creating the volume.
@@ -71,7 +71,7 @@ namespace Docker.DotNet.Models
         /// Enum: [&quot;local&quot;,&quot;global&quot;]
         /// </summary>
         [JsonPropertyName("Scope")]
-        public string Scope { get; set; } = default!;
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// Low-level details about the volume, provided by the volume driver.

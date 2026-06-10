@@ -36,7 +36,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// plugin remote reference used to push/pull the plugin

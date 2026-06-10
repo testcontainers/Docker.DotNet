@@ -10,13 +10,13 @@ namespace Docker.DotNet.Models
         /// SandboxID uniquely represents a container&apos;s network stack
         /// </summary>
         [JsonPropertyName("SandboxID")]
-        public string SandboxID { get; set; } = default!;
+        public string SandboxID { get; set; } = string.Empty;
 
         /// <summary>
         /// SandboxKey identifies the sandbox
         /// </summary>
         [JsonPropertyName("SandboxKey")]
-        public string SandboxKey { get; set; } = default!;
+        public string SandboxKey { get; set; } = string.Empty;
 
         /// <summary>
         /// Ports is a collection of [network.PortBinding] indexed by [network.Port]

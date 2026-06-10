@@ -17,6 +17,6 @@ namespace Docker.DotNet.Models
         /// Example: config_only_network_01
         /// </summary>
         [JsonPropertyName("Network")]
-        public string Network { get; set; } = default!;
+        public string Network { get; set; } = string.Empty;
     }
 }

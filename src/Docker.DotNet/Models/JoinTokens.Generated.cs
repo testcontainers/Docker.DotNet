@@ -10,12 +10,12 @@ namespace Docker.DotNet.Models
         /// Worker is the join token workers may use to join the swarm.
         /// </summary>
         [JsonPropertyName("Worker")]
-        public string Worker { get; set; } = default!;
+        public string Worker { get; set; } = string.Empty;
 
         /// <summary>
         /// Manager is the join token managers may use to join the swarm.
         /// </summary>
         [JsonPropertyName("Manager")]
-        public string Manager { get; set; } = default!;
+        public string Manager { get; set; } = string.Empty;
     }
 }

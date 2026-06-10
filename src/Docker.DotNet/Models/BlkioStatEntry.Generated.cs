@@ -14,7 +14,7 @@ namespace Docker.DotNet.Models
         public ulong Minor { get; set; } = default!;
 
         [JsonPropertyName("op")]
-        public string Op { get; set; } = default!;
+        public string Op { get; set; } = string.Empty;
 
         [JsonPropertyName("value")]
         public ulong Value { get; set; } = default!;

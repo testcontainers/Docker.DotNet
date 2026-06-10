@@ -10,13 +10,13 @@ namespace Docker.DotNet.Models
         /// Protocol is the protocol used by this external CA.
         /// </summary>
         [JsonPropertyName("Protocol")]
-        public string Protocol { get; set; } = default!;
+        public string Protocol { get; set; } = string.Empty;
 
         /// <summary>
         /// URL is the URL where the external CA can be reached.
         /// </summary>
         [JsonPropertyName("URL")]
-        public string URL { get; set; } = default!;
+        public string URL { get; set; } = string.Empty;
 
         /// <summary>
         /// Options is a set of additional key/value pairs whose interpretation
@@ -30,6 +30,6 @@ namespace Docker.DotNet.Models
         /// be in PEM format.
         /// </summary>
         [JsonPropertyName("CACert")]
-        public string CACert { get; set; } = default!;
+        public string CACert { get; set; } = string.Empty;
     }
 }

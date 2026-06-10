@@ -38,7 +38,7 @@ namespace Docker.DotNet.Models
         /// Name is the name of the registry, such as &quot;docker.io&quot;
         /// </summary>
         [JsonPropertyName("Name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Mirrors is a list of mirrors, expressed as URIs

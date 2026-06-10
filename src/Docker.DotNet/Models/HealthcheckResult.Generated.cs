@@ -28,6 +28,6 @@ namespace Docker.DotNet.Models
         /// Output from last check
         /// </summary>
         [JsonPropertyName("Output")]
-        public string Output { get; set; } = default!;
+        public string Output { get; set; } = string.Empty;
     }
 }

@@ -21,6 +21,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Path")]
-        public string Path { get; set; } = default!;
+        public string Path { get; set; } = string.Empty;
     }
 }
