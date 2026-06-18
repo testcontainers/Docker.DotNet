@@ -3,31 +3,43 @@ namespace Docker.DotNet.TestsV2;
 public sealed class DockerClientBuilderTests
 {
     [Fact]
-    public void ReturnsInjectedEndpointWhenConstructedWithDockerConfig()
+    public void UsesInjectedEndpointWhenBuiltWithoutExplicitEndpoint()
     {
         IDockerCliSettings settings = new TestDockerCliSettings
         {
             DockerHost = "tcp://127.0.0.1:2375/"
         };
 
-        var builder = new TestDockerClientBuilder(new DockerConfig(settings));
+        var transportFactory = new FakeTransportFactory();
 
-        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
+        _ = new TestDockerClientBuilder(new DockerConfig(settings))
+            .WithTransportOptions(transportFactory, new FakeTransportOptions())
+            .Build();
+
+        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), transportFactory.LastClientOptions.Endpoint);
     }
 
     [Fact]
-    public void ReturnsDefaultEndpointWhenTypedBuilderIsConstructed()
+    public void ResolvesDefaultEndpointWhenTypedBuilderIsBuilt()
     {
         var transportFactory = new FakeTransportFactory();
 
         var transportOptions = new FakeTransportOptions();
 
-        var expectedEndpoint = new TestDockerClientBuilder().ClientOptions.Endpoint;
+        var expectedEndpoint = DockerConfig.Instance.GetEndpoint();
 
         _ = new DockerClientBuilder<FakeTransportOptions>(transportFactory, transportOptions)
             .Build();
 
         Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void ResolvesDefaultEndpointWhenResolvedOptionsAreCreated()
+    {
+        var builder = new TestDockerClientBuilder();
+
+        Assert.Equal(DockerConfig.Instance.GetEndpoint(), builder.CreateResolvedClientOptions().Endpoint);
     }
 
     [Fact]
@@ -69,6 +81,27 @@ public sealed class DockerClientBuilderTests
         _ = builder.WithContext("custom");
 
         Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void SkipsDockerConfigDiscoveryWhenExplicitEndpointIsSet()
+    {
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerConfig = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")),
+            DockerContext = "missing"
+        };
+
+        var transportFactory = new FakeTransportFactory();
+
+        var explicitEndpoint = new Uri("http://localhost:2375");
+
+        _ = new TestDockerClientBuilder(new DockerConfig(settings))
+            .WithEndpoint(explicitEndpoint)
+            .WithTransportOptions(transportFactory, new FakeTransportOptions())
+            .Build();
+
+        Assert.Equal(explicitEndpoint, transportFactory.LastClientOptions.Endpoint);
     }
 
     [Fact]
@@ -299,6 +332,9 @@ public sealed class DockerClientBuilderTests
         public new ILogger Logger
             => base.Logger;
 
+        public new ResolvedClientOptions CreateResolvedClientOptions()
+            => base.CreateResolvedClientOptions();
+
         public IDockerHandlerFactory ResolveTransportFactory(Uri endpoint)
             => base.ResolveTransportFactory(endpoint.Scheme);
     }
@@ -329,11 +365,11 @@ public sealed class DockerClientBuilderTests
 
         public FakeTransportOptions LastTransportOptions { get; private set; } = null!;
 
-        public ClientOptions LastClientOptions { get; private set; } = null!;
+        public ResolvedClientOptions LastClientOptions { get; private set; } = null!;
 
         public ILogger LastLogger { get; private set; } = null!;
 
-        public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger)
         {
             TypedCreateHandlerCallCount++;
             LastTransportOptions = transportOptions;
@@ -343,7 +379,7 @@ public sealed class DockerClientBuilderTests
             return new ResolvedTransport(new HttpClientHandler(), clientOptions.Endpoint);
         }
 
-        public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger)
             => throw new NotSupportedException();
 
         public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

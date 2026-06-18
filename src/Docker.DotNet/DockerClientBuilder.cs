@@ -38,7 +38,7 @@ public class DockerClientBuilder
     /// <param name="dockerConfig">The Docker config to preserve.</param>
     public DockerClientBuilder(
         DockerConfig dockerConfig)
-        : this(dockerConfig, new ClientOptions { Endpoint = dockerConfig.GetEndpoint() }, NullLogger.Instance)
+        : this(dockerConfig, new ClientOptions(), NullLogger.Instance)
     {
     }
 
@@ -255,13 +255,33 @@ public class DockerClientBuilder
     /// <returns>A configured <see cref="DockerClient"/> instance.</returns>
     public virtual DockerClient Build()
     {
-        var transportFactory = ResolveTransportFactory(ClientOptions.Endpoint.Scheme);
+        var clientOptions = CreateResolvedClientOptions();
 
-        var resolvedTransport = transportFactory.CreateHandler(ClientOptions, Logger);
+        var transportFactory = ResolveTransportFactory(clientOptions.Endpoint.Scheme);
 
-        var authenticatedHandler = ClientOptions.AuthProvider.ConfigureHandler(resolvedTransport.Handler);
+        var resolvedTransport = transportFactory.CreateHandler(clientOptions, Logger);
 
-        return new DockerClient(authenticatedHandler, ClientOptions, resolvedTransport.EffectiveEndpoint, transportFactory);
+        var authenticatedHandler = clientOptions.AuthProvider.ConfigureHandler(resolvedTransport.Handler);
+
+        return new DockerClient(authenticatedHandler, clientOptions, resolvedTransport.EffectiveEndpoint, transportFactory);
+    }
+
+    /// <summary>
+    /// Resolves the client options, falling back to the default Docker endpoint when none was configured.
+    /// </summary>
+    /// <returns>The client options with a resolved endpoint.</returns>
+    protected ResolvedClientOptions CreateResolvedClientOptions()
+    {
+        var endpoint = ClientOptions.Endpoint ?? _dockerConfig.GetEndpoint();
+
+        return new ResolvedClientOptions
+        {
+            ApiVersion = ClientOptions.ApiVersion,
+            Endpoint = endpoint,
+            AuthProvider = ClientOptions.AuthProvider,
+            Headers = ClientOptions.Headers,
+            Timeout = ClientOptions.Timeout,
+        };
     }
 
     /// <summary>

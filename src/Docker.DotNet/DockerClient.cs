@@ -8,7 +8,7 @@ public sealed class DockerClient : IDockerClient
 
     private readonly HttpClient _client;
 
-    private readonly ClientOptions _clientOptions;
+    private readonly ResolvedClientOptions _clientOptions;
 
     private readonly Uri _effectiveEndpoint;
 
@@ -16,7 +16,7 @@ public sealed class DockerClient : IDockerClient
 
     internal DockerClient(
         HttpMessageHandler handler,
-        ClientOptions clientOptions,
+        ResolvedClientOptions clientOptions,
         Uri effectiveEndpoint,
         IStreamHijacker hijack)
     {
@@ -42,7 +42,7 @@ public sealed class DockerClient : IDockerClient
         Exec = new ExecOperations(this);
     }
 
-    public ClientOptions Options { get; }
+    public ResolvedClientOptions Options { get; }
 
     public ISystemOperations System { get; }
 

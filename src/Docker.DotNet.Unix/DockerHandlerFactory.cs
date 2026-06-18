@@ -9,18 +9,22 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
     public static IDockerHandlerFactory<UnixSocketTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new UnixSocketTransportOptions();
-        Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public ResolvedTransport CreateHandler(UnixSocketTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(UnixSocketTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger)
     {
-        Validate(transportOptions, clientOptions);
+        if (clientOptions is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions));
+        }
 
         var uri = clientOptions.Endpoint;
+
+        Validate(uri);
 
         var socketName = uri.Segments.Last();
         var socketPath = uri.LocalPath;
@@ -59,14 +63,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<UnixSocketTrans
         return Task.FromResult(hijackable.HijackStream());
     }
 
-    private static void Validate(UnixSocketTransportOptions _, ClientOptions clientOptions)
+    private static void Validate(Uri endpoint)
     {
-        if (clientOptions.Endpoint is null)
-        {
-            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
-        }
-
-        var scheme = clientOptions.Endpoint.Scheme;
+        var scheme = endpoint.Scheme;
 
         if (!string.Equals(scheme, "unix", StringComparison.OrdinalIgnoreCase))
         {
