@@ -3,34 +3,6 @@ namespace Docker.DotNet.TestsV2;
 public sealed class DockerClientBuilderTests
 {
     [Fact]
-    public void ReturnsInjectedEndpointWhenConstructedWithDockerConfig()
-    {
-        IDockerCliSettings settings = new TestDockerCliSettings
-        {
-            DockerHost = "tcp://127.0.0.1:2375/"
-        };
-
-        var builder = new TestDockerClientBuilder(new DockerConfig(settings));
-
-        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
-    }
-
-    [Fact]
-    public void ReturnsDefaultEndpointWhenTypedBuilderIsConstructed()
-    {
-        var transportFactory = new FakeTransportFactory();
-
-        var transportOptions = new FakeTransportOptions();
-
-        var expectedEndpoint = new TestDockerClientBuilder().ClientOptions.Endpoint;
-
-        _ = new DockerClientBuilder<FakeTransportOptions>(transportFactory, transportOptions)
-            .Build();
-
-        Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
-    }
-
-    [Fact]
     public void UpdatesClientOptionsWhenApiVersionIsSet()
     {
         var version = new Version(1, 52);
@@ -55,7 +27,7 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
-    public void UsesInjectedDockerConfigWhenContextIsSet()
+    public void UpdatesClientOptionsWhenContextIsSet()
     {
         using var context = new ConfigMetaFile("custom", new Uri("tcp://127.0.0.1:2375/"));
 
@@ -66,8 +38,9 @@ public sealed class DockerClientBuilderTests
 
         var builder = new TestDockerClientBuilder(new DockerConfig(settings));
 
-        _ = builder.WithContext("custom");
+        var sameInstance = builder.WithContext("custom");
 
+        Assert.Same(builder, sameInstance);
         Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), builder.ClientOptions.Endpoint);
     }
 
@@ -157,6 +130,81 @@ public sealed class DockerClientBuilderTests
     }
 
     [Fact]
+    public void ResolvesDefaultEndpointWhenResolvedOptionsAreCreated()
+    {
+        var builder = new TestDockerClientBuilder();
+
+        Assert.Equal(DockerConfig.Instance.GetEndpoint(), builder.CreateResolvedClientOptions().Endpoint);
+    }
+
+    [Fact]
+    public void UsesInjectedEndpointWhenBuiltWithoutExplicitEndpoint()
+    {
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerHost = "tcp://127.0.0.1:2375/"
+        };
+
+        var transportFactory = new FakeTransportFactory();
+
+        using var _ = new TestDockerClientBuilder(new DockerConfig(settings))
+            .WithTransportOptions(transportFactory, new FakeTransportOptions())
+            .Build();
+
+        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void ResolvesDefaultEndpointWhenTypedBuilderIsBuilt()
+    {
+        var transportFactory = new FakeTransportFactory();
+
+        var transportOptions = new FakeTransportOptions();
+
+        var expectedEndpoint = DockerConfig.Instance.GetEndpoint();
+
+        using var _ = new DockerClientBuilder<FakeTransportOptions>(transportFactory, transportOptions)
+            .Build();
+
+        Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
+    public void ResolvesEndpointAndTransportFactoryWhenNonTypedBuilderIsBuilt()
+    {
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerHost = "tcp://127.0.0.1:2375/"
+        };
+
+        using var client = new TestDockerClientBuilder(new DockerConfig(settings))
+            .Build();
+
+        Assert.Equal(new Uri("tcp://127.0.0.1:2375/"), client.Options.Endpoint);
+    }
+
+    [Fact]
+    public void SkipsDockerConfigDiscoveryWhenExplicitEndpointIsSet()
+    {
+        IDockerCliSettings settings = new TestDockerCliSettings
+        {
+            DockerConfig = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")),
+            DockerContext = "missing"
+        };
+
+        var transportFactory = new FakeTransportFactory();
+
+        var explicitEndpoint = new Uri("http://localhost:2375");
+
+        using var _ = new TestDockerClientBuilder(new DockerConfig(settings))
+            .WithEndpoint(explicitEndpoint)
+            .WithTransportOptions(transportFactory, new FakeTransportOptions())
+            .Build();
+
+        Assert.Equal(explicitEndpoint, transportFactory.LastClientOptions.Endpoint);
+    }
+
+    [Fact]
     public void PreservesClientOptionsAndLoggerWhenConfiguredBeforeTransportSelection()
     {
         var transportFactory = new FakeTransportFactory();
@@ -172,7 +220,7 @@ public sealed class DockerClientBuilderTests
         var timeout = TimeSpan.FromSeconds(1);
         var logger = NullLogger.Instance;
 
-        _ = new DockerClientBuilder()
+        using var _ = new DockerClientBuilder()
             .WithApiVersion(apiVersion)
             .WithEndpoint(endpoint)
             .WithAuthProvider(authProvider)
@@ -208,7 +256,7 @@ public sealed class DockerClientBuilderTests
         var timeout = TimeSpan.FromSeconds(5);
         var logger = NullLogger.Instance;
 
-        _ = new DockerClientBuilder()
+        using var _ = new DockerClientBuilder()
             .WithTransportOptions(transportFactory, transportOptions)
             .WithApiVersion(apiVersion)
             .WithEndpoint(endpoint)
@@ -237,23 +285,12 @@ public sealed class DockerClientBuilderTests
 
         var expectedEndpoint = new Uri("npipe://./pipe/docker_engine");
 
-        _ = new DockerClientBuilder()
+        using var _ = new DockerClientBuilder()
             .WithTransportOptions(transportFactory, transportOptions)
             .WithEndpoint(expectedEndpoint)
             .Build();
 
         Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
-    }
-
-    [Fact]
-    public void ThrowsWhenUnsupportedSchemeIsBuilt()
-    {
-        var builder = new DockerClientBuilder()
-            .WithEndpoint(new Uri("ssh://docker-host"));
-
-        var exception = Assert.Throws<SshDockerEndpointNotSupportedException>(builder.Build);
-
-        Assert.Contains("ssh", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
@@ -268,18 +305,43 @@ public sealed class DockerClientBuilderTests
         Assert.IsType(expectedFactoryType, actualFactory);
     }
 
-    [Fact]
-    public void UsesExpectedFactoryWhenHttpSchemeIsProvided()
+    [Theory]
+    [InlineData("tcp://localhost:2375")]
+    [InlineData("http://localhost:2375")]
+    [InlineData("https://localhost:2375")]
+    public void UsesExpectedFactoryWhenHttpSchemeIsProvided(string endpoint)
     {
         var builder = new TestDockerClientBuilder();
 
-        var actualFactory = builder.ResolveTransportFactory(new Uri("http://localhost:2375"));
+        var actualFactory = builder.ResolveTransportFactory(new Uri(endpoint));
 
         var expectedFactoryType = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1"
             ? typeof(NativeHttp.DockerHandlerFactory)
             : typeof(LegacyHttp.DockerHandlerFactory);
 
         Assert.IsType(expectedFactoryType, actualFactory);
+    }
+
+    [Fact]
+    public void ThrowsWhenUnsupportedSchemeIsBuilt()
+    {
+        var builder = new DockerClientBuilder();
+
+        _ = builder.WithEndpoint(new Uri("ssh://localhost"));
+
+        var exception = Assert.Throws<SshDockerEndpointNotSupportedException>(builder.Build);
+
+        Assert.Contains("ssh", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ThrowsWhenUnknownSchemeIsResolved()
+    {
+        var builder = new TestDockerClientBuilder();
+
+        var exception = Assert.Throws<NotSupportedException>(() => builder.ResolveTransportFactory(new Uri("ftp://docker-host")));
+
+        Assert.Contains("ftp", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed class TestDockerClientBuilder : DockerClientBuilder
@@ -298,6 +360,9 @@ public sealed class DockerClientBuilderTests
 
         public new ILogger Logger
             => base.Logger;
+
+        public new ResolvedClientOptions CreateResolvedClientOptions()
+            => base.CreateResolvedClientOptions();
 
         public IDockerHandlerFactory ResolveTransportFactory(Uri endpoint)
             => base.ResolveTransportFactory(endpoint.Scheme);
@@ -329,11 +394,11 @@ public sealed class DockerClientBuilderTests
 
         public FakeTransportOptions LastTransportOptions { get; private set; } = null!;
 
-        public ClientOptions LastClientOptions { get; private set; } = null!;
+        public ResolvedClientOptions LastClientOptions { get; private set; } = null!;
 
         public ILogger LastLogger { get; private set; } = null!;
 
-        public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(FakeTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger)
         {
             TypedCreateHandlerCallCount++;
             LastTransportOptions = transportOptions;
@@ -343,7 +408,7 @@ public sealed class DockerClientBuilderTests
             return new ResolvedTransport(new HttpClientHandler(), clientOptions.Endpoint);
         }
 
-        public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
+        public ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger)
             => throw new NotSupportedException();
 
         public Task<WriteClosableStream> HijackStreamAsync(HttpContent content)

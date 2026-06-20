@@ -2,7 +2,7 @@ namespace Docker.DotNet;
 
 public interface IDockerClient : IDisposable
 {
-    ClientOptions Options { get; }
+    ResolvedClientOptions Options { get; }
 
     ISystemOperations System { get; }
 

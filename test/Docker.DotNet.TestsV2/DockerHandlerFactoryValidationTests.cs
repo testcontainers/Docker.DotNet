@@ -2,25 +2,7 @@ namespace Docker.DotNet.TestsV2;
 
 public sealed class DockerHandlerFactoryValidationTests
 {
-    public static TheoryData<Func<ClientOptions, ResolvedTransport>>
-        EndpointRequiredCases =>
-        new()
-        {
-            {
-                options => LegacyHttp.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance)
-            },
-            {
-                options => NativeHttp.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance)
-            },
-            {
-                options => NPipe.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance)
-            },
-            {
-                options => Unix.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance)
-            },
-        };
-
-    public static TheoryData<Func<ClientOptions, ResolvedTransport>, Uri, string, string>
+    public static TheoryData<Func<ResolvedClientOptions, ResolvedTransport>, Uri, string, string>
         InvalidSchemeCases =>
         new()
         {
@@ -51,27 +33,14 @@ public sealed class DockerHandlerFactoryValidationTests
         };
 
     [Theory]
-    [MemberData(nameof(EndpointRequiredCases))]
-    public void CreateHandler_ThrowsArgumentNullException_WhenEndpointIsNull(
-        Func<ClientOptions, ResolvedTransport> createHandler)
-    {
-        var clientOptions = new ClientOptions();
-
-        var exception = Assert.Throws<ArgumentNullException>(() => createHandler(clientOptions));
-
-        Assert.Equal("clientOptions", exception.ParamName);
-        Assert.Contains("Endpoint", exception.Message, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Theory]
     [MemberData(nameof(InvalidSchemeCases))]
     public void CreateHandler_ThrowsInvalidOperationException_WhenSchemeDoesNotMatchTransport(
-        Func<ClientOptions, ResolvedTransport> createHandler,
+        Func<ResolvedClientOptions, ResolvedTransport> createHandler,
         Uri endpoint,
         string transportOptionsName,
         string expectedSchemesFragment)
     {
-        var clientOptions = new ClientOptions { Endpoint = endpoint };
+        var clientOptions = new ResolvedClientOptions { Endpoint = endpoint };
 
         var exception = Assert.Throws<InvalidOperationException>(() => createHandler(clientOptions));
 

@@ -11,5 +11,5 @@ public interface IDockerHandlerFactory : IStreamHijacker
     /// <param name="clientOptions">The client options.</param>
     /// <param name="logger">The logger instance.</param>
     /// <returns>The resolved transport.</returns>
-    ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger);
+    ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger);
 }

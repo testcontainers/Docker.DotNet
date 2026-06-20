@@ -1,9 +1,9 @@
 namespace Docker.DotNet.Handler.Abstractions;
 
 /// <summary>
-/// Represents the options used to configure a Docker client builder.
+/// Represents the resolved options used to configure a Docker client connection.
 /// </summary>
-public sealed record ClientOptions
+public sealed record ResolvedClientOptions
 {
     /// <summary>
     /// Gets the Docker Engine API version to request.
@@ -11,10 +11,9 @@ public sealed record ClientOptions
     public Version? ApiVersion { get; init; }
 
     /// <summary>
-    /// Gets the endpoint URI to connect to, or <see langword="null"/> to resolve the
-    /// default Docker endpoint when the client is built.
+    /// Gets the resolved endpoint URI to connect to.
     /// </summary>
-    public Uri? Endpoint { get; init; }
+    public Uri Endpoint { get; init; } = null!;
 
     /// <summary>
     /// Gets the authentication provider used to configure the HTTP handler.

@@ -9,23 +9,27 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
     public static IDockerHandlerFactory<NPipeTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new NPipeTransportOptions();
-        Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public ResolvedTransport CreateHandler(NPipeTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(NPipeTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger)
     {
-        Validate(transportOptions, clientOptions);
+        if (clientOptions is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions));
+        }
+
+        var uri = clientOptions.Endpoint;
+
+        Validate(uri);
 
         if (clientOptions.AuthProvider.TlsEnabled)
         {
             throw new NotSupportedException("TLS is not supported over npipe.");
         }
-
-        var uri = clientOptions.Endpoint;
 
         var segments = uri.Segments;
 
@@ -73,14 +77,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NPipeTransportO
         return Task.FromResult(hijackable.HijackStream());
     }
 
-    private static void Validate(NPipeTransportOptions _, ClientOptions clientOptions)
+    private static void Validate(Uri endpoint)
     {
-        if (clientOptions.Endpoint is null)
-        {
-            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
-        }
-
-        var scheme = clientOptions.Endpoint.Scheme;
+        var scheme = endpoint.Scheme;
 
         if (!string.Equals(scheme, "npipe", StringComparison.OrdinalIgnoreCase))
         {

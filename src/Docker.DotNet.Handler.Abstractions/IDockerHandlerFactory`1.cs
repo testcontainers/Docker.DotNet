@@ -13,5 +13,5 @@ public interface IDockerHandlerFactory<in TTransportOptions> : IDockerHandlerFac
     /// <param name="clientOptions">The client options.</param>
     /// <param name="logger">The logger instance.</param>
     /// <returns>The resolved transport.</returns>
-    ResolvedTransport CreateHandler(TTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger);
+    ResolvedTransport CreateHandler(TTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger);
 }

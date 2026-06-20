@@ -9,19 +9,25 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTrans
     public static IDockerHandlerFactory<LegacyHttpTransportOptions> Instance { get; }
         = new DockerHandlerFactory();
 
-    public ResolvedTransport CreateHandler(ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(ResolvedClientOptions clientOptions, ILogger logger)
     {
         var transportOptions = new LegacyHttpTransportOptions();
-        Validate(transportOptions, clientOptions);
         return CreateHandler(transportOptions, clientOptions, logger);
     }
 
-    public ResolvedTransport CreateHandler(LegacyHttpTransportOptions transportOptions, ClientOptions clientOptions, ILogger logger)
+    public ResolvedTransport CreateHandler(LegacyHttpTransportOptions transportOptions, ResolvedClientOptions clientOptions, ILogger logger)
     {
-        Validate(transportOptions, clientOptions);
+        if (clientOptions is null)
+        {
+            throw new ArgumentNullException(nameof(clientOptions));
+        }
+
+        var endpoint = clientOptions.Endpoint;
+
+        Validate(endpoint);
 
         var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-        var uri = new UriBuilder(clientOptions.Endpoint) { Scheme = scheme }.Uri;
+        var uri = new UriBuilder(endpoint) { Scheme = scheme }.Uri;
         var handler = new ManagedHandler(logger);
         transportOptions.ConfigureHandler(handler);
 
@@ -38,14 +44,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<LegacyHttpTrans
         return Task.FromResult(hijackable.HijackStream());
     }
 
-    private static void Validate(LegacyHttpTransportOptions _, ClientOptions clientOptions)
+    private static void Validate(Uri endpoint)
     {
-        if (clientOptions.Endpoint is null)
-        {
-            throw new ArgumentNullException(nameof(clientOptions), "ClientOptions.Endpoint must be set.");
-        }
-
-        var scheme = clientOptions.Endpoint.Scheme;
+        var scheme = endpoint.Scheme;
 
         if (!string.Equals(scheme, "tcp", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
