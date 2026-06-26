@@ -12,11 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: 10.x
       - name: Install NBGV tool
@@ -28,14 +28,15 @@ jobs:
       - name: Push packages to NuGet.org
         run: dotnet nuget push ./packages/Docker.DotNet.*.nupkg --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
       - name: Create Release
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            github.rest.repos.createRelease({
+            const tag = context.ref.replace('refs/tags/', '');
+            return github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: context.ref,
-              name: context.ref,
+              tag_name: tag,
+              name: tag,
               draft: false,
               prerelease: false,
               generate_release_notes: true
