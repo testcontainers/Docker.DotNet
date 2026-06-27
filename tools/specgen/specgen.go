@@ -850,6 +850,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				}
 
 				queryStringParameter := "QueryStringParameter"
+				var leadingArgs []CSArgument
 
 				switch f.Type.Kind() {
 				case reflect.Bool:
@@ -857,10 +858,12 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 				case reflect.Slice, reflect.Array:
 					queryStringParameter = "QueryStringListParameter"
 				case reflect.Map:
-					queryStringParameter = "QueryStringMapParameter<" + csProp.Type.Name + ">"
+					queryStringParameter = "QueryStringMapParameter"
+					leadingArgs = append(leadingArgs, CSArgument{Value: "typeof(" + csProp.Type.Name + ")"})
 				}
 
 				a := CSAttribute{Type: CSType{"", queryStringParameter}}
+				a.Arguments = append(a.Arguments, leadingArgs...)
 				a.Arguments = append(
 					a.Arguments,
 					CSArgument{

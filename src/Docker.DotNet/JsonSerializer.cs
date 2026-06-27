@@ -45,6 +45,11 @@ internal sealed class JsonSerializer
         return System.Text.Json.JsonSerializer.Serialize(value, JsonTypeInfoCache<T>.Value);
     }
 
+    public string Serialize(object? value, Type type)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(value, _options.GetTypeInfo(type));
+    }
+
     public byte[] SerializeToUtf8Bytes<T>(T value)
     {
         return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, JsonTypeInfoCache<T>.Value);

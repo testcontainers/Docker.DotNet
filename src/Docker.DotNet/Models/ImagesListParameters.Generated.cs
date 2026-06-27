@@ -6,7 +6,7 @@ namespace Docker.DotNet.Models
         [QueryStringBoolParameter("all", false)]
         public bool? All { get; set; }
 
-        [QueryStringMapParameter<IDictionary<string, IDictionary<string, bool>>>("filters", false)]
+        [QueryStringMapParameter(typeof(IDictionary<string, IDictionary<string, bool>>), "filters", false)]
         public IDictionary<string, IDictionary<string, bool>>? Filters { get; set; }
 
         [QueryStringBoolParameter("shared-size", false)]

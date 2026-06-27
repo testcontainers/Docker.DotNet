@@ -51,10 +51,10 @@ namespace Docker.DotNet.Models
         [QueryStringParameter("dockerfile", false)]
         public string? Dockerfile { get; set; }
 
-        [QueryStringMapParameter<IDictionary<string, string>>("buildargs", false)]
+        [QueryStringMapParameter(typeof(IDictionary<string, string>), "buildargs", false)]
         public IDictionary<string, string>? BuildArgs { get; set; }
 
-        [QueryStringMapParameter<IDictionary<string, string>>("labels", false)]
+        [QueryStringMapParameter(typeof(IDictionary<string, string>), "labels", false)]
         public IDictionary<string, string>? Labels { get; set; }
 
         [QueryStringBoolParameter("squash", false)]

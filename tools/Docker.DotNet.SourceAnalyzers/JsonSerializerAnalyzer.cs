@@ -27,7 +27,7 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
         // Handle new JsonRequestContent<T>.
         context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
 
-        // Handle [QueryStringMapParameter<T>(...)].
+        // Handle [QueryStringMapParameter(typeof(T), ...)].
         context.RegisterSyntaxNodeAction(AnalyzeAttribute, SyntaxKind.Attribute);
     }
 
@@ -89,9 +89,25 @@ public sealed class JsonSerializerAnalyzer : DiagnosticAnalyzer
             typeSymbol.Name == "QueryStringMapParameterAttribute" &&
             typeSymbol.ContainingNamespace.ToDisplayString() == "Docker.DotNet";
 
-        if (isStjEntryPoint && typeSymbol.TypeArguments.Length > 0)
+        if (!isStjEntryPoint)
         {
-            CheckAndReportType(context, typeSymbol.TypeArguments[0], attribute.GetLocation(), typeSymbol.Name);
+            return;
+        }
+
+        // The mapped type is the first constructor argument: typeof(T).
+        var typeOfArgument = attribute.ArgumentList?.Arguments
+            .Select(arg => arg.Expression)
+            .OfType<TypeOfExpressionSyntax>()
+            .FirstOrDefault();
+
+        if (typeOfArgument == null)
+        {
+            return;
+        }
+
+        if (context.SemanticModel.GetTypeInfo(typeOfArgument.Type).Type is { } mappedType)
+        {
+            CheckAndReportType(context, mappedType, attribute.GetLocation(), typeSymbol.Name);
         }
     }
 
