@@ -1,17 +1,17 @@
 namespace Docker.DotNet;
 
-internal sealed class QueryStringMapParameterAttribute<T>(string name, bool required) : QueryStringParameterAttribute(name, required)
+internal sealed class QueryStringMapParameterAttribute(Type type, string name, bool required) : QueryStringParameterAttribute(name, required)
 {
     public override IEnumerable<string> Convert(object value)
     {
         Debug.Assert(value != null);
-        Debug.Assert(value is T);
+        Debug.Assert(type.IsInstanceOfType(value));
 
-        if (value is not T typedValue)
+        if (!type.IsInstanceOfType(value))
         {
-            throw new ArgumentException($"Expected value of type '{typeof(T)}'.", nameof(value));
+            throw new ArgumentException($"Expected value of type '{type}'.", nameof(value));
         }
 
-        return [JsonSerializer.Instance.Serialize(typedValue)];
+        return [JsonSerializer.Instance.Serialize(value, type)];
     }
 }
