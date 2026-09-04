@@ -97,7 +97,11 @@ namespace Docker.DotNet.Models
         public string? OsVersion { get; set; }
 
         /// <summary>
-        /// Size is the total size of the image including all layers it is composed of.
+        /// Size is the total size of the selected image variant, including all layers
+        /// it is composed of.
+        /// 
+        /// When using the containerd image store, this includes both the image content
+        /// that&apos;s present locally and the unpacked snapshot data.
         /// </summary>
         [JsonPropertyName("Size")]
         public long Size { get; set; } = default!;
