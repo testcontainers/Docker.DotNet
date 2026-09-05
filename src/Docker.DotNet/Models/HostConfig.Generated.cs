@@ -260,6 +260,12 @@ namespace Docker.DotNet.Models
         public string? Runtime { get; set; }
 
         /// <summary>
+        /// Initial process umask
+        /// </summary>
+        [JsonPropertyName("Umask")]
+        public uint? Umask { get; set; }
+
+        /// <summary>
         /// Applicable to Windows
         /// </summary>
         [JsonPropertyName("Isolation")]
