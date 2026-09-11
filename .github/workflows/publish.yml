@@ -7,10 +7,14 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-24.04
+    env:
+      NUGET_SOURCE: https://api.nuget.org/v3/index.json
+      NUGET_USER: HofmeisterAn
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -25,8 +29,15 @@ jobs:
         run: ./nbgv cloud
       - name: Create Packages
         run: dotnet pack -c Release -o packages -p:ContinuousIntegrationBuild=true
+      - name: NuGet Login
+        id: nuget-login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ env.NUGET_USER }}
       - name: Push packages to NuGet.org
-        run: dotnet nuget push ./packages/Docker.DotNet.*.nupkg --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./packages/Docker.DotNet.*.nupkg --skip-duplicate -k "$NUGET_API_KEY" -s "$NUGET_SOURCE"
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
       - name: Create Release
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
