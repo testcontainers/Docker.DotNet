@@ -23,6 +23,11 @@ internal sealed class JsonSerializer
         _options.Converters.Add(new JsonEnumMemberConverter<TaskState>());
         _options.Converters.Add(new JsonDateTimeConverter());
         _options.Converters.Add(new JsonTimeSpanNanosecondsConverter());
+#if NET9_0_OR_GREATER
+        // https://github.com/testcontainers/Docker.DotNet/issues/129
+        _options.RespectNullableAnnotations = false;
+        _options.RespectRequiredConstructorParameters = false;
+#endif
         _options.MakeReadOnly();
     }
 
