@@ -64,6 +64,11 @@ internal sealed class ChunkedReadStream : Stream
             var headerLine = await _inner.ReadLineAsync(cancellationToken)
                 .ConfigureAwait(false);
 
+            if (headerLine == null)
+            {
+                throw new EndOfStreamException("The connection closed before the next chunk header.");
+            }
+
             if (!int.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
             {
                 throw new IOException($"Invalid chunk header encountered: '{headerLine}'.");
@@ -81,7 +86,7 @@ internal sealed class ChunkedReadStream : Stream
 
             if (readBytesCount == 0)
             {
-                throw new EndOfStreamException();
+                throw new EndOfStreamException("The connection closed in the middle of a chunk.");
             }
 
             _chunkBytesRemaining -= readBytesCount;
@@ -94,7 +99,7 @@ internal sealed class ChunkedReadStream : Stream
 
             if (emptyLine == null)
             {
-                throw new EndOfStreamException();
+                throw new EndOfStreamException("The connection closed before the line ending a chunk.");
             }
 
             if (emptyLine.Length > 0)

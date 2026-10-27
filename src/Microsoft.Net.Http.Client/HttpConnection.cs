@@ -2,8 +2,6 @@ namespace Microsoft.Net.Http.Client;
 
 internal sealed class HttpConnection : IDisposable
 {
-    private static readonly ISet<string> DockerStreamHeaders = new HashSet<string> { "application/vnd.docker.raw-stream", "application/vnd.docker.multiplexed-stream" };
-
     public HttpConnection(BufferedReadStream transport)
     {
         Transport = transport;
@@ -181,7 +179,8 @@ internal sealed class HttpConnection : IDisposable
                 throw new HttpRequestException("The given header line format is invalid: " + rawHeader);
             }
             string headerName = rawHeader.Substring(0, colonOffset);
-            string headerValue = rawHeader.Substring(colonOffset + 2);
+            // The space after the colon is optional whitespace (RFC 9110, section 5.6.3), as is any after the value.
+            string headerValue = rawHeader.Substring(colonOffset + 1).Trim(' ', '\t');
             if (!response.Headers.TryAddWithoutValidation(headerName, headerValue))
             {
                 bool success = response.Content.Headers.TryAddWithoutValidation(headerName, headerValue);
@@ -197,24 +196,22 @@ internal sealed class HttpConnection : IDisposable
         //     - For 101 Switching Protocols, `Content-Length` is ignored per RFC 9110
         // 3. Protocol upgrades (HTTP 101 + `Upgrade: tcp`)
         //     - e.g., `/containers/{id}/attach` or `/exec/{id}/start`
-        // 4. Streaming responses without connection upgrade headers
-        //     - e.g., `/containers/{id}/logs`
+        // 4. Responses with neither, read until the connection closes
         //
         // This separation ensures chunked framing, streaming, and upgraded connections are handled
         // correctly, while tolerating proxies that incorrectly send `Content-Length: 0` on upgrades.
+        //
+        // Docker's stream content types (`application/vnd.docker.raw-stream` and
+        // `application/vnd.docker.multiplexed-stream`) describe the body, not how it is framed on the
+        // connection. A `/containers/{id}/logs` response is chunked when the daemon flushes it before
+        // finishing, but an empty one can arrive with `Content-Length: 0` instead.
 
         var isSwitchingProtocols = response.StatusCode == HttpStatusCode.SwitchingProtocols;
 
         var isConnectionUpgrade = response.Headers.TryGetValues("Upgrade", out var responseHeaderValues)
             && responseHeaderValues.Any(header => "tcp".Equals(header, StringComparison.OrdinalIgnoreCase));
 
-        var isStream = content.Headers.TryGetValues("Content-Type", out var contentHeaderValues)
-            && contentHeaderValues.Any(DockerStreamHeaders.Contains);
-
-        // Treat the response as chunked for standard HTTP chunked or Docker raw-streams,
-        // but not for upgraded connections.
-        var isChunkedTransferEncoding = (response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isConnectionUpgrade)
-            || (!isConnectionUpgrade && isStream);
+        var isChunkedTransferEncoding = response.Headers.TransferEncodingChunked.GetValueOrDefault() && !isConnectionUpgrade;
 
         if (isSwitchingProtocols && isConnectionUpgrade)
         {
