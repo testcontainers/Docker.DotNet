@@ -179,7 +179,7 @@ internal sealed class HttpConnection : IDisposable
                 throw new HttpRequestException("The given header line format is invalid: " + rawHeader);
             }
             string headerName = rawHeader.Substring(0, colonOffset);
-            // The space after the colon is optional whitespace (RFC 9110, section 5.6.3), as is any after the value.
+            // The space after the colon is optional whitespace, as is any after the value (RFC 9112 §5).
             string headerValue = rawHeader.Substring(colonOffset + 1).Trim(' ', '\t');
             if (!response.Headers.TryAddWithoutValidation(headerName, headerValue))
             {
@@ -188,15 +188,16 @@ internal sealed class HttpConnection : IDisposable
             }
         }
 
-        // Response handling is based on headers and type. The implementation currently covers
-        // four main cases:
+        // Response handling is based on the status code and headers. The implementation currently
+        // covers four main cases:
         //
         // 1. Chunked transfer encoding (HTTP/1.1 `Transfer-Encoding: chunked`)
         // 2. HTTP responses with a `Content-Length` header
         //     - For 101 Switching Protocols, `Content-Length` is ignored per RFC 9110
         // 3. Protocol upgrades (HTTP 101 + `Upgrade: tcp`)
         //     - e.g., `/containers/{id}/attach` or `/exec/{id}/start`
-        // 4. Responses with neither, read until the connection closes
+        // 4. Responses without chunked transfer encoding or a `Content-Length` header
+        //     - The body is read until the connection closes
         //
         // This separation ensures chunked framing, streaming, and upgraded connections are handled
         // correctly, while tolerating proxies that incorrectly send `Content-Length: 0` on upgrades.

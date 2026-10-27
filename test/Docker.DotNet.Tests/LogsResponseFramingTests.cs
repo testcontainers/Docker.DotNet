@@ -36,7 +36,7 @@ public sealed class LogsResponseFramingTests
     [InlineData("close-delimited, one frame")]
     [InlineData("chunked, no space after the header colons")]
     [InlineData("Content-Length, tabs and spaces around the header value")]
-    public async Task GetContainerLogsAsync_ReadsEachFramingLikeTheNativeTransport(string framing)
+    public async Task GetContainerLogsAsync_ResponseFraming_ReadsLikeNativeTransport(string framing)
     {
         var (response, expectedStdout) = Framings[framing];
 
@@ -50,8 +50,8 @@ public sealed class LogsResponseFramingTests
     [Theory]
     [InlineData(Head + "Transfer-Encoding: chunked\r\n\r\ne\r\n" + Frame + "\r\n", "The connection closed before the next chunk header.")]
     [InlineData(Head + "Transfer-Encoding: chunked\r\n\r\ne\r\n\u0001\0\0\0", "The connection closed in the middle of a chunk.")]
-    [InlineData(Head + "Transfer-Encoding: chunked\r\n\r\ne\r\n" + Frame, "The connection closed before the line ending a chunk.")]
-    public async Task GetContainerLogsAsync_FailsOnAChunkedResponseCutOffBeforeItsLastChunk(string response, string legacyMessage)
+    [InlineData(Head + "Transfer-Encoding: chunked\r\n\r\ne\r\n" + Frame, "The connection closed before the empty line ending a chunk.")]
+    public async Task GetContainerLogsAsync_TruncatedChunkedResponse_ThrowsIOException(string response, string legacyMessage)
     {
         var legacy = await Assert.ThrowsAsync<EndOfStreamException>(() => ReadLogsAsync(new LegacyHttpTransportOptions(), response));
         await Assert.ThrowsAnyAsync<IOException>(() => ReadLogsAsync(new NativeHttpTransportOptions(), response));
@@ -73,7 +73,8 @@ public sealed class LogsResponseFramingTests
     {
         await using var daemon = new FakeDaemon(response);
         using var client = createClient(daemon.Endpoint);
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+        cts.CancelAfter(TimeSpan.FromSeconds(10));
 
         using var logs = await client.Containers.GetContainerLogsAsync("x", new ContainerLogsParameters { ShowStdout = true, ShowStderr = true }, cts.Token);
         var (stdout, _) = await logs.ReadOutputToEndAsync(cts.Token);

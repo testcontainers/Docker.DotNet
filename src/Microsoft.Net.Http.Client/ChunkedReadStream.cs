@@ -99,7 +99,7 @@ internal sealed class ChunkedReadStream : Stream
 
             if (emptyLine == null)
             {
-                throw new EndOfStreamException("The connection closed before the line ending a chunk.");
+                throw new EndOfStreamException("The connection closed before the empty line ending a chunk.");
             }
 
             if (emptyLine.Length > 0)
