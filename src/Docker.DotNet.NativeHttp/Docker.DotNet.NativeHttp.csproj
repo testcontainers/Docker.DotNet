@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Docker.DotNet.NativeHttp</AssemblyName>
     <PackageId>Docker.DotNet.Enhanced.NativeHttp</PackageId>
-    <Description>A Docker.DotNet transport implementation for HTTP(S) Docker Engine connections.</Description>
+    <Description>A Docker.DotNet transport implementation for HTTP(S) and, on .NET 8 or later, Unix domain socket Docker Engine connections.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Docker.DotNet.Handler.Abstractions\Docker.DotNet.Handler.Abstractions.csproj" />
@@ -11,8 +11,10 @@
     <Using Include="System" />
     <Using Include="System.IO" />
     <Using Include="System.IO.Pipes" />
+    <Using Include="System.Linq" />
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
+    <Using Include="System.Net.Sockets" />
     <Using Include="System.Runtime.InteropServices" />
     <Using Include="System.Security" />
     <Using Include="System.Text" />

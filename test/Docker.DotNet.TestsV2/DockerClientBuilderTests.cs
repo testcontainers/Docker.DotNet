@@ -293,14 +293,26 @@ public sealed class DockerClientBuilderTests
         Assert.Equal(expectedEndpoint, transportFactory.LastClientOptions.Endpoint);
     }
 
-    [Theory]
-    [InlineData("npipe://./pipe/docker_engine", typeof(NPipe.DockerHandlerFactory))]
-    [InlineData("unix:/var/run/docker.sock", typeof(Unix.DockerHandlerFactory))]
-    public void UsesExpectedFactoryWhenSocketSchemeIsProvided(string endpoint, Type expectedFactoryType)
+    [Fact]
+    public void UsesExpectedFactoryWhenNamedPipeSchemeIsProvided()
     {
         var builder = new TestDockerClientBuilder();
 
-        var actualFactory = builder.ResolveTransportFactory(new Uri(endpoint));
+        var actualFactory = builder.ResolveTransportFactory(new Uri("npipe://./pipe/docker_engine"));
+
+        Assert.IsType<NPipe.DockerHandlerFactory>(actualFactory);
+    }
+
+    [Fact]
+    public void UsesExpectedFactoryWhenUnixSchemeIsProvided()
+    {
+        var builder = new TestDockerClientBuilder();
+
+        var actualFactory = builder.ResolveTransportFactory(new Uri("unix:/var/run/docker.sock"));
+
+        var expectedFactoryType = Environment.GetEnvironmentVariable("DOCKER_DOTNET_NATIVE_HTTP_ENABLED") == "1"
+            ? typeof(NativeHttp.DockerHandlerFactory)
+            : typeof(Unix.DockerHandlerFactory);
 
         Assert.IsType(expectedFactoryType, actualFactory);
     }
