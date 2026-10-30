@@ -2,8 +2,6 @@ namespace Docker.DotNet.NativeHttp;
 
 public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTransportOptions>
 {
-    private const int MaxConnectionsPerServer = 10;
-
     private static readonly TimeSpan PooledConnectionLifetime = TimeSpan.FromMinutes(5);
 
     private static readonly TimeSpan PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2);
@@ -35,7 +33,6 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
 #if NET
         var handler = new SocketsHttpHandler
         {
-            MaxConnectionsPerServer = MaxConnectionsPerServer,
             PooledConnectionLifetime = PooledConnectionLifetime,
             PooledConnectionIdleTimeout = PooledConnectionIdleTimeout,
         };
