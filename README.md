@@ -103,6 +103,18 @@ var client = new DockerClientBuilder()
 This is achieved by setting the environment variable `DOCKER_DOTNET_NATIVE_HTTP_ENABLED` to `1`.
 By doing so, the handler used to communicate with the Docker Engine will switch to the .NET built-in one, potentially improving performance and reliability.
 
+The native handler supports `tcp://`, `http://`, and `https://` endpoints and, on .NET 8 or later, `unix://` endpoints. To select it without the environment variable:
+
+```csharp
+using Docker.DotNet;
+using Docker.DotNet.NativeHttp;
+
+var client = new DockerClientBuilder()
+    .WithEndpoint(new Uri("unix:///var/run/docker.sock"))
+    .WithTransportOptions(new NativeHttpTransportOptions())
+    .Build();
+```
+
 ### Transport-specific options
 
 Use `WithTransportOptions` to select a transport explicitly and configure transport-specific options.

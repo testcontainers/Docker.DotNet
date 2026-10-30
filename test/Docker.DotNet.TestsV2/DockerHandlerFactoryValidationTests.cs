@@ -14,9 +14,9 @@ public sealed class DockerHandlerFactoryValidationTests
             },
             {
                 options => NativeHttp.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance),
-                new Uri("unix:/var/run/docker.sock"),
+                new Uri("npipe://./pipe/docker_engine"),
                 "NativeHttpTransportOptions",
-                "tcp', 'http', or 'https"
+                "tcp', 'http', 'https', or 'unix"
             },
             {
                 options => NPipe.DockerHandlerFactory.Instance.CreateHandler(options, NullLogger.Instance),

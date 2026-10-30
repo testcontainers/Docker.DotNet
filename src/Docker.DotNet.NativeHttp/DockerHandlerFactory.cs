@@ -28,12 +28,9 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
             throw new ArgumentNullException(nameof(clientOptions));
         }
 
-        var endpoint = clientOptions.Endpoint;
+        var uri = clientOptions.Endpoint;
 
-        Validate(endpoint);
-
-        var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-        var uri = new UriBuilder(endpoint) { Scheme = scheme }.Uri;
+        Validate(uri);
 
 #if NET
         var handler = new SocketsHttpHandler
@@ -43,8 +40,24 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
             PooledConnectionIdleTimeout = PooledConnectionIdleTimeout,
         };
 
+        if (IsUnixSocket(uri))
+        {
+            var socketName = uri.Segments.Last();
+            var socketPath = uri.LocalPath;
+            uri = new UriBuilder(Uri.UriSchemeHttp, socketName).Uri;
+
+            // Proxies do not apply to Unix domain sockets.
+            handler.UseProxy = false;
+            handler.ConnectCallback = (_, cancellationToken) => ConnectUnixSocketAsync(socketPath, cancellationToken);
+        }
+        else
+        {
+            uri = CreateHttpUri(uri, clientOptions);
+        }
+
         transportOptions.ConfigureHandler(handler);
 #else
+        uri = CreateHttpUri(uri, clientOptions);
         var handler = new HttpClientHandler();
         transportOptions.ConfigureHandler(handler);
 #endif
@@ -64,11 +77,53 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
     {
         var scheme = endpoint.Scheme;
 
+#if NET
+        if (IsUnixSocket(endpoint))
+        {
+            return;
+        }
+#endif
+
         if (!string.Equals(scheme, "tcp", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
             && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
         {
+#if NET
+            throw new InvalidOperationException($"The selected '{nameof(NativeHttpTransportOptions)}' can only be used with endpoint schemes 'tcp', 'http', 'https', or 'unix', but '{scheme}' was provided.");
+#else
             throw new InvalidOperationException($"The selected '{nameof(NativeHttpTransportOptions)}' can only be used with endpoint schemes 'tcp', 'http', or 'https', but '{scheme}' was provided.");
+#endif
         }
+    }
+
+#if NET
+    private static bool IsUnixSocket(Uri endpoint)
+    {
+        return string.Equals(endpoint.Scheme, "unix", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static async ValueTask<Stream> ConnectUnixSocketAsync(string socketPath, CancellationToken cancellationToken)
+    {
+        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+
+        try
+        {
+            await socket.ConnectAsync(new UnixDomainSocketEndPoint(socketPath), cancellationToken)
+                .ConfigureAwait(false);
+
+            return new NetworkStream(socket, ownsSocket: true);
+        }
+        catch
+        {
+            socket.Dispose();
+            throw;
+        }
+    }
+#endif
+
+    private static Uri CreateHttpUri(Uri endpoint, ResolvedClientOptions clientOptions)
+    {
+        var scheme = clientOptions.AuthProvider.TlsEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        return new UriBuilder(endpoint) { Scheme = scheme }.Uri;
     }
 }
