@@ -35,6 +35,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
         {
             PooledConnectionLifetime = PooledConnectionLifetime,
             PooledConnectionIdleTimeout = PooledConnectionIdleTimeout,
+            PlaintextStreamFilter = TrackingNetworkStream.EnableTrackingAsync,
         };
 
         if (IsUnixSocket(uri))
@@ -45,11 +46,12 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
 
             // Proxies do not apply to Unix domain sockets.
             handler.UseProxy = false;
-            handler.ConnectCallback = (_, cancellationToken) => ConnectUnixSocketAsync(socketPath, cancellationToken);
+            handler.ConnectCallback = (context, cancellationToken) => ConnectUnixSocketAsync(context, socketPath, cancellationToken);
         }
         else
         {
             uri = CreateHttpUri(uri, clientOptions);
+            handler.ConnectCallback = ConnectTcpSocketAsync;
         }
 
         transportOptions.ConfigureHandler(handler);
@@ -67,7 +69,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
         var stream = await content.ReadAsStreamAsync()
             .ConfigureAwait(false);
 
-        return new WriteClosableStreamWrapper(stream);
+        return new WriteClosableStreamWrapper(stream, HijackScope.Current?.Socket);
     }
 
     private static void Validate(Uri endpoint)
@@ -99,7 +101,7 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
         return string.Equals(endpoint.Scheme, "unix", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static async ValueTask<Stream> ConnectUnixSocketAsync(string socketPath, CancellationToken cancellationToken)
+    private static async ValueTask<Stream> ConnectUnixSocketAsync(SocketsHttpConnectionContext context, string socketPath, CancellationToken cancellationToken)
     {
         var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
@@ -108,7 +110,25 @@ public sealed class DockerHandlerFactory : IDockerHandlerFactory<NativeHttpTrans
             await socket.ConnectAsync(new UnixDomainSocketEndPoint(socketPath), cancellationToken)
                 .ConfigureAwait(false);
 
-            return new NetworkStream(socket, ownsSocket: true);
+            return TrackingNetworkStream.Create(socket, context);
+        }
+        catch
+        {
+            socket.Dispose();
+            throw;
+        }
+    }
+
+    private static async ValueTask<Stream> ConnectTcpSocketAsync(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
+    {
+        var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+
+        try
+        {
+            await socket.ConnectAsync(context.DnsEndPoint, cancellationToken)
+                .ConfigureAwait(false);
+
+            return TrackingNetworkStream.Create(socket, context);
         }
         catch
         {
