@@ -24,6 +24,9 @@
     <ProjectReference Include="..\..\tools\Docker.DotNet.SourceAnalyzers\Docker.DotNet.SourceAnalyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Docker.DotNet.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Buffers" />
     <Using Include="System.Collections" />
