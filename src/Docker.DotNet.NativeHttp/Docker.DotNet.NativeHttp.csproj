@@ -15,6 +15,7 @@
     <Using Include="System.Net.Http" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Net.Sockets" />
+    <Using Include="System.Runtime.CompilerServices" />
     <Using Include="System.Runtime.InteropServices" />
     <Using Include="System.Security" />
     <Using Include="System.Text" />
