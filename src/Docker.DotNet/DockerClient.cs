@@ -337,6 +337,10 @@ public sealed class DockerClient : IDockerClient
         headers.Add("Upgrade", "tcp");
         headers.Add("Connection", "upgrade");
 
+        // Lets the transport track the socket of the hijacked connection,
+        // so the stream can close only its write side.
+        using var hijackScope = HijackScope.Begin();
+
         var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, body, cancellationToken)
             .ConfigureAwait(false);
 

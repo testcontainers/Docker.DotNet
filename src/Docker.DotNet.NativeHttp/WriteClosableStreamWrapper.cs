@@ -1,8 +1,10 @@
 namespace Docker.DotNet.NativeHttp;
 
-internal sealed class WriteClosableStreamWrapper(Stream stream) : WriteClosableStream
+internal sealed class WriteClosableStreamWrapper(Stream stream, Socket? socket) : WriteClosableStream
 {
     private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+
+    private readonly Socket? _socket = socket;
 
     public override bool CanRead
         => _stream.CanRead;
@@ -41,7 +43,17 @@ internal sealed class WriteClosableStreamWrapper(Stream stream) : WriteClosableS
         => _stream.Write(buffer, offset, count);
 
     public override void CloseWrite()
-        => _stream.Close();
+    {
+        if (_socket != null)
+        {
+            // Send buffered data before closing the write side of the socket.
+            _stream.Flush();
+            _socket.Shutdown(SocketShutdown.Send);
+            return;
+        }
+
+        _stream.Close();
+    }
 
     protected override void Dispose(bool disposing)
     {
