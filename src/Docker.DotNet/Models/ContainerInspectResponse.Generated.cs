@@ -17,7 +17,7 @@ namespace Docker.DotNet.Models
         public string Path { get; set; } = string.Empty;
 
         [JsonPropertyName("Args")]
-        public IList<string> Args { get; set; } = default!;
+        public IList<string>? Args { get; set; }
 
         [JsonPropertyName("State")]
         public State? State { get; set; }
@@ -59,7 +59,7 @@ namespace Docker.DotNet.Models
         public string AppArmorProfile { get; set; } = string.Empty;
 
         [JsonPropertyName("ExecIDs")]
-        public IList<string> ExecIDs { get; set; } = default!;
+        public IList<string>? ExecIDs { get; set; }
 
         [JsonPropertyName("HostConfig")]
         public HostConfig? HostConfig { get; set; }
@@ -83,7 +83,7 @@ namespace Docker.DotNet.Models
         public long? SizeRootFs { get; set; }
 
         [JsonPropertyName("Mounts")]
-        public IList<MountPoint> Mounts { get; set; } = default!;
+        public IList<MountPoint>? Mounts { get; set; }
 
         [JsonPropertyName("Config")]
         public ContainerConfig? Config { get; set; }

@@ -10,6 +10,6 @@ namespace Docker.DotNet.Models
         public string Type { get; set; } = string.Empty;
 
         [JsonPropertyName("Config")]
-        public IDictionary<string, string> Config { get; set; } = default!;
+        public IDictionary<string, string>? Config { get; set; }
     }
 }

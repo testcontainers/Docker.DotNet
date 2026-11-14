@@ -76,12 +76,12 @@ namespace Docker.DotNet.Models
         /// Options specifies the network-specific options to use for when creating the network.
         /// </summary>
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         /// <summary>
         /// Labels holds metadata specific to the network being created.
         /// </summary>
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
     }
 }

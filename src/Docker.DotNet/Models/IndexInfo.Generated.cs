@@ -44,7 +44,7 @@ namespace Docker.DotNet.Models
         /// Mirrors is a list of mirrors, expressed as URIs
         /// </summary>
         [JsonPropertyName("Mirrors")]
-        public IList<string> Mirrors { get; set; } = default!;
+        public IList<string>? Mirrors { get; set; }
 
         /// <summary>
         /// Secure is set to false if the registry is part of the list of

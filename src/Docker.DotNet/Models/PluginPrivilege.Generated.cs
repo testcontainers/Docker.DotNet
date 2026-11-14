@@ -14,6 +14,6 @@ namespace Docker.DotNet.Models
         public string Description { get; set; } = string.Empty;
 
         [JsonPropertyName("Value")]
-        public IList<string> Value { get; set; } = default!;
+        public IList<string>? Value { get; set; }
     }
 }

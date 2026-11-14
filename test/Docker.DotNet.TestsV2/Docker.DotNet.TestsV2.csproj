@@ -23,6 +23,11 @@
     <ProjectReference Include="..\..\src\Docker.DotNet.X509\Docker.DotNet.X509.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Simulates applications that enable strict System.Text.Json deserialization globally, which the client must ignore: https://github.com/testcontainers/Docker.DotNet/issues/129. -->
+    <RuntimeHostConfigurationOption Include="System.Text.Json.Serialization.RespectNullableAnnotationsDefault" Value="true" />
+    <RuntimeHostConfigurationOption Include="System.Text.Json.Serialization.RespectRequiredConstructorParametersDefault" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Collections.Concurrent" />
     <Using Include="System.Collections.Generic" />

@@ -19,7 +19,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Data")]
-        public IDictionary<string, string> Data { get; set; } = default!;
+        public IDictionary<string, string>? Data { get; set; }
 
         /// <summary>
         /// Name of the storage driver.

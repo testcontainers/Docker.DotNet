@@ -23,18 +23,18 @@ namespace Docker.DotNet.Models
         /// List of device IDs as recognizable by the device driver
         /// </summary>
         [JsonPropertyName("DeviceIDs")]
-        public IList<string> DeviceIDs { get; set; } = default!;
+        public IList<string>? DeviceIDs { get; set; }
 
         /// <summary>
         /// An OR list of AND lists of device capabilities (e.g. &quot;gpu&quot;)
         /// </summary>
         [JsonPropertyName("Capabilities")]
-        public IList<IList<string>> Capabilities { get; set; } = default!;
+        public IList<IList<string>>? Capabilities { get; set; }
 
         /// <summary>
         /// Options to pass onto the device driver
         /// </summary>
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
     }
 }

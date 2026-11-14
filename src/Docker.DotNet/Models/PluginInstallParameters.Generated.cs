@@ -13,6 +13,6 @@ namespace Docker.DotNet.Models
         public AuthConfig RegistryAuth { get; set; } = default!;
 
         [JsonPropertyName("Privileges")]
-        public IList<PluginPrivilege> Privileges { get; set; } = default!;
+        public IList<PluginPrivilege>? Privileges { get; set; }
     }
 }

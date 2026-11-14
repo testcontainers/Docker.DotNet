@@ -38,14 +38,14 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Options")]
-        public IList<string> Options { get; set; } = default!;
+        public IList<string>? Options { get; set; }
 
         /// <summary>
         /// settable
         /// Required: true
         /// </summary>
         [JsonPropertyName("Settable")]
-        public IList<string> Settable { get; set; } = default!;
+        public IList<string>? Settable { get; set; }
 
         /// <summary>
         /// source

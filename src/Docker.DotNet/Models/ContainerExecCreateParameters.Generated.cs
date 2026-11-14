@@ -29,12 +29,12 @@ namespace Docker.DotNet.Models
         public string DetachKeys { get; set; } = string.Empty;
 
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; } = default!;
+        public IList<string>? Env { get; set; }
 
         [JsonPropertyName("WorkingDir")]
         public string WorkingDir { get; set; } = string.Empty;
 
         [JsonPropertyName("Cmd")]
-        public IList<string> Cmd { get; set; } = default!;
+        public IList<string>? Cmd { get; set; }
     }
 }

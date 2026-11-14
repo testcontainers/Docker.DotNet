@@ -24,9 +24,17 @@ internal sealed class JsonSerializer
         _options.Converters.Add(new JsonDateTimeConverter());
         _options.Converters.Add(new JsonTimeSpanNanosecondsConverter());
 #if NET9_0_OR_GREATER
+        // Docker-compatible container runtimes do not always send what the Docker
+        // Engine API declares. Ignore the global System.Text.Json feature switches
+        // and enable strict deserialization only on explicit opt-in:
         // https://github.com/testcontainers/Docker.DotNet/issues/129
-        _options.RespectNullableAnnotations = false;
-        _options.RespectRequiredConstructorParameters = false;
+        _options.RespectNullableAnnotations = IsSwitchEnabled("Docker.DotNet.Serialization.RespectNullableAnnotations");
+        _options.RespectRequiredConstructorParameters = IsSwitchEnabled("Docker.DotNet.Serialization.RespectRequiredConstructorParameters");
+#else
+        // Applications can upgrade to System.Text.Json 9.0 or later, which honors
+        // the global feature switches, too. Disable the options if they exist.
+        typeof(JsonSerializerOptions).GetProperty("RespectNullableAnnotations")?.SetValue(_options, false);
+        typeof(JsonSerializerOptions).GetProperty("RespectRequiredConstructorParameters")?.SetValue(_options, false);
 #endif
         _options.MakeReadOnly();
     }
@@ -102,6 +110,13 @@ internal sealed class JsonSerializer
 
         await reader.CompleteAsync();
     }
+
+#if NET9_0_OR_GREATER
+    private static bool IsSwitchEnabled(string switchName)
+    {
+        return AppContext.TryGetSwitch(switchName, out var isEnabled) && isEnabled;
+    }
+#endif
 
     private static bool TryParseJson(ref ReadOnlySequence<byte> buffer, out JsonDocument? jsonDocument)
     {

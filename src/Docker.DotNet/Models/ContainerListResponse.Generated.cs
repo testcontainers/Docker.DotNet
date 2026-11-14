@@ -11,7 +11,7 @@ namespace Docker.DotNet.Models
         public string ID { get; set; } = string.Empty;
 
         [JsonPropertyName("Names")]
-        public IList<string> Names { get; set; } = default!;
+        public IList<string>? Names { get; set; }
 
         [JsonPropertyName("Image")]
         public string Image { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ namespace Docker.DotNet.Models
         public DateTime Created { get; set; } = default!;
 
         [JsonPropertyName("Ports")]
-        public IList<PortSummary> Ports { get; set; } = default!;
+        public IList<PortSummary>? Ports { get; set; }
 
         [JsonPropertyName("SizeRw")]
         public long? SizeRw { get; set; }
@@ -38,7 +38,7 @@ namespace Docker.DotNet.Models
         public long? SizeRootFs { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("State")]
         public string State { get; set; } = string.Empty;
@@ -56,6 +56,6 @@ namespace Docker.DotNet.Models
         public NetworkSettingsSummary? NetworkSettings { get; set; }
 
         [JsonPropertyName("Mounts")]
-        public IList<MountPoint> Mounts { get; set; } = default!;
+        public IList<MountPoint>? Mounts { get; set; }
     }
 }

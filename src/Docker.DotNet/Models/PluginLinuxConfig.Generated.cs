@@ -22,13 +22,13 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Capabilities")]
-        public IList<string> Capabilities { get; set; } = default!;
+        public IList<string>? Capabilities { get; set; }
 
         /// <summary>
         /// devices
         /// Required: true
         /// </summary>
         [JsonPropertyName("Devices")]
-        public IList<PluginDevice> Devices { get; set; } = default!;
+        public IList<PluginDevice>? Devices { get; set; }
     }
 }

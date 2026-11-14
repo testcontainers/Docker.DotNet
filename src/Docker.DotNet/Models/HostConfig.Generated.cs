@@ -52,7 +52,7 @@ namespace Docker.DotNet.Models
         /// Applicable to all platforms
         /// </summary>
         [JsonPropertyName("Binds")]
-        public IList<string> Binds { get; set; } = default!;
+        public IList<string>? Binds { get; set; }
 
         /// <summary>
         /// File (path) where the containerId is written
@@ -76,7 +76,7 @@ namespace Docker.DotNet.Models
         /// Port mapping between the exposed port (container) and the host
         /// </summary>
         [JsonPropertyName("PortBindings")]
-        public IDictionary<string, IList<PortBinding>> PortBindings { get; set; } = default!;
+        public IDictionary<string, IList<PortBinding>>? PortBindings { get; set; }
 
         /// <summary>
         /// Restart policy to be used for the container
@@ -100,7 +100,7 @@ namespace Docker.DotNet.Models
         /// List of volumes to take from other container
         /// </summary>
         [JsonPropertyName("VolumesFrom")]
-        public IList<string> VolumesFrom { get; set; } = default!;
+        public IList<string>? VolumesFrom { get; set; }
 
         /// <summary>
         /// Initial console size (height,width)
@@ -119,13 +119,13 @@ namespace Docker.DotNet.Models
         /// Applicable to UNIX platforms
         /// </summary>
         [JsonPropertyName("CapAdd")]
-        public IList<string> CapAdd { get; set; } = default!;
+        public IList<string>? CapAdd { get; set; }
 
         /// <summary>
         /// List of kernel capabilities to remove from the container
         /// </summary>
         [JsonPropertyName("CapDrop")]
-        public IList<string> CapDrop { get; set; } = default!;
+        public IList<string>? CapDrop { get; set; }
 
         /// <summary>
         /// Cgroup namespace mode to use for the container
@@ -137,31 +137,31 @@ namespace Docker.DotNet.Models
         /// List of DNS server to lookup
         /// </summary>
         [JsonPropertyName("Dns")]
-        public IList<string> DNS { get; set; } = default!;
+        public IList<string>? DNS { get; set; }
 
         /// <summary>
         /// List of DNSOption to look for
         /// </summary>
         [JsonPropertyName("DnsOptions")]
-        public IList<string> DNSOptions { get; set; } = default!;
+        public IList<string>? DNSOptions { get; set; }
 
         /// <summary>
         /// List of DNSSearch to look for
         /// </summary>
         [JsonPropertyName("DnsSearch")]
-        public IList<string> DNSSearch { get; set; } = default!;
+        public IList<string>? DNSSearch { get; set; }
 
         /// <summary>
         /// List of extra hosts
         /// </summary>
         [JsonPropertyName("ExtraHosts")]
-        public IList<string> ExtraHosts { get; set; } = default!;
+        public IList<string>? ExtraHosts { get; set; }
 
         /// <summary>
         /// List of additional groups that the container process will run as
         /// </summary>
         [JsonPropertyName("GroupAdd")]
-        public IList<string> GroupAdd { get; set; } = default!;
+        public IList<string>? GroupAdd { get; set; }
 
         /// <summary>
         /// IPC namespace to use for the container
@@ -179,7 +179,7 @@ namespace Docker.DotNet.Models
         /// List of links (in the name:alias form)
         /// </summary>
         [JsonPropertyName("Links")]
-        public IList<string> Links { get; set; } = default!;
+        public IList<string>? Links { get; set; }
 
         /// <summary>
         /// Container preference for OOM-killing
@@ -215,7 +215,7 @@ namespace Docker.DotNet.Models
         /// List of string values to customize labels for MLS systems, such as SELinux.
         /// </summary>
         [JsonPropertyName("SecurityOpt")]
-        public IList<string> SecurityOpt { get; set; } = default!;
+        public IList<string>? SecurityOpt { get; set; }
 
         /// <summary>
         /// Storage driver options per container.
@@ -302,19 +302,19 @@ namespace Docker.DotNet.Models
         public ushort BlkioWeight { get; set; } = default!;
 
         [JsonPropertyName("BlkioWeightDevice")]
-        public IList<WeightDevice> BlkioWeightDevice { get; set; } = default!;
+        public IList<WeightDevice>? BlkioWeightDevice { get; set; }
 
         [JsonPropertyName("BlkioDeviceReadBps")]
-        public IList<ThrottleDevice> BlkioDeviceReadBps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceReadBps { get; set; }
 
         [JsonPropertyName("BlkioDeviceWriteBps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteBps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceWriteBps { get; set; }
 
         [JsonPropertyName("BlkioDeviceReadIOps")]
-        public IList<ThrottleDevice> BlkioDeviceReadIOps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceReadIOps { get; set; }
 
         [JsonPropertyName("BlkioDeviceWriteIOps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteIOps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceWriteIOps { get; set; }
 
         /// <summary>
         /// CPU CFS (Completely Fair Scheduler) period
@@ -356,19 +356,19 @@ namespace Docker.DotNet.Models
         /// List of devices to map inside the container
         /// </summary>
         [JsonPropertyName("Devices")]
-        public IList<DeviceMapping> Devices { get; set; } = default!;
+        public IList<DeviceMapping>? Devices { get; set; }
 
         /// <summary>
         /// List of rule to be added to the device cgroup
         /// </summary>
         [JsonPropertyName("DeviceCgroupRules")]
-        public IList<string> DeviceCgroupRules { get; set; } = default!;
+        public IList<string>? DeviceCgroupRules { get; set; }
 
         /// <summary>
         /// List of device requests for device drivers
         /// </summary>
         [JsonPropertyName("DeviceRequests")]
-        public IList<DeviceRequest> DeviceRequests { get; set; } = default!;
+        public IList<DeviceRequest>? DeviceRequests { get; set; }
 
         /// <summary>
         /// Memory soft limit (in bytes)
@@ -404,7 +404,7 @@ namespace Docker.DotNet.Models
         /// List of ulimits to be set in the container
         /// </summary>
         [JsonPropertyName("Ulimits")]
-        public IList<Ulimit> Ulimits { get; set; } = default!;
+        public IList<Ulimit>? Ulimits { get; set; }
 
         /// <summary>
         /// Applicable to Windows
@@ -440,13 +440,13 @@ namespace Docker.DotNet.Models
         /// MaskedPaths is the list of paths to be masked inside the container (this overrides the default set of paths)
         /// </summary>
         [JsonPropertyName("MaskedPaths")]
-        public IList<string> MaskedPaths { get; set; } = default!;
+        public IList<string>? MaskedPaths { get; set; }
 
         /// <summary>
         /// ReadonlyPaths is the list of paths to be set as read-only inside the container (this overrides the default set of paths)
         /// </summary>
         [JsonPropertyName("ReadonlyPaths")]
-        public IList<string> ReadonlyPaths { get; set; } = default!;
+        public IList<string>? ReadonlyPaths { get; set; }
 
         /// <summary>
         /// Run a custom init inside the container, if null, use the daemon&apos;s configured settings

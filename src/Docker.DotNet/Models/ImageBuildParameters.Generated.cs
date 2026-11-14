@@ -79,6 +79,6 @@ namespace Docker.DotNet.Models
         public string? Version { get; set; }
 
         [JsonPropertyName("AuthConfigs")]
-        public IDictionary<string, AuthConfig> AuthConfigs { get; set; } = default!;
+        public IDictionary<string, AuthConfig>? AuthConfigs { get; set; }
     }
 }

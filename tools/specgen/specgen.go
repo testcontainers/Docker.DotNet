@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -599,6 +600,26 @@ func csType(t reflect.Type, _ bool) CSType {
 	}
 }
 
+// textMarshalerType is the reflected type of the encoding.TextMarshaler
+// interface.
+var textMarshalerType = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+
+// isJSONNullable reports whether encoding/json can marshal a value of the
+// given type as JSON null. This is the case for nil pointers, interfaces,
+// slices and maps. Slice and map types that implement encoding.TextMarshaler
+// (e.g. net.IP) are excluded, because encoding/json always marshals them as a
+// JSON string, even when they are nil.
+func isJSONNullable(t reflect.Type) bool {
+	switch t.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		return true
+	case reflect.Slice, reflect.Map:
+		return !t.Implements(textMarshalerType)
+	default:
+		return false
+	}
+}
+
 func ultimateType(t reflect.Type) reflect.Type {
 	for {
 		switch t.Kind() {
@@ -833,6 +854,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			}
 
 			omitEmpty := slices.Contains(jsonTag, "omitempty")
+			omitZero := slices.Contains(jsonTag, "omitzero")
 
 			if hasTypeCustomizations {
 				for _, p := range typeCustomizations.Properties {
@@ -878,7 +900,7 @@ func reflectTypeMembers(t reflect.Type, m *CSModelType) {
 			} else {
 				a := CSAttribute{Type: CSType{"System.Text.Json.Serialization", "JsonPropertyName"}}
 				a.Arguments = append(a.Arguments, CSArgument{jsonName, CSInboxTypesMap[reflect.String]})
-				csProp.IsOpt = omitEmpty || f.Type.Kind() == reflect.Ptr
+				csProp.IsOpt = omitEmpty || omitZero || isJSONNullable(f.Type)
 				csProp.Attributes = append(csProp.Attributes, a)
 
 				m.HasJsonSerializableProperties = true

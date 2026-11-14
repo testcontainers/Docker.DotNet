@@ -7,12 +7,12 @@ namespace Docker.DotNet.Models
     public class SwarmIPAMConfig // (swarm.IPAMConfig)
     {
         [JsonPropertyName("Subnet")]
-        public string Subnet { get; set; } = string.Empty;
+        public string? Subnet { get; set; }
 
         [JsonPropertyName("Range")]
-        public string Range { get; set; } = string.Empty;
+        public string? Range { get; set; }
 
         [JsonPropertyName("Gateway")]
-        public string Gateway { get; set; } = string.Empty;
+        public string? Gateway { get; set; }
     }
 }

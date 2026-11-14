@@ -11,6 +11,6 @@ namespace Docker.DotNet.Models
         /// Endpoint configs for each connecting network
         /// </summary>
         [JsonPropertyName("EndpointsConfig")]
-        public IDictionary<string, EndpointSettings> EndpointsConfig { get; set; } = default!;
+        public IDictionary<string, EndpointSettings>? EndpointsConfig { get; set; }
     }
 }

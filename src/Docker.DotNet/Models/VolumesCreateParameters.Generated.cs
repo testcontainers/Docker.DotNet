@@ -10,9 +10,9 @@ namespace Docker.DotNet.Models
         public string Driver { get; set; } = string.Empty;
 
         [JsonPropertyName("DriverOpts")]
-        public IDictionary<string, string> DriverOpts { get; set; } = default!;
+        public IDictionary<string, string>? DriverOpts { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
     }
 }

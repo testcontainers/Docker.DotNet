@@ -21,6 +21,7 @@
   <Folder Name="/test/">
     <Project Path="test/Docker.DotNet.Benchmarks/Docker.DotNet.Benchmarks.csproj" />
     <Project Path="test/Docker.DotNet.Tests/Docker.DotNet.Tests.csproj" />
+    <Project Path="test/Docker.DotNet.Tests.StrictJson/Docker.DotNet.Tests.StrictJson.csproj" />
     <Project Path="test/Docker.DotNet.TestsV2/Docker.DotNet.TestsV2.csproj" />
   </Folder>
   <Folder Name="/tools/">
