@@ -31,7 +31,7 @@ namespace Docker.DotNet.Models
         public string Availability { get; set; } = string.Empty;
 
         [JsonPropertyName("DefaultAddrPool")]
-        public IList<string> DefaultAddrPool { get; set; } = default!;
+        public IList<string>? DefaultAddrPool { get; set; }
 
         [JsonPropertyName("SubnetSize")]
         public uint SubnetSize { get; set; } = default!;

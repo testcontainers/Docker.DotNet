@@ -35,7 +35,7 @@ namespace Docker.DotNet.Models
         public string ContainerID { get; set; } = string.Empty;
 
         [JsonPropertyName("DetachKeys")]
-        public string DetachKeys { get; set; } = string.Empty;
+        public string? DetachKeys { get; set; }
 
         [JsonPropertyName("Pid")]
         public long Pid { get; set; } = default!;

@@ -323,6 +323,21 @@ var client = new DockerClientBuilder()
     .Build();
 ```
 
+### Strict JSON deserialization
+
+Docker-compatible container runtimes and older Docker Engine versions do not always send what the Docker Engine API declares.
+That is why the client ignores the global System.Text.Json `RespectNullableAnnotationsDefault` and `RespectRequiredConstructorParametersDefault` feature switches and deserializes responses leniently.
+On .NET 9 and later, you can opt in to strict deserialization with the client's own switches:
+
+```xml
+<ItemGroup>
+  <RuntimeHostConfigurationOption Include="Docker.DotNet.Serialization.RespectNullableAnnotations" Value="true" />
+  <RuntimeHostConfigurationOption Include="Docker.DotNet.Serialization.RespectRequiredConstructorParameters" Value="true" />
+</ItemGroup>
+```
+
+The switches apply to the whole process and are read once. If you set them with `AppContext.SetSwitch` instead, call it before you create the first client.
+
 ### Error Handling
 
 Here are typical exceptions thrown from the client library:

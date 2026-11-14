@@ -13,6 +13,6 @@ namespace Docker.DotNet.Models
         /// Optional warning messages
         /// </summary>
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

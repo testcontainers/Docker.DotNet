@@ -29,6 +29,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Containers")]
-        public IList<string> Containers { get; set; } = default!;
+        public IList<string>? Containers { get; set; }
     }
 }

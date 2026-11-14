@@ -19,6 +19,6 @@ namespace Docker.DotNet.Models
         /// obtained by parsing the manifest
         /// </summary>
         [JsonPropertyName("Platforms")]
-        public IList<Platform> Platforms { get; set; } = default!;
+        public IList<Platform>? Platforms { get; set; }
     }
 }

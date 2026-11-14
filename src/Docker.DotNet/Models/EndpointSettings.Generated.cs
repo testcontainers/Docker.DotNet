@@ -13,16 +13,16 @@ namespace Docker.DotNet.Models
         public EndpointIPAMConfig? IPAMConfig { get; set; }
 
         [JsonPropertyName("Links")]
-        public IList<string> Links { get; set; } = default!;
+        public IList<string>? Links { get; set; }
 
         /// <summary>
         /// Aliases holds the list of extra, user-specified DNS names for this endpoint.
         /// </summary>
         [JsonPropertyName("Aliases")]
-        public IList<string> Aliases { get; set; } = default!;
+        public IList<string>? Aliases { get; set; }
 
         [JsonPropertyName("DriverOpts")]
-        public IDictionary<string, string> DriverOpts { get; set; } = default!;
+        public IDictionary<string, string>? DriverOpts { get; set; }
 
         /// <summary>
         /// GwPriority determines which endpoint will provide the default gateway
@@ -70,6 +70,6 @@ namespace Docker.DotNet.Models
         /// endpoint. The first entry is used to generate PTR records.
         /// </summary>
         [JsonPropertyName("DNSNames")]
-        public IList<string> DNSNames { get; set; } = default!;
+        public IList<string>? DNSNames { get; set; }
     }
 }

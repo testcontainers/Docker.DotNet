@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Docker.DotNet.Tests" />
+    <InternalsVisibleTo Include="Docker.DotNet.Tests.StrictJson" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />

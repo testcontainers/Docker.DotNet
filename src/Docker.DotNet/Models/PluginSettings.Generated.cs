@@ -13,14 +13,14 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Args")]
-        public IList<string> Args { get; set; } = default!;
+        public IList<string>? Args { get; set; }
 
         /// <summary>
         /// devices
         /// Required: true
         /// </summary>
         [JsonPropertyName("Devices")]
-        public IList<PluginDevice> Devices { get; set; } = default!;
+        public IList<PluginDevice>? Devices { get; set; }
 
         /// <summary>
         /// env
@@ -28,13 +28,13 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; } = default!;
+        public IList<string>? Env { get; set; }
 
         /// <summary>
         /// mounts
         /// Required: true
         /// </summary>
         [JsonPropertyName("Mounts")]
-        public IList<PluginMount> Mounts { get; set; } = default!;
+        public IList<PluginMount>? Mounts { get; set; }
     }
 }

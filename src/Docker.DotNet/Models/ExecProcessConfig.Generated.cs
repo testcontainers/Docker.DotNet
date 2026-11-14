@@ -14,7 +14,7 @@ namespace Docker.DotNet.Models
         public string Entrypoint { get; set; } = string.Empty;
 
         [JsonPropertyName("arguments")]
-        public IList<string> Arguments { get; set; } = default!;
+        public IList<string>? Arguments { get; set; }
 
         [JsonPropertyName("privileged")]
         public bool? Privileged { get; set; }

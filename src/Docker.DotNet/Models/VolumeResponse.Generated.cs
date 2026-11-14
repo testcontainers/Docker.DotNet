@@ -13,7 +13,7 @@ namespace Docker.DotNet.Models
         public string Driver { get; set; } = string.Empty;
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("Mountpoint")]
         public string Mountpoint { get; set; } = string.Empty;
@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         [JsonPropertyName("Scope")]
         public string Scope { get; set; } = string.Empty;

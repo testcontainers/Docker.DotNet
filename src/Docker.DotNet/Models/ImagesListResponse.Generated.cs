@@ -44,7 +44,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         /// <summary>
         /// ID of the parent image.
@@ -91,7 +91,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("RepoDigests")]
-        public IList<string> RepoDigests { get; set; } = default!;
+        public IList<string>? RepoDigests { get; set; }
 
         /// <summary>
         /// List of image names/tags in the local image cache that reference this
@@ -104,7 +104,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("RepoTags")]
-        public IList<string> RepoTags { get; set; } = default!;
+        public IList<string>? RepoTags { get; set; }
 
         /// <summary>
         /// Total size of image layers that are shared between this image and other

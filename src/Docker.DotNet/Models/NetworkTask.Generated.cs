@@ -30,6 +30,6 @@ namespace Docker.DotNet.Models
         /// info
         /// </summary>
         [JsonPropertyName("Info")]
-        public IDictionary<string, string> Info { get; set; } = default!;
+        public IDictionary<string, string>? Info { get; set; }
     }
 }

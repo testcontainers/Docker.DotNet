@@ -29,7 +29,7 @@ namespace Docker.DotNet.Models
         /// &quot;untagged&quot;, in which case it can still be referenced by its ID.
         /// </summary>
         [JsonPropertyName("RepoTags")]
-        public IList<string> RepoTags { get; set; } = default!;
+        public IList<string>? RepoTags { get; set; }
 
         /// <summary>
         /// RepoDigests is a list of content-addressable digests of locally available
@@ -41,7 +41,7 @@ namespace Docker.DotNet.Models
         /// the manifest is generated and its digest calculated.
         /// </summary>
         [JsonPropertyName("RepoDigests")]
-        public IList<string> RepoDigests { get; set; } = default!;
+        public IList<string>? RepoDigests { get; set; }
 
         /// <summary>
         /// Comment is an optional message that can be set when committing or

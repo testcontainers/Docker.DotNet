@@ -23,7 +23,7 @@ namespace Docker.DotNet.Models
         public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         /// <summary>
         /// Data is the data to store as a config.

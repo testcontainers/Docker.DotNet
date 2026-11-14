@@ -29,13 +29,13 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Settable")]
-        public IList<string> Settable { get; set; } = default!;
+        public IList<string>? Settable { get; set; }
 
         /// <summary>
         /// value
         /// Required: true
         /// </summary>
         [JsonPropertyName("Value")]
-        public IList<string> Value { get; set; } = default!;
+        public IList<string>? Value { get; set; }
     }
 }

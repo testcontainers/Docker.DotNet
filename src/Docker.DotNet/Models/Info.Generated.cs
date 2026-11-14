@@ -22,7 +22,7 @@ namespace Docker.DotNet.Models
         public string Error { get; set; } = string.Empty;
 
         [JsonPropertyName("RemoteManagers")]
-        public IList<Peer> RemoteManagers { get; set; } = default!;
+        public IList<Peer>? RemoteManagers { get; set; }
 
         [JsonPropertyName("Nodes")]
         public long? Nodes { get; set; }

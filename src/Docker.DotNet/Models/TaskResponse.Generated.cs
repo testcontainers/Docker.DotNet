@@ -42,7 +42,7 @@ namespace Docker.DotNet.Models
         public string? Name { get; set; }
 
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         [JsonPropertyName("Spec")]
         public TaskSpec? Spec { get; set; }
@@ -83,6 +83,6 @@ namespace Docker.DotNet.Models
         /// fulfilling what mounts in the spec.
         /// </summary>
         [JsonPropertyName("Volumes")]
-        public IList<VolumeAttachment> Volumes { get; set; } = default!;
+        public IList<VolumeAttachment>? Volumes { get; set; }
     }
 }

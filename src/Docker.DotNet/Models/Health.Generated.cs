@@ -22,6 +22,6 @@ namespace Docker.DotNet.Models
         /// Log contains the last few results (oldest first)
         /// </summary>
         [JsonPropertyName("Log")]
-        public IList<HealthcheckResult> Log { get; set; } = default!;
+        public IList<HealthcheckResult>? Log { get; set; }
     }
 }

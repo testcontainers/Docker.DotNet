@@ -24,6 +24,6 @@ namespace Docker.DotNet.Models
         /// Example: [&quot;unable to pin image doesnotexist:latest to digest: image library/doesnotexist:latest not found&quot;]
         /// </summary>
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

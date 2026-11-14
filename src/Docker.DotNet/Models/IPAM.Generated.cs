@@ -13,9 +13,9 @@ namespace Docker.DotNet.Models
         /// Per network IPAM driver options
         /// </summary>
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         [JsonPropertyName("Config")]
-        public IList<IPAMConfig> Config { get; set; } = default!;
+        public IList<IPAMConfig>? Config { get; set; }
     }
 }

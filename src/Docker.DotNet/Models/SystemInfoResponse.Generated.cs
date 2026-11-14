@@ -29,7 +29,7 @@ namespace Docker.DotNet.Models
         public string Driver { get; set; } = string.Empty;
 
         [JsonPropertyName("DriverStatus")]
-        public IList<string[]> DriverStatus { get; set; } = default!;
+        public IList<string[]>? DriverStatus { get; set; }
 
         /// <summary>
         /// SystemStatus is only propagated by the Swarm standalone API
@@ -119,7 +119,7 @@ namespace Docker.DotNet.Models
         public long MemTotal { get; set; } = default!;
 
         [JsonPropertyName("GenericResources")]
-        public IList<GenericResource> GenericResources { get; set; } = default!;
+        public IList<GenericResource>? GenericResources { get; set; }
 
         [JsonPropertyName("DockerRootDir")]
         public string DockerRootDir { get; set; } = string.Empty;
@@ -137,7 +137,7 @@ namespace Docker.DotNet.Models
         public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Labels")]
-        public IList<string> Labels { get; set; } = default!;
+        public IList<string>? Labels { get; set; }
 
         [JsonPropertyName("ExperimentalBuild")]
         public bool ExperimentalBuild { get; set; } = default!;
@@ -146,7 +146,7 @@ namespace Docker.DotNet.Models
         public string ServerVersion { get; set; } = string.Empty;
 
         [JsonPropertyName("Runtimes")]
-        public IDictionary<string, RuntimeWithStatus> Runtimes { get; set; } = default!;
+        public IDictionary<string, RuntimeWithStatus>? Runtimes { get; set; }
 
         [JsonPropertyName("DefaultRuntime")]
         public string DefaultRuntime { get; set; } = string.Empty;
@@ -178,7 +178,7 @@ namespace Docker.DotNet.Models
         public Commit InitCommit { get; set; } = default!;
 
         [JsonPropertyName("SecurityOptions")]
-        public IList<string> SecurityOptions { get; set; } = default!;
+        public IList<string>? SecurityOptions { get; set; }
 
         [JsonPropertyName("ProductLicense")]
         public string? ProductLicense { get; set; }
@@ -190,7 +190,7 @@ namespace Docker.DotNet.Models
         public FirewallInfo? FirewallBackend { get; set; }
 
         [JsonPropertyName("CDISpecDirs")]
-        public IList<string> CDISpecDirs { get; set; } = default!;
+        public IList<string>? CDISpecDirs { get; set; }
 
         [JsonPropertyName("DiscoveredDevices")]
         public IList<DeviceInfo>? DiscoveredDevices { get; set; }
@@ -208,6 +208,6 @@ namespace Docker.DotNet.Models
         /// other purposes, as they do not have a fixed format.
         /// </summary>
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

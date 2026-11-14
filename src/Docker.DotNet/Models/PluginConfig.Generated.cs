@@ -37,7 +37,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Entrypoint")]
-        public IList<string> Entrypoint { get; set; } = default!;
+        public IList<string>? Entrypoint { get; set; }
 
         /// <summary>
         /// env
@@ -45,7 +45,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Env")]
-        public IList<PluginEnv> Env { get; set; } = default!;
+        public IList<PluginEnv>? Env { get; set; }
 
         /// <summary>
         /// interface
@@ -74,7 +74,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Mounts")]
-        public IList<PluginMount> Mounts { get; set; } = default!;
+        public IList<PluginMount>? Mounts { get; set; }
 
         /// <summary>
         /// network

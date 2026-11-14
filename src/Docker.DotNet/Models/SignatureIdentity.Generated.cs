@@ -16,7 +16,7 @@ namespace Docker.DotNet.Models
         /// Timestamps contains a list of verified signed timestamps for the signature.
         /// </summary>
         [JsonPropertyName("Timestamps")]
-        public IList<SignatureTimestamp> Timestamps { get; set; } = default!;
+        public IList<SignatureTimestamp>? Timestamps { get; set; }
 
         /// <summary>
         /// KnownSigner is an identifier for a special signer identity that is known to the implementation.
@@ -56,6 +56,6 @@ namespace Docker.DotNet.Models
         /// Warning does not indicate a failed verification but may point to configuration issues.
         /// </summary>
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

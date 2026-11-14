@@ -12,7 +12,7 @@ namespace Docker.DotNet.Models
         /// Signature contains the properties of verified signatures for the image.
         /// </summary>
         [JsonPropertyName("Signature")]
-        public IList<SignatureIdentity> Signature { get; set; } = default!;
+        public IList<SignatureIdentity>? Signature { get; set; }
 
         /// <summary>
         /// Pull contains remote location information if image was created via pull.
@@ -20,12 +20,12 @@ namespace Docker.DotNet.Models
         /// After successful push this images also contains the pushed repository location.
         /// </summary>
         [JsonPropertyName("Pull")]
-        public IList<PullIdentity> Pull { get; set; } = default!;
+        public IList<PullIdentity>? Pull { get; set; }
 
         /// <summary>
         /// Build contains build reference information if image was created via build.
         /// </summary>
         [JsonPropertyName("Build")]
-        public IList<BuildIdentity> Build { get; set; } = default!;
+        public IList<BuildIdentity>? Build { get; set; }
     }
 }

@@ -24,6 +24,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Warnings")]
-        public IList<string> Warnings { get; set; } = default!;
+        public IList<string>? Warnings { get; set; }
     }
 }

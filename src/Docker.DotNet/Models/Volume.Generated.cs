@@ -35,7 +35,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         /// <summary>
         /// Mount path of the volume on the host.
@@ -60,7 +60,7 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         /// <summary>
         /// The level at which the volume exists. Either `global` for cluster-wide,

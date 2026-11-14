@@ -50,6 +50,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Tags")]
-        public IList<string> Tags { get; set; } = default!;
+        public IList<string>? Tags { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace Docker.DotNet.Models
         /// ports
         /// </summary>
         [JsonPropertyName("Ports")]
-        public IList<string> Ports { get; set; } = default!;
+        public IList<string>? Ports { get; set; }
 
         /// <summary>
         /// local l b index
@@ -30,6 +30,6 @@ namespace Docker.DotNet.Models
         /// tasks
         /// </summary>
         [JsonPropertyName("Tasks")]
-        public IList<NetworkTask> Tasks { get; set; } = default!;
+        public IList<NetworkTask>? Tasks { get; set; }
     }
 }

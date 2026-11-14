@@ -22,9 +22,9 @@ namespace Docker.DotNet.Models
         /// Ports is a collection of [network.PortBinding] indexed by [network.Port]
         /// </summary>
         [JsonPropertyName("Ports")]
-        public IDictionary<string, IList<PortBinding>> Ports { get; set; } = default!;
+        public IDictionary<string, IList<PortBinding>>? Ports { get; set; }
 
         [JsonPropertyName("Networks")]
-        public IDictionary<string, EndpointSettings> Networks { get; set; } = default!;
+        public IDictionary<string, EndpointSettings>? Networks { get; set; }
     }
 }

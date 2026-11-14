@@ -30,6 +30,6 @@ namespace Docker.DotNet.Models
         /// Required: true
         /// </summary>
         [JsonPropertyName("Types")]
-        public IList<string> Types { get; set; } = default!;
+        public IList<string>? Types { get; set; }
     }
 }

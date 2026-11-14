@@ -123,13 +123,13 @@ namespace Docker.DotNet.Models
         /// List of environment variable to set in the container
         /// </summary>
         [JsonPropertyName("Env")]
-        public IList<string> Env { get; set; } = default!;
+        public IList<string>? Env { get; set; }
 
         /// <summary>
         /// Command to run when starting the container
         /// </summary>
         [JsonPropertyName("Cmd")]
-        public IList<string> Cmd { get; set; } = default!;
+        public IList<string>? Cmd { get; set; }
 
         /// <summary>
         /// Healthcheck describes how to check the container is healthy
@@ -153,7 +153,7 @@ namespace Docker.DotNet.Models
         /// List of volumes (mounts) used for the container
         /// </summary>
         [JsonPropertyName("Volumes")]
-        public IDictionary<string, EmptyStruct> Volumes { get; set; } = default!;
+        public IDictionary<string, EmptyStruct>? Volumes { get; set; }
 
         /// <summary>
         /// Current directory (PWD) in the command will be launched
@@ -165,7 +165,7 @@ namespace Docker.DotNet.Models
         /// Entrypoint to run when starting the container
         /// </summary>
         [JsonPropertyName("Entrypoint")]
-        public IList<string> Entrypoint { get; set; } = default!;
+        public IList<string>? Entrypoint { get; set; }
 
         /// <summary>
         /// Is network disabled
@@ -183,7 +183,7 @@ namespace Docker.DotNet.Models
         /// List of labels set to this container
         /// </summary>
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         /// <summary>
         /// Signal to stop a container

@@ -78,19 +78,19 @@ namespace Docker.DotNet.Models
         public ushort BlkioWeight { get; set; } = default!;
 
         [JsonPropertyName("BlkioWeightDevice")]
-        public IList<WeightDevice> BlkioWeightDevice { get; set; } = default!;
+        public IList<WeightDevice>? BlkioWeightDevice { get; set; }
 
         [JsonPropertyName("BlkioDeviceReadBps")]
-        public IList<ThrottleDevice> BlkioDeviceReadBps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceReadBps { get; set; }
 
         [JsonPropertyName("BlkioDeviceWriteBps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteBps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceWriteBps { get; set; }
 
         [JsonPropertyName("BlkioDeviceReadIOps")]
-        public IList<ThrottleDevice> BlkioDeviceReadIOps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceReadIOps { get; set; }
 
         [JsonPropertyName("BlkioDeviceWriteIOps")]
-        public IList<ThrottleDevice> BlkioDeviceWriteIOps { get; set; } = default!;
+        public IList<ThrottleDevice>? BlkioDeviceWriteIOps { get; set; }
 
         /// <summary>
         /// CPU CFS (Completely Fair Scheduler) period
@@ -132,19 +132,19 @@ namespace Docker.DotNet.Models
         /// List of devices to map inside the container
         /// </summary>
         [JsonPropertyName("Devices")]
-        public IList<DeviceMapping> Devices { get; set; } = default!;
+        public IList<DeviceMapping>? Devices { get; set; }
 
         /// <summary>
         /// List of rule to be added to the device cgroup
         /// </summary>
         [JsonPropertyName("DeviceCgroupRules")]
-        public IList<string> DeviceCgroupRules { get; set; } = default!;
+        public IList<string>? DeviceCgroupRules { get; set; }
 
         /// <summary>
         /// List of device requests for device drivers
         /// </summary>
         [JsonPropertyName("DeviceRequests")]
-        public IList<DeviceRequest> DeviceRequests { get; set; } = default!;
+        public IList<DeviceRequest>? DeviceRequests { get; set; }
 
         /// <summary>
         /// Memory soft limit (in bytes)
@@ -180,7 +180,7 @@ namespace Docker.DotNet.Models
         /// List of ulimits to be set in the container
         /// </summary>
         [JsonPropertyName("Ulimits")]
-        public IList<Ulimit> Ulimits { get; set; } = default!;
+        public IList<Ulimit>? Ulimits { get; set; }
 
         /// <summary>
         /// Applicable to Windows

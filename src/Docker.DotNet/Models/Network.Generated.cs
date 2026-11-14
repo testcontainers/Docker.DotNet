@@ -120,7 +120,7 @@ namespace Docker.DotNet.Models
         /// Example: {&quot;com.docker.network.bridge.default_bridge&quot;:&quot;true&quot;,&quot;com.docker.network.bridge.enable_icc&quot;:&quot;true&quot;,&quot;com.docker.network.bridge.enable_ip_masquerade&quot;:&quot;true&quot;,&quot;com.docker.network.bridge.host_binding_ipv4&quot;:&quot;0.0.0.0&quot;,&quot;com.docker.network.bridge.name&quot;:&quot;docker0&quot;,&quot;com.docker.network.driver.mtu&quot;:&quot;1500&quot;}
         /// </summary>
         [JsonPropertyName("Options")]
-        public IDictionary<string, string> Options { get; set; } = default!;
+        public IDictionary<string, string>? Options { get; set; }
 
         /// <summary>
         /// Metadata specific to the network being created.
@@ -128,7 +128,7 @@ namespace Docker.DotNet.Models
         /// Example: {&quot;com.example.some-label&quot;:&quot;some-value&quot;,&quot;com.example.some-other-label&quot;:&quot;some-other-value&quot;}
         /// </summary>
         [JsonPropertyName("Labels")]
-        public IDictionary<string, string> Labels { get; set; } = default!;
+        public IDictionary<string, string>? Labels { get; set; }
 
         /// <summary>
         /// List of peer nodes for an overlay network. This field is only present

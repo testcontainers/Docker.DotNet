@@ -141,6 +141,7 @@ jobs:
         run: |
           ./test/Docker.DotNet.Tests/bin/Release/${{ matrix.dotnet.tfm }}/linux-x64/publish/Docker.DotNet.Tests
           ./test/Docker.DotNet.TestsV2/bin/Release/${{ matrix.dotnet.tfm }}/linux-x64/publish/Docker.DotNet.TestsV2
+          ./test/Docker.DotNet.Tests.StrictJson/bin/Release/${{ matrix.dotnet.tfm }}/linux-x64/publish/Docker.DotNet.Tests.StrictJson
         env:
           DOCKER_HOST: ${{ matrix.docker.docker_host }}
           DOCKER_TLS_VERIFY: ${{ matrix.docker.tls_verify }}

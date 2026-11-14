@@ -11,24 +11,24 @@ namespace Docker.DotNet.Models
         /// List of Volume plugins registered
         /// </summary>
         [JsonPropertyName("Volume")]
-        public IList<string> Volume { get; set; } = default!;
+        public IList<string>? Volume { get; set; }
 
         /// <summary>
         /// List of Network plugins registered
         /// </summary>
         [JsonPropertyName("Network")]
-        public IList<string> Network { get; set; } = default!;
+        public IList<string>? Network { get; set; }
 
         /// <summary>
         /// List of Authorization plugins registered
         /// </summary>
         [JsonPropertyName("Authorization")]
-        public IList<string> Authorization { get; set; } = default!;
+        public IList<string>? Authorization { get; set; }
 
         /// <summary>
         /// List of Log plugins registered
         /// </summary>
         [JsonPropertyName("Log")]
-        public IList<string> Log { get; set; } = default!;
+        public IList<string>? Log { get; set; }
     }
 }

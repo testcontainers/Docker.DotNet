@@ -16,7 +16,7 @@ namespace Docker.DotNet.Models
         public string DataPathAddr { get; set; } = string.Empty;
 
         [JsonPropertyName("RemoteAddrs")]
-        public IList<string> RemoteAddrs { get; set; } = default!;
+        public IList<string>? RemoteAddrs { get; set; }
 
         /// <summary>
         /// accept by secret
