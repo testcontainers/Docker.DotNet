@@ -294,7 +294,14 @@ public class DockerClientBuilder
         return scheme.ToLowerInvariant() switch
         {
             "npipe" => NPipe.DockerHandlerFactory.Instance,
+#if NET
+            "unix" => NativeHttpEnabled
+                ? NativeHttp.DockerHandlerFactory.Instance
+                : Unix.DockerHandlerFactory.Instance,
+#else
+            // The native transport needs SocketsHttpHandler to reach a Unix domain socket.
             "unix" => Unix.DockerHandlerFactory.Instance,
+#endif
             "tcp" or "http" or "https" => NativeHttpEnabled
                 ? NativeHttp.DockerHandlerFactory.Instance
                 : LegacyHttp.DockerHandlerFactory.Instance,

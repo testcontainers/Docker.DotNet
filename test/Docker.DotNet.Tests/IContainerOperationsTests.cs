@@ -778,4 +778,42 @@ public class IContainerOperationsTests
         Assert.Equal(0, containerExecInspectResponse.ExitCode);
         Assert.Equal("Done\n", stdout);
     }
+
+    [Fact]
+    public async Task CloseWrite_OnMultiplexedStream_ClosesExecStdin_CompletesExecProcess()
+    {
+        // Given
+        var inputBytes = Encoding.ASCII.GetBytes("Done\n");
+
+        var createContainerParameters = new CreateContainerParameters();
+        createContainerParameters.Image = _testFixture.Image.ID;
+        createContainerParameters.Entrypoint = CommonCommands.SleepInfinity;
+
+        var containerExecCreateParameters = new ContainerExecCreateParameters();
+        containerExecCreateParameters.AttachStdout = true;
+        containerExecCreateParameters.AttachStderr = true;
+        containerExecCreateParameters.AttachStdin = true;
+        containerExecCreateParameters.Cmd = new[] { "cat" };
+
+        var containerExecStartParameters = new ContainerExecStartParameters();
+
+        var createContainerResponse = await _testFixture.DockerClient.Containers.CreateContainerAsync(createContainerParameters, TestContext.Current.CancellationToken);
+        _ = await _testFixture.DockerClient.Containers.StartContainerAsync(createContainerResponse.ID, new ContainerStartParameters(), TestContext.Current.CancellationToken);
+
+        // When
+        var containerExecCreateResponse = await _testFixture.DockerClient.Exec.CreateContainerExecAsync(createContainerResponse.ID, containerExecCreateParameters, TestContext.Current.CancellationToken);
+        using var stream = await _testFixture.DockerClient.Exec.StartContainerExecAsync(containerExecCreateResponse.ID, containerExecStartParameters, TestContext.Current.CancellationToken);
+
+        await stream.WriteAsync(inputBytes, 0, inputBytes.Length, _testFixture.Cts.Token);
+        stream.CloseWrite();
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var (stdout, _) = await stream.ReadOutputToEndAsync(cts.Token);
+
+        var containerExecInspectResponse = await _testFixture.DockerClient.Exec.InspectContainerExecAsync(containerExecCreateResponse.ID, _testFixture.Cts.Token);
+
+        // Then
+        Assert.Equal(0, containerExecInspectResponse.ExitCode);
+        Assert.Equal("Done\n", stdout);
+    }
 }

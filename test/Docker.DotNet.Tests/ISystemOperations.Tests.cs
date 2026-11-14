@@ -27,6 +27,35 @@ public class ISystemOperationsTests
     }
 
     [Fact]
+    public async Task GetVersionAsync_ManyEventStreamsOpen_Succeeds()
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
+
+        // Each event stream holds its connection until it is cancelled.
+        var monitorTasks = Enumerable.Range(0, 16)
+            .Select(_ => _testFixture.DockerClient.System.MonitorEventsAsync(new ContainerEventsParameters(), new Progress<Message>(), cts.Token))
+            .ToArray();
+
+        try
+        {
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_testFixture.Cts.Token);
+            timeoutCts.CancelAfter(TimeSpan.FromSeconds(10));
+
+            var version = await _testFixture.DockerClient.System.GetVersionAsync(timeoutCts.Token);
+            Assert.NotNull(version.APIVersion);
+        }
+        finally
+        {
+            await cts.CancelAsync();
+        }
+
+        foreach (var monitorTask in monitorTasks)
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => monitorTask);
+        }
+    }
+
+    [Fact]
     public async Task MonitorEventsAsync_EmptyContainersList_CanBeCancelled()
     {
         var progress = new Progress<Message>();

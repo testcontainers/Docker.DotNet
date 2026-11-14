@@ -48,6 +48,12 @@ jobs:
             cert_path: ""
             native_http: 0
             needs_dind: false
+          - name: unix-native
+            docker_host: unix:///var/run/docker.sock
+            tls_verify: ""
+            cert_path: ""
+            native_http: 1
+            needs_dind: false
           - name: tcp-2375
             docker_host: tcp://localhost:2375
             tls_verify: ""

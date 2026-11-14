@@ -31,7 +31,9 @@
     <Using Include="System.Diagnostics" />
     <Using Include="System.IO" />
     <Using Include="System.Linq" />
+    <Using Include="System.Net" />
     <Using Include="System.Net.Security" />
+    <Using Include="System.Net.Sockets" />
     <Using Include="System.Security.Cryptography.X509Certificates" />
     <Using Include="System.Text" />
     <Using Include="System.Text.Json" />
