@@ -184,6 +184,27 @@ public static class DockerConfigTests
         }
 
         [Fact]
+        public void ResolvesNamedPipeTransportWhenDockerHostIsDockerDocumentedNamedPipeForm()
+        {
+            // Docker documents the Windows named pipe form npipe:////./pipe/NAME for DOCKER_HOST:
+            // https://github.com/testcontainers/Docker.DotNet/issues/135.
+            IDockerCliSettings settings = new TestDockerCliSettings
+            {
+                DockerHost = "npipe:////./pipe/docker_engine"
+            };
+
+            var dockerConfig = new DockerConfig(settings);
+
+            var currentEndpoint = dockerConfig.GetEndpoint();
+
+            var clientOptions = new ResolvedClientOptions { Endpoint = currentEndpoint };
+
+            var transport = NPipe.DockerHandlerFactory.Instance.CreateHandler(clientOptions, NullLogger.Instance);
+
+            Assert.Equal(new Uri("http://docker_engine"), transport.EffectiveEndpoint);
+        }
+
+        [Fact]
         public void ThrowsWhenDockerHostIsInvalid()
         {
             IDockerCliSettings settings = new TestDockerCliSettings

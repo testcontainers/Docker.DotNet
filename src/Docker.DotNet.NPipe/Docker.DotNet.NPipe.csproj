@@ -8,6 +8,9 @@
     <BundleMicrosoftNetHttpClient>true</BundleMicrosoftNetHttpClient>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Docker.DotNet.TestsV2" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="System" />
     <Using Include="System.IO" />
     <Using Include="System.IO.Pipes" />
